@@ -13,6 +13,7 @@ from GPR_FileData import ICEBRIDGE_DATA_FOLDER, \
                          ICEBRIDGE_SURFACE_INDICES_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_SURFACE_SLICE_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER, \
+                         ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE, \
                          ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, \
                          ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, \
                          ICEBRIDGE_ROLL_CORRECTED_PICKLEFILE_FOLDER, \
@@ -326,7 +327,7 @@ class IceBridgeGPR_Manager_v2():
     def export_ice_layer_lat_lon_distance_thicknesses(self):
         '''Export to a CSV, ice layer lat,lon,& thicknesses.  Omit all zero values.'''
         tracks = self.compile_icebridge_tracks_with_ice_lenses()
-
+        pdb.set_trace()
         fout = open(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, 'w')
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
@@ -718,6 +719,7 @@ class IceBridgeGPR_Track_v2():
         file_table_temp = file_table.read_where('Flightline_ID == {0}'.format(flightline_id))
         filenames_temp = file_table_temp['relative_filepath']
         file_ids_temp = file_table_temp['File_ID']
+
         # Retreive only files that are in the "flightline_id_start_end" range we specified
         relative_filenum_start = int(self.NAME[-7:-4])
         relative_filenum_end   = int(self.NAME[-3:])
@@ -727,15 +729,17 @@ class IceBridgeGPR_Track_v2():
         filenames_subset = [item[1] for item in filenames_subset]
         # Get the file IDs for the start and end file ID in the table.
         file_ids_start, file_ids_end = file_ids_temp[file_ids_subset[0]], file_ids_temp[file_ids_subset[-1]]
-
         self.TABLE_file_table = file_table.read_where(\
                           '(Flightline_ID == {0}) & (File_ID >= {1}) & (File_ID <= {2})'.format( \
                             flightline_id, file_ids_start, file_ids_end))
-
+        pdb.set_trace()
         relative_paths = self.TABLE_file_table['relative_filepath']
-        self.FILENAMES = [os.path.join(ICEBRIDGE_DATA_FOLDER, rp) for rp in relative_paths]
+        self.FILENAMES = [os.path.join(ICEBRIDGE_DATA_FOLDER, str(rp)) for rp in relative_paths]
+
         # Ensure that the file names are in alpha-numerical order (they should already be, so this is likely redundant, but still.)
         self.FILENAMES.sort()
+        pdb.set_trace()
+        print(self.FILENAMES)
 
         # A subset of the 'Accumulation/Coordinates' table, referring only to
         # records from this particular flight track.
@@ -1313,6 +1317,7 @@ class IceBridgeGPR_Track_v2():
     def return_coordinates_lat_lon(self):
         '''Return the lat/lon coordinates of every trace in the flight line. Useful for subsetting or mapping.'''
         # If we haven't ingested the metadata yet, do so.
+        pdb.set_trace()
         if self.TABLE_coords_table is None:
             self._read_metadata()
 
@@ -2586,6 +2591,7 @@ class IceBridgeGPR_Track_v2():
         '''Once we have boolean ice layers calculated, return the latitude,
         longitude, elevation, and ice thickness for each trace.  If masked=True,
         return them masked out.  If masked=False, don't bother masking them.'''
+        pdb.set_trace()
         lats, lons = self.return_coordinates_lat_lon()
         boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers")
 

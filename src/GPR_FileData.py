@@ -20,8 +20,10 @@ import os
 # You can download the data there, put the local folder name in the line below, and go from there.
 # NOTE: Not all the intermediate data is cached in the repository. Much of it must be generated.
 # See contact info above for details.
-FIGSHARE_BASE = "C:\Users\jullienn\Documents\iceslabs_MacFerrin\MacFerrin_figshare"
-DATA_FIGURES_OUTPUT_FOLDER = os.path.join(FIGSHARE_BASE, "\Figures")
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
+# FIGSHARE_BASE = "C:\Users\jullienn\Documents\iceslabs_MacFerrin\MacFerrin_figshare"
+# DATA_FIGURES_OUTPUT_FOLDER = os.path.join(FIGSHARE_BASE, "\Figures")
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 GPR_DIR = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\MacFerrin_figshare\Mala_GPR\Mala_GPR'
 
 # Pre-prepared picklefiles for the ACT-IceBridge validation, so we don't need to redo them each time.
@@ -119,8 +121,10 @@ RESAMPLED_COORDINATE_FILES = [TRANSECT_COR_MERGED_RESAMPLED, KANU_COR_MERGED_RES
 RESAMPLED_GPR_LOGVARIANCE_PICKLEFILES = [corfilename_to_picklefilename(f) for f in RESAMPLED_COORDINATE_FILES]
 GPR_DETRENDED_PICKLEFILES = [logvariance_to_detrended_filename(f) for f in RESAMPLED_GPR_LOGVARIANCE_PICKLEFILES]
 
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 # Firn Cores
-CORE_XLSX_FILE = os.path.join(FIGSHARE_BASE, r'firn_cores_2009_2012_2013_2015_2016_temp.xlsx')
+# CORE_XLSX_FILE = os.path.join(FIGSHARE_BASE, r'firn_cores_2009_2012_2013_2015_2016_temp.xlsx')
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 
 # IceBridge Data Folder
 ICEBRIDGE_DATA_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data'
