@@ -1,4 +1,16 @@
 # Modifications of the files by Nicolas Jullien, starting on July 29th 2020
+ July 29th 2020:
+1. Moved from version 2.7 to python 3 the follwing codes:
+	- FirnCore_Manager.py
+	- GPR_Coordinates.py
+	- GPR_Data.py
+	- IceBridgeGPR_Manager_v2.py
+	- InSituGPR_Manager.py
+	- RCM_FileData.py
+	- RCM_Manager.py
+2. The file GPR_FileData.py have been into the changing version process 
+but anything changed as no difference were spottable by the process
+3. The file IceBridgeRadarFlightlineDB.py have been into the changing version process but did not work. I will not change it manually to make it work with python 3, as I did a test processing the database with python 2.7 and it did work. This file must be run with python 2.7 now on!
 
 # Greenland_Ice_Slabs
 Code associated with detecting and modeling ice slabs in Greenland firn.
