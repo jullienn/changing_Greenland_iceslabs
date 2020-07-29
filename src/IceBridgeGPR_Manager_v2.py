@@ -732,13 +732,12 @@ class IceBridgeGPR_Track_v2():
         self.TABLE_file_table = file_table.read_where(\
                           '(Flightline_ID == {0}) & (File_ID >= {1}) & (File_ID <= {2})'.format( \
                             flightline_id, file_ids_start, file_ids_end))
-        pdb.set_trace()
+
         relative_paths = self.TABLE_file_table['relative_filepath']
         self.FILENAMES = [os.path.join(ICEBRIDGE_DATA_FOLDER, str(rp)) for rp in relative_paths]
 
         # Ensure that the file names are in alpha-numerical order (they should already be, so this is likely redundant, but still.)
         self.FILENAMES.sort()
-        pdb.set_trace()
         print(self.FILENAMES)
 
         # A subset of the 'Accumulation/Coordinates' table, referring only to
@@ -1249,6 +1248,8 @@ class IceBridgeGPR_Track_v2():
         # If we haven't ingested the metadata yet, do so.
         if self.FILENAMES is None:
             self._read_metadata()
+        print('--------------------------------- ENTERING TRACE ARRAY --------------------------')
+        pdb.set_trace()
 
         if self.TRACES is not None:
             return self.TRACES
@@ -1260,6 +1261,7 @@ class IceBridgeGPR_Track_v2():
         time_col = None
         if self.VERBOSE:
             print("Reading {0} files".format(len(self.FILENAMES)), end=' ')
+        pdb.set_trace()
 
         for i,fname in enumerate(self.FILENAMES):
             if self.VERBOSE:
@@ -1317,7 +1319,6 @@ class IceBridgeGPR_Track_v2():
     def return_coordinates_lat_lon(self):
         '''Return the lat/lon coordinates of every trace in the flight line. Useful for subsetting or mapping.'''
         # If we haven't ingested the metadata yet, do so.
-        pdb.set_trace()
         if self.TABLE_coords_table is None:
             self._read_metadata()
 
@@ -1633,6 +1634,7 @@ class IceBridgeGPR_Track_v2():
         if self.TRACES_surface_slice_100m is not None:
             return self.TRACES_surface_slice_100m
 
+        pdb.set_trace()
         slice_from_file = self.read_radar_slice_from_picklefile()
 
         if slice_from_file is not None:
@@ -1642,11 +1644,13 @@ class IceBridgeGPR_Track_v2():
             return self.TRACES_surface_slice_100m
 
     def read_radar_slice_from_picklefile(self):
+        pdb.set_trace()
         '''Read the picklefile that contains the surface slice, and return it.
         If the file doesn't exist, return None.'''
         fname = self.NAME + "_SURFACE_SLICE_100M.pickle"
         pathname = os.path.join(ICEBRIDGE_SURFACE_SLICE_PICKLEFILE_FOLDER, fname)
 
+        pdb.set_trace()
         if os.path.exists(pathname):
             f = open(pathname, 'r')
             radar_slice = pickle.load(f)
@@ -1660,14 +1664,14 @@ class IceBridgeGPR_Track_v2():
         '''Take the surface slice and save it to a picklefile.'''
         fname = self.NAME + "_SURFACE_SLICE_100M.pickle"
         pathname = os.path.join(ICEBRIDGE_SURFACE_SLICE_PICKLEFILE_FOLDER, fname)
-
+        pdb.set_trace()
         # Get the masks that tell us where we need to mask stuff out.
         maskfilenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]
         # Get the surface indices and traces, mask them out according to masks above.
         surface_indices = self.compute_surface_picks(export=False)
         surface_indices = self._subset_array(surface_indices,mask=maskfilenames)
         traces = self._subset_array(self.get_trace_array(),mask=maskfilenames)
-
+        pdb.set_trace()
         # Get our slice
         radar_slice = self._return_radar_slice_given_surface(traces,
                                                              surface_indices,
@@ -1683,7 +1687,7 @@ class IceBridgeGPR_Track_v2():
         print("Exported", fname)
 
         self.TRACES_surface_slice_100m = radar_slice_expanded
-
+        pdb.set_trace()
         return
 
     def _return_radar_slice_given_surface(self, traces,
@@ -1725,6 +1729,7 @@ class IceBridgeGPR_Track_v2():
         ## 1) Read surface slice... potentially from files created above in ::compute_surface_picks().
         trace_masks = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]
         # Read the raw traces
+        pdb.set_trace()
         traces = self.get_radar_slice_100m()
         # Mask out erroneous points, if any
         traces = self._subset_array(traces, trace_masks)
@@ -2475,6 +2480,7 @@ class IceBridgeGPR_Track_v2():
             self.TRACES_roll_corrected = pickle.load(f)
             f.close()
             return self.TRACES_roll_corrected
+        pdb.set_trace()
 
         # Create the picklefile and then return the traces
         self.perform_roll_correction(export=True)
@@ -2494,6 +2500,7 @@ class IceBridgeGPR_Track_v2():
             self.TRACES_depth_corrected = pickle.load(f)
             f.close()
             return self.TRACES_depth_corrected
+        pdb.set_trace()
 
         # Create the picklefile then return the traces
         self.perform_depth_correction(export=True)
@@ -2501,6 +2508,7 @@ class IceBridgeGPR_Track_v2():
         return self.TRACES_depth_corrected
 
     def get_boolean_ice_traces(self):
+        pdb.set_trace()
         '''Return the boolean (T/F) traces.'''
         if self.TRACES_boolean_ice_layers is not None:
             return self.TRACES_boolean_ice_layers
