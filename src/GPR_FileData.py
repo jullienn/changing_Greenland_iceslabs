@@ -20,9 +20,9 @@ import os
 # You can download the data there, put the local folder name in the line below, and go from there.
 # NOTE: Not all the intermediate data is cached in the repository. Much of it must be generated.
 # See contact info above for details.
-FIGSHARE_BASE = "C:\Users\Nicolas Jullien\Documents\PhD\OIB\MacFerrin_codes\codes\figshare_repository"
+FIGSHARE_BASE = "C:\Users\jullienn\Documents\iceslabs_MacFerrin\MacFerrin_figshare"
 DATA_FIGURES_OUTPUT_FOLDER = os.path.join(FIGSHARE_BASE, "\Figures")
-GPR_DIR = r'C:\Users\Nicolas Jullien\Documents\PhD\OIB\MacFerrin_codes\codes\figshare_repository\Mala_GPR\Mala_GPR'
+GPR_DIR = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\MacFerrin_figshare\Mala_GPR\Mala_GPR'
 
 # Pre-prepared picklefiles for the ACT-IceBridge validation, so we don't need to redo them each time.
 GPR_DOWNSAMPLED_FOLDER = os.path.join(GPR_DIR, "DOWNSAMPLE_PICKLEFILES")

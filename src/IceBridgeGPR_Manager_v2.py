@@ -33,6 +33,7 @@ import pickle
 import osgeo.ogr as ogr
 import osgeo.osr as osr
 import simplekml
+import pdb
 
 # Define a quick guassian function to scale the cutoff mask above
 def _gaussian(x,mu,sigma):
@@ -2631,7 +2632,7 @@ def plot_surface_picking_mask_curve():
 
 
 if __name__ == "__main__":
-
+    pdb.set_trace()
     ib = IceBridgeGPR_Manager_v2()
     #ib.export_KML_reference_tracks()
 
