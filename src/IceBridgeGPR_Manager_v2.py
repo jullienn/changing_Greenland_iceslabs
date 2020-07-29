@@ -5,28 +5,18 @@ Created on Mon Feb 20 12:20:43 2017
 @author: mmacferrin
 """
 #from FirnCore_Manager import FirnCore_Manager
-from InSituGPR_Manager import InSituGPR_Manager, RadarSpeedPicker, InSituGPR_Track
+from InSituGPR_Manager import RadarSpeedPicker
 from GPR_FileData import ICEBRIDGE_DATA_FOLDER, \
                          ICEBRIDGE_DATA_H5FILE, \
-                         ICEBRIDGE_EXPORT_FOLDER, \
                          ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER, \
                          ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE, \
-                         ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE, \
                          ICEBRIDGE_SURFACE_INDICES_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_SURFACE_SLICE_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, \
                          ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, \
                          ICEBRIDGE_ROLL_CORRECTED_PICKLEFILE_FOLDER, \
-                         ICEBRIDGE_ROLL_CORRECTION_OUTPUT_FILE, \
                          ICEBRIDGE_DEPTH_CORRECTED_PICKLEFILE_FOLDER, \
-                         ICEBRIDGE_DEPTH_CORRECTION_OUTPUT_FILE, \
-                         ACT13_DOWNSAMPLED_PICKLEFILE, \
-                         ACT13_DOWNSAMPLED_COUNT_PICKLEFILE, \
-                         ACT13_ICEBRIDGE_SUBSET__MASK_HMASK_VMASK_PICKLEFILE, \
-                         ACT13_ICEBRDIGE__LAT_LON_E_N_DEPTHS_PICKLEFILE, \
-                         ACT13_SUBSET__LAT_LON_ELEV_E_N_DEPTHS_PICKLEFILE, \
-                         ICEBRIDGE_VALIDATION_OUTPUT_CSV_FILE, \
                          ICEBRIDGE_BOOLEAN_RESULTS_PICKLEFILE_FOLDER, \
                          ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, \
                          ICEBRIDGE_SMOOTHED_ICE_LAYER_SHAPEFILE
@@ -2643,7 +2633,7 @@ def plot_surface_picking_mask_curve():
 if __name__ == "__main__":
 
     ib = IceBridgeGPR_Manager_v2()
-    ib.export_KML_reference_tracks()
+    #ib.export_KML_reference_tracks()
 
     ib.export_ice_layer_lat_lon_distance_thicknesses()
     ib.export_smoothed_ice_layer_shapefile()
