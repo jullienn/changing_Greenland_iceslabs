@@ -36,7 +36,7 @@ class FirnCore_Manager():
         self.verbose = verbose
 
         if self.verbose:
-            print "Opening", os.path.split(core_fname)[-1]
+            print("Opening", os.path.split(core_fname)[-1])
 
         self.workbook = xlrd.open_workbook(core_fname)
         self.cover_sheet = self.workbook.sheet_by_index(0)
@@ -107,7 +107,7 @@ class FirnCore_Manager():
             f.close()
 
             if self.verbose:
-                print filename, "written."
+                print(filename, "written.")
 
         return outstring
 
@@ -123,7 +123,7 @@ class FirnCore_Profile():
         self.title_sheet_header = self._cover_sheet_header()
         self.header = self._create_header()
         self.verbose = verbose
-        if verbose: print "Core", self.name()
+        if verbose: print("Core", self.name())
 
         # Boolean 1-d array of True/False for each cm of the core, whether it's ice
         self.boolean_ice_array = None
@@ -140,7 +140,7 @@ class FirnCore_Profile():
         try:
             int(year)
         except ValueError:
-            print "Warning: something wrong with putting year first,", name, "-->", year
+            print("Warning: something wrong with putting year first,", name, "-->", year)
 
         return year + "_" + name[:-5]
 
@@ -161,7 +161,7 @@ class FirnCore_Profile():
     def depths(self):
         '''Return the depths in cm of the core.'''
         depths = self.sheet.col_values(self.header["depth"])
-        assert depths[0].lower() == u'depth'
+        assert depths[0].lower() == 'depth'
         depths = depths[1:]
         if type(depths[-1]) == str and depths[-1].lower() == "end":
             depths = depths[:-1]
@@ -172,7 +172,7 @@ class FirnCore_Profile():
         '''Return the density profile of the core.
         If "correct_zeros" is True, then fill in any zero values.  At the surface, use 340 kg/m3.
         At deeper spans of the core, interpolate linearly between the non-zero values above and below the gap.'''
-        if "density" not in self.header.keys():
+        if "density" not in list(self.header.keys()):
             return None
         density = self.sheet.col_values(self.header["density"])
         assert density[0].lower() == "density"
@@ -243,7 +243,7 @@ class FirnCore_Profile():
 
     def _cover_sheet_header(self):
         title_header_values = [cell.value for cell in self.title_sheet.row(0) if cell.value.strip() != '']
-        title_header = dict(zip(title_header_values, range(len(title_header_values))))
+        title_header = dict(list(zip(title_header_values, list(range(len(title_header_values))))))
         return title_header
 
     def create_boolean_ice_array(self, skip_calculations = False):
@@ -253,8 +253,8 @@ class FirnCore_Profile():
 
         depths = self.sheet.col_values(self.header["depth"])
         type_values = self.sheet.col_values(self.header["type"])
-        assert depths[0] == u'depth'
-        assert type_values[0] == u'type'
+        assert depths[0] == 'depth'
+        assert type_values[0] == 'type'
         # After verifying the correct column, cut off the header cell
         depths = depths[1:]
         type_values = type_values[1:]
@@ -410,7 +410,7 @@ class FirnCore_Profile():
             fig, ax = plt.subplots(figsize=(1.75,5.0), dpi=150)
 
         if self.verbose:
-            print os.path.split(figure_name)[-1]
+            print(os.path.split(figure_name)[-1])
 
         ice_lens_array = self.create_ice_lens_array()
         # Skip plotting ice lenses for any core in which they're not available or don't exist.
@@ -473,20 +473,20 @@ class FirnCore_Profile():
             outstr = "{0:s},{1:s},{2:f},{3:f},{4:f},{5:f},{6:s},{7:f},{8:f},{9:f},{10:f},{11:f},{12:f}\n".format( \
             name,nearest_code_location,N1,W1,Z1,depth,corer,float(pct_ice),float(thickest_ice),float(depth_5cm),float(depth_10cm),float(depth_20cm),float(depth_50cm))
         except ValueError:
-            print name,nearest_code_location,N1,W1,Z1,depth,corer,pct_ice,thickest_ice,depth_5cm,depth_10cm,depth_20cm,depth_50cm
-            print "name", type(name)
-            print "nearest_code_location", type(nearest_code_location)
-            print "N1", type(N1)
-            print "W1", type(W1)
-            print "Z1", type(Z1)
-            print "depth", type(depth)
-            print "corer", type(corer)
-            print "pct_ice", type(pct_ice)
-            print "thickest_ice", type(thickest_ice)
-            print "depth_5cm", type(depth_5cm)
-            print "depth_10cm", type(depth_10cm)
-            print "depth_20cm", type(depth_20cm)
-            print "depth_50cm", type(depth_50cm)
+            print(name,nearest_code_location,N1,W1,Z1,depth,corer,pct_ice,thickest_ice,depth_5cm,depth_10cm,depth_20cm,depth_50cm)
+            print("name", type(name))
+            print("nearest_code_location", type(nearest_code_location))
+            print("N1", type(N1))
+            print("W1", type(W1))
+            print("Z1", type(Z1))
+            print("depth", type(depth))
+            print("corer", type(corer))
+            print("pct_ice", type(pct_ice))
+            print("thickest_ice", type(thickest_ice))
+            print("depth_5cm", type(depth_5cm))
+            print("depth_10cm", type(depth_10cm))
+            print("depth_20cm", type(depth_20cm))
+            print("depth_50cm", type(depth_50cm))
             # This is a critical mistake, if we get here go ahead and print diagnostic info and crash.
             assert False
 

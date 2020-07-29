@@ -233,9 +233,9 @@ class GPR_Merger:
             merge_type = self.transect_merges[i]
             switched = self.transect_switches[i]
 
-            print
-            print "============================================================="
-            print os.path.split(gpr.filename)[1]
+            print()
+            print("=============================================================")
+            print(os.path.split(gpr.filename)[1])
 
             if gpr.traces is None:
                 gpr.open_image()
@@ -276,7 +276,7 @@ class GPR_Merger:
                 assert(items[6] in ("W","E"))
                 last_longitude = float(items[5]) * (-1 if items[6]=="W" else 1)
 
-                for i,corline in zip(range(cor_start_i,-1 if switched else len(corlines),trace_increment),
+                for i,corline in zip(list(range(cor_start_i,-1 if switched else len(corlines),trace_increment)),
                                      corlines[cor_start_i:None:trace_increment]):
                     items = corline.split()
                     assert(items[6] in ("W","E"))
@@ -299,7 +299,7 @@ class GPR_Merger:
                 assert(items[6] in ("W","E"))
                 last_longitude = float(items[5]) * (-1 if items[6]=="W" else 1)
 
-                for i,corline in zip(range(cor_start_i,-1 if switched else len(corlines),trace_increment),
+                for i,corline in zip(list(range(cor_start_i,-1 if switched else len(corlines),trace_increment)),
                                      corlines[cor_start_i:None:trace_increment]):
                     items = corline.split()
                     assert(items[6] in ("W","E"))
@@ -335,19 +335,19 @@ class GPR_Merger:
             # Append traces to master_traces
             self.master_traces = numpy.append(self.master_traces, traces, axis=1)
 
-            print len(corlines), "new corlines."
-            print traces.shape[1], "new traces."
+            print(len(corlines), "new corlines.")
+            print(traces.shape[1], "new traces.")
 
             for comment in corcomments:
-                print comment,
-            print corlines[0],
-            print corlines[-1]
-            print len(self.master_corlines), "total corlines."
-            print self.master_traces.shape[1], "total traces."
+                print(comment, end=' ')
+            print(corlines[0], end=' ')
+            print(corlines[-1])
+            print(len(self.master_corlines), "total corlines.")
+            print(self.master_traces.shape[1], "total traces.")
 
-        print "Saving", os.path.split(GPR_outfile)[1]
+        print("Saving", os.path.split(GPR_outfile)[1])
         mahotas.imsave(GPR_outfile, self.master_traces)
-        print "Saving", os.path.split(COR_outfile)[1]
+        print("Saving", os.path.split(COR_outfile)[1])
         f = open(COR_outfile, 'w')
         f.write("".join(self.master_corlines))
         f.close()
@@ -446,7 +446,7 @@ class GPR_DataFile:
         plt.show()
         for fmt in ("svg", "eps", "tif", "jpg"):
             fname = r"C:\Users\mmacferrin\Dropbox\Research\Papers\MacFerrin et al 2016 - IceBridge Lenses\Figures\GPR_Main_2013_Transect.{0}".format(fmt)
-            print os.path.split(fname)[-1]
+            print(os.path.split(fname)[-1])
             plt.savefig(fname, dpi=600)
 
     def plot_KANU_image(self, fname=None):
@@ -472,7 +472,7 @@ class GPR_DataFile:
         plt.show()
         for fmt in ("svg", "eps", "tif", "jpg"):
             fname = r"C:\Users\mmacferrin\Dropbox\Research\Papers\MacFerrin et al 2016 - IceBridge Lenses\Figures\KAN_U_Transect.{0}".format(fmt)
-            print os.path.split(fname)[-1]
+            print(os.path.split(fname)[-1])
             plt.savefig(fname, dpi=600)
 
     def open_image(self, fname=None, try_picklefile=False):
@@ -489,12 +489,12 @@ class GPR_DataFile:
                 picklename = os.path.splitext(fname)[0] + ".pickle"
 
             if os.path.exists(picklename):
-                print "Reading", os.path.split(picklename)[-1],
+                print("Reading", os.path.split(picklename)[-1], end=' ')
                 self.traces = self.read_traces_from_picklefile(picklename)
-                print "... traces read."
+                print("... traces read.")
                 return self.traces
 
-        print "Reading", os.path.split(fname)[-1],
+        print("Reading", os.path.split(fname)[-1], end=' ')
 
         try:
             img = Image.open(fname, mode='r')
@@ -506,10 +506,10 @@ class GPR_DataFile:
             # VERY slow, but works correctly for 16-bit signed integer arrays
             traces = tiff.imread(fname)
 
-        print "... traces read."
+        print("... traces read.")
 
         if try_picklefile:
-            print "Saving", os.path.split(picklename)[-1]
+            print("Saving", os.path.split(picklename)[-1])
             self.save_traces_as_picklefile(traces, picklename)
 
         self.traces = traces
@@ -566,7 +566,7 @@ class GPR_DataFile:
             assert numpy.count_nonzero(variances < 0.0) == 0
 
             if numpy.count_nonzero(variances == 0.0) > 0:
-                print "Correcting", numpy.count_nonzero(variances==0.0), "variances of 0.0."
+                print("Correcting", numpy.count_nonzero(variances==0.0), "variances of 0.0.")
                 variances[variances == 0.0] = numpy.min(variances[variances>0.0])
 
             log_var = numpy.log10(variances)
@@ -583,12 +583,12 @@ class GPR_DataFile:
         fname = base + extender + ext
 
         if not skip_process:
-            print "Saving", os.path.split(fname)[1]
+            print("Saving", os.path.split(fname)[1])
             img = Image.fromarray(log_var)
             img.save(fname)
 
             picklename = os.path.splitext(fname)[0] + ".pickle"
-            print "Saving", os.path.split(picklename)[-1]
+            print("Saving", os.path.split(picklename)[-1])
             self.save_traces_as_picklefile(log_var, picklename)
 
             self.export_single_image(fname)
@@ -655,17 +655,17 @@ class GPR_DataFile:
         base, filename = os.path.split(outfile)
         base, dirname = os.path.split(base)
 
-        print "Min:", numpy.min(traces), "Max:", numpy.max(traces)
+        print("Min:", numpy.min(traces), "Max:", numpy.max(traces))
         # IMG_0129: min 2.9657, max 6.7695
         # TRANSECT: min 2.8206, max 6.9996
 
         cmap = self.create_radar_colormap()
         traces, minval, maxval = self.adjust_minmax_traces_to_colormap(traces)
 
-        print "Saving", dirname + "/" + filename
+        print("Saving", dirname + "/" + filename)
         plt.imsave(fname=outfile, arr=traces, cmap=cmap)
 
-        print "Saved."
+        print("Saved.")
 
 #        plt.savefig(outfile)
         plt.close()
@@ -732,27 +732,27 @@ class GPR_DataFile:
 
     def export_merged_image(self, merged_image = GPR_MERGED):
         traces = mahotas.imread(merged_image)
-        print traces.shape
+        print(traces.shape)
         std = numpy.std(traces)
         # Get where the file breaks are.  Subtract one to give file indices instead of 1-indexed tracenumbers.
         breaks = numpy.array(self.get_tracenum_breaks_from_corfile())-1
-        print std
+        print(std)
         aspect = (float(traces.shape[1]) / (float(traces.shape[0])*4)) * 0.35
         figsz = (aspect*8, 8)
-        print figsz
+        print(figsz)
         plt.figure(figsize=figsz)
         gs = plt.GridSpec(3,1)
         for i in range(3):
             plt.subplot(gs[i])
             tr = traces[:,traces.shape[1]*i/3:traces.shape[1]*(i+1)/3]
-            print i,tr.shape
+            print(i,tr.shape)
             plt.imshow(tr, vmin=-(std*3), vmax=std*3)
             for br in breaks:
                 if (traces.shape[1]*i/3) <= br <= (traces.shape[1]*(i+1)/3):
                     plt.axvline(x=br-(traces.shape[1]*i/3), color="b", linestyle="-")
     #    print "Showing..."
     #    plt.show()
-        print "Saving..."
+        print("Saving...")
         plt.savefig(os.path.join(EXPORT_DIR,"ACT_Transect.png"))
         plt.close()
 
@@ -793,7 +793,7 @@ class GPR_DataFile:
         for i in range(self.traces.shape[0]):
             traces_mean_corrected[i,:] = self.traces[i,:] - trace_means[i]
 
-        print "Saving", os.path.split(self.img_filename_2)[1]
+        print("Saving", os.path.split(self.img_filename_2)[1])
         mahotas.imsave(self.img_filename_2, traces_mean_corrected)
 
     def show_image_w_meanplot(self):
@@ -803,7 +803,7 @@ class GPR_DataFile:
         trace_means = numpy.mean(self.traces,axis=1)
         trace_std = numpy.std(trace_means)
         traces_mean_corrected = numpy.copy(self.traces)
-        print self.traces.shape
+        print(self.traces.shape)
         for i in range(self.traces.shape[0]):
             traces_mean_corrected[i,:] = self.traces[i,:] - trace_means[i]
 
@@ -884,11 +884,11 @@ class GPR_DataFile:
         # Find the linear regression through that line.
         slope, intercept, r_value, p_value, std_err = \
             stats.linregress(depths, stds)
-        print "Slope:", slope
-        print "Intercept:", intercept
-        print "r_value:", r_value
-        print "p_value:", p_value
-        print "std_err:", std_err
+        print("Slope:", slope)
+        print("Intercept:", intercept)
+        print("r_value:", r_value)
+        print("p_value:", p_value)
+        print("std_err:", std_err)
 
         plt.plot(slope*depths + intercept, depths, "g-")
 
@@ -906,7 +906,7 @@ class GPR_DataFile:
         traces = mahotas.imread(imgname)
 
         shortname = os.path.split(imgname)[1]
-        print shortname
+        print(shortname)
 
         plt.title(shortname)
 
@@ -927,7 +927,7 @@ class GPR_DataFile:
             return a * numpy.exp(-b * x) + c
 
         popt, pcov = optimize.curve_fit(expfunc, depths, stds, p0=(800,0.001,0), maxfev=10000)
-        print zip(["a","b","c"],popt)
+        print(list(zip(["a","b","c"],popt)))
         plt.plot(expfunc(depths,*popt), depths, 'm-')
 
         plt.ylim((numpy.max(traces.shape[0]),0))
@@ -958,7 +958,7 @@ class GPR_DataFile:
 
     def display_sample_curves(self, numsamples=10, show=True):
         self.open_image()
-        print self.traces.shape
+        print(self.traces.shape)
 
     def resample(self, sample_distance_m = 1.5):
         '''Resample the image at every 1.5 meters using a nearest-neighbor approach.
@@ -975,7 +975,7 @@ class GPR_DataFile:
         # Read data
         traces = self.img_data(fignum=1) # Use the de-striped (but not stddev) image
 
-        print os.path.split(infilename)[-1], traces.shape, "-->", len(trace_resamples_i)
+        print(os.path.split(infilename)[-1], traces.shape, "-->", len(trace_resamples_i))
         resampled_traces = numpy.empty([traces.shape[0], len(trace_resamples_i)], dtype=traces.dtype)
 
         # i refers to the new (resampled) trace index
@@ -984,7 +984,7 @@ class GPR_DataFile:
             j = old_tracenum - 1
             resampled_traces[:,i] = traces[:,j]
 
-        print "Writing", os.path.split(outfilename)[-1]
+        print("Writing", os.path.split(outfilename)[-1])
         mahotas.imsave(outfilename, resampled_traces)
 
         return
@@ -1039,7 +1039,7 @@ def MAIN_plot_cores_next_to_transects(corenum=1):
 
     #1.5: Retreive core info
     cp = FirnCoreProfiler.CoreProfile(core_filename)
-    print cp.filename
+    print(cp.filename)
     #3: Fill right panel in with ice lens stratigraphy (same width)
     cp.plot_stratigraphy_only(ax=ax2)
 
@@ -1052,15 +1052,15 @@ def MAIN_plot_cores_next_to_transects(corenum=1):
     if corenum in (1,2):
         closest_trace = 175
 
-    print closest_trace
+    print(closest_trace)
 #    gpr.open_image()
     N = 300
     trace_distance = N*1.5
     img = mpimage.imread(img_filename)
-    print img.shape
+    print(img.shape)
     img_traces = img[:, (closest_trace - N/2) : (closest_trace + N/2), :]
 
-    print img_traces.shape
+    print(img_traces.shape)
     ax1.imshow(img_traces, aspect="auto", extent=(0,trace_distance,20,0))
     ax1.plot((trace_distance/2.0, trace_distance/2.0),(0,20), color="black", lw=2.0)
 

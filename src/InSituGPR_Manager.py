@@ -56,10 +56,10 @@ class RadarSpeedPicker:
         except AssertionError:
             if density_kg_m3 > self.ICE_DENSITY:
                 if verbose_warnings:
-                    print "Warning:", density_kg_m3, " kg/m3 > 917.00"
+                    print("Warning:", density_kg_m3, " kg/m3 > 917.00")
             else:
                 # if we have a density less than zero, go ahead and crash.  Should never happen.
-                print "DENSITIES CANNOT BE LESS THAN ZERO:", density_kg_m3
+                print("DENSITIES CANNOT BE LESS THAN ZERO:", density_kg_m3)
                 assert False
 
         if method.lower() =="standard": # Assumes completely "pure" ice with zero impurities.
@@ -113,7 +113,7 @@ class InSituGPR_Manager():
         '''This was originally done in the "Firn Compaction/Code/Python/GPR_Data.py" file,
         by the "GPR_Merger" object.  May leave it there, or port it over here if needed.'''
 
-        print "GPR Transects already merged in GPR_Data.py::GPR_Merger object.  Not repeated here (yet)."
+        print("GPR Transects already merged in GPR_Data.py::GPR_Merger object.  Not repeated here (yet).")
         return
 
     def create_GPR_variance_images(self):
@@ -122,7 +122,7 @@ class InSituGPR_Manager():
         After doing those calculations, each GPR data file is saved as a 3x13 window variance image,
         in the MALAGS/TraceImages/resampled directory, in a [NAME]_resampled_logvariance.pickle file.'''
 
-        print "GPR variance images already cleated in GPR_Data.py::GPR_DataFile object.  Not repeated here (yet)."
+        print("GPR variance images already cleated in GPR_Data.py::GPR_DataFile object.  Not repeated here (yet).")
         return
 
     def _retrieve_closest_traces(self, firn_cores):
@@ -228,13 +228,13 @@ class InSituGPR_Manager():
             gpr_core_twt_dict = dict([(core.name(), self.calculate_GPR_times_in_firn_core(core, max_depth_m=25, robins_coeff=N)) for core in firn_cores])
 
             # Just make sure we're not getting any misfits here.
-            for key in gpr_core_twt_dict.keys():
+            for key in list(gpr_core_twt_dict.keys()):
                 assert type(gpr_core_twt_dict[key]) != type(None)
 
             # Get the depths for each GPR sample, for traces near each core.
             # Do this ONLY for cores that have density profiles, which have been figured out in gpr_core_depths_dict
             gpr_sample_depths_dict = dict([(core.name(), self.calculate_GPR_sample_depths(core, gpr_core_twt_dict[core.name()])) \
-                                            for core in firn_cores if core.name() in gpr_core_twt_dict.keys()])
+                                            for core in firn_cores if core.name() in list(gpr_core_twt_dict.keys())])
             list_of_gpr_sample_depth_dicts[i] = gpr_sample_depths_dict
 
         mean_correlations_all = numpy.empty([len(firn_cores), robins_coefficients.shape[0]], dtype=numpy.float)
@@ -247,7 +247,7 @@ class InSituGPR_Manager():
             #   4. Put that into an array item for that core, of length len(robins_coefficients)
 
             if self.verbose and plot_figures:
-                print core.name(), "+++++++++++++++++++"
+                print(core.name(), "+++++++++++++++++++")
 
             track_names, track_indices, track_distances = firncore_traces_dict[core.name()]
             firncore_densities = core.densities(correct_zeros=True)
@@ -292,19 +292,19 @@ class InSituGPR_Manager():
 
                 if self.verbose:
                     min_correlation_idx = numpy.argmin(mean_correlations)
-                    print "Strongest Correlation {0} at factor {1}".format( \
-                        mean_correlations[min_correlation_idx], robins_coefficients[min_correlation_idx] )
+                    print("Strongest Correlation {0} at factor {1}".format( \
+                        mean_correlations[min_correlation_idx], robins_coefficients[min_correlation_idx] ))
 
                 figure_filename = os.path.join(DATA_FIGURES_OUTPUT_FOLDER, r"GPR_Speed_correlation_coefficients\{0}_correlations.png".format(core.name()))
                 if self.verbose:
-                    print "Saving", os.path.split(figure_filename)[-1]
+                    print("Saving", os.path.split(figure_filename)[-1])
 
                 plt.savefig(figure_filename)
 
                 plt.cla()
                 plt.close()
 
-            if self.verbose: print
+            if self.verbose: print()
 
         mean_correlations_total = numpy.mean(mean_correlations_all, axis=0)
         std_correlations_total = numpy.std(mean_correlations_all, axis=0)
@@ -323,7 +323,7 @@ class InSituGPR_Manager():
 
             figure_filename = os.path.join(DATA_FIGURES_OUTPUT_FOLDER, r"GPR_Speed_correlation_coefficients\TOTAL_correlations.png")
             if self.verbose:
-                print "Saving", os.path.split(figure_filename)[-1]
+                print("Saving", os.path.split(figure_filename)[-1])
 
             plt.savefig(figure_filename, dpi=600)
 
@@ -332,8 +332,8 @@ class InSituGPR_Manager():
 
         min_correlation_idx = numpy.argmin(mean_correlations_total)
         if self.verbose:
-            print "Strongest Correlation {0} at factor {1}".format( \
-                mean_correlations_total[min_correlation_idx], robins_coefficients[min_correlation_idx] )
+            print("Strongest Correlation {0} at factor {1}".format( \
+                mean_correlations_total[min_correlation_idx], robins_coefficients[min_correlation_idx] ))
 
         # CALCULATIONS DETERMINED THE BEST/CLOSEST CORRELATION IS USING A FACTOR OF 0.734.
         # THIS IS REGARDLESS OF WHETHER CORE 3 IS USED OR NOT. VERY STRONG RESULT.
@@ -459,7 +459,7 @@ class InSituGPR_Manager():
             output_traces["logvariance"] = dict()
             output_traces["detrended"] = dict()
 
-        for key in firncore_traces_dict.keys():
+        for key in list(firncore_traces_dict.keys()):
 
             for ftype in (["logvariance","detrended"] if filetype == "both" else [filetype]):
                 # Extract the "topN" closest traces information,
@@ -536,11 +536,11 @@ class InSituGPR_Manager():
             fig.subplots_adjust(top=0.9)
 
             if self.verbose:
-                print "Writing", os.path.split(outfile_tif)[-1]
+                print("Writing", os.path.split(outfile_tif)[-1])
             plt.savefig(outfile_tif, dpi=600)
 
             if self.verbose:
-                print "Writing", os.path.split(outfile_png)[-1]
+                print("Writing", os.path.split(outfile_png)[-1])
             plt.savefig(outfile_png, dpi=100)
 
             plt.cla()
@@ -619,7 +619,7 @@ class InSituGPR_Manager():
             plt.tight_layout()
             fig.subplots_adjust(top=0.9)
             if self.verbose:
-                print "Writing", os.path.split(outfile)[-1]
+                print("Writing", os.path.split(outfile)[-1])
             plt.savefig(outfile)
 
             plt.cla()
@@ -649,7 +649,7 @@ class InSituGPR_Manager():
         if skip_calculations:
             return numpy.arange(3.60, 7.1001, 0.01)
 
-        assert type(gpr_traces == dict) and type(gpr_depths) == dict and len(gpr_traces.keys()) == len(gpr_depths.keys())
+        assert type(gpr_traces == dict) and type(gpr_depths) == dict and len(list(gpr_traces.keys())) == len(list(gpr_depths.keys()))
 
         min_maxes = numpy.empty((len(gpr_traces), 2), dtype=numpy.float)
         for i,core_name in enumerate(gpr_traces.keys()):
@@ -663,12 +663,12 @@ class InSituGPR_Manager():
             traces_subset = traces[:max_depth_idx, :]
             min_maxes[i,:] = [numpy.min(traces_subset), numpy.max(traces_subset)]
             if self.verbose:
-                print core_name, min_maxes[i,:]
+                print(core_name, min_maxes[i,:])
 
         # Calculate the overall min and max from all the cores.
         min_max_all = [numpy.min(min_maxes[:,0]), numpy.max(min_maxes[:,1])]
         if self.verbose:
-            print "ALL", min_max_all
+            print("ALL", min_max_all)
 
         # In our calculations, these values turn out to be [3.6123, 7.0807].
         # Rounded values are [3.60, 7.10]
@@ -787,7 +787,7 @@ class InSituGPR_Manager():
             # Find the index where the cutoff is 5.0.  It's not performing a
             # strict "==" search correctly, so we'll go with a range that should just include that single 5.0 value.
             index_50 = numpy.argmax((sample_cutoff_values_array>=4.9999)&(sample_cutoff_values_array<=5.0001))
-            print core_name, "Type1 mean @ 5.0: {0}, Type2 mean @ 5.0: {1}".format(mean_type_1_errors[index_50], mean_type_2_errors[index_50])
+            print(core_name, "Type1 mean @ 5.0: {0}, Type2 mean @ 5.0: {1}".format(mean_type_1_errors[index_50], mean_type_2_errors[index_50]))
 
             # include the plot name
             ax.text(5.25, 0.87, core_name, fontsize=11,
@@ -829,7 +829,7 @@ class InSituGPR_Manager():
         plt.savefig(figure_name, dpi=600)
 
         if self.verbose:
-            print "Plotted", os.path.split(figure_name)[-1]
+            print("Plotted", os.path.split(figure_name)[-1])
 
         # Take-away conclusions:  In ICE cores (1-3), anything below cutoff of 5.0 minimizes
         # Type-1 Errors to near-zero.  Type-2 Errors remain but are reduced.  Virtually zero
@@ -957,7 +957,7 @@ class InSituGPR_Manager():
                 plt.tight_layout()
                 plt.savefig(figure_name)
                 if self.verbose:
-                    print "Plotted", os.path.split(figure_name)[-1]
+                    print("Plotted", os.path.split(figure_name)[-1])
                 plt.cla()
                 plt.close()
 
@@ -1013,7 +1013,7 @@ class InSituGPR_Manager():
         gpr_core_twt_dict = dict([(core.name(), self.calculate_GPR_times_in_firn_core(core, max_depth_m=25)) for core in firn_cores])
 
         # Filter out cores without density measurements from our measurements (namely all core_7(b-f)_2013 cores)
-        for key in gpr_core_twt_dict.keys():
+        for key in list(gpr_core_twt_dict.keys()):
             if gpr_core_twt_dict[key] is None:
                 del gpr_core_twt_dict[key]
                 del firncore_traces_dict[key]
@@ -1022,7 +1022,7 @@ class InSituGPR_Manager():
         # Get the depths for each GPR sample, for traces near each core.
         # Do this ONLY for cores that have density profiles, which have been figured out in gpr_core_depths_dict
         gpr_sample_depths_dict = dict([(core.name(), self.calculate_GPR_sample_depths(core, gpr_core_twt_dict[core.name()])) \
-                                        for core in firn_cores if core.name() in gpr_core_twt_dict.keys()])
+                                        for core in firn_cores if core.name() in list(gpr_core_twt_dict.keys())])
 
 
         # Fetch the actual trace/sample values from the GPR files.
@@ -1114,7 +1114,7 @@ class InSituGPR_Track():
         if (self.traces_logvariance if filetype == "logvariance" else self.traces_detrended) is None:
             fname = (self.GPR_FILENAME if filetype == "logvariance" else self.GPR_DETRENDED_FILENAME)
             if self.verbose:
-                print "Opening", os.path.split(fname)[-1]
+                print("Opening", os.path.split(fname)[-1])
             f = open(fname, 'r')
             traces = pickle.load(f)
 
@@ -1172,7 +1172,7 @@ class InSituGPR_Track():
             traces = traces[:,:32768]
 
         if self.verbose:
-            print "Min:", numpy.min(traces), "Max:", numpy.max(traces)
+            print("Min:", numpy.min(traces), "Max:", numpy.max(traces))
         # IMG_0129: min 2.9657, max 6.7695
         # TRANSECT: min 2.8206, max 6.9996
 
@@ -1180,12 +1180,12 @@ class InSituGPR_Track():
         traces, minval, maxval = self.adjust_minmax_traces_to_colormap(traces)
 
         if self.verbose:
-            print "Saving", os.path.split(outfilename)[-1],
+            print("Saving", os.path.split(outfilename)[-1], end=' ')
 
         plt.imsave(fname=outfilename, arr=traces, cmap=cmap)
 
         if self.verbose:
-            print "Saved."
+            print("Saved.")
 
         plt.close()
         return
@@ -1259,7 +1259,7 @@ class InSituGPR_Track():
         Take "_resampled_logvariance" images and convert to "resampled_logvariance_detrended" images.
         '''
         if self.verbose:
-            print "Detrending", self.name()
+            print("Detrending", self.name())
 
         # If we've already created this file and don't wish to overwrite,
         #  just return the file name and fuggedaboudit.
@@ -1386,7 +1386,7 @@ class InSituGPR_Track():
 
             # Save the file.
             if self.verbose:
-                print "Plotting", os.path.split(plotfilename)[-1]
+                print("Plotting", os.path.split(plotfilename)[-1])
 
             # Save at 300 dpi
             fig.savefig(plotfilename,dpi=300)
@@ -1410,7 +1410,7 @@ class InSituGPR_Track():
                     det_traces[:,i] = log_traces[:,i] - (sample_numbers * v_slopes_gaussian_neg_only[i])
 
             if self.verbose:
-                print "Writing", os.path.split(self.GPR_DETRENDED_FILENAME)[-1]
+                print("Writing", os.path.split(self.GPR_DETRENDED_FILENAME)[-1])
 
             f = open(self.GPR_DETRENDED_FILENAME, 'w')
             pickle.dump(det_traces, f)
@@ -1476,7 +1476,7 @@ class InSituGPR_Track():
         # Make sure the longitude is negative (Western hemisphere)
         lons = (lons*-1 if numpy.all(lons > 0.0) else lons)
 
-        points = zip(lons, lats)
+        points = list(zip(lons, lats))
         utm_points = numpy.array(GCS2UTM.TransformPoints(points))
         core_utm_es, core_utm_ns = utm_points.T[0,:], utm_points.T[1,:]
 
@@ -1484,7 +1484,7 @@ class InSituGPR_Track():
         # Turn westerly longitudes negative ("correct_lons")
         gpr_lats, gpr_lons, _ = self.extract_lats_lons_elevs(correct_lons=True)
 
-        gpr_points = zip(gpr_lons, gpr_lats)
+        gpr_points = list(zip(gpr_lons, gpr_lats))
         gpr_utm_points = numpy.array(GCS2UTM.TransformPoints(gpr_points))
         gpr_utm_es, gpr_utm_ns = gpr_utm_points.T[0,:], gpr_utm_points.T[1,:]
 
@@ -1579,12 +1579,12 @@ class InSituGPR_Track():
 
         if export_image:
             if self.verbose:
-                print "Saving", os.path.split(outfilename)[-1],
+                print("Saving", os.path.split(outfilename)[-1], end=' ')
 
             plt.imsave(fname=outfilename, arr=traces, cmap=cmap)
 
             if self.verbose:
-                print "Saved."
+                print("Saved.")
 
             plt.close()
 
@@ -1605,7 +1605,7 @@ class InSituGPR_Track():
 
         # Shrink the pixels
         if self.verbose:
-            print "Shrinking {0} pixels.".format(pixels_shrink_by)
+            print("Shrinking {0} pixels.".format(pixels_shrink_by))
         for _ in range(pixels_shrink_by):
             b_temp = b.copy()
             # Top left pixel, turn false if it's already false or an adjacent pixel is false.  Else true.
@@ -1630,7 +1630,7 @@ class InSituGPR_Track():
 
         # Grow the pixels
         if self.verbose:
-            print "Growing {0} pixels.".format(pixels_grow_by)
+            print("Growing {0} pixels.".format(pixels_grow_by))
         for _ in range(pixels_grow_by):
             b_temp = b.copy()
             # Top left pixel, turn true if it's already true or an adjacent pixel is true.  Else False.
@@ -1739,13 +1739,13 @@ class InSituGPR_Track():
 
         f = open(filename, 'w')
         if self.verbose:
-            print "Writing", os.path.split(filename)[-1]
+            print("Writing", os.path.split(filename)[-1])
         f.write(header_line + "\n".join(csv_lines))
         f.close()
 
     def print_minmax(self, filetype="detrended"):
         traces = self._open(filetype=filetype)
-        print self.name(), numpy.min(traces), numpy.max(traces)
+        print(self.name(), numpy.min(traces), numpy.max(traces))
 
 def plot_ice_content_vs_distance():
     '''Along the ACT-13 transect, plot the ice content from this lenses (m) in the
@@ -1782,7 +1782,7 @@ def plot_ice_content_vs_distance():
     plt.ylim(0,4.5)
     plt.yticks(numpy.arange(0.,5.,1.0))
     plt.tight_layout()
-    print "Saving", os.path.split(fig_name)[-1]
+    print("Saving", os.path.split(fig_name)[-1])
     plt.savefig(fig_name, dpi=600)
     plt.cla()
     plt.close()
@@ -1821,7 +1821,7 @@ def plot_ice_content_vs_elevation():
     plt.tight_layout()
     plt.xlim(1700, 2260)
     plt.ylim(0,9)
-    print "Saving", os.path.split(fig_name)[-1]
+    print("Saving", os.path.split(fig_name)[-1])
     plt.savefig(fig_name, dpi=150)
     plt.cla()
     plt.close()
@@ -1864,7 +1864,7 @@ def output_shapefile_first_45km():
 
     # If the shapefile already exists, delete it.
     if os.path.exists(shapefile_name):
-        print "Deleting previous", os.path.split(shapefile_name)[-1]
+        print("Deleting previous", os.path.split(shapefile_name)[-1])
         driver.DeleteDataSource(shapefile_name)
 
     # Create the shapefile
@@ -1891,7 +1891,7 @@ def output_shapefile_first_45km():
     # Dereference the feature and data source to save the shapefile.
     feature = None
     data_source = None
-    print os.path.split(shapefile_name)[-1], "written."
+    print(os.path.split(shapefile_name)[-1], "written.")
 
     return
 
@@ -1901,7 +1901,7 @@ if __name__ == "__main__":
 
     gpr = InSituGPR_Manager(verbose=True)
 
-    print gpr.track_names
+    print(gpr.track_names)
     gpr.determine_best_radar_coefficient_by_correlation(cores, plot_figures=True)
     gpr.calculate_ice_lenses(cores, make_all_plots=True)
     gpr.export_boolean_icelens_images()

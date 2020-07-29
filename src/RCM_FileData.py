@@ -81,12 +81,12 @@ HIRHAM_FILENAMES_2100_GCM_RCP85 = {"YEARLY_MEANS" :os.path.join(HIRHAM_DATA_FOLD
 
 HIRHAM_DATA_FILENAMES = [os.path.join(HIRHAM_DATA_FOLDER, HIRHAM_MASK_DATAFILE),
                   os.path.join(HIRHAM_DATA_FOLDER, HIRHAM_GRID_DATAFILE)] + \
-                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in HIRHAM_FILENAMES_2014_ERA.values()] + \
-                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in HIRHAM_FILENAMES_2010_GCM.values()] + \
-                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in HIRHAM_FILENAMES_2050_GCM_RCP45.values()] + \
-                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in HIRHAM_FILENAMES_2050_GCM_RCP85.values()] + \
-                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in HIRHAM_FILENAMES_2100_GCM_RCP45.values()] + \
-                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in HIRHAM_FILENAMES_2100_GCM_RCP85.values()]
+                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in list(HIRHAM_FILENAMES_2014_ERA.values())] + \
+                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in list(HIRHAM_FILENAMES_2010_GCM.values())] + \
+                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in list(HIRHAM_FILENAMES_2050_GCM_RCP45.values())] + \
+                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in list(HIRHAM_FILENAMES_2050_GCM_RCP85.values())] + \
+                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in list(HIRHAM_FILENAMES_2100_GCM_RCP45.values())] + \
+                  [os.path.join(HIRHAM_DATA_FOLDER, fname) for fname in list(HIRHAM_FILENAMES_2100_GCM_RCP85.values())]
 
 HIRHAM_ELEV_PICKLEFILE = os.path.join(HIRHAM_DATA_FOLDER, "HIRHAM_ELEVATIONS.pickle")
 HIRHAM_POLYGON_WKTS_TEXTFILE_ALL = os.path.join(HIRHAM_DATA_FOLDER, r"WKT Polygons\HIRHAM_Polygon_WKTs_ALL.txt")

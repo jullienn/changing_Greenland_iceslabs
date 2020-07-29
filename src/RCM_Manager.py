@@ -230,7 +230,7 @@ class RCM_Manager(object):
         if interpolation_type == "nearest neighbor":
             # For each row in the destionation variable, search for the nearest neighbor in rows in the source variable.
             for row_i in range(dst_variable.shape[0]):
-                print "Row", row_i+1, "of", dst_variable.shape[0],
+                print("Row", row_i+1, "of", dst_variable.shape[0], end=' ')
                 dst_eastings_row = dst_eastings[row_i,:]
                 dst_northings_row = dst_northings[row_i,:]
                 # Assign extra dimensions to the DEST eastings and northings for array broadcasting.
@@ -249,7 +249,7 @@ class RCM_Manager(object):
                 src_subset_rows, src_subset_cols = numpy.where(src_subset_mask)
 
                 src_eastings_subset = src_eastings[src_subset_mask]
-                print src_eastings_subset.shape, "Matches.",
+                print(src_eastings_subset.shape, "Matches.", end=' ')
                 if len(src_eastings_subset) == 0:
                     dst_variable[row_i,:] = 0
                 else:
@@ -266,7 +266,7 @@ class RCM_Manager(object):
                     # Assign the destination variables to those nearest neighbors.
                     dst_variable[row_i,:] = [src_variable[src_min_rows[i], src_min_cols[i]] for i in range(len(src_min_rows))]
 
-                print numpy.unique(dst_variable[row_i,:])
+                print(numpy.unique(dst_variable[row_i,:]))
 
         else:
             raise ValueError("Interpolation type '{0}' not recognized.".format(interpolation_type))
@@ -281,7 +281,7 @@ class RCM_Manager(object):
         assert lats_shape == lons_shape
         lats = lats.flatten()
         lons = lons.flatten()
-        points = zip(lons, lats)
+        points = list(zip(lons, lats))
         ## 2. Convert all points to Polar Stereo grid projection
         gcsSR = osr.SpatialReference()
         gcsSR.SetWellKnownGeogCS("WGS84") # WGS84 geographical coordinates
@@ -520,7 +520,7 @@ class RCM_Manager(object):
             for overlap_nudge in True, False:
                 fname = self._get_WKT_textfile_name(mask_greenland = mask_greenland, overlap_nudge = overlap_nudge)
                 WKTs = self._get_polygon_WKTs(mask_greenland=mask_greenland, overlap_nudge = overlap_nudge)
-                print "Writing", os.path.split(fname)[-1]
+                print("Writing", os.path.split(fname)[-1])
                 f = open(fname, 'w')
                 f.writelines([wkt + '\n' for wkt in WKTs])
                 f.close()
@@ -569,11 +569,11 @@ class RCM_Manager(object):
         driver = ogr.GetDriverByName("ESRI Shapefile")
 
         if os.path.exists(shapefile_fname):
-            print "Deleting previous", os.path.split(shapefile_fname)[-1]
+            print("Deleting previous", os.path.split(shapefile_fname)[-1])
             driver.DeleteDataSource(shapefile_fname)
 
         data_source = driver.CreateDataSource(shapefile_fname)
-        print "Creating", os.path.split(shapefile_fname)[-1]
+        print("Creating", os.path.split(shapefile_fname)[-1])
 
         # Create a WGS84 geographic spatial reference to go with it.
         srs = osr.SpatialReference()
@@ -601,7 +601,7 @@ class RCM_Manager(object):
         # Create a CSV File for outputting these grid statistics.
         ################################################
         csv_fname = self._get_IceBridge_summary_csv_filename()
-        print "Writing", os.path.split(csv_fname)[-1]
+        print("Writing", os.path.split(csv_fname)[-1])
         csv_file = open(csv_fname, 'w')
         csv_header = "Row,Column,Drainage_N,Drainage,Trace Count,Mean Thickness m,Std Thickness m\n"
         csv_file.write(csv_header)
@@ -614,7 +614,7 @@ class RCM_Manager(object):
 
         for i, index in enumerate(greenland_indices):
             if (i % 100) == 0:
-                print '.',
+                print('.', end=' ')
             polygon = ogr.CreateGeometryFromWkt(WKTs[i])
             min_lon, max_lon, min_lat, max_lat = polygon.GetEnvelope()
 
@@ -661,8 +661,8 @@ class RCM_Manager(object):
                     assert numpy.count_nonzero(p_matches) == 1
                     ice_thickness_intersection[j] = ice_thickness_subset[p_matches][0]
 
-                print
-                print i, index, intersection.GetGeometryCount()
+                print()
+                print(i, index, intersection.GetGeometryCount())
 
                 feature = ogr.Feature(layer.GetLayerDefn())
                 feature.SetField("TraceCount",N)
@@ -697,8 +697,8 @@ class RCM_Manager(object):
 
         csv_file.close()
 
-        print os.path.split(shapefile_fname)[-1], "written."
-        print os.path.split(csv_fname)[-1], "written."
+        print(os.path.split(shapefile_fname)[-1], "written.")
+        print(os.path.split(csv_fname)[-1], "written.")
 
 
     def read_icebridge_grid_summary(self):
@@ -706,10 +706,10 @@ class RCM_Manager(object):
         Return a dictionary with the column names as keys and the data as values.'''
         fname = self._get_IceBridge_summary_csv_filename()
         if not os.path.exists(fname):
-            print "File", os.path.split(fname)[-1], 'not found.'
+            print("File", os.path.split(fname)[-1], 'not found.')
             return
 
-        print "Reading", os.path.split(fname)[-1]
+        print("Reading", os.path.split(fname)[-1])
         f = open(fname, 'r')
         lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
         f.close()
@@ -759,7 +759,7 @@ class RCM_Manager(object):
 
         filename = os.path.join(foldername, filename if filename[-4:].lower() == ".shp" else filename + ".shp")
         if os.path.exists(filename):
-            print "Deleting previous", os.path.split(filename)[-1]
+            print("Deleting previous", os.path.split(filename)[-1])
             driver.DeleteDataSource(filename)
 
         data_source = driver.CreateDataSource(filename)
@@ -837,9 +837,9 @@ class RCM_Manager(object):
                     feature.SetField(variable_2_name, varnum_2)
 
             except NotImplementedError:
-                print variable_name, varnum, type(varnum)
+                print(variable_name, varnum, type(varnum))
                 if variable_2 is not None:
-                    print variable_2_name, varnum_2, type(varnum_2)
+                    print(variable_2_name, varnum_2, type(varnum_2))
                 raise NotImplementedError
             # Create the polygon and put it in the feature
             feature.SetGeometry(poly)
@@ -850,7 +850,7 @@ class RCM_Manager(object):
 
         # Now dereference the data source to save it.
         data_source = None
-        print "Exported", os.path.split(filename)[-1]
+        print("Exported", os.path.split(filename)[-1])
         return
 
     def export_EMIs_by_decade(self):
@@ -867,8 +867,8 @@ class RCM_Manager(object):
             for yearspan in decade_yearspans:
                 MRC_ratios, MRC_thresholds = self.compute_MC_ratio_and_threshold(dataset_key, yearspan=yearspan, compute_mean=True)
 
-                print "RATIOS:", numpy.mean(MRC_ratios[mask])
-                print "THRESHOLDS:", numpy.mean(MRC_thresholds[mask])
+                print("RATIOS:", numpy.mean(MRC_ratios[mask]))
+                print("THRESHOLDS:", numpy.mean(MRC_thresholds[mask]))
                 ACCUM = self.get_variable("SNOW", dataset_key = dataset_key, yearspan = yearspan)
                 ACCUM_mean = numpy.mean(ACCUM, axis=0)
                 EMIs = (MRC_ratios - MRC_thresholds) * ACCUM_mean
@@ -1099,7 +1099,7 @@ class RCM_Manager(object):
                     end_section_len = section_lengths[i+lookahead_lag]
                     gap_len_sum = numpy.sum(gap_lengths[i:i+lookahead_lag])
                     if (gap_len_sum <= start_section_len) and (gap_len_sum <= end_section_len):
-                        gaps_to_eliminate.extend(range(i,i+lookahead_lag))
+                        gaps_to_eliminate.extend(list(range(i,i+lookahead_lag)))
 
             gaps_to_eliminate = numpy.unique(gaps_to_eliminate)
 
@@ -1149,7 +1149,7 @@ class RCM_Manager(object):
         This creates a file with a set of pixel coordinates that the function can use.'''
         validation_picklefilename = self._get_icebridge_validation_upper_lower_grid_indices_picklefile_name()
         if (not export) and os.path.exists(validation_picklefilename):
-            print "Reading", os.path.split(validation_picklefilename)[1]
+            print("Reading", os.path.split(validation_picklefilename)[1])
             f = open(validation_picklefilename, 'r')
             data = pickle.load(f)
             f.close()
@@ -1170,7 +1170,7 @@ class RCM_Manager(object):
         outlier_grid_indices_cols         = numpy.empty((len(flightlines),), dtype=numpy.int)
 
         for i,track_name in enumerate(flightlines):
-            print track_name
+            print(track_name)
             track_mask = (icebridge_track_names == track_name)
             track_grid_rows, track_grid_cols = icebridge_rows[track_mask], icebridge_cols[track_mask]
             track_elevs = ELEV[track_grid_rows, track_grid_cols]
@@ -1225,7 +1225,7 @@ class RCM_Manager(object):
             else:
                 # SHould not have a level transect, handling functions not implemented here.
                 assert left_mean_elevation == right_mean_elevation
-                print "~~~~~~~~~~~~ LEVEL??? ~~~~~~~~~~~~~~~~"
+                print("~~~~~~~~~~~~ LEVEL??? ~~~~~~~~~~~~~~~~")
                 assert False
 
             main_span_lower_grid_indices_rows[i] = track_grid_rows[lower_main_span_index]
@@ -1244,7 +1244,7 @@ class RCM_Manager(object):
                 outlier_grid_indices_cols)
 
         if export:
-            print "Writing", os.path.split(validation_picklefilename)[1]
+            print("Writing", os.path.split(validation_picklefilename)[1])
             f = open(validation_picklefilename, 'w')
             pickle.dump(data, f)
             f.close()
@@ -1254,7 +1254,7 @@ class RCM_Manager(object):
 
     def import_icebridge_csv_data(self):
         '''Read the ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, return a numpy array with the data.'''
-        print "Reading", os.path.split(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE)[-1]
+        print("Reading", os.path.split(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE)[-1])
         csv_file = open(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, 'r')
         lines = [line.strip() for line in csv_file.readlines() if (len(line.strip()) > 0)]
         csv_file.close()
@@ -1304,7 +1304,7 @@ class RCM_Manager(object):
         if (not export):
             picklefile_fname = self._get_icebridge_traces_cellnumbers_picklefile()
             if os.path.exists(picklefile_fname):
-                print "Reading", os.path.split(picklefile_fname)[-1]
+                print("Reading", os.path.split(picklefile_fname)[-1])
                 f = open(picklefile_fname, 'r')
                 output_pixel_rows, output_pixel_cols = pickle.load(f)
                 f.close()
@@ -1318,7 +1318,7 @@ class RCM_Manager(object):
             f = open(picklefile_fname, 'w')
             pickle.dump((output_pixel_rows, output_pixel_cols), f)
             f.close()
-            print "Exporting", os.path.split(picklefile_fname)[-1]
+            print("Exporting", os.path.split(picklefile_fname)[-1])
 
         return output_pixel_rows, output_pixel_cols
 
@@ -1802,8 +1802,8 @@ class RCM_Manager(object):
                 if (not skip_shapefiles) and \
                    ((yearspan[1] % shapefile_every_N_years) == 0) or (yearspan[1] == 2013) or (yearspan == yearspans[-1]):
                     # Print the output to the screen for reference.
-                    print
-                    print datastring_line,
+                    print()
+                    print(datastring_line, end=' ')
 
                     # Export shapefiles of:
                     # - firn aquifer potential mask
@@ -1903,8 +1903,8 @@ class RCM_Manager(object):
         #################################################################
         if type(csv_output_file) == str:
             f.close()
-            print
-            print os.path.split(csv_output_file)[-1], "written."
+            print()
+            print(os.path.split(csv_output_file)[-1], "written.")
 
 
     def find_median_lower_upper_intermittent_limits_of_dataset(self, data):
@@ -1961,7 +1961,7 @@ class RCM_Manager(object):
         EMI_cutoffs_dict = None
 
         if (not export) and os.path.exists(cutoffs_picklefile_name):
-            print "Reading", os.path.split(cutoffs_picklefile_name)[-1]
+            print("Reading", os.path.split(cutoffs_picklefile_name)[-1])
             f = open(cutoffs_picklefile_name, 'r')
             EMI_cutoffs_dict, snow_cutoffs_dicts_global = pickle.load(f)
             f.close()
@@ -2016,7 +2016,7 @@ class RCM_Manager(object):
 
                 for i,dataset_key in enumerate(dataset_keys_list):
                     yearspans = yearspans_dicts_list[i][2014]
-                    print "~~~", dataset_key, yearspans, "~~~"
+                    print("~~~", dataset_key, yearspans, "~~~")
                     EMI = manager.compute_EMI_values(dataset_key, yearspan=yearspans,include_rain=True,compute_mean=True)
 
                     lower_EMIs = EMI[track_lower_rows, track_lower_cols]
@@ -2040,28 +2040,28 @@ class RCM_Manager(object):
 
                     snow_cutoffs_dicts_global[dataset_key] = snow_cutoffs_dicts[i]
 
-                    print "Lower (min,mean,std,median,max): {0:0.3f}, {1:0.3f}, {2:0.3f}, {3:0.3f}, {4:0.3f}".format(numpy.min(lower_EMIs),
+                    print("Lower (min,mean,std,median,max): {0:0.3f}, {1:0.3f}, {2:0.3f}, {3:0.3f}, {4:0.3f}".format(numpy.min(lower_EMIs),
                                                                                             mean_lower_EMIs,
                                                                                             numpy.std(lower_EMIs),
                                                                                             median_lower_EMIs,
-                                                                                            numpy.max(lower_EMIs))
-                    print "Upper (min,mean,std,median,max): {0:0.3f}, {1:0.3f}, {2:0.3f}, {3:0.3f}, {4:0.3f}".format(numpy.min(upper_EMIs),
+                                                                                            numpy.max(lower_EMIs)))
+                    print("Upper (min,mean,std,median,max): {0:0.3f}, {1:0.3f}, {2:0.3f}, {3:0.3f}, {4:0.3f}".format(numpy.min(upper_EMIs),
                                                                                             mean_upper_EMIs,
                                                                                             numpy.std(upper_EMIs),
                                                                                             median_upper_EMIs,
-                                                                                            numpy.max(upper_EMIs))
-                    print "Outlier (min,mean,std,median,max): {0:0.3f}, {1:0.3f}, {2:0.3f}, {3:0.3f}, {4:0.3f}".format(numpy.min(outlier_EMIs),
+                                                                                            numpy.max(upper_EMIs)))
+                    print("Outlier (min,mean,std,median,max): {0:0.3f}, {1:0.3f}, {2:0.3f}, {3:0.3f}, {4:0.3f}".format(numpy.min(outlier_EMIs),
                                                                                               mean_outlier_EMIs,
                                                                                               numpy.std(outlier_EMIs),
                                                                                               median_outlier_EMIs,
-                                                                                              numpy.max(outlier_EMIs))
+                                                                                              numpy.max(outlier_EMIs)))
 
         if export:
             # Let's save the cutoff populations to a picklefile
             f = open(cutoffs_picklefile_name, 'w')
             pickle.dump([EMI_cutoffs_dict, snow_cutoffs_dicts_global],f)
             f.close()
-            print os.path.split(cutoffs_picklefile_name)[-1], "written."
+            print(os.path.split(cutoffs_picklefile_name)[-1], "written.")
 
         # Pull out the populations, export box-and-whisker plots for all of these.
         if export_image:
@@ -2081,7 +2081,7 @@ class RCM_Manager(object):
             dlabels = [labels_dict[dset] for dset in dkeys]
 
             fig, (ax1,ax2,ax3) = plt.subplots(1,3,sharey=True)
-            positions = range(len(reanalysis_dataset_key_list)-1,-1,-1)
+            positions = list(range(len(reanalysis_dataset_key_list)-1,-1,-1))
 
             ax1.boxplot(lower_continuous_EMIs_lists, vert=False, showfliers=True, positions=positions, labels=dlabels)
             ax1.axvline(x=numpy.mean(lower_medians), color="blue",linestyle="--")
@@ -2098,7 +2098,7 @@ class RCM_Manager(object):
             fig.tight_layout()
             figname = os.path.join(STATISTICS_OUTPUT_FOLDER, "EMI_cutoff_boxplots.png")
             fig.savefig(figname, dpi=600)
-            print "Exported", os.path.split(figname)[1]
+            print("Exported", os.path.split(figname)[1])
             plt.close()
 
         # These are the four reanalysis datasets we're using.
@@ -2106,7 +2106,7 @@ class RCM_Manager(object):
         upper_medians = [EMI_cutoffs_dict[dkey]["Median Upper Continuous"] for dkey in reanalysis_dataset_key_list]
         intermittent_medians = [EMI_cutoffs_dict[dkey]["Median Intermittent Continuous"] for dkey in reanalysis_dataset_key_list]
         snow_cutoffs_95 = [snow_cutoffs_dicts_global[dkey]["95%"] for dkey in reanalysis_dataset_key_list]
-        print snow_cutoffs_95
+        print(snow_cutoffs_95)
 
         lower_mean = numpy.mean(lower_medians)
         upper_mean = numpy.mean(upper_medians)
@@ -2115,7 +2115,7 @@ class RCM_Manager(object):
         return lower_mean, upper_mean, intermittent_mean, snow_cutoffs_95_mean
 
     def _read_EMI_ICE_SLAB_decadal_outputs_v1(self):
-        print "Reading", os.path.split(EMI_ICE_SLAB_DECADAL_OUTPUTS_CSV_FILE)[-1]
+        print("Reading", os.path.split(EMI_ICE_SLAB_DECADAL_OUTPUTS_CSV_FILE)[-1])
         csv_file = open(EMI_ICE_SLAB_DECADAL_OUTPUTS_CSV_FILE, 'r')
         lines = [line.strip() for line in csv_file.readlines() if len(line.strip()) > 0]
         csv_file.close()
@@ -2149,7 +2149,7 @@ class RCM_Manager(object):
         return data_array
 
     def _read_EMI_ICE_SLAB_decadal_outputs_v3(self):
-        print "Reading", os.path.split(EMI_ICE_SLAB_DECADAL_OUTPUTS_CSV_FILE)[-1]
+        print("Reading", os.path.split(EMI_ICE_SLAB_DECADAL_OUTPUTS_CSV_FILE)[-1])
         csv_file = open(EMI_ICE_SLAB_DECADAL_OUTPUTS_CSV_FILE, 'r')
         lines = [line.strip() for line in csv_file.readlines() if len(line.strip()) > 0]
         csv_file.close()
@@ -2360,7 +2360,7 @@ class HIRHAM5_Manager(RCM_Manager):
             try:
                 dataset = netCDF4.Dataset(self._DICT_filenames[dataset_key][var_name], mode="r")
             except RuntimeError:
-                print "'{0}'[{1}]".format(dataset_key, var_name), "in file", self._DICT_filenames[dataset_key][var_name], "not found."
+                print("'{0}'[{1}]".format(dataset_key, var_name), "in file", self._DICT_filenames[dataset_key][var_name], "not found.")
 
             if var_name in ("LAT","LON", "CELLAREA","MASK","BASINS"):
                 if var_name in ("LAT","LON", "CELLAREA"):
@@ -2544,7 +2544,7 @@ class HIRHAM5_Manager(RCM_Manager):
            or (self._DICT_variables[self._LIST_dataset_keys[0]]["ELEV"].shape != self.get_variable("LAT").shape):
 
             if os.path.exists(HIRHAM_ELEV_PICKLEFILE):
-                print "Reading", os.path.split(HIRHAM_ELEV_PICKLEFILE)[-1]
+                print("Reading", os.path.split(HIRHAM_ELEV_PICKLEFILE)[-1])
                 f = open(HIRHAM_ELEV_PICKLEFILE,'r')
                 d = pickle.load(f)
                 f.close()
@@ -2553,11 +2553,11 @@ class HIRHAM5_Manager(RCM_Manager):
                 d = self.interpolate_between_grids(MAR, "ELEV", interpolation_type="nearest neighbor")
 
                 if export_picklefile_if_not_created:
-                    print "Writing", os.path.split(HIRHAM_ELEV_PICKLEFILE)[-1]
+                    print("Writing", os.path.split(HIRHAM_ELEV_PICKLEFILE)[-1])
                     f = open(HIRHAM_ELEV_PICKLEFILE,'w')
                     pickle.dump(d, f)
                     f.close()
-                    print os.path.split(HIRHAM_ELEV_PICKLEFILE)[-1], "written."
+                    print(os.path.split(HIRHAM_ELEV_PICKLEFILE)[-1], "written.")
 
             return d
 
@@ -2798,7 +2798,7 @@ class RACMO_Manager(RCM_Manager):
            or (self._DICT_variables[dataset_key]["BASINS"].shape != self.get_variable("LAT").shape):
 
             if os.path.exists(RACMO_GRID_INTEGERS_PICKLEFILE):
-                print "Reading", os.path.split(RACMO_GRID_INTEGERS_PICKLEFILE)[-1]
+                print("Reading", os.path.split(RACMO_GRID_INTEGERS_PICKLEFILE)[-1])
                 f = open(RACMO_GRID_INTEGERS_PICKLEFILE,'r')
                 d = pickle.load(f)
                 f.close()
@@ -2807,11 +2807,11 @@ class RACMO_Manager(RCM_Manager):
                 d = self.interpolate_between_grids(H5, "BASINS", interpolation_type="nearest neighbor")
 
                 if export_picklefile_if_not_created:
-                    print "Writing", os.path.split(RACMO_GRID_INTEGERS_PICKLEFILE)[-1]
+                    print("Writing", os.path.split(RACMO_GRID_INTEGERS_PICKLEFILE)[-1])
                     f = open(RACMO_GRID_INTEGERS_PICKLEFILE,'w')
                     pickle.dump(d, f)
                     f.close()
-                    print os.path.split(RACMO_GRID_INTEGERS_PICKLEFILE)[-1], "written."
+                    print(os.path.split(RACMO_GRID_INTEGERS_PICKLEFILE)[-1], "written.")
 
             return d
 
@@ -2826,7 +2826,7 @@ class MAR_Manager(RCM_Manager):
 
     # FOR NOW, this just uses the Montly outputs interpolated at 5 km.  There is a version of those for all the datasets
     # Later I could look into implementing different resolution data in the raw formats.
-    _LIST_dataset_keys = MAR_ANNUAL_FILENAMES_DICT.keys()
+    _LIST_dataset_keys = list(MAR_ANNUAL_FILENAMES_DICT.keys())
     _LIST_dataset_keys.sort()
     _LIST_variable_keys = ("LAT", "LON", "ELEV", "CELLAREA", "MASK", "RUNOFF", "SMB", "SNOW", "RAIN", "TIME", "MELT", "SUBL", "TEMP", "BASINS", "TEMPMAGNITUDE")
 
@@ -2985,7 +2985,7 @@ class MAR_Manager(RCM_Manager):
         Must redo this if we want the total of the pixel (land + ice).'''
         for dset_key in self._LIST_dataset_keys:
 
-            print "======", dset_key, "======"
+            print("======", dset_key, "======")
             self._read_or_build_annual_dataset_picklefile(dset_key, force_rebuild=True)
 
         return
@@ -3003,12 +3003,12 @@ class MAR_Manager(RCM_Manager):
         if os.path.exists(filename):
             if force_rebuild:
                 # Delete the file here
-                print "Deleting old", os.path.split(filename)[-1]
+                print("Deleting old", os.path.split(filename)[-1])
                 os.remove(filename)
                 pass
             else:
                 f = open(filename, 'r')
-                print "Reading", os.path.split(filename)[-1]
+                print("Reading", os.path.split(filename)[-1])
                 d = pickle.load(f)
                 f.close()
                 self._DICT_variables[dataset_key] = d
@@ -3021,7 +3021,7 @@ class MAR_Manager(RCM_Manager):
         annual_filenames.sort()
         annual_datasets = [None] * len(annual_filenames)
         for i,fname in enumerate(annual_filenames):
-            print "Reading", os.path.split(fname)[-1]
+            print("Reading", os.path.split(fname)[-1])
             annual_datasets[i] = netCDF4.Dataset(fname)
 
         YEARS = numpy.array([int(fname[-7:-3]) for fname in annual_filenames], dtype=numpy.int)
@@ -3032,7 +3032,7 @@ class MAR_Manager(RCM_Manager):
             self._DICT_variables[dataset_key][var_key] = None
 
         for i, dataset in enumerate(annual_datasets):
-            print YEARS[i]
+            print(YEARS[i])
             for var_name in self._LIST_variable_keys:
 
                 var_key = {"TIME"     : None    ,
@@ -3140,9 +3140,9 @@ class MAR_Manager(RCM_Manager):
                 variable.shape = variable.shape[0], variable.shape[1]*variable.shape[2]
                 mean = numpy.mean(variable[:,mask.flatten()])
 
-            print '\t', var_name, self._DICT_variables[dataset_key][var_name].shape, mean
+            print('\t', var_name, self._DICT_variables[dataset_key][var_name].shape, mean)
 
-        print "Writing", os.path.split(picklefilename)[-1]
+        print("Writing", os.path.split(picklefilename)[-1])
         f = open(picklefilename, 'w')
         pickle.dump(self._DICT_variables[dataset_key], f)
         f.close()
@@ -3156,7 +3156,7 @@ class MAR_Manager(RCM_Manager):
            or (self._DICT_variables[self._LIST_dataset_keys[0]]["BASINS"].shape != self.get_variable("LAT").shape):
 
             if os.path.exists(MAR_BASIN_INTEGERS_PICKLEFILE):
-                print "Reading", os.path.split(MAR_BASIN_INTEGERS_PICKLEFILE)[-1]
+                print("Reading", os.path.split(MAR_BASIN_INTEGERS_PICKLEFILE)[-1])
                 f = open(MAR_BASIN_INTEGERS_PICKLEFILE,'r')
                 d = pickle.load(f)
                 f.close()
@@ -3165,11 +3165,11 @@ class MAR_Manager(RCM_Manager):
                 d = self.interpolate_between_grids(H5, "BASINS", interpolation_type="nearest neighbor")
 
                 if export_picklefile_if_not_created:
-                    print "Writing", os.path.split(MAR_BASIN_INTEGERS_PICKLEFILE)[-1]
+                    print("Writing", os.path.split(MAR_BASIN_INTEGERS_PICKLEFILE)[-1])
                     f = open(MAR_BASIN_INTEGERS_PICKLEFILE,'w')
                     pickle.dump(d, f)
                     f.close()
-                    print os.path.split(MAR_BASIN_INTEGERS_PICKLEFILE)[-1], "written."
+                    print(os.path.split(MAR_BASIN_INTEGERS_PICKLEFILE)[-1], "written.")
 
             return d
 
@@ -3185,14 +3185,14 @@ class MAR_Manager(RCM_Manager):
 def UNIT_TEST_loading_data():
     '''Perform a unit test of loading data from the data set, for each of the keys.'''
     # THIS WORKS. LOADING DATA IN HIRHAM5 HAS PASSED.
-    print "_________HIRHAM5__________"
+    print("_________HIRHAM5__________")
     H5 = HIRHAM5_Manager()
     for dset_key in H5._LIST_dataset_keys:
-        print
+        print()
         for var_name in H5._LIST_variable_keys:
-            print dset_key + ",", var_name,
+            print(dset_key + ",", var_name, end=' ')
             variable = H5.get_variable(var_name, dataset_key=dset_key)
-            print variable.shape, variable.dtype,
+            print(variable.shape, variable.dtype, end=' ')
 
             yearspan = {'2010GCM': (1995,2003),
                         '2014ERA': (1989,2009),
@@ -3203,16 +3203,16 @@ def UNIT_TEST_loading_data():
                         } [dset_key]
 
             variable = H5.get_variable(var_name, dataset_key=dset_key, yearspan = yearspan)
-            print variable.shape
+            print(variable.shape)
 
-    print "_________RACMO__________"
+    print("_________RACMO__________")
     RACMO = RACMO_Manager()
     for dset_key in RACMO._LIST_dataset_keys:
 
         for var_name in RACMO._LIST_variable_keys:
-            print dset_key, var_name,
+            print(dset_key, var_name, end=' ')
             variable = RACMO.get_variable(var_name, dataset_key = dset_key)
-            print variable.shape, variable.dtype,
+            print(variable.shape, variable.dtype, end=' ')
 
             yearspan = {"RACMO2.3_ERA-Int_1958-2015": (1963,1992),
                         "RACMO2.1_HadGEM2_1971-2004": (1989,2003),
@@ -3233,15 +3233,15 @@ def UNIT_TEST_loading_data():
             else:
                 mean = "HUH???????"
 
-            print variable.shape, mean
+            print(variable.shape, mean)
 
-    print "_________MAR__________"
+    print("_________MAR__________")
     MAR = MAR_Manager()
     for dset_key in MAR._LIST_dataset_keys:
-        print
+        print()
         mask = MAR.get_variable("MASK", dataset_key=dset_key)
         for var_name in MAR._LIST_variable_keys:
-            print dset_key + ",", var_name,
+            print(dset_key + ",", var_name, end=' ')
             variable = MAR.get_variable(var_name, dataset_key=dset_key)
             if var_name == "BASINS":
                 mean = "foobar"
@@ -3253,7 +3253,7 @@ def UNIT_TEST_loading_data():
                 mean = numpy.mean(variable)
             else:
                 mean = "HUH???????"
-            print variable.shape, variable.dtype, mean,
+            print(variable.shape, variable.dtype, mean, end=' ')
 
             yearspan = {'CanESM2-histo_1950-2005_25km': (1995,2003),
                         'CanESM2-rcp45_2006-2100_25km': (2045,2055),
@@ -3270,23 +3270,23 @@ def UNIT_TEST_loading_data():
                         } [dset_key]
 
             variable = MAR.get_variable(var_name, dataset_key=dset_key, yearspan = yearspan)
-            print variable.shape
+            print(variable.shape)
 
 def quick_look_at_variables():
     for M in (HIRHAM5_Manager(), MAR_Manager(), RACMO_Manager()):
         MASK = M.get_variable("MASK", dataset_key=M._LIST_dataset_keys[0])
         for dataset_key in M._LIST_dataset_keys:
-            print
-            print M.get_manager_name(), dataset_key
+            print()
+            print(M.get_manager_name(), dataset_key)
             for var_name in ["LAT","LON","ELEV","MELT","RAIN","SNOW","TEMP"]:
                 data = M.get_variable(var_name, dataset_key = dataset_key)
                 if var_name in ["MELT","RAIN","SNOW","TEMP"]:
                     data = numpy.mean(data, axis=0)
 
 
-                print "   ", var_name, numpy.mean(data[MASK])
+                print("   ", var_name, numpy.mean(data[MASK]))
 
-            print "   ", "EMI", numpy.mean(M.compute_EMI_values(dataset_key=dataset_key)[MASK])
+            print("   ", "EMI", numpy.mean(M.compute_EMI_values(dataset_key=dataset_key)[MASK]))
 
 def plot_EMI_of_icebridge_pixels():
     '''Plot the average EMI yearly trend for all IceBridge pixels in each Reanalysis dataset.'''
@@ -3334,7 +3334,7 @@ def plot_EMI_of_icebridge_pixels():
 
     figname = "EMI_Trends_Reanalysis.tif"
 
-    print "Plotting", figname
+    print("Plotting", figname)
     fig.savefig(os.path.join(STATISTICS_OUTPUT_FOLDER,figname), dpi=600)
 
     plt.close()
@@ -3448,7 +3448,7 @@ def plot_ICE_SLABS_decadal_outputs_v3():
     for i,(key, legend_key, color) in enumerate(zip(REANALYSIS_KEYS, LEGEND_KEYS, COLORS)):
 
         # Add an entry for our table summary here.
-        if key not in summary_dict.keys():
+        if key not in list(summary_dict.keys()):
             summary_dict[key] = numpy.empty([1,], dtype=summary_dt)[0]
             summary_dict[key]['DATASET'] = key
 
@@ -3589,7 +3589,7 @@ def plot_ICE_SLABS_decadal_outputs_v3():
     ax_runoff.spines['right'].set_visible(False)
     ax_runoff.spines['top'].set_visible(False)
 
-    print "2013 areas (km2):", data13_min, data13_max
+    print("2013 areas (km2):", data13_min, data13_max)
     ax_area.legend(fontsize="xx-small", loc="upper left")
     ax_area.set_ylabel("Area (10$^3$ km$^2$)")
     ax_runoff.set_ylabel("Runoff (mm SLE)")
@@ -3643,7 +3643,7 @@ def plot_ICE_SLABS_decadal_outputs_v3():
 
         for i,key in enumerate(GCM_KEYS):
 
-            if key not in summary_dict.keys():
+            if key not in list(summary_dict.keys()):
                 summary_dict[key] = numpy.empty([1,], dtype=summary_dt)[0]
                 summary_dict[key]['DATASET'] = key if type(key) == str else key[-1]
 
@@ -3787,7 +3787,7 @@ def plot_ICE_SLABS_decadal_outputs_v3():
 
         for i,key in enumerate(GCM_KEYS):
 
-            assert key in summary_dict.keys()
+            assert key in list(summary_dict.keys())
 
             color = COLORS[i]
 
@@ -3816,8 +3816,8 @@ def plot_ICE_SLABS_decadal_outputs_v3():
                 years, annual_runoff, runoff = interpolate_HIRHAM_runoff_totals(hirham_years, hirham_annual_runoff)
                 # Save this variable for later.
                 hirham_cum_runoff = runoff
-                print "HIRHAM_CUM_RUNOFF, {0}: {1}, {2}: {3}".format(years[years==2050], hirham_cum_runoff[years==2050],
-                                                                     years[years==2100], hirham_cum_runoff[years==2100])
+                print("HIRHAM_CUM_RUNOFF, {0}: {1}, {2}: {3}".format(years[years==2050], hirham_cum_runoff[years==2050],
+                                                                     years[years==2100], hirham_cum_runoff[years==2100]))
 
 
             if (not (type(key) == str) and (key[:5] == 'RACMO')):
@@ -3945,14 +3945,14 @@ def plot_ICE_SLABS_decadal_outputs_v3():
     # Save the figure
     figname = "ICE_SLAB_AREAS_COMBINED.png"
 
-    print "Plotting", figname
+    print("Plotting", figname)
     fig.savefig(os.path.join(STATISTICS_OUTPUT_FOLDER,figname), dpi=2400)
 
     # Output the stats table summary data
     f = open(os.path.join(STATISTICS_OUTPUT_FOLDER, 'RUNOFF_STATS_SUMMARY.csv'), 'w')
     f.write('YEAR_START,YEAR_END,AREA_TREND_KM_A,AREA_KM2,RUNOFF_TREND_GT_A,RUNOFF_ACC_GT_A2,RUNOFF_TOTAL_GT\n')
 
-    summary_keys = summary_dict.keys()
+    summary_keys = list(summary_dict.keys())
     summary_keys.sort()
     for key in summary_keys:
         for i in (0,1):
@@ -3967,13 +3967,13 @@ def plot_ICE_SLABS_decadal_outputs_v3():
                     summary_dict[key]['RUNOFF_TOTAL_GT'][i]
                   ))
     f.close()
-    print 'RUNOFF_STATS_SUMMARY.csv written.'
+    print('RUNOFF_STATS_SUMMARY.csv written.')
 
     data_csv_fname = "ICE_SLAB_TRENDLINES_OUTPUT.csv"
     f = open(os.path.join(STATISTICS_OUTPUT_FOLDER, data_csv_fname), 'w')
     f.write(data_string)
     f.close()
-    print "Exported", data_csv_fname
+    print("Exported", data_csv_fname)
 
 
 def run_decadal_RUNOFF_outputs_and_save_to_CSV_v3(skip_shapefiles=False):
@@ -3985,7 +3985,7 @@ def run_decadal_RUNOFF_outputs_and_save_to_CSV_v3(skip_shapefiles=False):
                                                        skip_shapefiles=skip_shapefiles)
 
     f.close()
-    print os.path.split(csv_fname)[-1], "written."
+    print(os.path.split(csv_fname)[-1], "written.")
     return
 
 
@@ -3997,16 +3997,16 @@ def compute_area_of_ice_slab_polygons():
     driver = ogr.GetDriverByName("ESRI Shapefile")
 
     data_source = driver.Open(shapefile_fname, 0)
-    print "Opened", os.path.split(shapefile_fname)[-1]
+    print("Opened", os.path.split(shapefile_fname)[-1])
 
     layer = data_source.GetLayer()
     features = [layer.GetFeature(i) for i in range(layer.GetFeatureCount())]
 
     polygon_areas = numpy.array([feature.geometry().Area() for feature in features])
 
-    print polygon_areas
+    print(polygon_areas)
     poly_sum = numpy.sum(polygon_areas)
-    print "SUM", poly_sum/1e6
+    print("SUM", poly_sum/1e6)
     return polygon_areas
 
 

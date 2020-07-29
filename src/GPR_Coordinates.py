@@ -103,7 +103,7 @@ class GPR_Coords:
         GCS2UTM = self.set_utm_converter()
 
         # Must convert positive longitudes (*W) to negative
-        utm_points = GCS2UTM.TransformPoints(zip(-lons, lats))
+        utm_points = GCS2UTM.TransformPoints(list(zip(-lons, lats)))
         for i in range(N):
             utm_e[i] = utm_points[i][0]
             utm_n[i] = utm_points[i][1]
@@ -123,16 +123,16 @@ class GPR_Coords:
     def plot_trace_distances(self):
 
         distances = self.distances()
-        print "----", os.path.split(self.filename)[-1], "----"
-        print "mean:", np.mean(distances)
-        print "min:", np.min(distances), "  max:", np.max(distances)
+        print("----", os.path.split(self.filename)[-1], "----")
+        print("mean:", np.mean(distances))
+        print("min:", np.min(distances), "  max:", np.max(distances))
 
         threshold = 5.0
         count_over_threshold = np.count_nonzero(distances > threshold)
         if count_over_threshold > 0:
-            print count_over_threshold, "traces above", threshold, "m/trace."
-            print np.where(distances > threshold)[0] + 1
-        print
+            print(count_over_threshold, "traces above", threshold, "m/trace.")
+            print(np.where(distances > threshold)[0] + 1)
+        print()
 
 
         plt.subplot(2,1,1)
@@ -140,7 +140,7 @@ class GPR_Coords:
         plt.title(os.path.split(self.filename)[1])
 
         plt.subplot(2,1,2)
-        plt.plot(range(1,len(distances)+1), distances)
+        plt.plot(list(range(1,len(distances)+1)), distances)
         plt.xlabel("tracenum")
         plt.ylabel("distance per trace (m)")
 
@@ -193,7 +193,7 @@ class GPR_Coords:
         #
         # If "verbose", print out how many samples were skipped and how many were repeated.
         if verbose:
-            print os.path.split(self.filename)[-1]
+            print(os.path.split(self.filename)[-1])
 
         old_distances = self.distances()
         cum_distances = np.empty((len(old_distances)+1,), dtype=np.double)
@@ -247,7 +247,7 @@ class GPR_Coords:
             iters = old_tracenums[1:] - old_tracenums[:-1]
             num_repeated = np.count_nonzero(iters == 0)
             num_skipped = np.sum(iters[iters > 1]) - np.count_nonzero(iters > 1)
-            print num_skipped, "traces skipped. ", num_repeated, "traces repeated before fixing."
+            print(num_skipped, "traces skipped. ", num_repeated, "traces repeated before fixing.")
 
         # The synchronization artifacts with the GPS leave a number of traces repeated immediately adjacent
         # to other traces that are skipped, which shouldn't happen.  This will go through all the
@@ -263,14 +263,14 @@ class GPR_Coords:
                 old_tracenums[i] = old_tracenums[i] - 1
                 shifted_backward += 1
         if verbose:
-            print shifted_forward, "points shifted forward,", shifted_backward, "points shifted backward."
+            print(shifted_forward, "points shifted forward,", shifted_backward, "points shifted backward.")
             iters = old_tracenums[1:] - old_tracenums[:-1]
             num_repeated = np.count_nonzero(iters == 0)
             num_skipped = np.sum(iters[iters > 1]) - np.count_nonzero(iters > 1)
-            print num_skipped, "traces skipped. ", num_repeated, "traces repeated after fixing."
+            print(num_skipped, "traces skipped. ", num_repeated, "traces repeated after fixing.")
 
         if outcorfile != None:
-            if verbose: print "Writing resampled\\" + os.path.split(outcorfile)[-1], '\n'
+            if verbose: print("Writing resampled\\" + os.path.split(outcorfile)[-1], '\n')
             f = open(outcorfile, 'w')
             # Print out a new .COR file.
             outstr = "{0:d}\t{1:04d}-{2:02d}-{3:02d}\t{4:02d}:{5:02d}:{6:02d}.{7:02d}\t{8:14.11f}\tN\t{9:14.11f}\tW\t{10:8.3f}\tM\t1\n"
