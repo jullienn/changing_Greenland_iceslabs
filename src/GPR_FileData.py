@@ -20,9 +20,9 @@ import os
 # You can download the data there, put the local folder name in the line below, and go from there.
 # NOTE: Not all the intermediate data is cached in the repository. Much of it must be generated.
 # See contact info above for details.
-FIGSHARE_BASE = "/path/to/figshare/folder"
-DATA_FIGURES_OUTPUT_FOLDER = os.path.join(FIGSHARE_BASE, "Figures")
-GPR_DIR = r'C:\Users\mmacferrin\Dropbox\Research\DATA\ACT-13 GPR Data\MALAGS'
+FIGSHARE_BASE = "C:\Users\Nicolas Jullien\Documents\PhD\OIB\MacFerrin_codes\codes\figshare_repository"
+DATA_FIGURES_OUTPUT_FOLDER = os.path.join(FIGSHARE_BASE, "\Figures")
+GPR_DIR = r'C:\Users\Nicolas Jullien\Documents\PhD\OIB\MacFerrin_codes\codes\figshare_repository\Mala_GPR\Mala_GPR'
 
 # Pre-prepared picklefiles for the ACT-IceBridge validation, so we don't need to redo them each time.
 GPR_DOWNSAMPLED_FOLDER = os.path.join(GPR_DIR, "DOWNSAMPLE_PICKLEFILES")
@@ -123,14 +123,14 @@ GPR_DETRENDED_PICKLEFILES = [logvariance_to_detrended_filename(f) for f in RESAM
 CORE_XLSX_FILE = os.path.join(FIGSHARE_BASE, r'firn_cores_2009_2012_2013_2015_2016_temp.xlsx')
 
 # IceBridge Data Folder
-ICEBRIDGE_DATA_FOLDER = r'F:\Research\DATA\ATM-IceBridge\IceBridge - AccumRadar\accum'
-ICEBRIDGE_DATA_H5FILE = os.path.join(ICEBRIDGE_DATA_FOLDER, "IceBridgeDB.h5")
+ICEBRIDGE_DATA_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data'
+ICEBRIDGE_DATA_H5FILE = os.path.join(ICEBRIDGE_DATA_FOLDER, "test_IceBridgeDB.h5")
 ICEBRIDGE_EXPORT_FOLDER = os.path.join(ICEBRIDGE_DATA_FOLDER, "exported")
 # TODO: Fix Folder Names
-ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\mmacferrin\Dropbox\Research\DATA\ATM-IceBridge\IceBridge - AccumRadar\Ice Lenses Seen'
+ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data\2011_Greenland_P3\images'
 
 # TODO: Fix Folder Names
-ICEBRIDGE_EXCLUSIONS_FOLDER = r'C:\Users\mmacferrin\Dropbox\Research\DATA\ATM-IceBridge\IceBridge - AccumRadar\Exclusion Guide Files'
+ICEBRIDGE_EXCLUSIONS_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data\Exclusion_folder'
 ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER, r'Exclusions_SURFACE_PICKS.txt')
 ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER, r'SURFACE_STARTING_PICKS_Suggestions.txt')
 ICEBRIDGE_SURFACE_INDICES_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "Surface_Indices_Picklefiles")
@@ -146,5 +146,3 @@ ICEBRIDGE_VALIDATION_OUTPUT_CSV_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,
 ICEBRIDGE_BOOLEAN_RESULTS_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "Boolean Array Picklefiles")
 ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER, "Ice_Layer_Output_Thicknesses.csv")
 ICEBRIDGE_SMOOTHED_ICE_LAYER_SHAPEFILE = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "Exported Shapefiles\IceBridge_out.shp")
-
-
