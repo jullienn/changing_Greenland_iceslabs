@@ -1,3 +1,5 @@
+# Modifications of the files by Nicolas Jullien, starting on July 29th 2020
+
 # Greenland_Ice_Slabs
 Code associated with detecting and modeling ice slabs in Greenland firn.
 
