@@ -10,7 +10,7 @@
 	- RCM_Manager.py
 2. The file GPR_FileData.py have been into the changing version process 
 but anything changed as no difference were spottable by the process
-3. The file IceBridgeRadarFlightlineDB.py have been into the changing version process but did not work. I will not change it manually to make it work with python 3, as I did a test processing the database with python 2.7 and it did work. This file must be run with python 2.7 now on!
+3. The file IceBridgeRadarFlightlineDB.py have been through the changing version process but it did not work. This file have been manually updated and several functions have been commented. This version have been tested and it worked in generating the database for the test data subset.
 
 # Greenland_Ice_Slabs
 Code associated with detecting and modeling ice slabs in Greenland firn.
