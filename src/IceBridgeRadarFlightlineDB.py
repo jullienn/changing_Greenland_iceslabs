@@ -6,8 +6,8 @@ Created on Thu Mar 10 14:52:50 2016
 
 IceBridge Flight Line Database -- for locating, reading, subsetting and ingesting OIB data
 
-This code is primarily responsible for creating an hdf5 metadata database for all the 
-OIB Accumulation Radar flightlines. This allows code to open one database to get all the 
+This code is primarily responsible for creating an hdf5 metadata database for all the
+OIB Accumulation Radar flightlines. This allows code to open one database to get all the
 metadata (lat,lon,elev,roll,pitch,heading,etc) for each trace without having to
 traverse the directory structure of the files and open each individual data file
 just to pull out metadata on the traces. It takes a few minutes to build the database,
@@ -18,6 +18,7 @@ IceBridge metadata, useful for GIS visualizations.
 
 The primary function in this code is BUILD_DATABASE(), toward the bottom.
 
+Modified by Nicolas Jullien on July 29th, 2020
 """
 
 import numpy
@@ -31,9 +32,9 @@ from osgeo import ogr, osr
 
 # Stand-in variables for directories.
 #BASEDIR = r'C:\Users\mmacferrin\Desktop'
-BASEDIR = r'F:\Research\DATA\ATM-IceBridge\IceBridge - AccumRadar\accum'
-DB_FILE = os.path.join(BASEDIR, 'IceBridgeDB.h5')
-CC_LINE_SHAPEFILE = r'F:\Research\DATA\Camp Century, Greenland\CC_Icebridge_shapefile'
+BASEDIR = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data'
+DB_FILE = os.path.join(BASEDIR, 'test_IceBridgeDB.h5')
+#CC_LINE_SHAPEFILE = r'F:\Research\DATA\Camp Century, Greenland\CC_Icebridge_shapefile'
 
 class IceBridgeFlightLineDescriptor(T.IsDescription):
     Flightline_ID       = T.UInt32Col(pos=0)
@@ -102,7 +103,7 @@ class IceBridgeRadarDB:
         if self.h5file != None and self.h5file.isopen:
             return
         if os.path.exists(self.filename):
-            self.h5file = T.openFile(self.filename, status, title="IceBridge")
+            self.h5file = T.open_file(self.filename, status, title="IceBridge")
             self.flightline_table = self.h5file.getNode("/{0}/{1}".format(self.PyTableGroupName, self.PyTableFlightLineTableName))
             self.file_table = self.h5file.getNode("/{0}/{1}".format(self.PyTableGroupName, self.PyTableFileTableName))
             self.coordinates_table = self.h5file.getNode("/{0}/{1}".format(self.PyTableGroupName, self.PyTableCoordinatesTableName))
@@ -116,27 +117,27 @@ class IceBridgeRadarDB:
         Creates a new, empty database and the tables, returns the database object
         with write permissions, ready for data entry.'''
 
-        self.h5file = T.openFile(fname, 'w', title="IceBridge")
+        self.h5file = T.open_file(fname, 'w', title="IceBridge")
         print('Writing file "{0}"'.format(fname))
         assert self.h5file.isopen
 
         # Create the base "group" of tables
-        group = self.h5file.createGroup("/", self.PyTableGroupName, title="Accumulation")
+        group = self.h5file.create_group("/", self.PyTableGroupName, title="Accumulation")
 
         # Create the "Flightline" table
-        self.flightline_table = self.h5file.createTable(group,
+        self.flightline_table = self.h5file.create_table(group,
                                                   self.PyTableFlightLineTableName,
                                                   IceBridgeFlightLineDescriptor)
         self.flightline_table.attrs.TABLE_DESCRIPTION = "Describes each unique flight line in the OIB data.  Flight lines may be described by multiple files."
 
         # Create the "File" table
-        self.file_table = self.h5file.createTable(group,
+        self.file_table = self.h5file.create_table(group,
                                              self.PyTableFileTableName,
                                              IceBridgeFileTableDescriptor)
         self.file_table.attrs.TABLE_DESCRIPTION = "Describes the location of each IceBridge file, and the flight line it belongs to."
 
         # Create the "Coordinates" table
-        self.coordinates_table = self.h5file.createTable(group,
+        self.coordinates_table = self.h5file.create_table(group,
                                              self.PyTableCoordinatesTableName,
                                              IceBridgeCoordinatesDescriptor)
         self.coordinates_table.attrs.TABLE_DESCRIPTION = "Lists XYZ coordinates of each trace, and which file and flight line it belongs to.  All trace numbers should be present in order in the table."
@@ -201,151 +202,153 @@ class IceBridgeRadarDB:
 
         return flightline_dict
 
-    def _compute_ice_flags(self):
-        '''Compute two vectors with boolean flags for each coordinate, whether or not it's on the Greenland ice sheet
-        and on the Antarctic ice sheet (uphill of the MOA grounding line), respectively.
-        Return two vectors of boolean T/F flags for Greenland and Antartctica, respectively.'''
-        if self.h5file is None:
-            self.open_database()
-
-        # Retrieve IceBridge latitudes & longitudes
-        ib_lats = self.coordinates_table.cols.Latitude[:]
-        ib_lons = self.coordinates_table.cols.Longitude[:]
-
-        ############################################################################
-        # Retrieve GREENLAND lat/lons
-        gr_txt_file = r'F:\Research\DATA\ASTER GDEM Greenland Misc\Shapefiles\Eispolygon_GEO2.txt'
-        f = open(gr_txt_file)
-        lines = [line.split() for line in f.readlines() if line.strip() != '']
-        f.close()
-        # Convert all longitudes to positive-only.  See what this does (may need to offset and come back later).
-        latlons = numpy.array([(float(item[0]), float(item[1])) for item in lines])
-        gr_lats = latlons[:,0]
-        gr_lons = latlons[:,1]
-        # Seperate out polygons for peripheral ice caps.
-        gr_polys = []
-        temp_i = 0
-        while temp_i < latlons.shape[0]:
-            #Each polygon makes a loop, ending with the same coordinate upon which it begins.  Use this.
-            lat_i, lon_i = gr_lats[temp_i], gr_lons[temp_i]
-            match_i = numpy.where((gr_lats[temp_i:] == lat_i) & (gr_lons[temp_i:] == lon_i))[0]
-            assert len(match_i) >= 2
-            gr_polys.append( (gr_lats[temp_i : temp_i + match_i[1]+1], gr_lons[temp_i : temp_i + match_i[1]+1]) )
-            temp_i = temp_i + match_i[1] + 1
-        ############################################################################
-
-        # CAN WE DRAMATICALLY SPEED THIS UP BY USING A BOUNDING BOX (especialy for Antarctica?)?
-
-        # Initialize flags to zero.
-        empty_flags = numpy.zeros(ib_lats.shape, dtype=numpy.bool)
-        gr_poly_flags = [None] * len(gr_polys)
-
-        ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Define a reusable function inside this function to perform the polygon analysis.
-        def inside_polygon_func(coordlats, coordlons, polylats, polylons):
-            '''Return a boolean array of length coordlats that describes whether
-            each point is inside the polygon.  Uses vertical lines going up, so
-            it works on the Antarctica polygon we have, even if it's not technically a polygon.'''
-            # First, let's use a bounding box to subset our data and make this quicker by doing computations on far fewer points.
-            bbox_lats_min = numpy.min(polylats)
-            # Must handle specially for Antarctica, put the minimum latitude at -91.
-            # If it's a negative minimum latitude, we're talking about Antarctica
-            if bbox_lats_min < -70:
-                bbox_lats_min = -91.0
-
-            bbox_lats_max = numpy.max(polylats)
-            bbox_lons_min = numpy.min(polylons)
-            bbox_lons_max = numpy.max(polylons)
-
-            bbox_mask = (coordlats <= bbox_lats_max) & (coordlats >= bbox_lats_min) & (coordlons <= bbox_lons_max) & (coordlons >= bbox_lons_min)
-            sub_coordlons = coordlons[bbox_mask].copy()
-            sub_coordlats = coordlats[bbox_mask].copy()
-
-            progress_i = 0
-
-            flags = empty_flags.copy()
-
-            if sub_coordlons.size == 0:
-                return flags
-            sub_flags = flags[bbox_mask].copy()
-
-            for i in range(polylats.size-1):
-                i_flags_1 = (polylons[i] > sub_coordlons) != (polylons[i+1] > sub_coordlons)
-
-                # Subset again by the first set of conditions (in between the two adjacent longitudes)
-                # This subset of points consists only of those that met the first condition.
-                sub_coordlons_2 = sub_coordlons[i_flags_1]
-                sub_coordlats_2 = sub_coordlats[i_flags_1]
-
-                if sub_coordlats_2.size > 0:
-                    # Test the second set of conditions, just with this reduced dataset.
-                    i_flags_2 = (sub_coordlats_2 < ((polylats[i+1] - polylats[i]) * (sub_coordlons_2 - polylons[i]) / (polylons[i+1] - polylons[i]) + polylats[i]))
-
-                    i_flags_1[i_flags_1] = i_flags_2
-
-                    # if it crosses that line, switch the flags.
-                    sub_flags[i_flags_1] = ~sub_flags[i_flags_1]
-
-                # Output progress dots.
-                progress_i += 1
-
-                if (progress_i % 50) == 0:
-                    print('.', end=' ')
-                    if (progress_i % 1000) == 0:
-                        print(progress_i)
-                    if progress_i == (plats.size - 2):
-                        print()
-
-            flags[bbox_mask] = sub_flags
-
-            return flags
-        ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        # We could vectorize all this, but NxM array would be too huge for memory.  Must iterate instead.
-        for pi,(plats, plons) in enumerate(gr_polys):
-            print("Poly", pi+1, ",", plats.size, "points.")
-
-            gr_poly_flags[pi] = inside_polygon_func(ib_lats, ib_lons, plats, plons)
-
-            print(numpy.sum(gr_poly_flags[pi]), "inside polygon.")
-
-        # Compile into a single array with or operators.
-        gr_flags = empty_flags.copy()
-        for poly_flags in gr_poly_flags:
-            gr_flags = gr_flags | poly_flags
-
-        print("TOTAL GREENLAND")
-        print(gr_flags.size, numpy.sum(gr_flags), float(numpy.sum(gr_flags)) / gr_flags.size * 100.0, "%")
-        print()
-
-        ############################################################################
-        # Retrieve ANTARCTICA lat/lons
-        an_sav_file = r'F:\Research\DATA\Boundaries\Antarctica\moa_groundingline.sav'
-        sav = scipy.io.readsav(an_sav_file)
-        lats = sav['olat']
-        lons = sav['olon']
-        # Find the index where it flips over the longitude cutoff... make that the start/end of the line.
-        lon_gap_i = numpy.argmin(lons[1:] - lons[:-1]) + 1
-        an_lons = numpy.append(lons[lon_gap_i:], lons[:lon_gap_i])
-        an_lats = numpy.append(lats[lon_gap_i:], lats[:lon_gap_i])
-        # For completeness, add the final point from each (disjointed) end
-        # onto the other end, at the longitude cutoffs of +/- 180*
-        # This will ensure there's not a "gap".  We will look for intersections looking northward, not east/west.
-        an_lons = numpy.append([an_lons[-1] - 360.0], lons)
-        an_lats = numpy.append([an_lats[-1]], an_lats)
-        an_lons = numpy.append(an_lons, [an_lons[1] + 360.0])
-        an_lats = numpy.append(an_lats, [an_lats[1]])
-        # Now we have a single W->E line against which to run our analysis w/ S->N vectors.
-        ############################################################################
-
-        # initialize flags to zero
-        print("processing Antarctica... this'll take awhile.")
-        an_flags = inside_polygon_func(ib_lats, ib_lons, an_lats, an_lons)
-        print("TOTAL ANTARCTICA")
-        print(an_flags.size, numpy.sum(an_flags), float(numpy.sum(an_flags)) / an_flags.size * 100.0, "%")
-        print()
-
-        return gr_flags, an_flags
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
+    # def _compute_ice_flags(self):
+        # '''Compute two vectors with boolean flags for each coordinate, whether or not it's on the Greenland ice sheet
+        # and on the Antarctic ice sheet (uphill of the MOA grounding line), respectively.
+        # Return two vectors of boolean T/F flags for Greenland and Antartctica, respectively.'''
+        # if self.h5file is None:
+        #     self.open_database()
+        #
+        # # Retrieve IceBridge latitudes & longitudes
+        # ib_lats = self.coordinates_table.cols.Latitude[:]
+        # ib_lons = self.coordinates_table.cols.Longitude[:]
+        #
+        # ############################################################################
+        # # Retrieve GREENLAND lat/lons
+        # gr_txt_file = r'F:\Research\DATA\ASTER GDEM Greenland Misc\Shapefiles\Eispolygon_GEO2.txt'
+        # f = open(gr_txt_file)
+        # lines = [line.split() for line in f.readlines() if line.strip() != '']
+        # f.close()
+        # # Convert all longitudes to positive-only.  See what this does (may need to offset and come back later).
+        # latlons = numpy.array([(float(item[0]), float(item[1])) for item in lines])
+        # gr_lats = latlons[:,0]
+        # gr_lons = latlons[:,1]
+        # # Seperate out polygons for peripheral ice caps.
+        # gr_polys = []
+        # temp_i = 0
+        # while temp_i < latlons.shape[0]:
+        #     #Each polygon makes a loop, ending with the same coordinate upon which it begins.  Use this.
+        #     lat_i, lon_i = gr_lats[temp_i], gr_lons[temp_i]
+        #     match_i = numpy.where((gr_lats[temp_i:] == lat_i) & (gr_lons[temp_i:] == lon_i))[0]
+        #     assert len(match_i) >= 2
+        #     gr_polys.append( (gr_lats[temp_i : temp_i + match_i[1]+1], gr_lons[temp_i : temp_i + match_i[1]+1]) )
+        #     temp_i = temp_i + match_i[1] + 1
+        # ############################################################################
+        #
+        # # CAN WE DRAMATICALLY SPEED THIS UP BY USING A BOUNDING BOX (especialy for Antarctica?)?
+        #
+        # # Initialize flags to zero.
+        # empty_flags = numpy.zeros(ib_lats.shape, dtype=numpy.bool)
+        # gr_poly_flags = [None] * len(gr_polys)
+        #
+        # ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # # Define a reusable function inside this function to perform the polygon analysis.
+        # def inside_polygon_func(coordlats, coordlons, polylats, polylons):
+        #     '''Return a boolean array of length coordlats that describes whether
+        #     each point is inside the polygon.  Uses vertical lines going up, so
+        #     it works on the Antarctica polygon we have, even if it's not technically a polygon.'''
+        #     # First, let's use a bounding box to subset our data and make this quicker by doing computations on far fewer points.
+        #     bbox_lats_min = numpy.min(polylats)
+        #     # Must handle specially for Antarctica, put the minimum latitude at -91.
+        #     # If it's a negative minimum latitude, we're talking about Antarctica
+        #     if bbox_lats_min < -70:
+        #         bbox_lats_min = -91.0
+        #
+        #     bbox_lats_max = numpy.max(polylats)
+        #     bbox_lons_min = numpy.min(polylons)
+        #     bbox_lons_max = numpy.max(polylons)
+        #
+        #     bbox_mask = (coordlats <= bbox_lats_max) & (coordlats >= bbox_lats_min) & (coordlons <= bbox_lons_max) & (coordlons >= bbox_lons_min)
+        #     sub_coordlons = coordlons[bbox_mask].copy()
+        #     sub_coordlats = coordlats[bbox_mask].copy()
+        #
+        #     progress_i = 0
+        #
+        #     flags = empty_flags.copy()
+        #
+        #     if sub_coordlons.size == 0:
+        #         return flags
+        #     sub_flags = flags[bbox_mask].copy()
+        #
+        #     for i in range(polylats.size-1):
+        #         i_flags_1 = (polylons[i] > sub_coordlons) != (polylons[i+1] > sub_coordlons)
+        #
+        #         # Subset again by the first set of conditions (in between the two adjacent longitudes)
+        #         # This subset of points consists only of those that met the first condition.
+        #         sub_coordlons_2 = sub_coordlons[i_flags_1]
+        #         sub_coordlats_2 = sub_coordlats[i_flags_1]
+        #
+        #         if sub_coordlats_2.size > 0:
+        #             # Test the second set of conditions, just with this reduced dataset.
+        #             i_flags_2 = (sub_coordlats_2 < ((polylats[i+1] - polylats[i]) * (sub_coordlons_2 - polylons[i]) / (polylons[i+1] - polylons[i]) + polylats[i]))
+        #
+        #             i_flags_1[i_flags_1] = i_flags_2
+        #
+        #             # if it crosses that line, switch the flags.
+        #             sub_flags[i_flags_1] = ~sub_flags[i_flags_1]
+        #
+        #         # Output progress dots.
+        #         progress_i += 1
+        #
+        #         if (progress_i % 50) == 0:
+        #             print('.', end=' ')
+        #             if (progress_i % 1000) == 0:
+        #                 print(progress_i)
+        #             if progress_i == (plats.size - 2):
+        #                 print()
+        #
+        #     flags[bbox_mask] = sub_flags
+        #
+        #     return flags
+        # ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #
+        # # We could vectorize all this, but NxM array would be too huge for memory.  Must iterate instead.
+        # for pi,(plats, plons) in enumerate(gr_polys):
+        #     print("Poly", pi+1, ",", plats.size, "points.")
+        #
+        #     gr_poly_flags[pi] = inside_polygon_func(ib_lats, ib_lons, plats, plons)
+        #
+        #     print(numpy.sum(gr_poly_flags[pi]), "inside polygon.")
+        #
+        # # Compile into a single array with or operators.
+        # gr_flags = empty_flags.copy()
+        # for poly_flags in gr_poly_flags:
+        #     gr_flags = gr_flags | poly_flags
+        #
+        # print("TOTAL GREENLAND")
+        # print(gr_flags.size, numpy.sum(gr_flags), float(numpy.sum(gr_flags)) / gr_flags.size * 100.0, "%")
+        # print()
+        #
+        # ############################################################################
+        # # Retrieve ANTARCTICA lat/lons
+        # an_sav_file = r'F:\Research\DATA\Boundaries\Antarctica\moa_groundingline.sav'
+        # sav = scipy.io.readsav(an_sav_file)
+        # lats = sav['olat']
+        # lons = sav['olon']
+        # # Find the index where it flips over the longitude cutoff... make that the start/end of the line.
+        # lon_gap_i = numpy.argmin(lons[1:] - lons[:-1]) + 1
+        # an_lons = numpy.append(lons[lon_gap_i:], lons[:lon_gap_i])
+        # an_lats = numpy.append(lats[lon_gap_i:], lats[:lon_gap_i])
+        # # For completeness, add the final point from each (disjointed) end
+        # # onto the other end, at the longitude cutoffs of +/- 180*
+        # # This will ensure there's not a "gap".  We will look for intersections looking northward, not east/west.
+        # an_lons = numpy.append([an_lons[-1] - 360.0], lons)
+        # an_lats = numpy.append([an_lats[-1]], an_lats)
+        # an_lons = numpy.append(an_lons, [an_lons[1] + 360.0])
+        # an_lats = numpy.append(an_lats, [an_lats[1]])
+        # # Now we have a single W->E line against which to run our analysis w/ S->N vectors.
+        # ############################################################################
+        #
+        # # initialize flags to zero
+        # print("processing Antarctica... this'll take awhile.")
+        # an_flags = inside_polygon_func(ib_lats, ib_lons, an_lats, an_lons)
+        # print("TOTAL ANTARCTICA")
+        # print(an_flags.size, numpy.sum(an_flags), float(numpy.sum(an_flags)) / an_flags.size * 100.0, "%")
+        # print()
+        #
+        # return gr_flags, an_flags
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 
     def _get_flightline_text_from_filename(self, fname):
         match = re.search(r'(?<=Data_)(img_01_)?\d{8}_\d{2}(?=_\d{3}\.mat$)', fname)
@@ -504,17 +507,19 @@ class IceBridgeRadarDB:
         # Save what we've done so far.
         self.coordinates_table.flush()
 
-        # Get the greenland and antarctica ice flags prepared.
-        gr_flags, an_flags = self._compute_ice_flags()
-        self.coordinates_table.modify_column(column=gr_flags, colname="OnGreenlandIce")
-        self.coordinates_table.modify_column(column=an_flags, colname="OnAntarcticIce")
-
-        # Save again.
-        self.coordinates_table.flush()
-
-        print("\t", file_counter, "files read.")
-        print("\t", trace_counter, "rows written.")
-        return
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
+#         # Get the greenland and antarctica ice flags prepared.
+#         gr_flags, an_flags = self._compute_ice_flags()
+#         self.coordinates_table.modify_column(column=gr_flags, colname="OnGreenlandIce")
+#         self.coordinates_table.modify_column(column=an_flags, colname="OnAntarcticIce")
+#
+#         # Save again.
+#         self.coordinates_table.flush()
+#
+#         print("\t", file_counter, "files read.")
+#         print("\t", trace_counter, "rows written.")
+#         return
+# # #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 
     def _create_table_indices(self):
         '''Creates indices to optimize future table queries by file names and/or flightlines.'''
@@ -585,112 +590,114 @@ class IceBridgeRadarDB:
 
         return ret_array
 
-    def create_line_shapefile_from_subset_array(self, subset_array, shapefile_out):
-        '''Given an array (returned by "table.read_where()") of a subset of the data,
-        create a shapefile of lines, each shape object defined by the flightline number.'''
-
-        # Create a shapefile Datasource
-        shp_driver = ogr.GetDriverByName("ESRI Shapefile")
-        data_source = shp_driver.CreateDataSource(shapefile_out)
-
-        # This for creating a geographic lat/lon shapefile
-#        # create the spatial reference, WGS84
-#        srs = osr.SpatialReference()
-#        srs.ImportFromEPSG(4326)
-
-        # This for creating a UTM Zone 20N Shapefile
-        utmSR = osr.SpatialReference()
-        utmSR.SetWellKnownGeogCS("WGS84")
-        utmSR.SetUTM(20,1) # Zone 20, 1 for North
-        gcsSR = utmSR.CloneGeogCS()
-        utm_converter = osr.CoordinateTransformation(gcsSR, utmSR)
-
-        # Create a layer for the lines
-        # create the layer
-        layer = data_source.CreateLayer("CC_IceBridge_Lines", utmSR, ogr.wkbLineString)
-
-        # Add the fields we're interested in
-        layer.CreateField(ogr.FieldDefn("Flightline", ogr.OFTInteger))
-        layer.CreateField(ogr.FieldDefn("Trace_beg", ogr.OFTInteger))
-        layer.CreateField(ogr.FieldDefn("Trace_end", ogr.OFTInteger))
-
-        # Organize our subset_array into a list of wktLineStrings
-        # Organize into a set of unique flightlines, ordered into a list
-        flightlines = list(set(subset_array['Flightline_ID']))
-        flightlines.sort()
-
-        for line_id in flightlines:
-            # Get the indices of all the points in that flightline.
-            indices = numpy.where(subset_array["Flightline_ID"] == line_id)[0]
-            # Get the trace numbers.  They *should* be sorted already but let's not assume.
-            tracenums = subset_array["Flight_tracenum"][indices]
-            trace_argsort = numpy.argsort(tracenums)
-            # Sort both the list of indices, and the tracenumbers, by tracenumer
-            indices = indices[trace_argsort]
-            tracenums = tracenums[trace_argsort]
-
-
-            # See whether this tracenum is all consecutive.
-#            tracenum_diffs = tracenums[1:] - tracenums[:-1] - 1
-            if False:
-                '''Note: There was code here to break the flightlines up into
-                'segments' and write out those segments into separate features.
-                
-                It is currently disabled. If you want to re-enable it, you'll need
-                to uncomment out the code below, and toy with it a while (and
-                comment-out the "if False: pass" code-block here) to get it to work.'''
-                pass
-
-#            if len(numpy.nonzero(tracenum_diffs)[0]) > 0:
-#                print "disjoint segment"
-#                # There is more than one segment, must split them up.
-#                disjoint_indices = numpy.where(tracenum_diffs != 0)[0] + 1
-#                print disjoint_indices
-#                print tracenums[disjoint_indices-2], tracenums[disjoint_indices-1], tracenums[disjoint_indices], tracenums[disjoint_indices+1], tracenums[disjoint_indices+2]
-#                file_ids = subset_array["File_ID"]
-#                print file_ids[indices][disjoint_indices-1], file_ids[indices][disjoint_indices], file_ids[indices][disjoint_indices+1]
-#                foobar
-#                segments = [(0,disjoint_indices[0])]
-#                for i,index in enumerate(disjoint_indices):
-#                    if i==len(disjoint_indices)-1:
-#                        segments.append((index,len(tracenums)))
-#                    else:
-#                        segments.append((index,disjoint_indices[i+1]))
-
-            else:
-                segments = [(0,len(tracenums))]
-
-
-            # Create a line feature for each line segment (even if only one)
-            for segment in segments:
-                lats = subset_array["Latitude"][indices][segment[0]:segment[1]]
-                lons = subset_array["Longitude"][indices][segment[0]:segment[1]]
-
-                # For UTM Points
-                lonlat_points = [(lons[i], lats[i]) for i in range(len(lats))]
-                utm_points = utm_converter.TransformPoints(lonlat_points)
-
-                # Create geometry well-known-text
-                wkt = "LINESTRING( "
-                for i in range(len(lats)):
-#                    wkt = wkt + str(lons[i]) + " " + str(lats[i]) + ", "
-                    wkt = wkt + str(utm_points[i][0]) + " " + str(utm_points[i][1]) + ", "
-                wkt = wkt[:-2] + ")"
-                line = ogr.CreateGeometryFromWkt(wkt)
-
-                # Create the feature
-                feature = ogr.Feature(layer.GetLayerDefn())
-                # Set Feature attributes
-                feature.SetField("Flightline", int(line_id))
-                feature.SetField("Trace_beg", float(tracenums[segment[0]]))
-                feature.SetField("Trace_end", float(tracenums[segment[1]-1]))
-                feature.SetGeometry(line)
-
-                # Insert the feature into the layer
-                layer.CreateFeature(feature)
-                feature.Destroy()
-
-        data_source.Destroy()
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
+#     def create_line_shapefile_from_subset_array(self, subset_array, shapefile_out):
+#         '''Given an array (returned by "table.read_where()") of a subset of the data,
+#         create a shapefile of lines, each shape object defined by the flightline number.'''
+#
+#         # Create a shapefile Datasource
+#         shp_driver = ogr.GetDriverByName("ESRI Shapefile")
+#         data_source = shp_driver.CreateDataSource(shapefile_out)
+#
+#         # This for creating a geographic lat/lon shapefile
+# #        # create the spatial reference, WGS84
+# #        srs = osr.SpatialReference()
+# #        srs.ImportFromEPSG(4326)
+#
+#         # This for creating a UTM Zone 20N Shapefile
+#         utmSR = osr.SpatialReference()
+#         utmSR.SetWellKnownGeogCS("WGS84")
+#         utmSR.SetUTM(20,1) # Zone 20, 1 for North
+#         gcsSR = utmSR.CloneGeogCS()
+#         utm_converter = osr.CoordinateTransformation(gcsSR, utmSR)
+#
+#         # Create a layer for the lines
+#         # create the layer
+#         layer = data_source.CreateLayer("CC_IceBridge_Lines", utmSR, ogr.wkbLineString)
+#
+#         # Add the fields we're interested in
+#         layer.CreateField(ogr.FieldDefn("Flightline", ogr.OFTInteger))
+#         layer.CreateField(ogr.FieldDefn("Trace_beg", ogr.OFTInteger))
+#         layer.CreateField(ogr.FieldDefn("Trace_end", ogr.OFTInteger))
+#
+#         # Organize our subset_array into a list of wktLineStrings
+#         # Organize into a set of unique flightlines, ordered into a list
+#         flightlines = list(set(subset_array['Flightline_ID']))
+#         flightlines.sort()
+#
+#         for line_id in flightlines:
+#             # Get the indices of all the points in that flightline.
+#             indices = numpy.where(subset_array["Flightline_ID"] == line_id)[0]
+#             # Get the trace numbers.  They *should* be sorted already but let's not assume.
+#             tracenums = subset_array["Flight_tracenum"][indices]
+#             trace_argsort = numpy.argsort(tracenums)
+#             # Sort both the list of indices, and the tracenumbers, by tracenumer
+#             indices = indices[trace_argsort]
+#             tracenums = tracenums[trace_argsort]
+#
+#
+#             # See whether this tracenum is all consecutive.
+# #            tracenum_diffs = tracenums[1:] - tracenums[:-1] - 1
+#             if False:
+#                 '''Note: There was code here to break the flightlines up into
+#                 'segments' and write out those segments into separate features.
+#
+#                 It is currently disabled. If you want to re-enable it, you'll need
+#                 to uncomment out the code below, and toy with it a while (and
+#                 comment-out the "if False: pass" code-block here) to get it to work.'''
+#                 pass
+#
+# #            if len(numpy.nonzero(tracenum_diffs)[0]) > 0:
+# #                print "disjoint segment"
+# #                # There is more than one segment, must split them up.
+# #                disjoint_indices = numpy.where(tracenum_diffs != 0)[0] + 1
+# #                print disjoint_indices
+# #                print tracenums[disjoint_indices-2], tracenums[disjoint_indices-1], tracenums[disjoint_indices], tracenums[disjoint_indices+1], tracenums[disjoint_indices+2]
+# #                file_ids = subset_array["File_ID"]
+# #                print file_ids[indices][disjoint_indices-1], file_ids[indices][disjoint_indices], file_ids[indices][disjoint_indices+1]
+# #                foobar
+# #                segments = [(0,disjoint_indices[0])]
+# #                for i,index in enumerate(disjoint_indices):
+# #                    if i==len(disjoint_indices)-1:
+# #                        segments.append((index,len(tracenums)))
+# #                    else:
+# #                        segments.append((index,disjoint_indices[i+1]))
+#
+#             else:
+#                 segments = [(0,len(tracenums))]
+#
+#
+#             # Create a line feature for each line segment (even if only one)
+#             for segment in segments:
+#                 lats = subset_array["Latitude"][indices][segment[0]:segment[1]]
+#                 lons = subset_array["Longitude"][indices][segment[0]:segment[1]]
+#
+#                 # For UTM Points
+#                 lonlat_points = [(lons[i], lats[i]) for i in range(len(lats))]
+#                 utm_points = utm_converter.TransformPoints(lonlat_points)
+#
+#                 # Create geometry well-known-text
+#                 wkt = "LINESTRING( "
+#                 for i in range(len(lats)):
+# #                    wkt = wkt + str(lons[i]) + " " + str(lats[i]) + ", "
+#                     wkt = wkt + str(utm_points[i][0]) + " " + str(utm_points[i][1]) + ", "
+#                 wkt = wkt[:-2] + ")"
+#                 line = ogr.CreateGeometryFromWkt(wkt)
+#
+#                 # Create the feature
+#                 feature = ogr.Feature(layer.GetLayerDefn())
+#                 # Set Feature attributes
+#                 feature.SetField("Flightline", int(line_id))
+#                 feature.SetField("Trace_beg", float(tracenums[segment[0]]))
+#                 feature.SetField("Trace_end", float(tracenums[segment[1]-1]))
+#                 feature.SetGeometry(line)
+#
+#                 # Insert the feature into the layer
+#                 layer.CreateFeature(feature)
+#                 feature.Destroy()
+#
+#         data_source.Destroy()
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 
 
     def subset_by_shapefile(self, shapefile_clip, shapefile_out = None, return_fields=['File_ID','File_Tracenum','Flightline_ID','Flight_Tracenum']):
@@ -713,25 +720,28 @@ def BUILD_DATABASE():
     db._create_table_indices()
 
 #    db.open_database(status="r+")
-    gr_ice, an_ice = db._compute_ice_flags()
-        # Get the greenland and antarctica ice flags prepared.
-    db.coordinates_table.modify_column(column=gr_ice, colname="OnGreenlandIce")
-    db.coordinates_table.modify_column(column=an_ice, colname="OnAntarcticIce")
-    db.coordinates_table.flush()
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
+    # gr_ice, an_ice = db._compute_ice_flags()
+    #     # Get the greenland and antarctica ice flags prepared.
+    # db.coordinates_table.modify_column(column=gr_ice, colname="OnGreenlandIce")
+    # db.coordinates_table.modify_column(column=an_ice, colname="OnAntarcticIce")
+    # db.coordinates_table.flush()
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 
-def CREATE_CAMP_CENTURY_SHAPEFILE():
-    db = IceBridgeRadarDB(dbfile=DB_FILE, datadir=BASEDIR)
-    db.open_database()
-    print("Subsetting data...")
-    subset = db.subset_by_bounding_box((77.167, 77.195,-61.22525,-60.985))
-    db.create_line_shapefile_from_subset_array(subset, CC_LINE_SHAPEFILE)
-    return db
-
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
+# def CREATE_CAMP_CENTURY_SHAPEFILE():
+#     db = IceBridgeRadarDB(dbfile=DB_FILE, datadir=BASEDIR)
+#     db.open_database()
+#     print("Subsetting data...")
+#     subset = db.subset_by_bounding_box((77.167, 77.195,-61.22525,-60.985))
+#     db.create_line_shapefile_from_subset_array(subset, CC_LINE_SHAPEFILE)
+#     return db
+# #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 
 if __name__ == "__main__":
 
     BUILD_DATABASE()
-    
+
 #    db = IceBridgeRadarDB()
 #    db.open_database(status='r')
 
