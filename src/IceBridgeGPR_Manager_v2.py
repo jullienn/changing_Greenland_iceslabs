@@ -719,6 +719,7 @@ class IceBridgeGPR_Track_v2():
         file_table_temp = file_table.read_where('Flightline_ID == {0}'.format(flightline_id))
         filenames_temp = file_table_temp['relative_filepath']
         file_ids_temp = file_table_temp['File_ID']
+        pdb.set_trace()
 
         # Retreive only files that are in the "flightline_id_start_end" range we specified
         relative_filenum_start = int(self.NAME[-7:-4])
@@ -734,7 +735,13 @@ class IceBridgeGPR_Track_v2():
                             flightline_id, file_ids_start, file_ids_end))
 
         relative_paths = self.TABLE_file_table['relative_filepath']
-        self.FILENAMES = [os.path.join(ICEBRIDGE_DATA_FOLDER, str(rp)) for rp in relative_paths]
+        
+        #MacFerrin's version which was not working
+        #self.FILENAMES = [os.path.join(ICEBRIDGE_DATA_FOLDER, str(rp)) for rp in relative_paths]
+
+        #My version, shich is working
+        self.FILENAMES =[os.path.normpath(ICEBRIDGE_DATA_FOLDER+("\\"+str(rp)[2:-1])) for rp in relative_paths]
+        pdb.set_trace()
 
         # Ensure that the file names are in alpha-numerical order (they should already be, so this is likely redundant, but still.)
         self.FILENAMES.sort()
