@@ -12,7 +12,7 @@
 but anything changed as no difference were spottable by the process
 3. The file IceBridgeRadarFlightlineDB.py have been through the changing version process but it did not work. This file have been manually updated and several functions have been commented. This version have been tested and it worked in generating the database for the test data subset.
 4. The filenames that are saved in 'self.FILENAMES', line 747 in the function _read_metadata() in the file 'IceBridgeGPR_Manager_v2.py' is now fixed.
-
+5. Check that the cloning did work
 # Greenland_Ice_Slabs
 Code associated with detecting and modeling ice slabs in Greenland firn.
 
