@@ -28,6 +28,7 @@ import scipy.io
 import h5py
 import tables as T
 from osgeo import ogr, osr
+import pdb
 # import matplotlib.pyplot as plt
 
 # Stand-in variables for directories.
@@ -446,10 +447,11 @@ class IceBridgeRadarDB:
 
         last_line_id = None
         last_line_tracenum = 0
-
-        for fname, fid, line_id in zip(file_paths, file_ids, flightline_ids):
-
-            fpath = os.path.join(self.basedir, fname)
+        pdb.set_trace()
+        
+        for fname, fid, line_id in zip(file_paths, file_ids, flightline_ids):            
+            #fpath = os.path.join(self.basedir, fname) ORIGINAL VERSION
+            fpath= os.path.normpath(self.basedir+("\\"+str(fname)[2:-1])) #MY VERSION
             try:
                 data = scipy.io.loadmat(fpath)
                 datafile = None
@@ -718,6 +720,7 @@ def BUILD_DATABASE():
     db = IceBridgeRadarDB(dbfile=DB_FILE, datadir=BASEDIR)
     db.build_database()
     db._create_table_indices()
+    print('CREATED THE DATABASE')
 
 #    db.open_database(status="r+")
 # #------------------------ COMMENTED ON July 29th, 2020 -------------------------
