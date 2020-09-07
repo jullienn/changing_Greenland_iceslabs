@@ -1,4 +1,5 @@
 # Modifications of the files by Nicolas Jullien, starting on July 29th 2020
+
  July 29th 2020:
 1. Moved from version 2.7 to python 3 the follwing codes:
 	- FirnCore_Manager.py
@@ -12,7 +13,7 @@
 but anything changed as no difference were spottable by the process
 3. The file IceBridgeRadarFlightlineDB.py have been through the changing version process but it did not work. This file have been manually updated and several functions have been commented. This version have been tested and it worked in generating the database for the test data subset.
 4. The filenames that are saved in 'self.FILENAMES', line 747 in the function _read_metadata() in the file 'IceBridgeGPR_Manager_v2.py' is now fixed.
-
+5. Working in the branch 'debugging_with_subset' to debug the code working only with a subset of the data
 # Greenland_Ice_Slabs
 Code associated with detecting and modeling ice slabs in Greenland firn.
 
