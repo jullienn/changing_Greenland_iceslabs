@@ -2165,9 +2165,9 @@ class IceBridgeGPR_Track_v2():
 
             picklefile_name = self.FNAME_roll_corrected_picklefile
             
-            pdb.set_traces()
+            pdb.set_trace()
             
-            f = open(picklefile_name, 'w')
+            f = open(picklefile_name, 'wb')
             pickle.dump(traces_roll_corrected_inflated, f)
             f.close()
             print("Exported", os.path.split(picklefile_name)[-1])
@@ -2707,7 +2707,7 @@ class IceBridgeGPR_Track_v2():
 
     def get_sample_depths(self, trace_array = None):
         print('-------------------- ENTERING get_sample_depths --------------------')
-        set.pdb_traces()
+        pdb.set_trace()
         '''Either read them from the picklefile, or get the trace array and derive them.
         If "trace_array" is provided, only return the top M sample depths in that MxN array.'''
         if self.SAMPLE_DEPTHS is not None:
