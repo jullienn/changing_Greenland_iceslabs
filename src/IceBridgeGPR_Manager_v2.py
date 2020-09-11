@@ -8,6 +8,7 @@ Created on Mon Feb 20 12:20:43 2017
 from InSituGPR_Manager import RadarSpeedPicker
 from GPR_FileData import ICEBRIDGE_DATA_FOLDER, \
                          ICEBRIDGE_DATA_H5FILE, \
+                         ICEBRIDGE_EXPORT_FOLDER, \
                          ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER, \
                          ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE, \
                          ICEBRIDGE_SURFACE_INDICES_PICKLEFILE_FOLDER, \
@@ -27,6 +28,8 @@ import numpy
 import matplotlib.pyplot as plt
 import tables
 import scipy.io
+import scipy.optimize
+from scipy import stats
 import png
 import re
 import h5py
@@ -2053,6 +2056,8 @@ class IceBridgeGPR_Track_v2():
 
             plt.tight_layout()
 
+            pdb.set_trace()
+            
             fname = self.NAME + "_PLOT_A_C_Curves.png"
             plt.savefig(os.path.join(ICEBRIDGE_EXPORT_FOLDER, fname), dpi=600)
             print("Exported", fname)
@@ -2159,6 +2164,9 @@ class IceBridgeGPR_Track_v2():
             self.TRACES_roll_corrected = traces_roll_corrected_inflated
 
             picklefile_name = self.FNAME_roll_corrected_picklefile
+            
+            pdb.set_traces()
+            
             f = open(picklefile_name, 'w')
             pickle.dump(traces_roll_corrected_inflated, f)
             f.close()
