@@ -837,10 +837,10 @@ class IceBridgeGPR_Track_v2():
     def _export_to_picklefile(self, data, FNAME):
         print('-------------------- ENTERING _export_to_picklefile --------------------')
 
-        pdb.set_traces()
+        pdb.set_trace()
 
         '''Export a variable to a picklefile.'''
-        f = open(FNAME, "w")
+        f = open(FNAME, "wb")
         pickle.dump(data, f)
         f.close()
         print("Exported", os.path.split(FNAME)[-1])
@@ -2659,7 +2659,6 @@ class IceBridgeGPR_Track_v2():
 
     def get_boolean_ice_traces(self):
         print('-------------------- ENTERING get_boolean_ice_traces --------------------')
-
         
         '''Return the boolean (T/F) traces.'''
         if self.TRACES_boolean_ice_layers is not None:
@@ -2668,7 +2667,7 @@ class IceBridgeGPR_Track_v2():
         if os.path.exists(self.FNAME_ice_lenses_picklefile):
             fname = self.FNAME_ice_lenses_picklefile
             print("Reading", os.path.split(fname)[-1])
-            f = open(fname, 'r')
+            f = open(fname, 'rb')
             self.TRACES_boolean_ice_layers = pickle.load(f)
             f.close()
             return self.TRACES_boolean_ice_layers
@@ -2765,12 +2764,18 @@ class IceBridgeGPR_Track_v2():
 
         
         lats, lons = self.return_coordinates_lat_lon()
+        
+        pdb.set_trace()
+        
         boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers")
 
         depths = self.get_sample_depths(trace_array = boolean_traces)
         depth_delta_m = numpy.mean(depths[1:] - depths[:-1])
         distances = numpy.cumsum(self.compute_distances())
         distances = numpy.append([0.0], distances)
+        
+        pdb.set_trace()
+        
         # Number of pixels times the thickness of each pixel
         ice_content_m = numpy.sum(boolean_traces, axis=0) * depth_delta_m
 
