@@ -35,7 +35,6 @@ import osgeo.ogr as ogr
 import osgeo.osr as osr
 import simplekml
 import pdb
-import sys
 
 # Define a quick guassian function to scale the cutoff mask above
 def _gaussian(x,mu,sigma):
