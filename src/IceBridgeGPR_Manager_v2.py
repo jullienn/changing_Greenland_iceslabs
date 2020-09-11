@@ -35,6 +35,7 @@ import osgeo.ogr as ogr
 import osgeo.osr as osr
 import simplekml
 import pdb
+import sys
 
 # Define a quick guassian function to scale the cutoff mask above
 def _gaussian(x,mu,sigma):
@@ -1785,7 +1786,7 @@ class IceBridgeGPR_Track_v2():
         pdb.set_trace()
 
         # Save it to the picklefile.
-        f = open(pathname, 'w')
+        f = open(pathname, 'wb')
         pickle.dump(radar_slice_expanded,f)
         f.close()
         print("Exported", fname)
