@@ -837,6 +837,8 @@ class IceBridgeGPR_Track_v2():
     def _export_to_picklefile(self, data, FNAME):
         print('-------------------- ENTERING _export_to_picklefile --------------------')
 
+        pdb.set_traces()
+
         '''Export a variable to a picklefile.'''
         f = open(FNAME, "w")
         pickle.dump(data, f)
@@ -2363,7 +2365,9 @@ class IceBridgeGPR_Track_v2():
             ######################################
             traces_norm_inflated = self._refill_array(traces_norm, mask)
 
-            f = open(self.FNAME_depth_corrected_picklefile, 'w')
+            pdb.set_trace()
+
+            f = open(self.FNAME_depth_corrected_picklefile, 'wb')
             pickle.dump(traces_norm_inflated, f)
             f.close()
             print("Exported", os.path.split(self.FNAME_depth_corrected_picklefile)[-1])
