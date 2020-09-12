@@ -660,9 +660,7 @@ class Mask_Manager():
         
         # Iterate over each of the files
         for fname in filenames_to_iterate:
-                        
-            pdb.set_trace()
-            
+                                    
             # Find the gaps from that file.
             gaps = self.mask_dictionary[fname][flightline_name]
             if gaps is not None:
@@ -1145,8 +1143,7 @@ class IceBridgeGPR_Track_v2():
         return
 
     def _caluculate_icelens_connectedness(self, boolean_image):
-        print('-------------------- ENTERING _caluculate_icelens_connectedness --------------------')
-
+        
         '''A parent function that iterates over an image until all pixels have found which "group" they belong to.
         Return an int array of group_ID numbers (zero are empty pixels), and a dictionary of (ID:size) pairs.'''
         group_id_array = numpy.zeros(boolean_image.shape, dtype=numpy.int)
@@ -1177,11 +1174,12 @@ class IceBridgeGPR_Track_v2():
             still_to_visit = (boolean_image & (~visited_mask_cumulative))
             # Add one to the current running group ID
             current_group_id += 1
-
+        
+        pdb.set_trace()
+        
         return group_id_array, group_size_dict
 
     def _icelens_connectedness_iterator_subfunction(self, boolean_image, visited_mask, pixel_coords):
-        print('-------------------- ENTERING _icelens_connectedness_iterator_subfunction --------------------')
 
         '''An iterative function for finding all connected pixels in a region of the image.'''
         # If THIS pixel is not an ice layer OR this pixel has already been visited, return zero.
@@ -2166,9 +2164,7 @@ class IceBridgeGPR_Track_v2():
             self.TRACES_roll_corrected = traces_roll_corrected_inflated
 
             picklefile_name = self.FNAME_roll_corrected_picklefile
-            
-            pdb.set_trace()
-            
+                        
             f = open(picklefile_name, 'wb')
             pickle.dump(traces_roll_corrected_inflated, f)
             f.close()
@@ -2384,11 +2380,12 @@ class IceBridgeGPR_Track_v2():
 
         # 3) Return depth-correction parameters
         print()
+        pdb.set_trace()
         return popt
 
     def identify_ice_lenses(self, export=True, max_depth_m=20):
         print('-------------------- ENTERING identify_ice_lenses --------------------')
-
+        pdb.set_trace()
         '''From the ACT13 track validation performed in validate_reference_track_w_in_situ_data()
         and plot_validation_data_and_find_minima(), create ice lens images from each algorithm.'''
         # Read the traces and depths
@@ -2400,6 +2397,9 @@ class IceBridgeGPR_Track_v2():
         depths = self.get_sample_depths(trace_array = traces)
         depth_N = numpy.count_nonzero(depths <= max_depth_m)
         traces = traces[:depth_N,:]
+        ######################################################################
+        ######################### Jusque là on est bon! ######################
+        ######################################################################
 
         # We identified the minimum signal-cutoff and continuity-threshold values for each algorithm.  They
         # gave very close results.  Produce one image from each Algorithm and we will evaluate which one worked best on all the datasets.
@@ -2427,7 +2427,9 @@ class IceBridgeGPR_Track_v2():
                 boolean_traces = self._boolean_grow_by_1(self._boolean_shrink_by_1(boolean_traces, N=1), N=1)
             elif algorithm == "S2":
                 boolean_traces = self._boolean_grow_by_1(self._boolean_shrink_by_1(boolean_traces, N=2), N=2)
-
+            
+            pdb.set_trace()
+            
             # Perform the continuity thresholding.
             group_id_array, group_size_dict = self._caluculate_icelens_connectedness(boolean_traces)
             ice_lenses_above_cutoff_size = numpy.zeros(boolean_traces.shape, dtype=numpy.bool)
@@ -2450,7 +2452,7 @@ class IceBridgeGPR_Track_v2():
             self._export_to_picklefile(mask, mask_picklefile_fname)
 
         print()
-
+        pdb.set_trace()
         return
 
     def _boolean_shrink_by_1(self, orig, N=1):
@@ -2659,20 +2661,53 @@ class IceBridgeGPR_Track_v2():
 
     def get_boolean_ice_traces(self):
         print('-------------------- ENTERING get_boolean_ice_traces --------------------')
-        
+        pdb.set_trace()
         '''Return the boolean (T/F) traces.'''
         if self.TRACES_boolean_ice_layers is not None:
             return self.TRACES_boolean_ice_layers
 
         if os.path.exists(self.FNAME_ice_lenses_picklefile):
+            print('//////////////////////////////////////////////////////////')
+            print('//////////// I AM NOT GOING HERE /////////////////////////')
+            print('///////////// BECAUSE THE BOOLEAN ICE ////////////////////')
+            print('///////////// LAYER TRACES HAVE NOT //////////////////////')
+            print('///////////// BEEN GENERATED YET /////////////////////////')
+            print('//////////////////////////////////////////////////////////')
+         
             fname = self.FNAME_ice_lenses_picklefile
             print("Reading", os.path.split(fname)[-1])
             f = open(fname, 'rb')
             self.TRACES_boolean_ice_layers = pickle.load(f)
             f.close()
             return self.TRACES_boolean_ice_layers
-
+        
         self.identify_ice_lenses(export=True)
+        
+        # ---------------- BEGIN ADDITION SEPT 12 2020 ---------------------- #
+        # I added this on September 12th, 2020 in order to store the boolean
+        # ice layers into self.TRACES_boolean_ice_layers! This was not done
+        # before because the self.FNAME_ice_lenses_picklefile does not exist,
+        # but does now that we have been into the identify_ice_lenses function!
+        
+        if os.path.exists(self.FNAME_ice_lenses_picklefile):
+            pdb.set_trace()
+            print('//////////////////////////////////////////////////////////')
+            print('//////////// I AM NOW GOING HERE /////////////////////////')
+            print('///////////// BECAUSE THE BOOLEAN ICE ////////////////////')
+            print('///////////// LAYER TRACES HAVE BEEN /////////////////////')
+            print('///////////// GENERATED YET EARLIER //////////////////////')
+            print('//////////////////////////////////////////////////////////')
+
+            fname = self.FNAME_ice_lenses_picklefile
+            print("Reading", os.path.split(fname)[-1])
+            f = open(fname, 'rb')
+            pdb.set_trace()
+            self.TRACES_boolean_ice_layers = pickle.load(f)
+            f.close()
+            return self.TRACES_boolean_ice_layers
+        # ----------------- END ADDITION SEPT 12 2020 ----------------------- #
+      
+        pdb.set_trace()
         return self.TRACES_boolean_ice_layers
 
     def get_boolean_ice_mask(self):
@@ -2710,7 +2745,6 @@ class IceBridgeGPR_Track_v2():
 
     def get_sample_depths(self, trace_array = None):
         print('-------------------- ENTERING get_sample_depths --------------------')
-        pdb.set_trace()
         '''Either read them from the picklefile, or get the trace array and derive them.
         If "trace_array" is provided, only return the top M sample depths in that MxN array.'''
         if self.SAMPLE_DEPTHS is not None:
@@ -2721,6 +2755,8 @@ class IceBridgeGPR_Track_v2():
 
         fname = self.NAME + "_SAMPLE_DEPTHS.pickle"
         pathname = os.path.join(ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER, fname)
+       
+        pdb.set_trace()
 
         if os.path.exists(pathname):
             f = open(pathname, 'r')
@@ -2762,13 +2798,13 @@ class IceBridgeGPR_Track_v2():
         return them masked out.  If masked=False, don't bother masking them.'''
         print('-------------------- ENTERING return_ice_layers_lat_lon_distance_thickness --------------------')
 
-        
-        lats, lons = self.return_coordinates_lat_lon()
-        
         pdb.set_trace()
         
-        boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers")
+        lats, lons = self.return_coordinates_lat_lon()
+        pdb.set_trace()
 
+        boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers")
+# J'en suis la! 
         depths = self.get_sample_depths(trace_array = boolean_traces)
         depth_delta_m = numpy.mean(depths[1:] - depths[:-1])
         distances = numpy.cumsum(self.compute_distances())
