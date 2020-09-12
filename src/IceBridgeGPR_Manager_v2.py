@@ -349,6 +349,8 @@ class IceBridgeGPR_Manager_v2():
         '''Export to a CSV, ice layer lat,lon,& thicknesses.  Omit all zero values.'''
         tracks = self.compile_icebridge_tracks_with_ice_lenses()
         
+        pdb.set_trace()
+        
         fout = open(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, 'w')
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
@@ -376,7 +378,8 @@ class IceBridgeGPR_Manager_v2():
 
         fout.close()
         print("Exported", os.path.split(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE)[-1])
-
+        
+        pdb.set_trace()
 
     def import_ice_layer_lat_lon_distance_thicknesses(self):
         print('-------------------- ENTERING import_ice_layer_lat_lon_distance_thicknesses --------------------')
@@ -402,7 +405,7 @@ class IceBridgeGPR_Manager_v2():
         print('-------------------- ENTERING export_smoothed_ice_layer_shapefile --------------------')
 
         '''Take the CSV ice layer data and create a shapefile from it, with smoothed data averaged every 2.5 (?) km.'''
-
+        pdb.set_trace()
         fname = ICEBRIDGE_SMOOTHED_ICE_LAYER_SHAPEFILE
 
         # Create the data source and file.
@@ -1631,6 +1634,8 @@ class IceBridgeGPR_Track_v2():
 
             # Save output to a picklefile.
             f = open(picklefile_path, 'w')
+            pdb.set_trace()
+            
             pickle.dump(improved_indices_expanded, f)
             f.close()
             print("Exported", picklefile_name)
@@ -2858,6 +2863,8 @@ if __name__ == "__main__":
     #ib.export_KML_reference_tracks()
 
     ib.export_ice_layer_lat_lon_distance_thicknesses()
+    # Je sors sans erreur de export_ice_layer_lat_lom_distance_thicknesses!!!!!
+    # Le 12 Septembre 2020
     ib.export_smoothed_ice_layer_shapefile()
 
     for track in ib.tracks:
