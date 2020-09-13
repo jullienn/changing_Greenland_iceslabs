@@ -1580,6 +1580,8 @@ class IceBridgeGPR_Track_v2():
         improved_indices = self._get_rid_of_false_surface_jumps(improved_indices)
         # Must re-expand the surface indices to account for masked values (filled w/ nan)
         improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
+        
+        pdb.set_trace()
 
         if export:
             radar_slice = self._return_radar_slice_given_surface(traces, improved_indices, meters_cutoff_above=5, meters_cutoff_below=10)
@@ -1633,9 +1635,9 @@ class IceBridgeGPR_Track_v2():
             self.export_image(radar_slice_expanded, image_label="_5m_30m_ORIGINAL")
 
             # Save output to a picklefile.
-            f = open(picklefile_path, 'w')
             pdb.set_trace()
-            
+
+            f = open(picklefile_path, 'wb')
             pickle.dump(improved_indices_expanded, f)
             f.close()
             print("Exported", picklefile_name)
@@ -2863,8 +2865,7 @@ if __name__ == "__main__":
     #ib.export_KML_reference_tracks()
 
     ib.export_ice_layer_lat_lon_distance_thicknesses()
-    # Je sors sans erreur de export_ice_layer_lat_lom_distance_thicknesses!!!!!
-    # Le 12 Septembre 2020
+    # Le 12 Septembre 2020, je sors sans erreur de export_ice_layer_lat_lom_distance_thicknesses!
     ib.export_smoothed_ice_layer_shapefile()
 
     for track in ib.tracks:
