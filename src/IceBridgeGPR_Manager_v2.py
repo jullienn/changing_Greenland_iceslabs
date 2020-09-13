@@ -440,7 +440,7 @@ class IceBridgeGPR_Manager_v2():
 
         # Read the CSV data.
         track_names, tracenums, lats, lons, distances, ice_content_m = self.import_ice_layer_lat_lon_distance_thicknesses()
-
+        pdb.set_trace()
         for t_name in numpy.unique(track_names):
             print(t_name, end=' ')
             # Subset the data for just this track.
@@ -453,7 +453,7 @@ class IceBridgeGPR_Manager_v2():
             STEP_m = 2500 # Meters per step (2.5 km here)
 
             step_count = 0
-            for d in numpy.arange(0,numpy.max(t_distances), STEP_m):
+            for d in numpy.arange(0,numpy.max(t_distances), STEP_m):                
                 step_mask = (d <= t_distances) & (t_distances < (d + STEP_m))
                 # SKip if there are no points in this step.
                 if not numpy.any(step_mask):
@@ -484,11 +484,15 @@ class IceBridgeGPR_Manager_v2():
                 # Dereference the feature
                 step_count += 1
                 feature = None
+                
+            pdb.set_trace()
 
             print(step_count, "steps.")
 
+        print('lalala')
         # Now dereference the data source to save it.
         data_source = None
+        pdb.set_trace()
         print("Exported", os.path.split(fname)[-1])
         return
 
