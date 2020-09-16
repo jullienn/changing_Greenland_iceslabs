@@ -122,7 +122,8 @@ class IceBridgeGPR_Manager_v2():
         # 1) Open the directory, get a list of all the files in there
         # 2) Peruse files, separate out "map" files from "echo" files, use just the echo files.
         all_files = [f for f in os.listdir(quicklook_directory) if f.find("1echo.jpg") != -1]
-
+        pdb.set_trace()
+        
         # 3) Compile lists of all sequential adjoining files (part of the same sequence) that will create tracks.
         track_list_dict = {}
         current_list = []
@@ -350,7 +351,7 @@ class IceBridgeGPR_Manager_v2():
         tracks = self.compile_icebridge_tracks_with_ice_lenses()
         
         pdb.set_trace()
-        
+    
         fout = open(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, 'w')
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
@@ -375,6 +376,8 @@ class IceBridgeGPR_Manager_v2():
                     tracecount += 1
             print(tracecount, "of", len(lats), "traces.")
             print()
+            
+        pdb.set_trace()
 
         fout.close()
         print("Exported", os.path.split(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE)[-1])
@@ -1448,7 +1451,8 @@ class IceBridgeGPR_Track_v2():
 
         '''Compute the distance (in km) of the traces in the file.'''
         eastings, northings = self.return_coordiates_polarstereo()
-
+        pdb.set_trace()
+        
         # C = sqrt(A^2  + B^2)
         distances = numpy.power(numpy.power((eastings[1:] - eastings[:-1]),2) + numpy.power((northings[1:] - northings[:-1]),2), 0.5)
 
@@ -2038,6 +2042,12 @@ class IceBridgeGPR_Track_v2():
             ax1.set_ylabel("A")
             ax1.set_title(self.NAME)
             ax1.set_xlabel("Depth (m)")
+            
+            pdb.set_trace()
+            # Begin: Added on September 16, 2020 to fit MacFerrins' figures
+            ax1.set_xlim(-20,120)
+            ax1.set_ylim(-0.015,0.010)
+            # End: Added on September 16, 2020 to fit MacFerrins' figures
 
             xlim = ax1.get_xlim()
             ylim = ax1.get_ylim()
@@ -2054,6 +2064,11 @@ class IceBridgeGPR_Track_v2():
             ax2.plot(depths, C_computed.flatten(), color="darkgreen", linewidth=2)
             ax2.set_ylabel("C")
             ax2.set_xlabel("Depth (m)")
+            
+            # Begin: Added on September 16, 2020 to fit MacFerrins' figures
+            ax2.set_xlim(-20,120)
+            ax2.set_ylim(-6.5,-2)
+            # End: Added on September 16, 2020 to fit MacFerrins' figures
 
             xlim = ax2.get_xlim()
             ylim = ax2.get_ylim()
@@ -2074,6 +2089,8 @@ class IceBridgeGPR_Track_v2():
             print("Exported", fname)
             plt.cla()
             plt.close()
+            
+            pdb.set_trace()
 
             #########################
             # Plot roll correction info
@@ -2085,6 +2102,12 @@ class IceBridgeGPR_Track_v2():
             ax1.set_ylabel(("Curvature" if curvature is not None else "Roll") + " ($^\circ$)")
             ax1.set_xlabel("Trace Number")
             ax1.set_title(self.NAME)
+            
+            # Begin: Added on September 16, 2020 to fit MacFerrins' figures
+            ax1.set_xlim(0,4000)
+            ax1.set_ylim(0,20)
+            # End: Added on September 16, 2020 to fit MacFerrins' figures
+            
             xlim = ax1.get_xlim()
             ylim = ax1.get_ylim()
             A_xpos = xlim[0] + (xlim[1] - xlim[0])*0.950
@@ -2109,6 +2132,11 @@ class IceBridgeGPR_Track_v2():
             ax2.plot(mean_signal_strength_20m, color="darkred")
             ax2.set_ylabel("GPR $\Omega$ (dB)")
             ax2.set_xlabel("Trace Number")
+            
+            # Begin: Added on September 16, 2020 to fit MacFerrins' figures
+            ax2.set_xlim(0,4000)
+            ax2.set_ylim(-5,-3)
+            # End: Added on September 16, 2020 to fit MacFerrins' figures
 
             xlim = ax2.get_xlim()
             ylim = ax2.get_ylim()
@@ -2138,6 +2166,11 @@ class IceBridgeGPR_Track_v2():
             ax3.plot(degree_range, C_20m_broadcast, linewidth=2, color="red", linestyle="--")
             ax3.plot(degree_range, A_avg_20m*(degree_range**2)+C_avg_20m,linewidth=2,color="darkblue")
 
+            # Begin: Added on September 16, 2020 to fit MacFerrins' figures
+            ax3.set_xlim(-5,25)
+            ax3.set_ylim(-5,-3)
+            # End: Added on September 16, 2020 to fit MacFerrins' figures
+            
             xlim = ax3.get_xlim()
             ylim = ax3.get_ylim()
             text_xpos = xlim[0] + (xlim[1] - xlim[0])*0.025
@@ -2359,6 +2392,14 @@ class IceBridgeGPR_Track_v2():
             plt.title(self.NAME)
             plt.xlabel("Depth $y$ (m)")
             plt.ylabel("GPR $\Omega$ (dB)")
+            
+            # Begin: Added on September 16, 2020 to fit MacFerrins' figures
+            ax.set_xlim(0,100)
+            ax.set_ylim(-8,2)
+            # End: Added on September 16, 2020 to fit MacFerrins' figures
+            
+            
+            pdb.set_trace()
 
             plt.tight_layout()
             figname = os.path.join(ICEBRIDGE_EXPORT_FOLDER, self.NAME + "_DEPTH_CURVE_PLOT.png")
@@ -2867,10 +2908,10 @@ if __name__ == "__main__":
     
     ib = IceBridgeGPR_Manager_v2()
     #ib.export_KML_reference_tracks()
-
     ib.export_ice_layer_lat_lon_distance_thicknesses()
     # Le 12 Septembre 2020, je sors sans erreur de export_ice_layer_lat_lom_distance_thicknesses!
-    ib.export_smoothed_ice_layer_shapefile()
+    #ib.export_smoothed_ice_layer_shapefile()
+    pdb.set_trace()
 
     for track in ib.tracks:
         track.DO_IT_ALL()
