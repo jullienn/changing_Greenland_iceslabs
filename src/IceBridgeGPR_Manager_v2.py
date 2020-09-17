@@ -814,6 +814,7 @@ class IceBridgeGPR_Track_v2():
 
         '''The files read as h5py files don't return arrays when you index them.
         For this, we'll convert the h5py "Dataset" into a simple key/value dictionary.'''
+
         if type(dataset) == dict:
             return
 
@@ -824,11 +825,15 @@ class IceBridgeGPR_Track_v2():
         for key in list(dataset.keys()):
             # Only include "Data" field if it's explicity included.
             # Leave out metadata fields, which are categorized in h5py.Group objects
+            print(key)
             if (key != "Data") and (type(dataset[key]) != h5py.Group):
-                data_dict[key] = dataset[key].value.flatten()
+                data_dict[key] = dataset[key][()].flatten()
+                print('flatten')
             elif (key == "Data"):
-                # The data field in the 2014 H5PY files are transposed with respect to the rest of the data sets.
-                data_dict[key] = dataset[key].value.transpose()
+                ## The data field in the 2014 H5PY files are transposed with respect to the rest of the data sets.
+                # That is right I checked on MATLAB
+                data_dict[key] = dataset[key][()].transpose()
+                print('transpose')
 
         return data_dict
 
@@ -1329,6 +1334,7 @@ class IceBridgeGPR_Track_v2():
         '''
         print('-------------------- ENTERING get_trace_array --------------------')
         
+        pdb.set_trace() 
         # If we haven't ingested the metadata yet, do so.
         if self.FILENAMES is None:
             self._read_metadata()
@@ -1360,6 +1366,8 @@ class IceBridgeGPR_Track_v2():
                 fdata = self._convert_h5_dataset_to_dict(mdata)
 
             file_traces = fdata['Data']
+            
+            pdb.set_trace()
 
             if time_col is None:
                 time_col = fdata['Time']
@@ -2047,8 +2055,8 @@ class IceBridgeGPR_Track_v2():
             
             pdb.set_trace()
             # Begin: Added on September 16, 2020 to fit MacFerrins' figures
-            ax1.set_xlim(-20,120)
-            ax1.set_ylim(-0.015,0.010)
+            #ax1.set_xlim(-20,120)
+            #ax1.set_ylim(-0.015,0.010)
             # End: Added on September 16, 2020 to fit MacFerrins' figures
 
             xlim = ax1.get_xlim()
@@ -2068,8 +2076,8 @@ class IceBridgeGPR_Track_v2():
             ax2.set_xlabel("Depth (m)")
             
             # Begin: Added on September 16, 2020 to fit MacFerrins' figures
-            ax2.set_xlim(-20,120)
-            ax2.set_ylim(-6.5,-2)
+            #ax2.set_xlim(-20,120)
+            #ax2.set_ylim(-6.5,-2)
             # End: Added on September 16, 2020 to fit MacFerrins' figures
 
             xlim = ax2.get_xlim()
@@ -2106,8 +2114,8 @@ class IceBridgeGPR_Track_v2():
             ax1.set_title(self.NAME)
             
             # Begin: Added on September 16, 2020 to fit MacFerrins' figures
-            ax1.set_xlim(0,4000)
-            ax1.set_ylim(0,20)
+            #ax1.set_xlim(0,4000)
+            #ax1.set_ylim(0,20)
             # End: Added on September 16, 2020 to fit MacFerrins' figures
             
             xlim = ax1.get_xlim()
@@ -2136,8 +2144,8 @@ class IceBridgeGPR_Track_v2():
             ax2.set_xlabel("Trace Number")
             
             # Begin: Added on September 16, 2020 to fit MacFerrins' figures
-            ax2.set_xlim(0,4000)
-            ax2.set_ylim(-5,-3)
+            #ax2.set_xlim(0,4000)
+            #ax2.set_ylim(-5,-3)
             # End: Added on September 16, 2020 to fit MacFerrins' figures
 
             xlim = ax2.get_xlim()
@@ -2169,8 +2177,8 @@ class IceBridgeGPR_Track_v2():
             ax3.plot(degree_range, A_avg_20m*(degree_range**2)+C_avg_20m,linewidth=2,color="darkblue")
 
             # Begin: Added on September 16, 2020 to fit MacFerrins' figures
-            ax3.set_xlim(-5,25)
-            ax3.set_ylim(-5,-3)
+            #ax3.set_xlim(-5,25)
+            #ax3.set_ylim(-5,-3)
             # End: Added on September 16, 2020 to fit MacFerrins' figures
             
             xlim = ax3.get_xlim()
@@ -2396,8 +2404,8 @@ class IceBridgeGPR_Track_v2():
             plt.ylabel("GPR $\Omega$ (dB)")
             
             # Begin: Added on September 16, 2020 to fit MacFerrins' figures
-            ax.set_xlim(0,100)
-            ax.set_ylim(-8,2)
+            #ax.set_xlim(0,100)
+            #ax.set_ylim(-8,2)
             # End: Added on September 16, 2020 to fit MacFerrins' figures
             
             
@@ -2444,11 +2452,13 @@ class IceBridgeGPR_Track_v2():
         and plot_validation_data_and_find_minima(), create ice lens images from each algorithm.'''
         # Read the traces and depths
         traces = self.get_processed_traces(datatype="depth_corrected")
+        pdb.set_trace()
         # Grab the mask and subset the traces to get rid of NaNs
         mask = self._compute_boolean_mask(traces, mask=None)
         traces = self._subset_array(traces, mask=None)
         # Retreive the depths, subset to max_depth_m (20 m)
         depths = self.get_sample_depths(trace_array = traces)
+        pdb.set_trace()
         depth_N = numpy.count_nonzero(depths <= max_depth_m)
         traces = traces[:depth_N,:]
         ######################################################################
@@ -2491,7 +2501,9 @@ class IceBridgeGPR_Track_v2():
             # Set each group of pixels in that category to True, only for groups larger than the cutoff
             for group_ID in [ID for (ID,size) in list(group_size_dict.items()) if size >= continuity_threshold]:
                 ice_lenses_above_cutoff_size[group_id_array == group_ID] = True
-
+            
+            pdb.set_trace()
+            
             if export:
                 traces_refilled = self._refill_array(ice_lenses_above_cutoff_size, mask)
 
@@ -2591,6 +2603,9 @@ class IceBridgeGPR_Track_v2():
         '''Create a black-and-white boolean image of this track.'''
         outfilename = self.NAME + ("_" if (len(image_label)>0 and image_label[0] != "_") else "") + image_label + (".png" if ((len(image_label) < 4) or (len(image_label) > 4 and image_label[-4:] != '.png')) else "")
         outfilepath = os.path.join(ICEBRIDGE_EXPORT_FOLDER, outfilename)
+        
+        pdb.set_trace()
+        
         png_file = png.from_array(array, mode="L;1")
         png_file.save(outfilepath)
 
@@ -2685,7 +2700,7 @@ class IceBridgeGPR_Track_v2():
             f.close()
             return self.TRACES_roll_corrected
         
-
+        pdb.set_trace()
         # Create the picklefile and then return the traces
         self.perform_roll_correction(export=True)
         assert self.TRACES_roll_corrected is not None
@@ -2799,6 +2814,8 @@ class IceBridgeGPR_Track_v2():
 
     def get_sample_depths(self, trace_array = None):
         print('-------------------- ENTERING get_sample_depths --------------------')
+        pdb.set_trace()
+
         '''Either read them from the picklefile, or get the trace array and derive them.
         If "trace_array" is provided, only return the top M sample depths in that MxN array.'''
         if self.SAMPLE_DEPTHS is not None:
@@ -2809,7 +2826,6 @@ class IceBridgeGPR_Track_v2():
 
         fname = self.NAME + "_SAMPLE_DEPTHS.pickle"
         pathname = os.path.join(ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER, fname)
-       
         pdb.set_trace()
 
         if os.path.exists(pathname):
@@ -2858,6 +2874,7 @@ class IceBridgeGPR_Track_v2():
         pdb.set_trace()
 
         boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers")
+        pdb.set_trace()
 # J'en suis la! 
         depths = self.get_sample_depths(trace_array = boolean_traces)
         depth_delta_m = numpy.mean(depths[1:] - depths[:-1])

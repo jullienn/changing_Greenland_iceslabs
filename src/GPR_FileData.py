@@ -131,7 +131,7 @@ ICEBRIDGE_DATA_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data'
 ICEBRIDGE_DATA_H5FILE = os.path.join(ICEBRIDGE_DATA_FOLDER, "test_IceBridgeDB.h5")
 ICEBRIDGE_EXPORT_FOLDER = os.path.join(ICEBRIDGE_DATA_FOLDER, "exported")
 # TODO: Fix Folder Names
-ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data\2017_Greenland_P3\images'
+ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data\2014_Greenland_P3\images'
 
 # TODO: Fix Folder Names
 ICEBRIDGE_EXCLUSIONS_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data\Exclusion_folder'
