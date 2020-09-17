@@ -1606,7 +1606,9 @@ class IceBridgeGPR_Track_v2():
             print("Saved", fname)
             plt.cla()
             plt.close()
-
+            
+            pdb.set_trace()
+            
             # Plot the span of the improved indices
             plt.plot(-improved_indices)
             plt.title(self.NAME)
