@@ -430,7 +430,7 @@ class IceBridgeRadarDB:
             # Only include "Data" field if it's explicity included.
             # Leave out metadata fields, which are categorized in h5py.Group objects
             if (include_Data or key != "Data") and (type(dataset[key]) != h5py.Group):
-                data_dict[key] = dataset[key][()]
+                data_dict[key] = dataset[key][()] #Perfectly working!
 
         return data_dict
 
