@@ -1481,6 +1481,7 @@ class IceBridgeGPR_Track_v2():
 
     def _read_original_surface_picks(self):
         print('-------------------- ENTERING _read_original_surface_picks --------------------')
+        pdb.set_trace()
 
         '''Get the default surface picks from the IceBridge radar.  We will use these to improve it.'''
         if self.LIST_original_surface_picks is not None:
@@ -1548,6 +1549,7 @@ class IceBridgeGPR_Track_v2():
         # SHOULD I TAKE LOG HERE?  I THINK SO, LET'S TRY IT FIRST.
         traces = numpy.log10(traces)
         # Get the original indicies to use as a starter
+        pdb.set_trace()
         original_indices = self._subset_array(self._compute_original_surface_indices(), mask=surface_maskname)
 
         # 3) Perform surface pick crawling threshold behavior mask (assume a step-change analysis [goes from weak->strong at surface], and continuity of surface in original file.)
@@ -1566,6 +1568,8 @@ class IceBridgeGPR_Track_v2():
         MASK_SEARCH_RADIUS = 150
 
         improved_indices = numpy.empty(original_indices.shape, dtype=original_indices.dtype)
+        
+        pdb.set_trace()
 
         # Start at the left suggested vertical pixel starting point
         # IF THEY GOT IT WRONG, use the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE instead.
@@ -2315,9 +2319,13 @@ class IceBridgeGPR_Track_v2():
 
     def perform_depth_correction(self, export=True, max_depth_m = 100):
         print('-------------------- ENTERING perform_depth_correction --------------------')
-
+        pdb.set_trace()
+        
         # Get our traces and the trace depths
         traces_all = self.get_processed_traces(datatype="roll_corrected")
+        
+        pdb.set_trace()
+        
         # Subset traces to mask out all NaN values (previously masked)
         mask = self._compute_boolean_mask(traces=traces_all, mask=None)
         traces = self._subset_array(traces_all, mask=None)
