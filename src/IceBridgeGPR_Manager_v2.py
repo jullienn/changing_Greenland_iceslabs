@@ -1574,6 +1574,8 @@ class IceBridgeGPR_Track_v2():
         # Start at the left suggested vertical pixel starting point
         # IF THEY GOT IT WRONG, use the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE instead.
         alternate_suggested_pick = self.mask_manager.return_suggested_starting_pixel(self.NAME)
+        pdb.set_trace()
+        
         if alternate_suggested_pick is None:
             last_best_index = original_indices[0]
         else:
@@ -2339,6 +2341,8 @@ class IceBridgeGPR_Track_v2():
         depths.shape = depths.shape[0]
 
         assert traces.shape == depths_expanded.shape
+        
+        pdb.set_trace()
 
         # 1) Get the exponential curve fit
         def exfunc(y,A,B,C):
