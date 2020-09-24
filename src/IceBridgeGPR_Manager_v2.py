@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Feb 20 12:20:43 2017
-#Test if cloning on personnal comupter worked
+
 @author: mmacferrin
 """
 #from FirnCore_Manager import FirnCore_Manager
