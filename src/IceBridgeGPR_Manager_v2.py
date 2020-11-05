@@ -36,7 +36,7 @@ import h5py
 import pickle
 import osgeo.ogr as ogr
 import osgeo.osr as osr
-import simplekml
+#import simplekml
 import pdb
 
 # Define a quick guassian function to scale the cutoff mask above
@@ -122,7 +122,6 @@ class IceBridgeGPR_Manager_v2():
         # 1) Open the directory, get a list of all the files in there
         # 2) Peruse files, separate out "map" files from "echo" files, use just the echo files.
         all_files = [f for f in os.listdir(quicklook_directory) if f.find("1echo.jpg") != -1]
-        pdb.set_trace()
 
         # 3) Compile lists of all sequential adjoining files (part of the same sequence) that will create tracks.
         track_list_dict = {}
@@ -147,6 +146,7 @@ class IceBridgeGPR_Manager_v2():
         # Make sure the very last one gets on there.
         track_list_dict[current_list[0][0:11] + current_list[0][11:15] + current_list[-1][11:15]] = current_list
         track_count_N += 1
+        # We have just created a list where the track id are stores
 
         if self.verbose:
             print(track_count_N, "tracks from", len(all_files), "files.\n")
@@ -160,6 +160,8 @@ class IceBridgeGPR_Manager_v2():
 
         # 5) Save the dictionary.
         self.tracks = tracks
+
+        print('-------------------- OUT compile_icebridge_tracks_with_ice_lenses --------------------')
 
         return tracks
 
@@ -191,6 +193,7 @@ class IceBridgeGPR_Manager_v2():
         print(TOTAL_numtraces, "traces over", len(self.tracks), "flight lines.")
         print("{0} excluded from start, {1:0.5f}%".format(TOTAL_excluded_at_start, float(TOTAL_excluded_at_start)/TOTAL_numtraces*100))
         print("{0} of remaining excluded from poor surface picks, {1:0.5f}%".format(TOTAL_excluded_by_bad_surfacepicks, float(TOTAL_excluded_by_bad_surfacepicks)/(TOTAL_numtraces-TOTAL_excluded_at_start)*100))
+        print('-------------------- OUT compute_number_of_traces_omitted_by_surface_mismatch --------------------')
 
         return
 
@@ -202,6 +205,7 @@ class IceBridgeGPR_Manager_v2():
             total_distance += numpy.sum(t.compute_distances())
 
         print("\nTOTAL DISTANCE: {0:f} km".format(total_distance / 1000.0))
+        print('-------------------- OUT compute_total_distance --------------------')
 
         return total_distance
 
@@ -311,7 +315,9 @@ class IceBridgeGPR_Manager_v2():
 
             print("{0},{1},{2},{3},{4},{5},{6}".format(cutoff, pb, rb, rb**2, pa, ra, ra**2))
 
+        print('-------------------- OUT plot_correlation_between_roll_and_curvature --------------------')
         print()
+
 
     def perform_roll_corrections(self):
         print('-------------------- ENTERING perform_roll_corrections --------------------')
@@ -329,6 +335,8 @@ class IceBridgeGPR_Manager_v2():
 
         fout.close()
         print("Exported", os.path.split(ICEBRIDGE_ROLL_CORRECTION_OUTPUT_FILE)[-1])
+        print('-------------------- OUT perform_roll_corrections --------------------')
+
 
     def perform_depth_corrections(self, export=True):
         print('-------------------- ENTERING perform_depth_corrections --------------------')
@@ -344,15 +352,20 @@ class IceBridgeGPR_Manager_v2():
 
         fout.close()
         print("Exported", os.path.split(ICEBRIDGE_DEPTH_CORRECTION_OUTPUT_FILE)[-1])
+        print('-------------------- OUT perform_depth_corrections --------------------')
+
 
     def export_ice_layer_lat_lon_distance_thicknesses(self):
         print('-------------------- ENTERING export_ice_layer_lat_lon_distance_thicknesses --------------------')
         '''Export to a CSV, ice layer lat,lon,& thicknesses.  Omit all zero values.'''
+
         tracks = self.compile_icebridge_tracks_with_ice_lenses()
+        #Once I am out of this, I just store the suite of commands to execute in tracks but no actual data sotred in it
 
         pdb.set_trace()
 
         fout = open(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, 'w')
+        pdb.set_trace()
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
 
@@ -377,15 +390,20 @@ class IceBridgeGPR_Manager_v2():
             print(tracecount, "of", len(lats), "traces.")
             print()
 
-        pdb.set_trace()
-
         fout.close()
-        print("Exported", os.path.split(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE)[-1])
-
         pdb.set_trace()
+        print("Exported", os.path.split(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE)[-1])
+        print('-------------------- OUT export_ice_layer_lat_lon_distance_thicknesses --------------------')
+        ######################################################################
+        ######################################################################
+        ######################################################################
+        # J'en suis la le 04 Nov 2020 à 16h00. Jusqu'ici j'ai tout debuggé,
+        # tout fonctionne et j'ai tout compris
+        ######################################################################
+        ######################################################################
+        ######################################################################
 
     def import_ice_layer_lat_lon_distance_thicknesses(self):
-        print('-------------------- ENTERING import_ice_layer_lat_lon_distance_thicknesses --------------------')
 
         '''Import from a CSV, return the track_name, tracenum, lat, lon, cumulative_distance, and ice layer thickness at each trace.'''
         print('-------------------- ENTERING import_ice_layer_lat_lon_distance_thicknesses --------------------')
@@ -401,6 +419,8 @@ class IceBridgeGPR_Manager_v2():
         lons = numpy.array([float(items[header["lon"]]) for items in lines])
         distances = numpy.array([float(items[header["alongtrack_distance_m"]]) for items in lines])
         ice_content_m = numpy.array([float(items[header["20m_ice_content_m"]]) for items in lines])
+
+        print('-------------------- OUT import_ice_layer_lat_lon_distance_thicknesses --------------------')
 
         return track_names, tracenums, lats, lons, distances, ice_content_m
 
@@ -497,6 +517,8 @@ class IceBridgeGPR_Manager_v2():
         data_source = None
         pdb.set_trace()
         print("Exported", os.path.split(fname)[-1])
+        print('-------------------- OUT export_smoothed_ice_layer_shapefile --------------------')
+
         return
 
     def export_KML_reference_tracks(self):
@@ -540,6 +562,7 @@ class IceBridgeGPR_Manager_v2():
         kml.save(kml_filename)
         print(os.path.split(kml_filename)[-1], "written.")
 
+        print('-------------------- OUT export_KML_reference_tracks --------------------')
 
 class Mask_Manager():
     '''A class for managing mask files for IceBridgeGPR_Track_v2 instances.
@@ -582,6 +605,7 @@ class Mask_Manager():
                 sdict[items[0]] = int(items[1])
 
         self.starting_surface_pixel_dictionary = sdict
+        print('-------------------- OUT _initialize_surface_pixel_dictionary --------------------')
 
     def return_suggested_starting_pixel(self, flightline_name):
         return self.starting_surface_pixel_dictionary[flightline_name]
@@ -638,6 +662,8 @@ class Mask_Manager():
                     mdict[fname][linename] = gaps
 
         self.mask_dictionary = mdict
+        print('-------------------- OUT _initialize_mask_dictionary --------------------')
+
         return
 
     def compute_mask(self, flightline_name, mask_filenames, array_length):
@@ -666,11 +692,9 @@ class Mask_Manager():
         elif type(mask_filenames) in (list,tuple):
             filenames_to_iterate = mask_filenames
 
-        pdb.set_trace()
-
         # Iterate over each of the files
         for fname in filenames_to_iterate:
-
+            print(fname)
             # Find the gaps from that file.
             gaps = self.mask_dictionary[fname][flightline_name]
             if gaps is not None:
@@ -682,6 +706,8 @@ class Mask_Manager():
                     else:
                         assert len(gap) == 1
                         boolean_array[gap[0]] = False
+
+        print('-------------------- OUT compute_mask --------------------')
 
         return boolean_array
 
@@ -736,19 +762,32 @@ class IceBridgeGPR_Track_v2():
 
     def DO_IT_ALL(self):
         print('-------------------- ENTERING DO_IT_ALL --------------------')
-
+        pdb.set_trace()
         '''From start to finish, process all the data for this track.  The "do it all" function.
         This will rarely (if ever) be called from the start, but is helpful for reproduction as well as
         for keeping track of the processing steps needed to transform the entire file.'''
         self._read_metadata()
+        pdb.set_trace()
+
         self.compute_surface_picks(export=True)
+        pdb.set_trace()
+
         self.perform_roll_correction(export=True, max_depth_m=100)
+        pdb.set_trace()
+
         self.perform_depth_correction(export=True, max_depth_m=100)
+        pdb.set_trace()
+
         self.identify_ice_lenses(export=True, max_depth_m=20)
+        pdb.set_trace()
+
+        print('-------------------- OUT DO_IT_ALL --------------------')
+
 
     def _read_metadata(self):
         '''Read all the metadata from the self.h5file IceBridge metadata file.  Get the needed data for this set.'''
         print('-------------------- ENTERING _read_metadata --------------------')
+        pdb.set_trace()
 
         if isinstance(self.H5FILE, tables.File):
             f = self.H5FILE
@@ -807,6 +846,7 @@ class IceBridgeGPR_Track_v2():
                                     '(Flightline_ID == {0}) & (File_ID >= {1}) & (File_ID <= {2})'.format( \
                                      flightline_id, file_ids_start, file_ids_end))
 
+        print('-------------------- OUT _read_metadata --------------------')
         return
 
     def _convert_h5_dataset_to_dict(self, dataset):
@@ -835,6 +875,7 @@ class IceBridgeGPR_Track_v2():
                 data_dict[key] = dataset[key][()].transpose()
                 print('transpose')
 
+        print('-------------------- OUT _convert_h5_dataset_to_dict --------------------')
         return data_dict
 
     def _import_from_picklefile(self, FNAME):
@@ -845,18 +886,19 @@ class IceBridgeGPR_Track_v2():
         print("Reading", os.path.split(FNAME)[-1])
         data = pickle.load(f)
         f.close()
+        print('-------------------- OUT _import_from_picklefile --------------------')
         return data
 
     def _export_to_picklefile(self, data, FNAME):
         print('-------------------- ENTERING _export_to_picklefile --------------------')
-
-        pdb.set_trace()
 
         '''Export a variable to a picklefile.'''
         f = open(FNAME, "wb")
         pickle.dump(data, f)
         f.close()
         print("Exported", os.path.split(FNAME)[-1])
+        print('-------------------- OUT _export_to_picklefile --------------------')
+
         return
 
     def _compute_score_accuracy_wrt_reference_track_BOOLEAN(self, boolean_array, reference_track):
@@ -870,6 +912,8 @@ class IceBridgeGPR_Track_v2():
         type_1_errors = float(numpy.count_nonzero(boolean_array & ~reference_track)) / N
         type_2_errors = float(numpy.count_nonzero(~boolean_array & reference_track)) / N
 
+        print('-------------------- OUT _compute_score_accuracy_wrt_reference_track_BOOLEAN --------------------')
+
         return type_1_errors, type_2_errors
 
 
@@ -882,6 +926,8 @@ class IceBridgeGPR_Track_v2():
         2) The Type-2 Error rate (false negatives)'''
         type_1_errors = (1.0 - numpy.mean(GPR_resampled[ boolean_array])) if (numpy.count_nonzero(boolean_array)  > 0) else 0.0
         type_2_errors =        numpy.mean(GPR_resampled[~boolean_array])  if (numpy.count_nonzero(~boolean_array) > 0) else 0.0
+
+        print('-------------------- OUT _compute_score_accuracy_wrt_reference_track --------------------')
 
         return type_1_errors, type_2_errors
 
@@ -962,6 +1008,7 @@ class IceBridgeGPR_Track_v2():
         fig.savefig(figname, figsize=figsize)
         plt.close()
         print("Saved", os.path.split(figname)[1])
+        print('-------------------- OUT plot_in_situ_and_reference_track_together --------------------')
 
     def plot_validation_data_and_find_minima(self):
         print('-------------------- ENTERING plot_validation_data_and_find_minima --------------------')
@@ -1061,6 +1108,7 @@ class IceBridgeGPR_Track_v2():
             print("Exported", os.path.split(figname)[-1])
             plt.cla()
             plt.close()
+        print('-------------------- OUT plot_validation_data_and_find_minima --------------------')
 
     def validate_reference_track_w_in_situ_data(self, export_images=True):
         print('-------------------- ENTERING validate_reference_track_w_in_situ_data --------------------')
@@ -1155,6 +1203,7 @@ class IceBridgeGPR_Track_v2():
                     fout.write("{0},{1:f},{2:d},{3:f},{4:f}\n".format(name, cutoff_value, continuity_t,
                                                                *results_dict[(name, cutoff_value, continuity_t)]))
 
+        print('-------------------- OUT validate_reference_track_w_in_situ_data --------------------')
         return
 
     def _caluculate_icelens_connectedness(self, boolean_image):
@@ -1189,8 +1238,6 @@ class IceBridgeGPR_Track_v2():
             still_to_visit = (boolean_image & (~visited_mask_cumulative))
             # Add one to the current running group ID
             current_group_id += 1
-
-        pdb.set_trace()
 
         return group_id_array, group_size_dict
 
@@ -1325,6 +1372,8 @@ class IceBridgeGPR_Track_v2():
         self._export_to_picklefile([GPR_lat, GPR_lon, GPR_elev, GPR_E, GPR_N, GPR_depths],
                                    ACT13_SUBSET__LAT_LON_ELEV_E_N_DEPTHS_PICKLEFILE)
 
+        print('-------------------- OUT export_downsampled_InSituGPR_track_to_picklefiles --------------------')
+
         return resampled
 
     def get_trace_array(self):
@@ -1334,7 +1383,6 @@ class IceBridgeGPR_Track_v2():
         '''
         print('-------------------- ENTERING get_trace_array --------------------')
 
-        pdb.set_trace()
         # If we haven't ingested the metadata yet, do so.
         if self.FILENAMES is None:
             self._read_metadata()
@@ -1350,8 +1398,6 @@ class IceBridgeGPR_Track_v2():
         if self.VERBOSE:
             print("Reading {0} files".format(len(self.FILENAMES)), end=' ')
 
-        pdb.set_trace()
-
         for i,fname in enumerate(self.FILENAMES):
             if self.VERBOSE:
                 print(".", end=' ')
@@ -1366,8 +1412,6 @@ class IceBridgeGPR_Track_v2():
                 fdata = self._convert_h5_dataset_to_dict(mdata)
 
             file_traces = fdata['Data']
-
-            pdb.set_trace()
 
             if time_col is None:
                 time_col = fdata['Time']
@@ -1393,11 +1437,9 @@ class IceBridgeGPR_Track_v2():
         assert table_idx == self.TABLE_coords_table.shape[0]
 
         self.TRACES = traces
-
         self.SAMPLE_TIMES = time_col
-        print('-------------------- j''arrive la --------------------')
-
         self.compute_sample_depths()
+        #So far we have read the data, stored the traces into self and computed the depths and stored them into self!
 
         print('-------------------- OUT get_trace_array --------------------')
 
@@ -1406,13 +1448,11 @@ class IceBridgeGPR_Track_v2():
     def compute_sample_depths(self):
         '''Using the self.SAMPLE_TIMES field, compute self.sample_depths.'''
         print('-------------------- ENTERING compute_sample_depths --------------------')
-        pdb.set_trace()
 
         if self.SAMPLE_TIMES is None:
             self.get_trace_array()
 
         self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-
         return
 
     def return_coordinates_lat_lon(self):
@@ -1430,11 +1470,13 @@ class IceBridgeGPR_Track_v2():
         lats = self.TABLE_coords_table["Latitude"]
         lons = self.TABLE_coords_table["Longitude"]
 
+        print('-------------------- OUT return_coordinates_lat_lon --------------------')
+
         return lats, lons
 
     def return_coordiates_polarstereo(self, lats=None, lons=None):
         print('-------------------- ENTERING return_coordiates_polarstereo --------------------')
-
+        pdb.set_trace()
         '''Return the coordinates in North Polar Stereo projection, in (eastings, northings)'''
         if (lats is None) or (lons is None):
             lats, lons = self.return_coordinates_lat_lon()
@@ -1452,6 +1494,8 @@ class IceBridgeGPR_Track_v2():
         eastings  = numpy.array([p[0] for p in nps_points])
         northings = numpy.array([p[1] for p in nps_points])
 
+        print('-------------------- OUT return_coordiates_polarstereo --------------------')
+
         return eastings, northings
 
     def compute_distances(self):
@@ -1466,6 +1510,8 @@ class IceBridgeGPR_Track_v2():
 
         if self.VERBOSE:
             print(self.NAME, "Avg: {0: 5.2f}, Total: {1: 9.2f}".format(numpy.mean(distances), numpy.sum(distances)))
+
+        print('-------------------- OUT compute_distances --------------------')
         return distances
 
 
@@ -1477,11 +1523,12 @@ class IceBridgeGPR_Track_v2():
         if self.TABLE_coords_table is None:
             self._read_metadata()
 
+        print('-------------------- OUT numtraces --------------------')
+
         return len(self.TABLE_coords_table)
 
     def _read_original_surface_picks(self):
         print('-------------------- ENTERING _read_original_surface_picks --------------------')
-        pdb.set_trace()
 
         '''Get the default surface picks from the IceBridge radar.  We will use these to improve it.'''
         if self.LIST_original_surface_picks is not None:
@@ -1491,11 +1538,12 @@ class IceBridgeGPR_Track_v2():
             self._read_metadata()
 
         self.LIST_original_surface_picks = self.TABLE_coords_table['Surface']
+
+        print('-------------------- OUT _read_original_surface_picks --------------------')
         return self.LIST_original_surface_picks
 
     def _compute_original_surface_indices(self):
         print('-------------------- ENTERING _compute_original_surface_indices --------------------')
-
         surface_picks = self._read_original_surface_picks()
 
         # If we won't have the sample times down, get it.
@@ -1524,11 +1572,13 @@ class IceBridgeGPR_Track_v2():
         output_array = numpy.where(match_outputs)[1]
 
         self.LIST_original_surface_indices = output_array
+        print('-------------------- OUT _compute_original_surface_indices --------------------')
         return output_array
 
 
     def compute_surface_picks(self, export=True):
         print('-------------------- ENTERING compute_surface_picks --------------------')
+        pdb.set_trace()
 
         # 1) Read original traces, subset them to get any foobars off the barfoos.
         # 2) Get masks from the SURFACE_PICK_GUIDE file
@@ -1549,7 +1599,6 @@ class IceBridgeGPR_Track_v2():
         # SHOULD I TAKE LOG HERE?  I THINK SO, LET'S TRY IT FIRST.
         traces = numpy.log10(traces)
         # Get the original indicies to use as a starter
-        pdb.set_trace()
         original_indices = self._subset_array(self._compute_original_surface_indices(), mask=surface_maskname)
 
         # 3) Perform surface pick crawling threshold behavior mask (assume a step-change analysis [goes from weak->strong at surface], and continuity of surface in original file.)
@@ -1569,12 +1618,9 @@ class IceBridgeGPR_Track_v2():
 
         improved_indices = numpy.empty(original_indices.shape, dtype=original_indices.dtype)
 
-        pdb.set_trace()
-
         # Start at the left suggested vertical pixel starting point
         # IF THEY GOT IT WRONG, use the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE instead.
         alternate_suggested_pick = self.mask_manager.return_suggested_starting_pixel(self.NAME)
-        pdb.set_trace()
 
         if alternate_suggested_pick is None:
             last_best_index = original_indices[0]
@@ -1598,35 +1644,55 @@ class IceBridgeGPR_Track_v2():
             last_best_index = search_indices[MASK_RADIUS,numpy.argmax(bestfit_sum)]
             improved_indices[i] = last_best_index
 
+        ######################################################################
+        ######################################################################
+        ######################################################################
+        # J'en suis la le 22 Oct 2020 à 17h30. Jusqu'ici j'ai tout debuggé,
+        # tout fonctionne et j'ai tout compris
+        ######################################################################
+        ######################################################################
+        ######################################################################
+
         # Erase most the little "jump" artifacts in the surface picker.
         improved_indices = self._get_rid_of_false_surface_jumps(improved_indices)
         # Must re-expand the surface indices to account for masked values (filled w/ nan)
         improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
 
-        pdb.set_trace()
+        ######################################################################
+        ######################################################################
+        ######################################################################
+        # J'en suis la le 26 Oct 2020 à 110h30. Jusqu'ici j'ai tout debuggé,
+        # tout fonctionne et j'ai tout compris
+        ######################################################################
+        ######################################################################
+        ######################################################################
 
         if export:
+            pdb.set_trace()
+
             radar_slice = self._return_radar_slice_given_surface(traces, improved_indices, meters_cutoff_above=5, meters_cutoff_below=10)
+            pdb.set_trace()
+
             idx_above, idx_below = self._radar_slice_indices_above_and_below(meters_cutoff_above=5, meters_cutoff_below=10)
+            pdb.set_trace()
+
             mean_returns = numpy.mean(radar_slice, axis=1)
             plt.axhline(y=0,linestyle="--",color="black")
             plt.plot(mean_returns, -numpy.arange(-idx_above,idx_below,1)*numpy.mean(self.SAMPLE_DEPTHS[1:] - self.SAMPLE_DEPTHS[:-1]))
             plt.title(self.NAME)
             plt.xlabel("Mean Strength (dB)")
             plt.ylabel("Depth (m)")
-            plt.show()
-            fname = self.NAME + "_MEAN_HORIZONTAL_RETURNS_5m_30m.png"
+            #plt.show()
+            fname = self.NAME + "_MEAN_HORIZONTAL_RETURNS_5m_10m.png"
             plt.savefig(os.path.join(ICEBRIDGE_EXPORT_FOLDER,fname),dpi=600)
             print("Saved", fname)
             plt.cla()
             plt.close()
 
-            pdb.set_trace()
-
             # Plot the span of the improved indices
             plt.plot(-improved_indices)
             plt.title(self.NAME)
-            plt.show()
+            #plt.show()
             figname = os.path.join(ICEBRIDGE_EXPORT_FOLDER, self.NAME + "__BESTFIT_V1_PLOT.png")
             plt.savefig(figname, dpi=400)
             print("Exported", os.path.split(figname)[-1])
@@ -1636,27 +1702,47 @@ class IceBridgeGPR_Track_v2():
             # Export the images
             # 0-30 m depth, improves traces
             radar_slice = self._return_radar_slice_given_surface(traces, improved_indices, meters_cutoff_above=0, meters_cutoff_below=30)
+            pdb.set_trace()
+
             radar_slice_expanded = self._refill_array(radar_slice, surface_maskname)
+            pdb.set_trace()
+
             self.export_image(radar_slice_expanded, image_label="_0m_30m_BESTFIT_V1")
+            pdb.set_trace()
 
             # -5-30 m depth, improved traces NO DOTTED LINE
             radar_slice = self._return_radar_slice_given_surface(traces, improved_indices, meters_cutoff_above=5, meters_cutoff_below=30)
+            pdb.set_trace()
+
             radar_slice_expanded = self._refill_array(radar_slice, surface_maskname)
+            pdb.set_trace()
+
             self.export_image(radar_slice_expanded, image_label="_5m_30m_BESTFIT_V1")
+            pdb.set_trace()
 
             # -5-30 m depth, improved traces WITH DOTTED LINE
             idx_above, idx_below = self._radar_slice_indices_above_and_below(meters_cutoff_above=5, meters_cutoff_below=30)
+            pdb.set_trace()
+
             # Add a dotted line to the surface so we can see it well on the figure
             dotted_line_indices = numpy.arange(radar_slice.shape[1])
             dotted_line_mask = numpy.mod((dotted_line_indices / 3),3) == 1
             radar_slice[idx_above,dotted_line_mask] = numpy.nan
             radar_slice_expanded = self._refill_array(radar_slice, surface_maskname)
+            pdb.set_trace()
+
             self.export_image(radar_slice_expanded, image_label="_5m_30m_BESTFIT_DOTTED_LINE")
+            pdb.set_trace()
 
             # -5-30 m depth, original traces
             radar_slice = self._return_radar_slice_given_surface(traces, original_indices, meters_cutoff_above=5, meters_cutoff_below=30)
+            pdb.set_trace()
+
             radar_slice_expanded = self._refill_array(radar_slice, surface_maskname)
+            pdb.set_trace()
+
             self.export_image(radar_slice_expanded, image_label="_5m_30m_ORIGINAL")
+            pdb.set_trace()
 
             # Save output to a picklefile.
             pdb.set_trace()
@@ -1667,16 +1753,21 @@ class IceBridgeGPR_Track_v2():
             print("Exported", picklefile_name)
 
         print()
+        print('-------------------- OUT compute_surface_picks --------------------')
 
         return improved_indices_expanded
 
     def _radar_slice_indices_above_and_below(self, meters_cutoff_above, meters_cutoff_below):
         print('-------------------- ENTERING _radar_slice_indices_above_and_below --------------------')
+        pdb.set_trace()
 
         delta_distance = numpy.mean(self.SAMPLE_DEPTHS[1:] - self.SAMPLE_DEPTHS[:-1])
         idx_above = int(numpy.round(float(meters_cutoff_above) / delta_distance))
         # Add one to the index below to include that last pixel when array-slicing
         idx_below = int(numpy.round(float(meters_cutoff_below) / delta_distance)) + 1
+
+        print('-------------------- OUT _radar_slice_indices_above_and_below --------------------')
+
         return idx_above, idx_below
 
     def _get_rid_of_false_surface_jumps(self, surface_indices):
@@ -1757,6 +1848,8 @@ class IceBridgeGPR_Track_v2():
             # now recompute jumps
             jumps = improved_surface[1:] - improved_surface[:-1]
             continue
+
+        print('-------------------- OUT _get_rid_of_false_surface_jumps --------------------')
         return improved_surface
 
     def get_radar_slice_100m(self):
@@ -1766,13 +1859,15 @@ class IceBridgeGPR_Track_v2():
         if self.TRACES_surface_slice_100m is not None:
             return self.TRACES_surface_slice_100m
 
-        pdb.set_trace()
         slice_from_file = self.read_radar_slice_from_picklefile()
 
         if slice_from_file is not None:
+            print('-------------------- OUT get_radar_slice_100m --------------------')
             return slice_from_file
         else:
+            #here we will select the first 100m of the data
             self.save_radar_slice_to_picklefile(meters_cutoff_above=0, meters_cutoff_below=100)
+            print('-------------------- OUT get_radar_slice_100m --------------------')
             return self.TRACES_surface_slice_100m
 
     def read_radar_slice_from_picklefile(self):
@@ -1782,21 +1877,20 @@ class IceBridgeGPR_Track_v2():
         If the file doesn't exist, return None.'''
         fname = self.NAME + "_SURFACE_SLICE_100M.pickle"
         pathname = os.path.join(ICEBRIDGE_SURFACE_SLICE_PICKLEFILE_FOLDER, fname)
-        pdb.set_trace()
 
         if os.path.exists(pathname):
             f = open(pathname, 'r')
             radar_slice = pickle.load(f)
             f.close()
             self.TRACES_surface_slice_100m = radar_slice
+            print('-------------------- OUT read_radar_slice_from_picklefile --------------------')
             return radar_slice
         else:
+            print('-------------------- OUT read_radar_slice_from_picklefile --------------------')
             return None
 
     def save_radar_slice_to_picklefile(self, meters_cutoff_above=0, meters_cutoff_below=100):
         print('-------------------- ENTERING save_radar_slice_to_picklefile --------------------')
-
-        pdb.set_trace()
 
         '''Take the surface slice and save it to a picklefile.'''
         fname = self.NAME + "_SURFACE_SLICE_100M.pickle"
@@ -1806,6 +1900,7 @@ class IceBridgeGPR_Track_v2():
         maskfilenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]
         # Get the surface indices and traces, mask them out according to masks above.
         surface_indices = self.compute_surface_picks(export=False)
+
         surface_indices = self._subset_array(surface_indices,mask=maskfilenames)
         traces = self._subset_array(self.get_trace_array(),mask=maskfilenames)
 
@@ -1815,8 +1910,16 @@ class IceBridgeGPR_Track_v2():
                                                              meters_cutoff_above=meters_cutoff_above,
                                                              meters_cutoff_below=meters_cutoff_below)
 
+        ######################################################################
+        ######################################################################
+        ######################################################################
+        # J'en suis la le 26 Oct 2020 à 16h20. Jusqu'ici j'ai tout debuggé,
+        # tout fonctionne et j'ai tout compris
+        ######################################################################
+        ######################################################################
+        ######################################################################
+
         radar_slice_expanded = self._refill_array(radar_slice, maskfilenames)
-        pdb.set_trace()
 
         # Save it to the picklefile.
         f = open(pathname, 'wb')
@@ -1825,6 +1928,7 @@ class IceBridgeGPR_Track_v2():
         print("Exported", fname)
 
         self.TRACES_surface_slice_100m = radar_slice_expanded
+        print('-------------------- OUT save_radar_slice_to_picklefile --------------------')
 
         return
 
@@ -1838,8 +1942,9 @@ class IceBridgeGPR_Track_v2():
         Return value:
             A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
         '''
-        print('-------------------- ENTERING _return_radar_slice_given_surface --------------------')
 
+        print('-------------------- ENTERING _return_radar_slice_given_surface --------------------')
+        pdb.set_trace()
         idx_above, idx_below = self._radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below)
 
         output_traces = numpy.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
@@ -1858,11 +1963,13 @@ class IceBridgeGPR_Track_v2():
                     print(i, s, traces.shape)
                     assert False
                 output_traces[:,i] = traces[start:end, i]
+        print('-------------------- OUT _return_radar_slice_given_surface --------------------')
 
         return output_traces
 
     def perform_roll_correction(self, export=True, max_depth_m=100):
         print('-------------------- ENTERING perform_roll_correction --------------------')
+        pdb.set_trace()
 
         '''Defines that A,C of the best-fit roll/curvature correction for the flight,
         applies that correction, exports the images, and saves the results of the slice to a picklefile.'''
@@ -1875,6 +1982,16 @@ class IceBridgeGPR_Track_v2():
         traces = self.get_radar_slice_100m()
         # Mask out erroneous points, if any
         traces = self._subset_array(traces, trace_masks)
+
+        ######################################################################
+        ######################################################################
+        ######################################################################
+        # J'en suis la le 26 Oct 2020 à 17h30. Jusqu'ici j'ai tout debuggé,
+        # tout fonctionne et j'ai tout compris
+        ######################################################################
+        ######################################################################
+        ######################################################################
+
         # Log transform
         traces = numpy.log10(traces)
 
@@ -2059,7 +2176,6 @@ class IceBridgeGPR_Track_v2():
             ax1.set_title(self.NAME)
             ax1.set_xlabel("Depth (m)")
 
-            pdb.set_trace()
             # Begin: Added on September 16, 2020 to fit MacFerrins' figures
             #ax1.set_xlim(-20,120)
             #ax1.set_ylim(-0.015,0.010)
@@ -2098,15 +2214,11 @@ class IceBridgeGPR_Track_v2():
 
             plt.tight_layout()
 
-            pdb.set_trace()
-
             fname = self.NAME + "_PLOT_A_C_Curves.png"
             plt.savefig(os.path.join(ICEBRIDGE_EXPORT_FOLDER, fname), dpi=600)
             print("Exported", fname)
             plt.cla()
             plt.close()
-
-            pdb.set_trace()
 
             #########################
             # Plot roll correction info
@@ -2231,6 +2343,7 @@ class IceBridgeGPR_Track_v2():
             print("Exported", os.path.split(picklefile_name)[-1])
 
         print()
+        print('-------------------- OUT perform_roll_correction --------------------')
 
         #################
         # 8) Return parameters
@@ -2259,6 +2372,8 @@ class IceBridgeGPR_Track_v2():
             self._read_metadata()
         roll = self.TABLE_coords_table['Roll']
 #        print "ROLL: min {0}, max {1}, mean {2}".format(numpy.min(roll), numpy.max(roll), numpy.mean(roll))
+
+        print('-------------------- OUT _return_aircraft_roll --------------------')
 
         if numpy.all(numpy.isnan(roll)):
             return None
@@ -2308,6 +2423,7 @@ class IceBridgeGPR_Track_v2():
         nan_mask = numpy.isnan(thetas)
 
         print("CURVE:", "min", numpy.min(thetas[~nan_mask]), "max", numpy.max(thetas[~nan_mask]), "mean", numpy.mean(thetas[~nan_mask]))
+        print('-------------------- OUT _compute_path_curvature --------------------')
 
         ## 6. Return curvatures
         # If "normalize" is set, we normalize the curvatures for the path length at each point (using the mean of the ray before and after)
@@ -2326,8 +2442,6 @@ class IceBridgeGPR_Track_v2():
         # Get our traces and the trace depths
         traces_all = self.get_processed_traces(datatype="roll_corrected")
 
-        pdb.set_trace()
-
         # Subset traces to mask out all NaN values (previously masked)
         mask = self._compute_boolean_mask(traces=traces_all, mask=None)
         traces = self._subset_array(traces_all, mask=None)
@@ -2342,8 +2456,6 @@ class IceBridgeGPR_Track_v2():
 
         assert traces.shape == depths_expanded.shape
 
-        pdb.set_trace()
-
         # 1) Get the exponential curve fit
         def exfunc(y,A,B,C):
             return A * numpy.exp(B * y) + C
@@ -2356,7 +2468,6 @@ class IceBridgeGPR_Track_v2():
 
         A,B,C = popt
         print(popt)
-
         if export:
             # Correct the traces and normalize them.
             # Original function is Z = A * e^(By) + C
@@ -2420,9 +2531,6 @@ class IceBridgeGPR_Track_v2():
             #ax.set_ylim(-8,2)
             # End: Added on September 16, 2020 to fit MacFerrins' figures
 
-
-            pdb.set_trace()
-
             plt.tight_layout()
             figname = os.path.join(ICEBRIDGE_EXPORT_FOLDER, self.NAME + "_DEPTH_CURVE_PLOT.png")
             plt.savefig(figname, dpi=600)
@@ -2434,8 +2542,6 @@ class IceBridgeGPR_Track_v2():
             ## Export picklefile
             ######################################
             traces_norm_inflated = self._refill_array(traces_norm, mask)
-
-            pdb.set_trace()
 
             f = open(self.FNAME_depth_corrected_picklefile, 'wb')
             pickle.dump(traces_norm_inflated, f)
@@ -2454,23 +2560,23 @@ class IceBridgeGPR_Track_v2():
 
         # 3) Return depth-correction parameters
         print()
-        pdb.set_trace()
+        print('-------------------- OUT perform_depth_correction --------------------')
+
         return popt
 
     def identify_ice_lenses(self, export=True, max_depth_m=20):
         print('-------------------- ENTERING identify_ice_lenses --------------------')
         pdb.set_trace()
+
         '''From the ACT13 track validation performed in validate_reference_track_w_in_situ_data()
         and plot_validation_data_and_find_minima(), create ice lens images from each algorithm.'''
         # Read the traces and depths
         traces = self.get_processed_traces(datatype="depth_corrected")
-        pdb.set_trace()
         # Grab the mask and subset the traces to get rid of NaNs
         mask = self._compute_boolean_mask(traces, mask=None)
         traces = self._subset_array(traces, mask=None)
         # Retreive the depths, subset to max_depth_m (20 m)
         depths = self.get_sample_depths(trace_array = traces)
-        pdb.set_trace()
         depth_N = numpy.count_nonzero(depths <= max_depth_m)
         traces = traces[:depth_N,:]
         ######################################################################
@@ -2504,8 +2610,6 @@ class IceBridgeGPR_Track_v2():
             elif algorithm == "S2":
                 boolean_traces = self._boolean_grow_by_1(self._boolean_shrink_by_1(boolean_traces, N=2), N=2)
 
-            pdb.set_trace()
-
             # Perform the continuity thresholding.
             group_id_array, group_size_dict = self._caluculate_icelens_connectedness(boolean_traces)
             ice_lenses_above_cutoff_size = numpy.zeros(boolean_traces.shape, dtype=numpy.bool)
@@ -2513,8 +2617,6 @@ class IceBridgeGPR_Track_v2():
             # Set each group of pixels in that category to True, only for groups larger than the cutoff
             for group_ID in [ID for (ID,size) in list(group_size_dict.items()) if size >= continuity_threshold]:
                 ice_lenses_above_cutoff_size[group_id_array == group_ID] = True
-
-            pdb.set_trace()
 
             if export:
                 traces_refilled = self._refill_array(ice_lenses_above_cutoff_size, mask)
@@ -2529,8 +2631,10 @@ class IceBridgeGPR_Track_v2():
             mask_picklefile_fname = os.path.join(ICEBRIDGE_BOOLEAN_RESULTS_PICKLEFILE_FOLDER, self.NAME + "_mask.pickle")
             self._export_to_picklefile(mask, mask_picklefile_fname)
 
-        print()
         pdb.set_trace()
+        print()
+        print('-------------------- OUT identify_ice_lenses --------------------')
+
         return
 
     def _boolean_shrink_by_1(self, orig, N=1):
@@ -2545,6 +2649,7 @@ class IceBridgeGPR_Track_v2():
             new[ :-1, :  ] = new[ :-1, :  ] & orig[1:  , :  ] # SUBSET_UP
             new[1:  , :  ] = new[1:  , :  ] & orig[ :-1, :  ] # SUBSET_DOWN
             orig = new
+        print('-------------------- OUT _boolean_shrink_by_1 --------------------')
 
         return new
 
@@ -2560,6 +2665,7 @@ class IceBridgeGPR_Track_v2():
             new[ :-1, :  ] = new[ :-1, :  ] | orig[1:  , :  ] # SUBSET_UP
             new[1:  , :  ] = new[1:  , :  ] | orig[ :-1, :  ] # SUBSET_DOWN
             orig = new
+        print('-------------------- OUT _boolean_grow_by_1 --------------------')
 
         return new
 
@@ -2577,12 +2683,13 @@ class IceBridgeGPR_Track_v2():
             array = self._boolean_grow_by_1(array)
         for _ in range(N):
             array = self._boolean_shrink_by_1(array)
+        print('-------------------- OUT _boolean_shrink_and_grow --------------------')
 
         return array
 
     def _export_to_8bit_array(self, array):
         print('-------------------- ENTERING _export_to_8bit_array --------------------')
-
+        pdb.set_trace()
         '''In order to export a function to a PNG image, use this funciton to
         export to an 8 bit unsigned integer array of scaled values.'''
 
@@ -2606,29 +2713,29 @@ class IceBridgeGPR_Track_v2():
         export_array_rescaled_int[excluded_mask] = range_min
         # plug into the integer array (conversion from larger to smaller integers)
         output_array[:,:] = export_array_rescaled_int[:,:]
+        print('-------------------- OUT _export_to_8bit_array --------------------')
 
         return output_array
 
     def export_boolean_image(self, array, image_label=""):
         print('-------------------- ENTERING export_boolean_image --------------------')
-
         '''Create a black-and-white boolean image of this track.'''
         outfilename = self.NAME + ("_" if (len(image_label)>0 and image_label[0] != "_") else "") + image_label + (".png" if ((len(image_label) < 4) or (len(image_label) > 4 and image_label[-4:] != '.png')) else "")
         outfilepath = os.path.join(ICEBRIDGE_EXPORT_FOLDER, outfilename)
-
-        pdb.set_trace()
 
         png_file = png.from_array(array, mode="L;1")
         png_file.save(outfilepath)
 
         if self.VERBOSE:
             print("Exported", outfilename)
+        print('-------------------- OUT export_boolean_image --------------------')
 
         return
 
 
     def export_image(self, array, image_label=""):
         print('-------------------- ENTERING export_image --------------------')
+        pdb.set_trace()
 
         '''Create an black-and-white output image of this track.'''
         export_integers = self._export_to_8bit_array(array)
@@ -2637,15 +2744,15 @@ class IceBridgeGPR_Track_v2():
         outfilepath = os.path.join(ICEBRIDGE_EXPORT_FOLDER, outfilename)
         png_file = png.from_array(export_integers, mode="L")
         png_file.save(outfilepath)
-
+        pdb.set_trace()
         if self.VERBOSE:
             print("Exported", outfilename)
+        print('-------------------- OUT export_image --------------------')
 
         return
 
     def _compute_boolean_mask(self, traces=None, mask="ALL"):
-        print('-------------------- ENTERING _compute_boolean_mask --------------------')
-
+        print('------------------- NO OUT ! ENTERING _compute_boolean_mask --------------------')
         '''Reads a mask guide file, returns a boolean array of T/F values determining
         which points should be included in the dataset and which points omitted.'''
         if type(mask) in (str, list, tuple):
@@ -2658,28 +2765,29 @@ class IceBridgeGPR_Track_v2():
 
     def _subset_array(self, array, mask="ALL"):
         print('-------------------- ENTERING _subset_array --------------------')
-
         '''Take an inpute array and subset it by the make file name.  Return the subset array.'''
         if mask is None:
             mask = self._compute_boolean_mask(traces=array, mask=None)
         elif type( mask ) in (list,tuple,str):
             mask = self._compute_boolean_mask(traces=array, mask=mask)
+        print('-------------------- OUT _subset_array --------------------')
 
         if len(array.shape) == 1:
+            print('-------------------- OUT _subset_array --------------------')
             return array[mask]
         elif len(array.shape) == 2:
+            print('-------------------- OUT _subset_array --------------------')
             return array[:,mask]
 
     def _refill_array(self, array, mask):
         print('-------------------- ENTERING _refill_array --------------------')
-
         '''This does the converse of _subset_array().  If an array has been subset,
         this fills back in the values that were orgininally omitted, with Nan if floating-point, else 0'''
         if type(mask) in (str,tuple,list):
             mask = self._compute_boolean_mask(mask=mask)
-
         # There was no subset, just return the original array.
         if numpy.all(mask):
+            print('-------------------- OUT _refill_array --------------------')
             return array
 
         newshape = list(array.shape)
@@ -2693,6 +2801,7 @@ class IceBridgeGPR_Track_v2():
             assert len(array.shape) == 2
             array_expanded[:,:] = numpy.nan if array.dtype not in (bool,int) else 0
             array_expanded[:,mask] = array
+        print('-------------------- OUT _refill_array --------------------')
 
         return array_expanded
 
@@ -2712,10 +2821,11 @@ class IceBridgeGPR_Track_v2():
             f.close()
             return self.TRACES_roll_corrected
 
-        pdb.set_trace()
         # Create the picklefile and then return the traces
         self.perform_roll_correction(export=True)
         assert self.TRACES_roll_corrected is not None
+        print('-------------------- OUT get_roll_corrected_traces --------------------')
+
         return self.TRACES_roll_corrected
 
     def get_depth_corrected_traces(self):
@@ -2738,11 +2848,12 @@ class IceBridgeGPR_Track_v2():
         # Create the picklefile then return the traces
         self.perform_depth_correction(export=True)
         assert self.TRACES_depth_corrected is not None
+        print('-------------------- OUT get_depth_corrected_traces --------------------')
+
         return self.TRACES_depth_corrected
 
     def get_boolean_ice_traces(self):
         print('-------------------- ENTERING get_boolean_ice_traces --------------------')
-        pdb.set_trace()
         '''Return the boolean (T/F) traces.'''
         if self.TRACES_boolean_ice_layers is not None:
             return self.TRACES_boolean_ice_layers
@@ -2771,7 +2882,6 @@ class IceBridgeGPR_Track_v2():
         # but does now that we have been into the identify_ice_lenses function!
 
         if os.path.exists(self.FNAME_ice_lenses_picklefile):
-            pdb.set_trace()
             print('//////////////////////////////////////////////////////////')
             print('//////////// I AM NOW GOING HERE /////////////////////////')
             print('///////////// BECAUSE THE BOOLEAN ICE ////////////////////')
@@ -2782,13 +2892,13 @@ class IceBridgeGPR_Track_v2():
             fname = self.FNAME_ice_lenses_picklefile
             print("Reading", os.path.split(fname)[-1])
             f = open(fname, 'rb')
-            pdb.set_trace()
             self.TRACES_boolean_ice_layers = pickle.load(f)
             f.close()
             return self.TRACES_boolean_ice_layers
         # ----------------- END ADDITION SEPT 12 2020 ----------------------- #
 
-        pdb.set_trace()
+        print('-------------------- OUT get_boolean_ice_traces --------------------')
+
         return self.TRACES_boolean_ice_layers
 
     def get_boolean_ice_mask(self):
@@ -2802,10 +2912,12 @@ class IceBridgeGPR_Track_v2():
         f.close()
         if self.NAME == "20120412_01_095_095":
             mask[0:9000] = False
+        print('-------------------- OUT get_boolean_ice_mask --------------------')
+
         return mask
 
     def get_processed_traces(self, datatype="original"):
-        print('-------------------- ENTERING get_processed_traces --------------------')
+        print('-------------------- NO OUT HERE!! ENTERING get_processed_traces --------------------')
 
         assert datatype.lower() in ("original", "surface_slice", "roll_corrected", "depth_corrected", "boolean_ice_layers")
 
@@ -2826,7 +2938,6 @@ class IceBridgeGPR_Track_v2():
 
     def get_sample_depths(self, trace_array = None):
         print('-------------------- ENTERING get_sample_depths --------------------')
-        pdb.set_trace()
 
         '''Either read them from the picklefile, or get the trace array and derive them.
         If "trace_array" is provided, only return the top M sample depths in that MxN array.'''
@@ -2838,7 +2949,6 @@ class IceBridgeGPR_Track_v2():
 
         fname = self.NAME + "_SAMPLE_DEPTHS.pickle"
         pathname = os.path.join(ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER, fname)
-        pdb.set_trace()
 
         if os.path.exists(pathname):
             f = open(pathname, 'r')
@@ -2846,6 +2956,8 @@ class IceBridgeGPR_Track_v2():
             f.close()
         else:
             self.get_trace_array()
+
+        print('-------------------- OUT get_sample_depths --------------------')
 
         if trace_array is None:
             return self.SAMPLE_DEPTHS
@@ -2870,30 +2982,25 @@ class IceBridgeGPR_Track_v2():
         pickle.dump(self.SAMPLE_DEPTHS, f)
         f.close()
         print("Exported", fname)
+        print('-------------------- OUT export_sample_depths_picklefile --------------------')
+
         return
 
     def return_ice_layers_lat_lon_distance_thickness(self, masked=False):
-        print('-------------------- ENTERING return_ice_layers_lat_lon_distance_thickness --------------------')
 
         '''Once we have boolean ice layers calculated, return the latitude,
         longitude, elevation, and ice thickness for each trace.  If masked=True,
         return them masked out.  If masked=False, don't bother masking them.'''
         print('-------------------- ENTERING return_ice_layers_lat_lon_distance_thickness --------------------')
 
-        pdb.set_trace()
-
         lats, lons = self.return_coordinates_lat_lon()
-        pdb.set_trace()
-
+        # So far I have read the data and stored the lat and lon coordinates
         boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers")
-        pdb.set_trace()
 # J'en suis la!
         depths = self.get_sample_depths(trace_array = boolean_traces)
         depth_delta_m = numpy.mean(depths[1:] - depths[:-1])
         distances = numpy.cumsum(self.compute_distances())
         distances = numpy.append([0.0], distances)
-
-        pdb.set_trace()
 
         # Number of pixels times the thickness of each pixel
         ice_content_m = numpy.sum(boolean_traces, axis=0) * depth_delta_m
@@ -2904,6 +3011,15 @@ class IceBridgeGPR_Track_v2():
             lons = lons[mask]
             distances = distances[mask]
             ice_content_m = ice_content_m[mask]
+        print('-------------------- OUT return_ice_layers_lat_lon_distance_thickness --------------------')
+        ######################################################################
+        ######################################################################
+        ######################################################################
+        # J'en suis la le 04 Nov 2020 à 16h00. Jusqu'ici j'ai tout debuggé,
+        # tout fonctionne et j'ai tout compris
+        ######################################################################
+        ######################################################################
+        ######################################################################
 
         return lats, lons, distances, ice_content_m
 
@@ -2933,11 +3049,13 @@ def plot_surface_picking_mask_curve():
     fname = "_Surface_Identifier_Mask.png"
     plt.savefig(os.path.join(ICEBRIDGE_EXPORT_FOLDER, fname), dpi=600)
     print("Saved", fname)
+    print('-------------------- OUT plot_surface_picking_mask_curve --------------------')
 
 
 if __name__ == "__main__":
 
     ib = IceBridgeGPR_Manager_v2()
+    pdb.set_trace()
     #ib.export_KML_reference_tracks()
     ib.export_ice_layer_lat_lon_distance_thicknesses()
     # Le 12 Septembre 2020, je sors sans erreur de export_ice_layer_lat_lom_distance_thicknesses!
