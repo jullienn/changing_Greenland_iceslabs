@@ -494,4 +494,3 @@ class FirnCore_Profile():
             return output_header + outstr
         else:
             return outstr
-
