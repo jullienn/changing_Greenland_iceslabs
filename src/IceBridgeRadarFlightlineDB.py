@@ -447,9 +447,8 @@ class IceBridgeRadarDB:
 
         last_line_id = None
         last_line_tracenum = 0
-        pdb.set_trace()
-        
-        for fname, fid, line_id in zip(file_paths, file_ids, flightline_ids):            
+
+        for fname, fid, line_id in zip(file_paths, file_ids, flightline_ids):
             #fpath = os.path.join(self.basedir, fname) ORIGINAL VERSION
             fpath= os.path.normpath(self.basedir+("\\"+str(fname)[2:-1])) #MY VERSION
             try:
