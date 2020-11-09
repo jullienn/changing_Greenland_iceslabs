@@ -127,7 +127,7 @@ GPR_DETRENDED_PICKLEFILES = [logvariance_to_detrended_filename(f) for f in RESAM
 # #------------------------ COMMENTED ON July 29th, 2020 -------------------------
 
 # IceBridge Data Folder
-ICEBRIDGE_DATA_FOLDER = r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_MacFerrin\data'
+ICEBRIDGE_DATA_FOLDER = r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_processing\iceslabs_MacFerrin\data'
 #Original: ICEBRIDGE_DATA_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data'
 ICEBRIDGE_DATA_H5FILE = os.path.join(ICEBRIDGE_DATA_FOLDER, "test_IceBridgeDB.h5")
 ICEBRIDGE_EXPORT_FOLDER = os.path.join(ICEBRIDGE_DATA_FOLDER, "exported")
@@ -135,11 +135,11 @@ ICEBRIDGE_EXPORT_FOLDER = os.path.join(ICEBRIDGE_DATA_FOLDER, "exported")
 
 # TODO: Fix Folder Names
 #Original: ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data\2010_Greenland_P3\images'
-ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_MacFerrin\data\2010_Greenland_P3\images'
+ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_processing\iceslabs_MacFerrin\data\2017_Greenland_P3\images'
 
 # TODO: Fix Folder Names
 #Original: ICEBRIDGE_EXCLUSIONS_FOLDER = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data\Exclusion_folder'
-ICEBRIDGE_EXCLUSIONS_FOLDER= r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_MacFerrin\data\Exclusion_folder'
+ICEBRIDGE_EXCLUSIONS_FOLDER= r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_processing\iceslabs_MacFerrin\data\Exclusion_folder'
 
 ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,'txt\Exclusions_SURFACE_PICKS.txt')
 ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,'txt\SURFACE_STARTING_PICKS_Suggestions.txt')

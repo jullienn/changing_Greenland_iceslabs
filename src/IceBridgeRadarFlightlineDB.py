@@ -33,7 +33,7 @@ import pdb
 
 # Stand-in variables for directories.
 #BASEDIR = r'C:\Users\mmacferrin\Desktop'
-BASEDIR = r'C:\Users\jullienn\Documents\iceslabs_MacFerrin\data'
+BASEDIR = r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_processing\iceslabs_MacFerrin\data'
 DB_FILE = os.path.join(BASEDIR, 'test_IceBridgeDB.h5')
 #CC_LINE_SHAPEFILE = r'F:\Research\DATA\Camp Century, Greenland\CC_Icebridge_shapefile'
 
