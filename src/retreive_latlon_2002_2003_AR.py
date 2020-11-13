@@ -43,11 +43,14 @@ import pandas as pd
     
     #Create the dataframe
     df_may13_03_0_timearr=pd.DataFrame({'timearr':pd.Series(np.ndarray.flatten(np.transpose(int_may13_03_0))),
-                                       'index_vector':pd.Series(np.arange(0,int_may13_03_0.size,1))})
+                                       'index_vector':pd.Series(np.arange(0,int_may13_03_0.size,1)),
+                                       'timearr_trace':pd.Series(np.ndarray.flatten(np.transpose(int_may13_03_0)))})
  
     #Set the timearr column to be the index of the dataframe
     df_may13_03_0_timearr=df_may13_03_0_timearr.set_index('timearr')
-
+    
+    #Rename the column 'timearr_trace' to 'timearr'
+    df_may13_03_0_timearr.columns = ['index_vector', 'timearr']
     #Make the correspondance between timearr and seconds and join datasets
     result_join=df_may13_03_0_timearr.join(df_gps_may13_03, lsuffix='_time_arr', rsuffix='_gps_latlontime')
     
@@ -56,10 +59,11 @@ import pandas as pd
     # on other datasets to be sure that it does the right thing!
     result_join_without_duplicates=result_join.drop_duplicates(subset=['time_gps'])
     
-    
     #Store everything into one dictionnary (matrix and vectors of data)
     
-    
+    may13_03_trace0 = { "trace_id" : 'may13_03_trace0',
+         "radar_echogram" : may13_03_0['filtfin'],
+         "latlontime" : result_join_without_duplicates }
     
     
 #load individual data
@@ -94,8 +98,6 @@ may13_03_27= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//icesl
 may13_03_28= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_28.mat')
 may13_03_29= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_29.mat')
 may13_03_30= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_30.mat')
-
-test=pd.DataFrame(data=may13_03_0['filtfin'])
 
 #store the filtfin to obtain the length of the depth
 may13_03_0_filtfin= may13_03_0['filtfin']
