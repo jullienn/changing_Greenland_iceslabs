@@ -68,7 +68,7 @@ for folder_year in folders_years:
             # Print out the files
             for file in files:
                 print("Downloading..." + file)
-                ftp.retrbinary("RETR " + file ,open("D:/OIB/AR/2003/" + folder + "/" + file, 'wb').write)
+                ftp.retrbinary("RETR " + file ,open("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file, 'wb').write)
                 #ftp.retrbinary("RETR " + file ,open("download/to/your/directory/" + file, 'wb').write)
 
 ftp.close()
