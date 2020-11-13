@@ -11,124 +11,175 @@ import numpy as np
 import h5py
 import matplotlib.colors as mcolors
 import pandas as pd
+from os import listdir
+from os.path import isfile, join
+import pdb
 
-# 1. Let's start with 2003 dataset
-    # 1.a. Let's starts with data acquired on May 13th, 2003.
+
+############################ Download old AR data #############################
+#Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
+
+from ftplib import FTP
+from datetime import datetime
+
+start = datetime.now()
+ftp = FTP('data.cresis.ku.edu')
+ftp.login()
+
+#path='/data/accum/old_format/2003/'
+path='/data/accum/old_format/'
+ftp.cwd(path)
+
+# Get folders_years name
+folders_years = ftp.nlst()
+
+for folder_year in folders_years:
     
-    #Load the master file of May 13, 2003
-    may13_03_gpslatlontime= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_gpslatlontime.mat')
-    may13_03_gpslatlontime['seconds']
-    may13_03_gpslatlontime['useconds']
-    may13_03_gpslatlontime['lat_gps']
-    may13_03_gpslatlontime['lon_gps']
-    may13_03_gpslatlontime['time_gps']
-    
-    #Create the dataframe        
-    df_gps_may13_03=pd.DataFrame({'seconds':pd.Series(np.ndarray.flatten(np.transpose(may13_03_gpslatlontime['seconds']))),
-    'useconds':pd.Series(np.ndarray.flatten(np.transpose(may13_03_gpslatlontime['useconds']))),
-    'lat_gps':pd.Series(np.ndarray.flatten(np.transpose(may13_03_gpslatlontime['lat_gps']))),
-    'lon_gps':pd.Series(np.ndarray.flatten(np.transpose(may13_03_gpslatlontime['lon_gps']))),
-    'time_gps':pd.Series(np.ndarray.flatten(np.transpose(may13_03_gpslatlontime['time_gps'])))})
-    
-    #Set the seconds column to be the index of the dataframe
-    df_gps_may13_03=df_gps_may13_03.set_index('seconds')
+    if (folder_year == '2006'):
+        print('Break because year 2006')
+        break
+    elif (folder_year == '2009'):
+        print('Break because year 2009')
+        break
+    elif (folder_year == '2011'):
+        print('Break because year 2011')
+        break
+    else:
+        print('This is either the year 2002 or 2003')
+        folder_year_name=[]
+        folder_year_name=path + folder_year + '/'
+        ftp.cwd(folder_year_name)
         
-    #Load an individual file
-    may13_03_0= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_0.mat')
+        # For this particular year, get folders name
+        folders=[]
+        folders = ftp.nlst()
+        #Go to the folder
+        
+        for folder in folders:
+            folder_name=[]
+            folder_name=path + folder_year + '/' + folder + '/'
+            ftp.cwd(folder_name)
+            print("Now in folder ..." + folder_name)
+        
+            # Get All Files in this folder
+            files=[]
+            files = ftp.nlst()
+            
+            # Print out the files
+            for file in files:
+                print("Downloading..." + file)
+                ftp.retrbinary("RETR " + file ,open("D:/OIB/AR/2003/" + folder + "/" + file, 'wb').write)
+                #ftp.retrbinary("RETR " + file ,open("download/to/your/directory/" + file, 'wb').write)
+
+ftp.close()
+end = datetime.now()
+diff = end - start
+print('All files downloaded for ' + str(diff.seconds) + 's')
+############################ Download old AR data #############################
+
+
+##############################################################################
+############################# Data manipulation ##############################
+##############################################################################
+# 1. Let's start with 2003 dataset
+
+################################ MASTER FILE ################################
+# Start by loading the master file of that date
+master_file= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13_03_gpslatlontime.mat')
+master_file['seconds']
+master_file['useconds']
+master_file['lat_gps']
+master_file['lon_gps']
+master_file['time_gps']
+    
+#Create the dataframe  of the master file       
+df_master_file=pd.DataFrame({'seconds':pd.Series(np.ndarray.flatten(np.transpose(master_file['seconds']))),
+'useconds':pd.Series(np.ndarray.flatten(np.transpose(master_file['useconds']))),
+'lat_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['lat_gps']))),
+'lon_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['lon_gps']))),
+'time_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['time_gps']))),
+'seconds_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['seconds'])))})
+    
+#Set the seconds column to be the index of the masterfile dataframe
+df_master_file=df_master_file.set_index('seconds')
+
+################################ MASTER FILE ################################
+
+############################## INDIVIDUAL FILES ##############################
+
+#Define the path
+mypath = 'C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//'
+
+#Save the filenames present in folder of interest (here May 13 2003)
+onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+pdb.set_trace()
+#Loop over any file in the folder date and do the operations of joining in the loop
+for indiv_file in onlyfiles:
+    print(join(mypath,indiv_file))
+    
+    #Load the file
+    file_being_read=[]
+    file_being_read=scipy.io.loadmat(join(mypath,indiv_file))
     
     #We have to round the timearr to the lower integer
-    int_may13_03_0 = np.floor(may13_03_0['timearr'])
+    int_file_being_read = np.floor(file_being_read['timearr'])
     #Transform decimals into integer
-    int_may13_03_0=int_may13_03_0.astype(int)
+    int_file_being_read=int_file_being_read.astype(int)
     
     #Create the dataframe
-    df_may13_03_0_timearr=pd.DataFrame({'timearr':pd.Series(np.ndarray.flatten(np.transpose(int_may13_03_0))),
-                                       'index_vector':pd.Series(np.arange(0,int_may13_03_0.size,1)),
-                                       'timearr_trace':pd.Series(np.ndarray.flatten(np.transpose(int_may13_03_0)))})
+    df_file_being_read=pd.DataFrame({'timearr':pd.Series(np.ndarray.flatten(np.transpose(int_file_being_read))),
+                                       'index_vector':pd.Series(np.arange(0,int_file_being_read.size,1)),
+                                       'timearr_trace':pd.Series(np.ndarray.flatten(np.transpose(file_being_read['timearr'])))})
  
     #Set the timearr column to be the index of the dataframe
-    df_may13_03_0_timearr=df_may13_03_0_timearr.set_index('timearr')
+    df_file_being_read=df_file_being_read.set_index('timearr')
     
     #Rename the column 'timearr_trace' to 'timearr'
-    df_may13_03_0_timearr.columns = ['index_vector', 'timearr']
+    df_file_being_read.columns = ['index_vector', 'timearr']
+    pdb.set_trace()
     #Make the correspondance between timearr and seconds and join datasets
-    result_join=df_may13_03_0_timearr.join(df_gps_may13_03, lsuffix='_time_arr', rsuffix='_gps_latlontime')
+    result_join=[]
+    
+    #join along the index
+    result_join=df_file_being_read.join(df_master_file, how='left',lsuffix='_time_arr', rsuffix='_gps_latlontime')
     
     # Be careful about the remove duplicates with respect to the time_gps. This
-    # is the only solution I found to indeed remove duplictes but maybe check
+    # is the only solution I found to indeed remove duplicates but maybe check
     # on other datasets to be sure that it does the right thing!
+    result_join_without_duplicates=[]
     result_join_without_duplicates=result_join.drop_duplicates(subset=['time_gps'])
     
     #Store everything into one dictionnary (matrix and vectors of data)
-    
-    may13_03_trace0 = { "trace_id" : 'may13_03_trace0',
-         "radar_echogram" : may13_03_0['filtfin'],
+    dic_file_being_read=[]
+    dic_file_being_read = { "trace_id" : indiv_file.replace(".mat",""),
+         "radar_echogram" : file_being_read['filtfin'],
          "latlontime" : result_join_without_duplicates }
     
+    pdb.set_trace()
     
-#load individual data
-may13_03_0= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_0.mat')
-may13_03_1= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_1.mat')
-may13_03_2= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_2.mat')
-may13_03_3= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_3.mat')
-may13_03_4= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_4.mat')
-may13_03_5= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_5.mat')
-may13_03_6= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_6.mat')
-may13_03_7= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_7.mat')
-may13_03_8= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_8.mat')
-may13_03_9= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_9.mat')
-may13_03_10= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_10.mat')
-may13_03_11= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_11.mat')
-may13_03_12= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_12.mat')
-may13_03_13= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_13.mat')
-may13_03_14= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_14.mat')
-may13_03_15= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_15.mat')
-may13_03_16= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_16.mat')
-may13_03_17= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_17.mat')
-may13_03_18= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_18.mat')
-may13_03_19= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_19.mat')
-may13_03_20= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_20.mat')
-may13_03_21= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_21.mat')
-may13_03_22= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_22.mat')
-may13_03_23= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_23.mat')
-may13_03_24= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_24.mat')
-may13_03_25= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_25.mat')
-may13_03_26= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_26.mat')
-may13_03_27= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_27.mat')
-may13_03_28= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_28.mat')
-may13_03_29= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_29.mat')
-may13_03_30= scipy.io.loadmat('C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//iceslabs_MacFerrin//data//2003//may13//may13_03_30.mat')
+    
+    #there is an issue with the matching between the time! Some final match have size of 1001, other 1002, other 1000 (which should be the case for all)
+    
+    
+##############################################################################
+############################# Data manipulation ##############################
+##############################################################################    
+    
+    
+#pyplot.figure()
+#pyplot.plot((np.arange(0,len(np.array(result_join_without_duplicates['index_vector'])),1)),np.array(result_join_without_duplicates['index_vector']))
+#pyplot.show()
+    
+    
+#duplicateRowsDF = result_join[result_join.duplicated()]
+#print("Duplicate Rows except first occurrence based on all columns are :")
+#print(duplicateRowsDF)
 
-#store the filtfin to obtain the length of the depth
-may13_03_0_filtfin= may13_03_0['filtfin']
-may13_03_1_filtfin= may13_03_1['filtfin']
-may13_03_2_filtfin= may13_03_2['filtfin']
-may13_03_3_filtfin= may13_03_3['filtfin']
-may13_03_4_filtfin= may13_03_4['filtfin']
-may13_03_5_filtfin= may13_03_5['filtfin']
-may13_03_6_filtfin= may13_03_6['filtfin']
-may13_03_7_filtfin= may13_03_7['filtfin']
-may13_03_8_filtfin= may13_03_8['filtfin']
-may13_03_9_filtfin= may13_03_9['filtfin']
-may13_03_10_filtfin= may13_03_10['filtfin']
-may13_03_11_filtfin= may13_03_11['filtfin']
-may13_03_12_filtfin= may13_03_12['filtfin']
-may13_03_13_filtfin= may13_03_13['filtfin']
-may13_03_14_filtfin= may13_03_14['filtfin']
-may13_03_15_filtfin= may13_03_15['filtfin']
-may13_03_16_filtfin= may13_03_16['filtfin']
-may13_03_17_filtfin= may13_03_17['filtfin']
-may13_03_18_filtfin= may13_03_18['filtfin']
-may13_03_19_filtfin= may13_03_19['filtfin']
-may13_03_20_filtfin= may13_03_20['filtfin']
-may13_03_21_filtfin= may13_03_21['filtfin']
-may13_03_22_filtfin= may13_03_22['filtfin']
-may13_03_23_filtfin= may13_03_23['filtfin']
-may13_03_24_filtfin= may13_03_24['filtfin']
-may13_03_25_filtfin= may13_03_25['filtfin']
-may13_03_26_filtfin= may13_03_26['filtfin']
-may13_03_27_filtfin= may13_03_27['filtfin']
-may13_03_28_filtfin= may13_03_28['filtfin']
-may13_03_29_filtfin= may13_03_29['filtfin']
-may13_03_30_filtfin= may13_03_30['filtfin']
+#duplicateRowsDF = result_join_without_duplicates[result_join_without_duplicates.duplicated(['index_vector'])]
+#print("Duplicate Rows based on a single column are:", duplicateRowsDF, sep='\n')
 
+#double_duplicateRowsDF = duplicateRowsDF[duplicateRowsDF.duplicated(['index_vector'])]
+#print("Duplicate Rows based on a single column are:", duplicateRowsDF, sep='\n')
+
+#pyplot.Annotation(
+#    np.array(result_join_without_duplicates['index_vector']), xy, kwargs)
