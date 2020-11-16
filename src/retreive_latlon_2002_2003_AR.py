@@ -100,7 +100,8 @@ df_master_file=pd.DataFrame({'seconds':pd.Series(np.ndarray.flatten(np.transpose
 'lat_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['lat_gps']))),
 'lon_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['lon_gps']))),
 'time_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['time_gps']))),
-'seconds_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['seconds'])))})
+'seconds_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['seconds']))),
+'index_gps':pd.Series(np.arange(0,master_file['time_gps'].size,1))})
     
 #Set the seconds column to be the index of the masterfile dataframe
 df_master_file=df_master_file.set_index('seconds')
@@ -131,13 +132,14 @@ for indiv_file in onlyfiles:
     #Create the dataframe
     df_file_being_read=pd.DataFrame({'timearr':pd.Series(np.ndarray.flatten(np.transpose(int_file_being_read))),
                                        'index_vector':pd.Series(np.arange(0,int_file_being_read.size,1)),
-                                       'timearr_trace':pd.Series(np.ndarray.flatten(np.transpose(file_being_read['timearr'])))})
+                                       'timearr_trace':pd.Series(np.ndarray.flatten(np.transpose(file_being_read['timearr']))),
+                                       'timearr_floor':pd.Series(np.ndarray.flatten(np.transpose(int_file_being_read)))})
  
     #Set the timearr column to be the index of the dataframe
     df_file_being_read=df_file_being_read.set_index('timearr')
     
     #Rename the column 'timearr_trace' to 'timearr'
-    df_file_being_read.columns = ['index_vector', 'timearr']
+    df_file_being_read.columns = ['index_vector', 'timearr','timearr_floor']
     pdb.set_trace()
     #Make the correspondance between timearr and seconds and join datasets
     result_join=[]
@@ -161,8 +163,70 @@ for indiv_file in onlyfiles:
     
     
     #there is an issue with the matching between the time! Some final match have size of 1001, other 1002, other 1000 (which should be the case for all)
+
+        
+    #1. select the begining of the df_master_file of concern
+    #Select the first and last seconds of the timearr
+    value_begin=df_file_being_read['timearr_floor'].iloc[0]
+    value_end=df_file_being_read['timearr_floor'].iloc[-1]
+    
+    #Sort out whether the first 'seconds' value is single or doubled
+    dupli=df_file_being_read['timearr_floor']
+    duplicateRowsDF = dupli.duplicated()
+
+    if (duplicateRowsDF.iloc[1]):
+        #if (duplicateRowsDF.iloc[1] is True, the first value is double
+        FV = 'double'
+        index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[0]
+        #index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-2]
+    elif (~(duplicateRowsDF.iloc[1])):
+        # if duplicateRowsDF.iloc[1] is False, the first value is single
+        FV = 'single'
+        index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
+        #index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-1]
+    
+    #2. Associate the 'seconds_gps' to its decimal value from 'timearr'
+    #I have to do this inside a for loop and check at any iteration because sometimes I have gaps in seconds!!
+    # J'EN SUIS LA!!
+    count=0
+    seconds_gps_stored=master_df_of_interest['seconds_gps'].iloc[0]
+    
+    for i in range(0,len(master_df_of_interest),1):
+        ith_seconds_gps=master_df_of_interest['seconds_gps'].iloc[i]
+        master_df_of_interest['seconds_gps_decimal']=
+        if (count<1):
+            #This is the first time we have this seconds_gps
+            
+            count=count+1
+        else:
+            #This is the second time we have this seconds_gps
+            
+            count=0
+            
+    
+    master_df_of_interest['seconds_gps_decimal'].iloc[i]=
+
+    #Create the sliced gps dataset
+    master_df_of_interest=df_master_file.iloc[index_begin:index_end]
+
+        
+        
+        
+
+
+        #initialize the count
+        count=0
+        
+        
+        df_master_file['seconds_gps'][df_master_file['seconds_gps']==value_begin]
+        
+        count=count+1
     
     
+        df_master_file[df_master_file['seconds_gps']==value_begin].index.item()
+        int(df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].index[0])
+    
+    int(df[df['A']==5].index[0])
 ##############################################################################
 ############################# Data manipulation ##############################
 ##############################################################################    
