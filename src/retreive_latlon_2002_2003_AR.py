@@ -22,6 +22,7 @@ import pdb
 from ftplib import FTP
 from datetime import datetime
 
+
 start = datetime.now()
 ftp = FTP('data.cresis.ku.edu')
 ftp.login()
