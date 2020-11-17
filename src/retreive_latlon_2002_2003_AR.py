@@ -101,8 +101,9 @@ df_master_file=pd.DataFrame({'seconds':pd.Series(np.ndarray.flatten(np.transpose
 'lon_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['lon_gps']))),
 'time_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['time_gps']))),
 'seconds_gps':pd.Series(np.ndarray.flatten(np.transpose(master_file['seconds']))),
-'index_gps':pd.Series(np.arange(0,master_file['time_gps'].size,1))})
-    
+'index_gps':pd.Series(np.arange(0,master_file['time_gps'].size,1)),
+'timearr_dec':pd.Series(np.zeros(master_file['time_gps'].size))})
+
 #Set the seconds column to be the index of the masterfile dataframe
 df_master_file=df_master_file.set_index('seconds')
 
@@ -141,30 +142,7 @@ for indiv_file in onlyfiles:
     #Rename the column 'timearr_trace' to 'timearr'
     df_file_being_read.columns = ['index_vector', 'timearr','timearr_floor']
     pdb.set_trace()
-    #Make the correspondance between timearr and seconds and join datasets
-    result_join=[]
-    
-    #join along the index
-    result_join=df_file_being_read.join(df_master_file, how='left',lsuffix='_time_arr', rsuffix='_gps_latlontime')
-    
-    # Be careful about the remove duplicates with respect to the time_gps. This
-    # is the only solution I found to indeed remove duplicates but maybe check
-    # on other datasets to be sure that it does the right thing!
-    result_join_without_duplicates=[]
-    result_join_without_duplicates=result_join.drop_duplicates(subset=['time_gps'])
-    
-    #Store everything into one dictionnary (matrix and vectors of data)
-    dic_file_being_read=[]
-    dic_file_being_read = { "trace_id" : indiv_file.replace(".mat",""),
-         "radar_echogram" : file_being_read['filtfin'],
-         "latlontime" : result_join_without_duplicates }
-    
-    pdb.set_trace()
-    
-    
-    #there is an issue with the matching between the time! Some final match have size of 1001, other 1002, other 1000 (which should be the case for all)
 
-        
     #1. select the begining of the df_master_file of concern
     #Select the first and last seconds of the timearr
     value_begin=df_file_being_read['timearr_floor'].iloc[0]
@@ -185,48 +163,122 @@ for indiv_file in onlyfiles:
         index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
         #index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-1]
     
+    pdb.set_trace()
+    
     #2. Associate the 'seconds_gps' to its decimal value from 'timearr'
     #I have to do this inside a for loop and check at any iteration because sometimes I have gaps in seconds!!
-    # J'EN SUIS LA!!
-    count=0
-    seconds_gps_stored=master_df_of_interest['seconds_gps'].iloc[0]
+    #count=0
+    #seconds_gps_stored=df_master_file['seconds_gps'].iloc[index_begin]
     
-    for i in range(0,len(master_df_of_interest),1):
-        ith_seconds_gps=master_df_of_interest['seconds_gps'].iloc[i]
-        master_df_of_interest['seconds_gps_decimal']=
-        if (count<1):
-            #This is the first time we have this seconds_gps
+    
+    
+    #I need to know the length of the datafile having duplicates in it   
+    join_doubled_duplicates=[]
+    #join along the index
+    join_doubled_duplicates=df_file_being_read.join(df_master_file, how='left',lsuffix='_time_arr', rsuffix='_gps_latlontime')
+    
+    join_duplicates=[]
+    join_duplicates=join_doubled_duplicates.drop_duplicates(subset=['index_gps'])
+        
+    loc_df=index_begin
+    i_timearr=0
+    
+    pdb.set_trace()
+    
+    for i in range(0,len(join_duplicates),1):
+        
+        if (i_timearr>=len(df_file_being_read)):
+            print('break out')
+            break
+        
+        #len(df_file_being_read)
+        if ((df_master_file['seconds_gps'].iloc[loc_df])==(df_file_being_read['timearr_floor'].iloc[i_timearr])):
+            df_master_file['timearr_dec'].iloc[loc_df]=df_file_being_read['timearr'].iloc[i_timearr]
+            i_timearr=i_timearr+1
+            loc_df=loc_df+1
             
-            count=count+1
-        else:
-            #This is the second time we have this seconds_gps
+        elif ((df_master_file['seconds_gps'].iloc[loc_df])!=(df_file_being_read['timearr_floor'].iloc[i_timearr])):
+            #We have jumped one time arr, so not update of i_timearr!
             
-            count=0
-            
-    
-    master_df_of_interest['seconds_gps_decimal'].iloc[i]=
-
-    #Create the sliced gps dataset
-    master_df_of_interest=df_master_file.iloc[index_begin:index_end]
-
+            i_timearr=i_timearr-1
+            #df_master_file['timearr_dec'].iloc[loc_df]=df_file_being_read['timearr'].iloc[i_timearr]
+            loc_df=loc_df+1
+            i_timearr=i_timearr+1
         
-        
-        
+        print("i_timearr: ", i_timearr)
+        #print("loc_df: ", loc_df)
 
 
-        #initialize the count
-        count=0
-        
-        
-        df_master_file['seconds_gps'][df_master_file['seconds_gps']==value_begin]
-        
-        count=count+1
+
+    ##### THERE IS A PROBLEM WITH THE DATE 'may13_03_11.mat' !!! SOLVE THE ISSUE
+    #For the jump in seconds, do compute the mean of lat, lon, time_gps between the 2 to end up with one data point
+    pdb.set_trace()
+    
+    #3. Make the correspondance between timearr and seconds and join datasets
+    #Set the timearr_floor column to be the index of the dataframe to avoid ambiguity in the pd.merge
+    df_file_being_read=df_file_being_read.set_index('timearr_floor')
+    
+    merged_inner=[]
+    merged_inner = pd.merge(left=df_file_being_read, right=df_master_file, left_on='timearr', right_on='timearr_dec')
     
     
-        df_master_file[df_master_file['seconds_gps']==value_begin].index.item()
-        int(df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].index[0])
     
-    int(df[df['A']==5].index[0])
+    
+    result_join=[]
+    
+    #join along the index
+    result_join=df_file_being_read.join(df_master_file, how='left',lsuffix='_time_arr', rsuffix='_gps_latlontime')
+    
+    # Be careful about the remove duplicates with respect to the time_gps. This
+    # is the only solution I found to indeed remove duplicates but maybe check
+    # on other datasets to be sure that it does the right thing!
+       
+    result_join_without_duplicates=[]
+    result_join_without_duplicates=result_join.drop_duplicates(subset=['index_gps'])
+    
+    #Store everything into one dictionnary (matrix and vectors of data)
+    dic_file_being_read=[]
+    dic_file_being_read = { "trace_id" : indiv_file.replace(".mat",""),
+         "radar_echogram" : file_being_read['filtfin'],
+         "latlontime" : result_join_without_duplicates }
+    pdb.set_trace()
+
+        
+#        ith_seconds_gps=seconds_gps_stored
+#        if (count<1):
+#            #This is the first time we have this seconds_gps
+#            df_master_file['timearr_dec']=df_file_being_read['timearr_floor'].iloc[i]
+#
+#            count=count+1
+#        else:
+#            #This is the second time we have this seconds_gps
+#            
+#            count=0
+#            
+#    
+#    master_df_of_interest['seconds_gps_decimal'].iloc[i]=
+#
+#    #Create the sliced gps dataset
+#    master_df_of_interest=df_master_file.iloc[index_begin:index_end]
+
+        
+        
+        
+
+
+#        #initialize the count
+#        count=0
+        
+        
+#        df_master_file['seconds_gps'][df_master_file['seconds_gps']==value_begin]
+        
+#        count=count+1
+    
+    
+#        df_master_file[df_master_file['seconds_gps']==value_begin].index.item()
+#        int(df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].index[0])
+    
+#    int(df[df['A']==5].index[0])
 ##############################################################################
 ############################# Data manipulation ##############################
 ##############################################################################    
