@@ -14,7 +14,7 @@ import pandas as pd
 from os import listdir
 from os.path import isfile, join
 import pdb
-
+import pickle
 
 ############################# Download old AR data #############################
 ##Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
@@ -117,6 +117,25 @@ mypath = 'C://Users//Nicolas Jullien//Documents//PhD//iceslabs_processing//icesl
 #Save the filenames present in folder of interest (here May 13 2003)
 onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 pdb.set_trace()
+
+#Create the quality assessment file
+f_quality = open("quality_may13_03.txt", "w")
+
+
+
+
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+    #Add a quality accessment: first and last timearr in df_final must fullfil
+    #the first and last from timearr that are present in the df_file_begin_read.
+    #Also, make sure the length between df_final and df_file_being_read are identical
+    #Also, check that the length of merged_inner=2*1000-(nb of jumps)
+    #Should I check also the number of times I do not have data?
+    #Save the results in a separate text file.
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+
+
+#think about the things I want to save in this quality assessment file so that it makes sence!
+f_quality.write('B_timearr_df_final,B_timearr_trace,B_seconds_gps,E_timearr_trace,E_timearr_gps,E_seconds_gps,'str(number) + '\n')
 #Loop over any file in the folder date and do the operations of joining in the loop
 for indiv_file in onlyfiles:
     print(join(mypath,indiv_file))
@@ -298,30 +317,30 @@ for indiv_file in onlyfiles:
     #Save the results in a separate text file.
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
     
+    #Writting in the quality assessment file
+	f_quality.write(str(df_final['timearr_dec'].iloc[0])+','+ '\n')
+
     #Select only the variables of interest for the data storage
-    df_for_storage=
+    df_final=df_final.drop(['seconds','timearr_dec','jump'],axis=1)
+    
     #Store everything into one dictionnary (matrix and vectors of data)
     dic_file_being_read=[]
     dic_file_being_read = { "trace_id" : indiv_file.replace(".mat",""),
          "radar_echogram" : file_being_read['filtfin'],
-         "latlontime" : result_join_without_duplicates }
+         "latlontime" : df_final}
     pdb.set_trace()
+    
+    #Save the dictionary into a picke file
+    filename_tosave= mypath+indiv_file.replace(".mat","")+"_aggregated"
+    outfile= open(filename_tosave, "wb" )
+    pickle.dump(dic_file_being_read,outfile)
+    outfile.close()
+    
+f_quality.close() #Close the quality assessment file when we’re done!
 
-        
-
-#        #initialize the count
-#        count=0
-        
-        
-#        df_master_file['seconds_gps'][df_master_file['seconds_gps']==value_begin]
-        
-#        count=count+1
-    
-    
-#        df_master_file[df_master_file['seconds_gps']==value_begin].index.item()
-#        int(df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].index[0])
-    
-#    int(df[df['A']==5].index[0])
+#open and read the file after the appending:
+f_quality = open("demofile3.txt", "r")
+print(f_quality.read())
 ##############################################################################
 ############################# Data manipulation ##############################
 ##############################################################################    
