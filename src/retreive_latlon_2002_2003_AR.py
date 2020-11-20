@@ -119,23 +119,20 @@ onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 pdb.set_trace()
 
 #Create the quality assessment file
-f_quality = open("quality_may13_03.txt", "w")
+filename_fquality=mypath+"quality_may13_03.txt"
+f_quality = open(filename_fquality, "w")
+# Herebelow is a summary of what I save in thsi quality file
+#1. correspondance in df_final between begin 'timearr' and begin 'timearr_dec' -> 1 is matching, 0 is no match
+#2. correspondance in df_final between end 'timearr' and end 'timearr_dec' -> 1 is matching, 0 is no match
+#3. correspondance between begin 'timearr_dec' in df_final and begin 'timearr' of df_file_being_read -> 1 is matching, 0 is no match
+#4. correspondance between end 'timearr_dec' in df_final and end 'timearr' of df_file_being_read -> 1 is matching, 0 is no match
+#5. length of df_final and df_file_being_read should be the same -> 1 is yes, 0 is no
+#6. The first 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
+#7. The last 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
 
+#Create the column names
+f_quality.write('B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps\n')
 
-
-
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
-    #Add a quality accessment: first and last timearr in df_final must fullfil
-    #the first and last from timearr that are present in the df_file_begin_read.
-    #Also, make sure the length between df_final and df_file_being_read are identical
-    #Also, check that the length of merged_inner=2*1000-(nb of jumps)
-    #Should I check also the number of times I do not have data?
-    #Save the results in a separate text file.
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
-
-
-#think about the things I want to save in this quality assessment file so that it makes sence!
-f_quality.write('B_timearr_df_final,B_timearr_trace,B_seconds_gps,E_timearr_trace,E_timearr_gps,E_seconds_gps,'str(number) + '\n')
 #Loop over any file in the folder date and do the operations of joining in the loop
 for indiv_file in onlyfiles:
     print(join(mypath,indiv_file))
@@ -307,18 +304,26 @@ for indiv_file in onlyfiles:
     df_final=merged_inner.loc[merged_inner['jump']==0]
     #This is done and it is working!!
     pdb.set_trace()
-  
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
-    #Add a quality accessment: first and last timearr in df_final must fullfil
-    #the first and last from timearr that are present in the df_file_begin_read.
-    #Also, make sure the length between df_final and df_file_being_read are identical
-    #Also, check that the length of merged_inner=2*1000-(nb of jumps)
-    #Should I check also the number of times I do not have data?
-    #Save the results in a separate text file.
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+        
+    #Create the different index for quality assessment
+    B_match_dftimearr_dftimearrdec=(df_final['timearr'].iloc[0] == df_final['timearr_dec'].iloc[0]).astype(int)
+    E_match_dftimearr_dftimearrdec=(df_final['timearr'].iloc[-1] == df_final['timearr_dec'].iloc[-1]).astype(int)
+    B_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[0] == df_file_being_read['timearr'].iloc[0]).astype(int)
+    E_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[-1] == df_file_being_read['timearr'].iloc[-1]).astype(int)
+    length_match_df_file=int(len(df_final) == len(df_file_being_read))
+
+    df_timearrdec_df_secondsgps_0=(np.floor(df_final['timearr_dec'].iloc[0]) == df_final['seconds_gps'].iloc[0]).astype(int)
+    df_timearrdec_df_secondsgps_1=(np.floor(df_final['timearr_dec'].iloc[1]) == df_final['seconds_gps'].iloc[1]).astype(int)
+    df_timearrdec_df_secondsgps_2=(np.floor(df_final['timearr_dec'].iloc[2]) == df_final['seconds_gps'].iloc[2]).astype(int)
+    B0to2_df_timearrdec_df_secondsgps=df_timearrdec_df_secondsgps_0+df_timearrdec_df_secondsgps_1+df_timearrdec_df_secondsgps_2
+    
+    df_timearrdec_df_secondsgps_m1=(np.floor(df_final['timearr_dec'].iloc[-1]) == df_final['seconds_gps'].iloc[-1]).astype(int)
+    df_timearrdec_df_secondsgps_m2=(np.floor(df_final['timearr_dec'].iloc[-2]) == df_final['seconds_gps'].iloc[-2]).astype(int)
+    df_timearrdec_df_secondsgps_m3=(np.floor(df_final['timearr_dec'].iloc[-3]) == df_final['seconds_gps'].iloc[-3]).astype(int)
+    Em1tom3_df_timearrdec_df_secondsgps=df_timearrdec_df_secondsgps_m1+df_timearrdec_df_secondsgps_m2+df_timearrdec_df_secondsgps_m3
     
     #Writting in the quality assessment file
-	f_quality.write(str(df_final['timearr_dec'].iloc[0])+','+ '\n')
+    f_quality.write(str(B_match_dftimearr_dftimearrdec)+','+str(E_match_dftimearr_dftimearrdec)+','+str(B_match_dftimearrdec_filetimearr)+','+str(E_match_dftimearrdec_filetimearr)+','+str(length_match_df_file)+','+str(B0to2_df_timearrdec_df_secondsgps)+','+str(Em1tom3_df_timearrdec_df_secondsgps)+'\n')
 
     #Select only the variables of interest for the data storage
     df_final=df_final.drop(['seconds','timearr_dec','jump'],axis=1)
@@ -338,28 +343,6 @@ for indiv_file in onlyfiles:
     
 f_quality.close() #Close the quality assessment file when we’re done!
 
-#open and read the file after the appending:
-f_quality = open("demofile3.txt", "r")
-print(f_quality.read())
 ##############################################################################
 ############################# Data manipulation ##############################
-##############################################################################    
-    
-    
-#pyplot.figure()
-#pyplot.plot((np.arange(0,len(np.array(result_join_without_duplicates['index_vector'])),1)),np.array(result_join_without_duplicates['index_vector']))
-#pyplot.show()
-    
-    
-#duplicateRowsDF = result_join[result_join.duplicated()]
-#print("Duplicate Rows except first occurrence based on all columns are :")
-#print(duplicateRowsDF)
-
-#duplicateRowsDF = result_join_without_duplicates[result_join_without_duplicates.duplicated(['index_vector'])]
-#print("Duplicate Rows based on a single column are:", duplicateRowsDF, sep='\n')
-
-#double_duplicateRowsDF = duplicateRowsDF[duplicateRowsDF.duplicated(['index_vector'])]
-#print("Duplicate Rows based on a single column are:", duplicateRowsDF, sep='\n')
-
-#pyplot.Annotation(
-#    np.array(result_join_without_duplicates['index_vector']), xy, kwargs)
+##############################################################################
