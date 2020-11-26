@@ -84,6 +84,7 @@ import pickle
 ############################# Data manipulation ##############################
 ##############################################################################
 import os
+pdb.set_trace()
 
 #Define the path for working
 path='D://OIB//AR'
@@ -99,6 +100,7 @@ for folder_year in folder_years:
     #Read the days for this specific year
     folder_days=[]
     folder_days = [ f.name for f in os.scandir(folder_year_name) if f.is_dir() ]
+    pdb.set_trace()
     
     for folder_day in folder_days:
         folder_day_name=folder_year_name+'//'+folder_day
@@ -166,11 +168,28 @@ for folder_year in folder_years:
         
         #Create the column names
         f_quality.write('B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps\n')
-        
+        pdb.set_trace()
         #Loop over any file in the folder date and do the operations of joining in the loop
         for indiv_file in onlyfiles:
             print('Now treating the file:')
             print(join(mypath,indiv_file))
+            #pdb.set_trace()
+            
+            if (indiv_file=='may18_02_30.mat'):
+                #This file looks corrupted:
+                #value_begin=1021736384
+                #value_end=1021736383
+                #At index 230, the timearr=1021735999 while at index 230 timearr=1021736498
+                #Bare this issue in mind when analyting traces!
+                continue
+            
+            if (indiv_file=='may09_03_24.mat'):
+                #This file looks corrupted:
+                #value_begin=1052493673
+                #value_end=1052493673
+                #At index 320, the timearr=1052493833 while at index 230 timearr=1052493333
+                #Bare this issue in mind when analyting traces!
+                continue
             
             #Load the file
             file_being_read=[]
@@ -192,7 +211,7 @@ for folder_year in folder_years:
             
             #Rename the column 'timearr_trace' to 'timearr'
             df_file_being_read.columns = ['index_vector', 'timearr','timearr_floor']
-            pdb.set_trace()
+            #pdb.set_trace()
         
             #1. select the begining of the df_master_file of concern
             #Select the first and last seconds of the timearr
@@ -250,16 +269,16 @@ for folder_year in folder_years:
             i_ite=0
         
             #1.Create the empty iterative dataset
-            iterative_dataset=pd.DataFrame({'seconds':pd.Series(np.zeros(1010)),
-                                            'useconds':pd.Series(np.zeros(1010)),
-                                            'lat_gps':pd.Series(np.zeros(1010)),
-                                            'lon_gps':pd.Series(np.zeros(1010)),
-                                            'time_gps':pd.Series(np.zeros(1010)),
-                                            'seconds_gps':pd.Series(np.zeros(1010)),
-                                            'index_gps':pd.Series(np.zeros(1010)),
-                                            'timearr_dec':pd.Series(np.zeros(1010)),
-                                            'jump':pd.Series(np.zeros(1010))})
-            pdb.set_trace()
+            iterative_dataset=pd.DataFrame({'seconds':pd.Series(np.zeros(1020)),
+                                            'useconds':pd.Series(np.zeros(1020)),
+                                            'lat_gps':pd.Series(np.zeros(1020)),
+                                            'lon_gps':pd.Series(np.zeros(1020)),
+                                            'time_gps':pd.Series(np.zeros(1020)),
+                                            'seconds_gps':pd.Series(np.zeros(1020)),
+                                            'index_gps':pd.Series(np.zeros(1020)),
+                                            'timearr_dec':pd.Series(np.zeros(1020)),
+                                            'jump':pd.Series(np.zeros(1020))})
+            #pdb.set_trace()
             
             #for i in range(0,len(join_duplicates),1):
             while (i_timearr<len(df_file_being_read)):
@@ -269,6 +288,7 @@ for folder_year in folder_years:
                 #    break
                 
                 #len(df_file_being_read)
+                
                 if ((df_master_file['seconds_gps'].iloc[loc_df])==(df_file_being_read['timearr_floor'].iloc[i_timearr])):
                     df_master_file['timearr_dec'].iloc[loc_df]=df_file_being_read['timearr'].iloc[i_timearr]
                     
@@ -282,7 +302,7 @@ for folder_year in folder_years:
                     loc_df=loc_df+1
                     
                 elif ((df_master_file['seconds_gps'].iloc[loc_df])!=(df_file_being_read['timearr_floor'].iloc[i_timearr])):
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     #Possibility 1: the jump is in df_master_file
                     if ((df_master_file['seconds_gps'].iloc[loc_df])>(df_file_being_read['timearr_floor'].iloc[i_timearr])):
                         #Create a empty lat/lon point which will be matched
@@ -325,7 +345,7 @@ for folder_year in folder_years:
                         loc_df=loc_df+1
                         #We do not iterate the index in the df_masterfile
                 
-                print("i_timearr: ", i_timearr)
+                #print("i_timearr: ", i_timearr)
                 #print("loc_df: ", loc_df)
                         
             #3. Make the correspondance between timearr and seconds and join datasets
@@ -339,7 +359,7 @@ for folder_year in folder_years:
             #Find the location where I have the jump=0 (i.e. not 1!) and obtain the dataset!
             df_final=merged_inner.loc[merged_inner['jump']==0]
             #This is done and it is working!!
-            pdb.set_trace()
+            #pdb.set_trace()
             
             #Create the different index for quality assessment
             B_match_dftimearr_dftimearrdec=(df_final['timearr'].iloc[0] == df_final['timearr_dec'].iloc[0]).astype(int)
@@ -376,7 +396,7 @@ for folder_year in folder_years:
                      "radar_echogram" : file_being_read['filtfin'],
                      "latlontime" : df_final}
             
-            pdb.set_trace()
+            #pdb.set_trace()
             
             #Save the dictionary into a picke file
             filename_tosave='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
@@ -390,7 +410,6 @@ for folder_year in folder_years:
 ############################# Data manipulation ##############################
 ##############################################################################
 
-
-
-
+#pyplot.plot(pd.Series(np.arange(0,df_file_being_read['timearr'].size,1)),df_file_being_read['timearr'])
+#pyplot.show()
 
