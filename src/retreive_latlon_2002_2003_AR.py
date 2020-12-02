@@ -322,13 +322,7 @@ for folder_year in folder_years:
             #pdb.set_trace()
             
             #for i in range(0,len(join_duplicates),1):
-            if (indiv_file=='may11_03_28.mat'): #the jump is in masterfile = missing the last in masterfile
-                pdb.set_trace()
             while (i_timearr<len(df_file_being_read)):
-                if (indiv_file=='may11_03_28.mat'):
-                    print("i_timearr: ", i_timearr)
-                    if (i_timearr==999):
-                        pdb.set_trace()
                 #if (i_timearr>=len(df_file_being_read)):
                 #    print('break out')
                 #    break
@@ -391,7 +385,8 @@ for folder_year in folder_years:
                         loc_df=loc_df+1
                         #We do not iterate the index in the df_masterfile
                 #print("loc_df: ", loc_df)
-                        
+                #print("i_timearr: ", i_timearr)
+       
             #3. Make the correspondance between timearr and seconds and join datasets
             #Set the timearr_floor column to be the index of the dataframe to avoid ambiguity in the pd.merge
             df_file_being_read=df_file_being_read.set_index('timearr_floor')
