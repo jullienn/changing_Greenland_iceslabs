@@ -322,7 +322,7 @@ for folder_year in folder_years:
             #pdb.set_trace()
             
             #for i in range(0,len(join_duplicates),1):
-            if (indiv_file=='may11_03_28.mat'):
+            if (indiv_file=='may11_03_28.mat'): #the jump is in masterfile = missing the last in masterfile
                 pdb.set_trace()
             while (i_timearr<len(df_file_being_read)):
                 if (indiv_file=='may11_03_28.mat'):
