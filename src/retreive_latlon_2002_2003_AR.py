@@ -5,7 +5,7 @@ Created on Thu Nov 12 15:35:11 2020
 @author: Nicolas Jullien
 """
 import scipy.io
-import rasterio
+#import rasterio
 from matplotlib import pyplot
 import numpy as np
 import h5py
@@ -224,6 +224,11 @@ for folder_year in folder_years:
                 #Bare this issue in mind when analyting traces!
                 continue
             
+            if (indiv_file=='may11_03_28.mat'):
+                pdb.set_trace()
+                #Investigation en cours
+                #continue
+            
             #It seems that the problem between the following files is identical:
             #may18_02_30, may09_03_24, may09_03_42
             
@@ -317,8 +322,13 @@ for folder_year in folder_years:
             #pdb.set_trace()
             
             #for i in range(0,len(join_duplicates),1):
+            if (indiv_file=='may11_03_28.mat'):
+                pdb.set_trace()
             while (i_timearr<len(df_file_being_read)):
-        
+                if (indiv_file=='may11_03_28.mat'):
+                    print("i_timearr: ", i_timearr)
+                    if (i_timearr==999):
+                        pdb.set_trace()
                 #if (i_timearr>=len(df_file_being_read)):
                 #    print('break out')
                 #    break
@@ -367,7 +377,7 @@ for folder_year in folder_years:
                         #i_timearr=i_timearr+1
                     
                     #Possibility 2: the jump is in df_file_being_read
-                    if ((df_master_file['seconds_gps'].iloc[loc_df])<(df_file_being_read['timearr_floor'].iloc[i_timearr])):
+                    elif ((df_master_file['seconds_gps'].iloc[loc_df])<(df_file_being_read['timearr_floor'].iloc[i_timearr])):
                         #Here must be calculated the mean with the previous index on the previous index
                         # Add a column where I specify this is a jump here!!
         
@@ -380,8 +390,6 @@ for folder_year in folder_years:
                         i_timearr=i_timearr+1
                         loc_df=loc_df+1
                         #We do not iterate the index in the df_masterfile
-                
-                #print("i_timearr: ", i_timearr)
                 #print("loc_df: ", loc_df)
                         
             #3. Make the correspondance between timearr and seconds and join datasets
