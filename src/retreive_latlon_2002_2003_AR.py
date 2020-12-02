@@ -224,10 +224,6 @@ for folder_year in folder_years:
                 #Bare this issue in mind when analyting traces!
                 continue
             
-            if (indiv_file=='may11_03_28.mat'):
-                pdb.set_trace()
-                #Investigation en cours
-                #continue
             
             #It seems that the problem between the following files is identical:
             #may18_02_30, may09_03_24, may09_03_42
