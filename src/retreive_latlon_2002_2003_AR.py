@@ -15,6 +15,7 @@ from os import listdir
 from os.path import isfile, join
 import pdb
 import pickle
+import os.path
 
 ############################# Download old AR data #############################
 ##Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
@@ -108,6 +109,21 @@ for folder_year in folder_years:
         print(folder_day_name)
         pdb.set_trace()
         
+        #Go into the daily folders 
+        os.chdir(folder_day_name)
+        
+        #Define the path
+        mypath = folder_day_name+'//'
+        
+        #Save the filenames present in folder of interest (here May 13 2003)
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        
+        #If files have already been created, do not process and continue
+        filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+onlyfiles[0].replace(".mat","")+"_aggregated"
+        if (os.path.isfile(filename_to_check)):
+            print('Aggregated files already existent, move on to the next date')
+            continue
+        
         ############################# MASTER FILE #############################
         # Load the master file of that date
         path_gps='D://OIB//2002_2003_associated_files//gps_coord//'+folder_year+'//'+folder_day+'//'+folder_day
@@ -146,13 +162,6 @@ for folder_year in folder_years:
         #Go into the daily folders 
         os.chdir(folder_day_name)
         
-        #Define the path
-        mypath = folder_day_name+'//'
-        
-        #Save the filenames present in folder of interest (here May 13 2003)
-        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        pdb.set_trace()
-        
         #Create the quality assessment file
         
         filename_fquality='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+'quality_'+folder_day+'_'+folder_year+'.txt'
@@ -190,6 +199,33 @@ for folder_year in folder_years:
                 #At index 320, the timearr=1052493833 while at index 230 timearr=1052493333
                 #Bare this issue in mind when analyting traces!
                 continue
+            
+            if (indiv_file=='may09_03_42.mat'):
+                #This file looks corrupted:
+                #value_begin=1052502888
+                #value_end=1052502887
+                #At index 330, the timearr=1052502553 while at index 329 timearr=1052503052
+                #Bare this issue in mind when analyting traces!
+                continue
+            
+            if (indiv_file=='may11_03_15.mat'):
+                #This file looks corrupted:
+                #value_begin=1052660053
+                #value_end=1052660053
+                #At index 10, the timearr=1052659558 while at index 9 timearr=1052660058
+                #Bare this issue in mind when analyting traces!
+                continue
+            
+            if (indiv_file=='may11_03_18.mat'):
+                #This file looks corrupted:
+                #value_begin=1052662417
+                #value_end=1052662417
+                #At index 560, the timearr=1052662197 while at index 559 timearr=1052662697
+                #Bare this issue in mind when analyting traces!
+                continue
+            
+            #It seems that the problem between the following files is identical:
+            #may18_02_30, may09_03_24, may09_03_42
             
             #Load the file
             file_being_read=[]
