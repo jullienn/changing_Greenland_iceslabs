@@ -86,6 +86,8 @@ import os.path
 from ftplib import FTP
 from datetime import datetime
 
+pdb.set_trace()
+
 start = datetime.now()
 ftp = FTP('data.cresis.ku.edu')
 ftp.login()
@@ -101,32 +103,37 @@ for folder_year in folders_years:
     
     if (folder_year == '2017_Greenland_P3'):
         print('Downloading 2017 data')
-
+        
+        #Go to folder year
         folder_year_name=[]
-        folder_year_name=path + folder_year + '/'
+        folder_year_name=path + folder_year + '/CSARP_standard/'
+        
+        #Go to folder CSARP_standard
         ftp.cwd(folder_year_name)
         
         # For this particular year, get folders name where we have data in SW Greenland
-        open ...
-        folders=[]
-        folders = ftp.nlst()
-        #Go to the folder
-        
+        folders=pd.read_csv('C://Users//jullienn//Documents//working_environment//iceslabs_MacFerrin//download_2017_SW.csv',sep=',')
+        #Loop over the folders, and download all the data in this folder
         for folder in folders:
             folder_name=[]
-            folder_name=path + folder_year + '/' + folder + '/'
+            folder_name=folder_year_name + folder + '/'
             ftp.cwd(folder_name)
             print("Now in folder ..." + folder_name)
         
-            # Get All Files in this folder
+            # Get all Files in this folder
             files=[]
             files = ftp.nlst()
             
-            # Print out the files
+            # Print out and download the files
             for file in files:
-                print("Downloading..." + file)
-                ftp.retrbinary("RETR " + file ,open("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file, 'wb').write)
-                #ftp.retrbinary("RETR " + file ,open("download/to/your/directory/" + file, 'wb').write)
+                if (file[0:8]=='Data_2017'):
+                    #Grab only the files starting by 'Data_2017...'
+                    print("Downloading..." + file)
+                    ftp.retrbinary("RETR " + file ,open("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file, 'wb').write)
+                else:
+                    #This is data starting by 'Data_img...', we do not want that
+                    continue
+            
     else:
         print('This is not 2017')
         
