@@ -43,7 +43,7 @@ for folder_year in folder_years:
         folder_day_name=folder_year_name+'//'+folder_day
         print('Folder name:')
         print(folder_day_name)
-        pdb.set_trace()
+        #pdb.set_trace()
         
         #Go into the daily folders 
         os.chdir(folder_day_name)
@@ -121,7 +121,36 @@ for folder_year in folder_years:
             #pdb.set_trace()
             
             filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
-            if (os.path.isfile(filename_to_check)):
+
+            
+            ###################################################################
+            ### Investigate on the low quality files based on the quality file:
+            ### Here are the dates having a least one column that is not 100%
+            ### quality:
+            ### may11_03_28,1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
+            ### may11_03_40,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,940), size(timearr)=(1,1000), reset of timearr at index 940 => only data in the first 940 index!
+            ### may11_03_9, 1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,740), size(timearr)=(1,1000), reset of timearr at index 740 => only data in the first 740 index!
+            ### may12_03_13,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,80), size(timearr)=(1,1000), reset of timearr at index 80 => only data in the first 80 index!
+            ### may12_03_17,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,990), size(timearr)=(1,1000), reset of timearr at index 990 => only data in the first 990 index!
+            ### may12_03_38,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,850), size(timearr)=(1,1000), reset of timearr at index 850 => only data in the first 850 index!
+            ### may12_03_39,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,40), size(timearr)=(1,1000), reset of timearr at index 40 => only data in the first 40 index! Attention, another reset at index=850.
+            ### may12_03_44,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,310), size(timearr)=(1,1000), reset of timearr at index 310 => only data in the first 310 index!
+            ### may13_03_3, 1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
+            ### may13_03_30,1,1,1,1,1,3,0
+            ### may14_03_11,1,1,1,1,1,3,0
+            ### may14_03_15,1,1,1,1,1,3,0
+            ### may14_03_52,1,1,1,1,1,3,0
+            ### may15_03_3, 1,1,1,1,1,3,0
+            ### may15_03_37,1,1,1,1,1,3,0
+            
+            if (indiv_file=='may13_03_3.mat'):
+                inv='YES'
+                print('Investigating file: '+indiv_file)
+                pdb.set_trace()
+            ###################################################################
+            
+            elif (os.path.isfile(filename_to_check)):
+                inv='NO'
                 print(indiv_file.replace(".mat","")+"_aggregated"+' file exist, move on to the next date')
                 continue
             
@@ -200,27 +229,6 @@ for folder_year in folder_years:
                 print(indiv_file+' file not complete')
                 continue
             
-            ###################################################################
-            
-            ###################################################################
-            ### Investigate on the low quality files based on the quality file:
-            ### Here are the dates having a least one column that is not 100%
-            ### quality:
-            ### may11_03_28,1,1,1,1,1,3,2
-            ### may11_03_40,1,1,1,1,1,3,0
-            ### may11_03_9, 1,1,1,1,1,3,0
-            ### may12_03_13,1,1,1,1,1,3,0
-            ### may12_03_17,1,1,1,1,1,3,0
-            ### may12_03_38,1,1,1,1,1,3,0
-            ### may12_03_39,1,1,1,1,1,3,0
-            ### may12_03_44,1,1,1,1,1,3,0
-            ### may13_03_3, 1,1,1,1,1,3,2
-            ### may13_03_30,1,1,1,1,1,3,0
-            ### may14_03_11,1,1,1,1,1,3,0
-            ### may14_03_15,1,1,1,1,1,3,0
-            ### may14_03_52,1,1,1,1,1,3,0
-            ### may15_03_3, 1,1,1,1,1,3,0
-            ### may15_03_37,1,1,1,1,1,3,0
             ###################################################################
 
             #Load the file
@@ -390,6 +398,9 @@ for folder_year in folder_years:
             df_final=merged_inner.loc[merged_inner['jump']==0]
             #This is done and it is working!!
             #pdb.set_trace()
+            
+            if (inv=='YES'):
+                pdb.set_trace()
             
             #Create the different index for quality assessment
             B_match_dftimearr_dftimearrdec=(df_final['timearr'].iloc[0] == df_final['timearr_dec'].iloc[0]).astype(int)
