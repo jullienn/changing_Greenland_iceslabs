@@ -101,7 +101,7 @@ for folder_year in folders_years:
     
     if (folder_year == '2017_Greenland_P3'):
         print('Downloading 2017 data')
-        pdb.set_trace()
+        #pdb.set_trace()
         
         #Set the working directory to load the 2017 data file
         os.chdir('C:\\Users\\jullienn\\Documents\\working_environment\\iceslabs_MacFerrin')
