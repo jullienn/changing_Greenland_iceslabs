@@ -21,7 +21,7 @@ import os.path
 ############################# Data manipulation ##############################
 ##############################################################################
 import os
-pdb.set_trace()
+#pdb.set_trace()
 
 #Define the path for working
 path='D://OIB//AR'
@@ -37,7 +37,7 @@ for folder_year in folder_years:
     #Read the days for this specific year
     folder_days=[]
     folder_days = [ f.name for f in os.scandir(folder_year_name) if f.is_dir() ]
-    pdb.set_trace()
+    #pdb.set_trace()
     
     for folder_day in folder_days:
         folder_day_name=folder_year_name+'//'+folder_day
@@ -55,10 +55,10 @@ for folder_year in folder_years:
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         
         #If files have already been created, do not process and continue
-        filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+onlyfiles[0].replace(".mat","")+"_aggregated"
-        if (os.path.isfile(filename_to_check)):
-            print('Aggregated files already existent, move on to the next date')
-            continue
+        #filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+onlyfiles[0].replace(".mat","")+"_aggregated"
+        #if (os.path.isfile(filename_to_check)):
+        #    print('Aggregated files already existent, move on to the next date')
+        #    continue
         
         ############################# MASTER FILE #############################
         # Load the master file of that date
@@ -100,8 +100,8 @@ for folder_year in folder_years:
         
         #Create the quality assessment file
         
-        filename_fquality='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+'quality_'+folder_day+'_'+folder_year+'.txt'
-        f_quality = open(filename_fquality, "w")
+        #####filename_fquality='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+'quality_'+folder_day+'_'+folder_year+'.txt'
+        #####f_quality = open(filename_fquality, "w")
         # Herebelow is a summary of what I save in thsi quality file
         #1. correspondance in df_final between begin 'timearr' and begin 'timearr_dec' -> 1 is matching, 0 is no match
         #2. correspondance in df_final between end 'timearr' and end 'timearr_dec' -> 1 is matching, 0 is no match
@@ -112,13 +112,23 @@ for folder_year in folder_years:
         #7. The last 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
         
         #Create the column names
-        f_quality.write('date','B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps\n')
-        pdb.set_trace()
+        #####f_quality.write('date,B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps\n')
+        #pdb.set_trace()
         #Loop over any file in the folder date and do the operations of joining in the loop
         for indiv_file in onlyfiles:
             print('Now treating the file:')
             print(join(mypath,indiv_file))
             #pdb.set_trace()
+            
+            filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
+            if (os.path.isfile(filename_to_check)):
+                print(indiv_file.replace(".mat","")+"_aggregated"+' file exist, move on to the next date')
+                continue
+            
+            ###################################################################
+            ### Problems in these files are identical, the way of solving ####
+            ### the issue should be the same for the following files: #########
+            ### may18_02_30, may09_03_24, may09_03_42, may11_03_15, may11_03_18
             
             if (indiv_file=='may18_02_30.mat'):
                 #This file looks corrupted:
@@ -126,6 +136,12 @@ for folder_year in folder_years:
                 #value_end=1021736383
                 #At index 230, the timearr=1021735999 while at index 230 timearr=1021736498
                 #Bare this issue in mind when analyting traces!
+                
+                # Investigation on December 3rd, 2020
+                # size(filtfin)=(4095,230), size(timearr)=(1,1000)
+                # reset of timearr at index 230
+                # => only data in the first 230 index!
+                print(indiv_file+' file not complete')
                 continue
             
             if (indiv_file=='may09_03_24.mat'):
@@ -134,6 +150,12 @@ for folder_year in folder_years:
                 #value_end=1052493673
                 #At index 320, the timearr=1052493833 while at index 230 timearr=1052493333
                 #Bare this issue in mind when analyting traces!
+                
+                # Investigation on December 3rd, 2020
+                # size(filtfin)=(4095,320), size(timearr)=(1,1000)
+                # reset of timearr at index 320
+                # => only data in the first 320 index!
+                print(indiv_file+' file not complete')
                 continue
             
             if (indiv_file=='may09_03_42.mat'):
@@ -142,6 +164,12 @@ for folder_year in folder_years:
                 #value_end=1052502887
                 #At index 330, the timearr=1052502553 while at index 329 timearr=1052503052
                 #Bare this issue in mind when analyting traces!
+                
+                # Investigation on December 3rd, 2020
+                # size(filtfin)=(4095,330), size(timearr)=(1,1000)
+                # reset of timearr at index 330
+                # => only data in the first 330 index!
+                print(indiv_file+' file not complete')
                 continue
             
             if (indiv_file=='may11_03_15.mat'):
@@ -150,6 +178,12 @@ for folder_year in folder_years:
                 #value_end=1052660053
                 #At index 10, the timearr=1052659558 while at index 9 timearr=1052660058
                 #Bare this issue in mind when analyting traces!
+                
+                # Investigation on December 3rd, 2020
+                # size(filtfin)=(4095,10), size(timearr)=(1,1000)
+                # reset of timearr at index 10
+                # => only data in the first 10 index!
+                print(indiv_file+' file not complete')
                 continue
             
             if (indiv_file=='may11_03_18.mat'):
@@ -158,12 +192,37 @@ for folder_year in folder_years:
                 #value_end=1052662417
                 #At index 560, the timearr=1052662197 while at index 559 timearr=1052662697
                 #Bare this issue in mind when analyting traces!
+                
+                # Investigation on December 3rd, 2020
+                # size(filtfin)=(4095,560), size(timearr)=(1,1000)
+                # reset of timearr at index 560
+                # => only data in the first 560 index!
+                print(indiv_file+' file not complete')
                 continue
             
+            ###################################################################
             
-            #It seems that the problem between the following files is identical:
-            #may18_02_30, may09_03_24, may09_03_42
-            
+            ###################################################################
+            ### Investigate on the low quality files based on the quality file:
+            ### Here are the dates having a least one column that is not 100%
+            ### quality:
+            ### may11_03_28,1,1,1,1,1,3,2
+            ### may11_03_40,1,1,1,1,1,3,0
+            ### may11_03_9, 1,1,1,1,1,3,0
+            ### may12_03_13,1,1,1,1,1,3,0
+            ### may12_03_17,1,1,1,1,1,3,0
+            ### may12_03_38,1,1,1,1,1,3,0
+            ### may12_03_39,1,1,1,1,1,3,0
+            ### may12_03_44,1,1,1,1,1,3,0
+            ### may13_03_3, 1,1,1,1,1,3,2
+            ### may13_03_30,1,1,1,1,1,3,0
+            ### may14_03_11,1,1,1,1,1,3,0
+            ### may14_03_15,1,1,1,1,1,3,0
+            ### may14_03_52,1,1,1,1,1,3,0
+            ### may15_03_3, 1,1,1,1,1,3,0
+            ### may15_03_37,1,1,1,1,1,3,0
+            ###################################################################
+
             #Load the file
             file_being_read=[]
             file_being_read=scipy.io.loadmat(join(mypath,indiv_file))
@@ -350,7 +409,7 @@ for folder_year in folder_years:
             Em1tom3_df_timearrdec_df_secondsgps=df_timearrdec_df_secondsgps_m1+df_timearrdec_df_secondsgps_m2+df_timearrdec_df_secondsgps_m3
             
             #Writting in the quality assessment file
-            f_quality.write(str(indiv_file.replace(".mat",""))+','+str(B_match_dftimearr_dftimearrdec)+','+str(E_match_dftimearr_dftimearrdec)+','+str(B_match_dftimearrdec_filetimearr)+','+str(E_match_dftimearrdec_filetimearr)+','+str(length_match_df_file)+','+str(B0to2_df_timearrdec_df_secondsgps)+','+str(Em1tom3_df_timearrdec_df_secondsgps)+'\n')
+            #####f_quality.write(str(indiv_file.replace(".mat",""))+','+str(B_match_dftimearr_dftimearrdec)+','+str(E_match_dftimearr_dftimearrdec)+','+str(B_match_dftimearrdec_filetimearr)+','+str(E_match_dftimearrdec_filetimearr)+','+str(length_match_df_file)+','+str(B0to2_df_timearrdec_df_secondsgps)+','+str(Em1tom3_df_timearrdec_df_secondsgps)+'\n')
         
             #Select only the variables of interest for the data storage
             df_final=df_final.drop(['seconds','timearr_dec','jump'],axis=1)
@@ -370,12 +429,12 @@ for folder_year in folder_years:
             #pdb.set_trace()
             
             #Save the dictionary into a picke file
-            filename_tosave='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
-            outfile= open(filename_tosave, "wb" )
-            pickle.dump(dic_file_being_read,outfile)
-            outfile.close()
+            #####filename_tosave='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
+            #####outfile= open(filename_tosave, "wb" )
+            #####pickle.dump(dic_file_being_read,outfile)
+            #####outfile.close()
             
-        f_quality.close() #Close the quality assessment file when we’re done!
+        #####f_quality.close() #Close the quality assessment file when we’re done!
 
 ##############################################################################
 ############################# Data manipulation ##############################

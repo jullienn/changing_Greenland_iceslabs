@@ -102,7 +102,6 @@ for folder_year in folders_years:
     
     if (folder_year == '2017_Greenland_P3'):
         print('Downloading 2017 data')
-        pdb.set_trace()
         
         #Go to folder year
         folder_year_name=[]
@@ -132,7 +131,6 @@ for folder_year in folders_years:
         
         #Loop over the folders, and download all the data in this folder
         for folder in folders:
-            pdb.set_trace()
             folder_name=[]
             folder_name=folder_year_name + folder + '/'
             ftp.cwd(folder_name)
