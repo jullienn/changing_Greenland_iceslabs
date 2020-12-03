@@ -16,7 +16,7 @@ from os.path import isfile, join
 import pdb
 import pickle
 import os.path
-
+import os
 ############################# Download old AR data #############################
 ##Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 #
@@ -86,8 +86,6 @@ import os.path
 from ftplib import FTP
 from datetime import datetime
 
-pdb.set_trace()
-
 start = datetime.now()
 ftp = FTP('data.cresis.ku.edu')
 ftp.login()
@@ -103,6 +101,14 @@ for folder_year in folders_years:
     
     if (folder_year == '2017_Greenland_P3'):
         print('Downloading 2017 data')
+        pdb.set_trace()
+        
+        #Set the working directory to load the 2017 data file
+        os.chdir('C:\\Users\\jullienn\\Documents\\working_environment\\iceslabs_MacFerrin')
+        #Check that we are in the right working directy
+        print(os.getcwd())
+        # For this particular year, get folders name where we have data in SW Greenland
+        folders = pd.read_csv('C:\\Users\\jullienn\\Documents\\working_environment\\iceslabs_MacFerrin\\download_2017_SW.csv')
         
         #Go to folder year
         folder_year_name=[]
@@ -111,8 +117,6 @@ for folder_year in folders_years:
         #Go to folder CSARP_standard
         ftp.cwd(folder_year_name)
         
-        # For this particular year, get folders name where we have data in SW Greenland
-        folders=pd.read_csv('C://Users//jullienn//Documents//working_environment//iceslabs_MacFerrin//download_2017_SW.csv',sep=',')
         #Loop over the folders, and download all the data in this folder
         for folder in folders:
             folder_name=[]
@@ -126,11 +130,16 @@ for folder_year in folders_years:
             
             # Print out and download the files
             for file in files:
-                if (file[0:8]=='Data_2017'):
+                if (file[0:9]=='Data_2017'):
+                    if (os.path.isfile("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file)):
+                        #If the file have already been downloaded, continue
+                        print(file+' have already been downloaded. Continue ...')
+                        continue
                     #Grab only the files starting by 'Data_2017...'
                     print("Downloading..." + file)
                     ftp.retrbinary("RETR " + file ,open("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file, 'wb').write)
                 else:
+                    print('This is a file Data_img ...')
                     #This is data starting by 'Data_img...', we do not want that
                     continue
             

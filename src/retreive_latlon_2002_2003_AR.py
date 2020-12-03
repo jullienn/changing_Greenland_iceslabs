@@ -112,7 +112,7 @@ for folder_year in folder_years:
         #7. The last 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
         
         #Create the column names
-        f_quality.write('B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps\n')
+        f_quality.write('date','B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps\n')
         pdb.set_trace()
         #Loop over any file in the folder date and do the operations of joining in the loop
         for indiv_file in onlyfiles:
@@ -350,7 +350,7 @@ for folder_year in folder_years:
             Em1tom3_df_timearrdec_df_secondsgps=df_timearrdec_df_secondsgps_m1+df_timearrdec_df_secondsgps_m2+df_timearrdec_df_secondsgps_m3
             
             #Writting in the quality assessment file
-            f_quality.write(str(B_match_dftimearr_dftimearrdec)+','+str(E_match_dftimearr_dftimearrdec)+','+str(B_match_dftimearrdec_filetimearr)+','+str(E_match_dftimearrdec_filetimearr)+','+str(length_match_df_file)+','+str(B0to2_df_timearrdec_df_secondsgps)+','+str(Em1tom3_df_timearrdec_df_secondsgps)+'\n')
+            f_quality.write(str(indiv_file.replace(".mat","")+','+B_match_dftimearr_dftimearrdec)+','+str(E_match_dftimearr_dftimearrdec)+','+str(B_match_dftimearrdec_filetimearr)+','+str(E_match_dftimearrdec_filetimearr)+','+str(length_match_df_file)+','+str(B0to2_df_timearrdec_df_secondsgps)+','+str(Em1tom3_df_timearrdec_df_secondsgps)+'\n')
         
             #Select only the variables of interest for the data storage
             df_final=df_final.drop(['seconds','timearr_dec','jump'],axis=1)
