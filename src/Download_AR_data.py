@@ -17,6 +17,7 @@ import pdb
 import pickle
 import os.path
 import os
+import csv
 ############################# Download old AR data #############################
 ##Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 #
@@ -101,14 +102,7 @@ for folder_year in folders_years:
     
     if (folder_year == '2017_Greenland_P3'):
         print('Downloading 2017 data')
-        #pdb.set_trace()
-        
-        #Set the working directory to load the 2017 data file
-        os.chdir('C:\\Users\\jullienn\\Documents\\working_environment\\iceslabs_MacFerrin')
-        #Check that we are in the right working directy
-        print(os.getcwd())
-        # For this particular year, get folders name where we have data in SW Greenland
-        folders = pd.read_csv('C:\\Users\\jullienn\\Documents\\working_environment\\iceslabs_MacFerrin\\download_2017_SW.csv')
+        pdb.set_trace()
         
         #Go to folder year
         folder_year_name=[]
@@ -117,8 +111,28 @@ for folder_year in folders_years:
         #Go to folder CSARP_standard
         ftp.cwd(folder_year_name)
         
+        #Set the working directory to load the 2017 data file
+        os.chdir('C:\\Users\\jullienn\\Documents\\working_environment\\iceslabs_MacFerrin')
+        #Check that we are in the right working directy
+        print(os.getcwd())
+        # For this particular year, get folders name where we have data in SW Greenland
+        #Actually not working, so create the folder array manually
+        #folders = pd.read_csv('C:\\Users\\jullienn\\Documents\\working_environment\\iceslabs_MacFerrin\\download_2017_SW.csv')
+        folders=['20170421_01',
+                 '20170422_01',
+                 '20170424_01',
+                 '20170429_01',
+                 '20170501_02',
+                 '20170502_01',
+                 '20170505_02',
+                 '20170506_01',
+                 '20170508_02',
+                 '20170510_02',
+                 '20170511_01']
+        
         #Loop over the folders, and download all the data in this folder
         for folder in folders:
+            pdb.set_trace()
             folder_name=[]
             folder_name=folder_year_name + folder + '/'
             ftp.cwd(folder_name)
