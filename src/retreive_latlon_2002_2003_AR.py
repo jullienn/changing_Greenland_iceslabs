@@ -90,7 +90,6 @@ for folder_year in folder_years:
                 filename_gps=path_gps+'_02_latlontime.mat'
                 master_file= scipy.io.loadmat(filename_gps)
         
-        
         #Create the dataframe of the master file
         df_master_file=pd.DataFrame({'seconds':pd.Series(np.ndarray.flatten(np.transpose(master_file['seconds']))),
                                      'useconds':pd.Series(np.ndarray.flatten(np.transpose(master_file['useconds']))),
@@ -106,15 +105,14 @@ for folder_year in folder_years:
         ############################# MASTER FILE #############################
         
         ############################## INDIVIDUAL FILES ##############################
-        
         #Go into the daily folders 
         os.chdir(folder_day_name)
         
         #Create the quality assessment file
+        filename_fquality='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+'quality_'+folder_day+'_'+folder_year+'.txt'
+        f_quality = open(filename_fquality, "w")
         
-        #####filename_fquality='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+'quality_'+folder_day+'_'+folder_year+'.txt'
-        #####f_quality = open(filename_fquality, "w")
-        # Herebelow is a summary of what I save in thsi quality file
+        # Herebelow is a summary of what I save in this quality file
         #1. correspondance in df_final between begin 'timearr' and begin 'timearr_dec' -> 1 is matching, 0 is no match
         #2. correspondance in df_final between end 'timearr' and end 'timearr_dec' -> 1 is matching, 0 is no match
         #3. correspondance between begin 'timearr_dec' in df_final and begin 'timearr' of df_file_being_read -> 1 is matching, 0 is no match
@@ -124,7 +122,7 @@ for folder_year in folder_years:
         #7. The last 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
         
         #Create the column names
-        #####f_quality.write('date,B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps\n')
+        f_quality.write('date,B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps,file_being_read[filtfin].shape[1],df_final.shape[0]\n')
         #pdb.set_trace()
         #Loop over any file in the folder date and do the operations of joining in the loop
         for indiv_file in onlyfiles:
@@ -135,6 +133,7 @@ for folder_year in folder_years:
             filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
 
             if (os.path.isfile(filename_to_check)):
+                #If aggregated file already exist, go to the next date.
                 print(indiv_file.replace(".mat","")+"_aggregated"+' file exist, move on to the next date')
                 continue
 
@@ -219,13 +218,13 @@ for folder_year in folder_years:
                 dupli=df_file_being_read['timearr_floor']
                 duplicateRowsDF = dupli.duplicated()
                                 
-            #We need index_begin, but not index_end. However, I keep the calculation for index_end in case.
-            if (duplicateRowsDF.iloc[1]):
-                #if (duplicateRowsDF.iloc[1] is True, the first value is double
-                index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[0]
-            elif (~(duplicateRowsDF.iloc[1])):
-                # if duplicateRowsDF.iloc[1] is False, the first value is single
-                index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
+            ##We need index_begin, but not index_end. However, I keep the calculation for index_end in case.
+            #if (duplicateRowsDF.iloc[1]):
+            #    #if (duplicateRowsDF.iloc[1] is True, the first value is double
+            #    index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[0]
+            #elif (~(duplicateRowsDF.iloc[1])):
+            #    # if duplicateRowsDF.iloc[1] is False, the first value is single
+            #    index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
                 
             ################## I am keeping that just in case #################
             #if (duplicateRowsDF.iloc[-1]):
@@ -235,25 +234,9 @@ for folder_year in folder_years:
             #    # if duplicateRowsDF.iloc[-1] is False, the last value is single
             #    index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-2]+1
             ################### I am keeping that just in case #################
- 
-####################### What is in here can be removed #######################
-            #Select the corresponding slice of df_master_file:
-            #df_slice=df_master_file.iloc[index_begin:index_end]
-            
-            #Check if we have duplicates of missing values in this slice df compared to the file being read
-            #merged_check=[]
-            #merged_check = pd.merge(left=df_file_being_read, right=df_slice, left_on='timearr_floor', right_on='seconds_gps')
-            
-            #check_join_duplicates=[]
-            #check_join_duplicates=merged_check.drop_duplicates(subset=['time_gps'],keep='first')
-            
-            #pdb.set_trace()
-####################### What is in here can be removed #######################
        
             #2. Associate the 'seconds_gps' to its decimal value from 'timearr'
             #I have to do this inside a for loop and check at any iteration because sometimes I have gaps in seconds!!
-            #count=0
-            #seconds_gps_stored=df_master_file['seconds_gps'].iloc[index_begin]
             
             #I need to know the length of the datafile having duplicates in it   
             join_doubled_duplicates=[]
@@ -281,11 +264,6 @@ for folder_year in folder_years:
             
             #for i in range(0,len(join_duplicates),1):
             while (i_timearr<(file_being_read['filtfin'].shape[1])):
-                #if (i_timearr>=len(df_file_being_read)):
-                #    print('break out')
-                #    break
-                
-                #len(df_file_being_read)
                 
                 if ((df_master_file['seconds_gps'].iloc[loc_df])==(df_file_being_read['timearr_floor'].iloc[i_timearr])):
                     df_master_file['timearr_dec'].iloc[loc_df]=df_file_being_read['timearr'].iloc[i_timearr]
@@ -376,7 +354,7 @@ for folder_year in folder_years:
             Em1tom3_df_timearrdec_df_secondsgps=df_timearrdec_df_secondsgps_m1+df_timearrdec_df_secondsgps_m2+df_timearrdec_df_secondsgps_m3
             
             #Writting in the quality assessment file
-            #####f_quality.write(str(indiv_file.replace(".mat",""))+','+str(B_match_dftimearr_dftimearrdec)+','+str(E_match_dftimearr_dftimearrdec)+','+str(B_match_dftimearrdec_filetimearr)+','+str(E_match_dftimearrdec_filetimearr)+','+str(length_match_df_file)+','+str(B0to2_df_timearrdec_df_secondsgps)+','+str(Em1tom3_df_timearrdec_df_secondsgps)+'\n')
+            f_quality.write(str(indiv_file.replace(".mat",""))+','+str(B_match_dftimearr_dftimearrdec)+','+str(E_match_dftimearr_dftimearrdec)+','+str(B_match_dftimearrdec_filetimearr)+','+str(E_match_dftimearrdec_filetimearr)+','+str(length_match_df_file)+','+str(B0to2_df_timearrdec_df_secondsgps)+','+str(Em1tom3_df_timearrdec_df_secondsgps)+','+str(file_being_read['filtfin'].shape[1])+','+str(df_final.shape[0])+'\n')
         
             #Select only the variables of interest for the data storage
             df_final=df_final.drop(['seconds','timearr_dec','jump'],axis=1)
@@ -396,12 +374,12 @@ for folder_year in folder_years:
             pdb.set_trace()
             
             #Save the dictionary into a picke file
-            #####filename_tosave='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
-            #####outfile= open(filename_tosave, "wb" )
-            #####pickle.dump(dic_file_being_read,outfile)
-            #####outfile.close()
+            filename_tosave='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
+            outfile= open(filename_tosave, "wb" )
+            pickle.dump(dic_file_being_read,outfile)
+            outfile.close()
             
-        #####f_quality.close() #Close the quality assessment file when we’re done!
+        f_quality.close() #Close the quality assessment file when we’re done!
 
 ##############################################################################
 ############################# Data manipulation ##############################
