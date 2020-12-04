@@ -280,7 +280,7 @@ for folder_year in folder_years:
             #pdb.set_trace()
             
             #for i in range(0,len(join_duplicates),1):
-            while (i_timearr<(file_being_read['filtfin'].shape[1]):
+            while (i_timearr<(file_being_read['filtfin'].shape[1])):
                 #if (i_timearr>=len(df_file_being_read)):
                 #    print('break out')
                 #    break
@@ -393,7 +393,7 @@ for folder_year in folder_years:
                      "radar_echogram" : file_being_read['filtfin'],
                      "latlontime" : df_final}
             
-            #pdb.set_trace()
+            pdb.set_trace()
             
             #Save the dictionary into a picke file
             #####filename_tosave='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
