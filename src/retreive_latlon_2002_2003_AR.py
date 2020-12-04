@@ -123,7 +123,7 @@ for folder_year in folder_years:
         #8. the last 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
         #9. size of file_being_read[filtfin].shape[1]
         #10. size of df_final.shape[0]
-        pdb.set_trace()
+        #pdb.set_trace()
         
         #Create the column names
         f_quality.write('date,B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps,file_being_read[filtfin].shape[1],df_final.shape[0]\n')
@@ -132,6 +132,11 @@ for folder_year in folder_years:
             print('Now treating the file:')
             print(join(mypath,indiv_file))
             #pdb.set_trace()
+            
+            if(indiv_file=='may14_03_18.mat'):
+                #The echogram of this file is empty!
+                print('The file '+indiv_file+' is empty! Continue ...')
+                continue
             
             filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
 
