@@ -136,14 +136,14 @@ for folder_year in folder_years:
             ### may12_03_39,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,40), size(timearr)=(1,1000), reset of timearr at index 40 => only data in the first 40 index! Attention, another reset at index=850.
             ### may12_03_44,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,310), size(timearr)=(1,1000), reset of timearr at index 310 => only data in the first 310 index!
             ### may13_03_3, 1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
-            ### may13_03_30,1,1,1,1,1,3,0
-            ### may14_03_11,1,1,1,1,1,3,0
-            ### may14_03_15,1,1,1,1,1,3,0
-            ### may14_03_52,1,1,1,1,1,3,0
-            ### may15_03_3, 1,1,1,1,1,3,0
-            ### may15_03_37,1,1,1,1,1,3,0
+            ### may13_03_30,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,330), size(timearr)=(1,1000), reset of timearr at index 330 => only data in the first 330 index!
+            ### may14_03_11,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,10), size(timearr)=(1,1000), reset of timearr at index 10 => only data in the first 10 index!
+            ### may14_03_15,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,40), size(timearr)=(1,1000), reset of timearr at index 40 => only data in the first 40 index!
+            ### may14_03_52,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,50), size(timearr)=(1,1000), reset of timearr at index 50 => only data in the first 50 index!
+            ### may15_03_3, 1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,330), size(timearr)=(1,1000), reset of timearr at index 330 => only data in the first 330 index!
+            ### may15_03_37,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,750), size(timearr)=(1,1000), reset of timearr at index 750 => only data in the first 750 index!
             
-            if (indiv_file=='may13_03_3.mat'):
+            if (indiv_file=='may15_03_37.mat'):
                 inv='YES'
                 print('Investigating file: '+indiv_file)
                 pdb.set_trace()
