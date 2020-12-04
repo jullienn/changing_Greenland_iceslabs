@@ -122,6 +122,9 @@ for folder_year in folder_years:
             
             filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
 
+            if (os.path.isfile(filename_to_check)):
+                print(indiv_file.replace(".mat","")+"_aggregated"+' file exist, move on to the next date')
+                continue
             ###################################################################
             ### Investigate on the files having issues
             ### 1. Problem type 1:
@@ -151,16 +154,25 @@ for folder_year in folder_years:
             ### may11_03_28,1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
             ### may13_03_3, 1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
             ### -> No action needed for these files, they are clean
-            if (indiv_file=='may11_03_18.mat'):
-                inv='YES'
-                print('Investigating file: '+indiv_file)
-                pdb.set_trace()
-            ###################################################################
-            
-            elif (os.path.isfile(filename_to_check)):
-                inv='NO'
-                print(indiv_file.replace(".mat","")+"_aggregated"+' file exist, move on to the next date')
-                continue
+            #pdb.set_trace()
+            list_data_issues=['may11_03_40.mat',
+                              'may11_03_9.mat',
+                              'may12_03_13.mat',
+                              'may12_03_17.mat',
+                              'may12_03_38.mat',
+                              'may12_03_39.mat',
+                              'may12_03_44.mat',
+                              'may13_03_30.mat',
+                              'may14_03_11.mat',
+                              'may14_03_15.mat',
+                              'may14_03_52.mat',
+                              'may15_03_3.mat',
+                              'may15_03_37.mat',
+                              'may18_02_30.mat',
+                              'may09_03_24.mat',
+                              'may09_03_42.mat',
+                              'may11_03_15.mat',
+                              'may11_03_18.mat']
 
             #Load the file
             file_being_read=[]
@@ -183,6 +195,21 @@ for folder_year in folder_years:
             #Rename the column 'timearr_trace' to 'timearr'
             df_file_being_read.columns = ['index_vector', 'timearr','timearr_floor']
             #pdb.set_trace()
+            
+            if indiv_file in list_data_issues:
+                print('We are dealing with the issue file: '+indiv_file)
+                
+                
+                #1. Create a pandas dataframe where I have the date in one column
+                #and in another columns I have the index where I have to stop 
+                #selecting data
+                #2. Set the value_end as corresponding to this last index.
+                
+                
+                pdb.set_trace()
+            else:
+                #Do the classical processing steps
+                continue
         
             #1. select the begining of the df_master_file of concern
             #Select the first and last seconds of the timearr
@@ -329,9 +356,6 @@ for folder_year in folder_years:
             df_final=merged_inner.loc[merged_inner['jump']==0]
             #This is done and it is working!!
             #pdb.set_trace()
-            
-            if (inv=='YES'):
-                pdb.set_trace()
             
             #Create the different index for quality assessment
             B_match_dftimearr_dftimearrdec=(df_final['timearr'].iloc[0] == df_final['timearr_dec'].iloc[0]).astype(int)
