@@ -31,6 +31,18 @@ os.getcwd()
 # 1. Read the years to process
 folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
 
+#Create the issue dataframe
+df_issue=pd.DataFrame({'name_file_issue':pd.Series(['may11_03_40.mat','may11_03_9.mat','may12_03_13.mat','may12_03_17.mat',
+                                                    'may12_03_38.mat','may12_03_39.mat','may12_03_44.mat','may13_03_30.mat',
+                                                    'may14_03_11.mat','may14_03_15.mat','may14_03_52.mat','may15_03_3.mat',
+                                                    'may15_03_37.mat','may18_02_30.mat','may09_03_24.mat','may09_03_42.mat',
+                                                    'may11_03_15.mat','may11_03_18.mat']),
+                        'index_issue':pd.Series([940,740,80,990,
+                                                 850,40,310,330,
+                                                 10,40,50,330,
+                                                 750,230,320,330,
+                                                 10,560])})
+
 for folder_year in folder_years:
     folder_year_name=path+'//'+folder_year
     
@@ -125,6 +137,29 @@ for folder_year in folder_years:
             if (os.path.isfile(filename_to_check)):
                 print(indiv_file.replace(".mat","")+"_aggregated"+' file exist, move on to the next date')
                 continue
+
+            #Load the file
+            file_being_read=[]
+            file_being_read=scipy.io.loadmat(join(mypath,indiv_file))
+            
+            #We have to round the timearr to the lower integer
+            int_file_being_read = np.floor(file_being_read['timearr'])
+            #Transform decimals into integer
+            int_file_being_read=int_file_being_read.astype(int)
+            
+            #Create the dataframe
+            df_file_being_read=pd.DataFrame({'timearr':pd.Series(np.ndarray.flatten(np.transpose(int_file_being_read))),
+                                               'index_vector':pd.Series(np.arange(0,int_file_being_read.size,1)),
+                                               'timearr_trace':pd.Series(np.ndarray.flatten(np.transpose(file_being_read['timearr']))),
+                                               'timearr_floor':pd.Series(np.ndarray.flatten(np.transpose(int_file_being_read)))})
+         
+            #Set the timearr column to be the index of the dataframe
+            df_file_being_read=df_file_being_read.set_index('timearr')
+            
+            #Rename the column 'timearr_trace' to 'timearr'
+            df_file_being_read.columns = ['index_vector', 'timearr','timearr_floor']
+            #pdb.set_trace()
+            
             ###################################################################
             ### Investigate on the files having issues
             ### 1. Problem type 1:
@@ -155,58 +190,44 @@ for folder_year in folder_years:
             ### may13_03_3, 1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
             ### -> No action needed for these files, they are clean
             #pdb.set_trace()
-            list_data_issues=['may11_03_40.mat',
-                              'may11_03_9.mat',
-                              'may12_03_13.mat',
-                              'may12_03_17.mat',
-                              'may12_03_38.mat',
-                              'may12_03_39.mat',
-                              'may12_03_44.mat',
-                              'may13_03_30.mat',
-                              'may14_03_11.mat',
-                              'may14_03_15.mat',
-                              'may14_03_52.mat',
-                              'may15_03_3.mat',
-                              'may15_03_37.mat',
-                              'may18_02_30.mat',
-                              'may09_03_24.mat',
-                              'may09_03_42.mat',
-                              'may11_03_15.mat',
-                              'may11_03_18.mat']
-
-            #Load the file
-            file_being_read=[]
-            file_being_read=scipy.io.loadmat(join(mypath,indiv_file))
             
-            #We have to round the timearr to the lower integer
-            int_file_being_read = np.floor(file_being_read['timearr'])
-            #Transform decimals into integer
-            int_file_being_read=int_file_being_read.astype(int)
-            
-            #Create the dataframe
-            df_file_being_read=pd.DataFrame({'timearr':pd.Series(np.ndarray.flatten(np.transpose(int_file_being_read))),
-                                               'index_vector':pd.Series(np.arange(0,int_file_being_read.size,1)),
-                                               'timearr_trace':pd.Series(np.ndarray.flatten(np.transpose(file_being_read['timearr']))),
-                                               'timearr_floor':pd.Series(np.ndarray.flatten(np.transpose(int_file_being_read)))})
-         
-            #Set the timearr column to be the index of the dataframe
-            df_file_being_read=df_file_being_read.set_index('timearr')
-            
-            #Rename the column 'timearr_trace' to 'timearr'
-            df_file_being_read.columns = ['index_vector', 'timearr','timearr_floor']
-            #pdb.set_trace()
-            
-            if indiv_file in list_data_issues:
+            if indiv_file in list(df_issue['name_file_issue']):
                 print('We are dealing with the issue file: '+indiv_file)
-                
-                
+                pdb.set_trace()
+         
                 #1. Create a pandas dataframe where I have the date in one column
                 #and in another columns I have the index where I have to stop 
-                #selecting data
+                #selecting data: done
                 #2. Set the value_end as corresponding to this last index.
                 
+                #1. select the begining of the df_master_file of concern
+                #Select the first and last seconds of the timearr
                 
-                pdb.set_trace()
+                row_of_interest=df_issue[df_issue['name_file_issue']==indiv_file]
+                index_of_interest=np.array(row_of_interest['index_issue'])
+                
+                value_begin=df_file_being_read['timearr_floor'].iloc[0]
+                value_end=df_file_being_read['timearr_floor'].iloc[index_of_interest[0]-1]
+                
+                #Sort out whether the first 'seconds' value is single or doubled
+                dupli=df_file_being_read['timearr_floor']
+                duplicateRowsDF = dupli.duplicated()
+                
+                if (duplicateRowsDF.iloc[1]):
+                    #if (duplicateRowsDF.iloc[1] is True, the first value is double
+                    index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[0]
+                elif (~(duplicateRowsDF.iloc[1])):
+                    # if duplicateRowsDF.iloc[1] is False, the first value is single
+                    index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
+                    
+                if (duplicateRowsDF.index[index_of_interest[0]-1]):
+                    #if (duplicateRowsDF.iloc[-1] is True, the last value is double
+                    index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-1]+1
+                elif (~(duplicateRowsDF.index[index_of_interest[0]-1])):
+                    # if duplicateRowsDF.iloc[-1] is False, the last value is single
+                    index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-2]+1
+                #Apparement y'a pas besoin de index_end
+            
             else:
                 #Do the classical processing steps
                 continue
