@@ -343,7 +343,7 @@ for folder_year in folder_years:
             B_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[0] == df_file_being_read['timearr'].iloc[0]).astype(int)
             
             if indiv_file in list(df_issue['name_file_issue']):
-                E_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[-1] == df_file_being_read['timearr'].iloc[index_of_interest[0]-1] ).astype(int)
+                E_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[-1] == df_file_being_read['timearr'].iloc[index_of_interest[0]-1]).astype(int)
             else:
                 E_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[-1] == df_file_being_read['timearr'].iloc[-1]).astype(int)
 
