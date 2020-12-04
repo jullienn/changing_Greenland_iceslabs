@@ -113,14 +113,16 @@ for folder_year in folder_years:
         f_quality = open(filename_fquality, "w")
         
         # Herebelow is a summary of what I save in this quality file
-        #1. correspondance in df_final between begin 'timearr' and begin 'timearr_dec' -> 1 is matching, 0 is no match
-        #2. correspondance in df_final between end 'timearr' and end 'timearr_dec' -> 1 is matching, 0 is no match
-        #3. correspondance between begin 'timearr_dec' in df_final and begin 'timearr' of df_file_being_read -> 1 is matching, 0 is no match
-        #4. correspondance between end 'timearr_dec' in df_final and end 'timearr' of df_file_being_read -> 1 is matching, 0 is no match
-        #5. length of df_final and df_file_being_read should be the same -> 1 is yes, 0 is no
-        #6. The first 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
-        #7. The last 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
-        
+        #1. date of the file assessed
+        #2. correspondance in df_final between begin 'timearr' and begin 'timearr_dec' -> 1 is matching, 0 is no match
+        #3. correspondance in df_final between end 'timearr' and end 'timearr_dec' -> 1 is matching, 0 is no match
+        #4. correspondance between begin 'timearr_dec' in df_final and begin 'timearr' of df_file_being_read -> 1 is matching, 0 is no match
+        #5. correspondance between end 'timearr_dec' in df_final and end 'timearr' of df_file_being_read for which we have echogram data (defined by the size of filftin)-> 1 is matching, 0 is no match
+        #6. length of df_final and file_being_read['filtfin'] should be the same -> 1 is yes, 0 is no
+        #7. the first 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
+        #8. the last 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
+        #9. size of file_being_read[filtfin].shape[1]
+        #10. size of df_final.shape[0]
         pdb.set_trace()
         
         #Create the column names
