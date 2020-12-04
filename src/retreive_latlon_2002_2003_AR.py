@@ -121,9 +121,10 @@ for folder_year in folder_years:
         #6. The first 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
         #7. The last 3 rows of floor(df_final['timearr_dec']) and df_final['seconds_gps'] must be identical. If they are, the value 3 should be stored
         
+        pdb.set_trace()
+        
         #Create the column names
         f_quality.write('date,B_match_dftimearr_dftimearrdec,E_match_dftimearr_dftimearrdec,B_match_dftimearrdec_filetimearr,E_match_dftimearrdec_filetimearr,length_match_df_file,B0to2_df_timearrdec_df_secondsgps,Em1tom3_df_timearrdec_df_secondsgps,file_being_read[filtfin].shape[1],df_final.shape[0]\n')
-        #pdb.set_trace()
         #Loop over any file in the folder date and do the operations of joining in the loop
         for indiv_file in onlyfiles:
             print('Now treating the file:')
@@ -192,7 +193,7 @@ for folder_year in folder_years:
             
             if indiv_file in list(df_issue['name_file_issue']):
                 print('We are dealing with the issue file: '+indiv_file)
-                pdb.set_trace()
+                #pdb.set_trace()
                 
                 #Identify the last index where we have data                
                 row_of_interest=df_issue[df_issue['name_file_issue']==indiv_file]
@@ -218,13 +219,13 @@ for folder_year in folder_years:
                 dupli=df_file_being_read['timearr_floor']
                 duplicateRowsDF = dupli.duplicated()
                                 
-            ##We need index_begin, but not index_end. However, I keep the calculation for index_end in case.
-            #if (duplicateRowsDF.iloc[1]):
-            #    #if (duplicateRowsDF.iloc[1] is True, the first value is double
-            #    index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[0]
-            #elif (~(duplicateRowsDF.iloc[1])):
-            #    # if duplicateRowsDF.iloc[1] is False, the first value is single
-            #    index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
+            #We need index_begin, but not index_end. However, I keep the calculation for index_end in case.
+            if (duplicateRowsDF.iloc[1]):
+                #if (duplicateRowsDF.iloc[1] is True, the first value is double
+                index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[0]
+            elif (~(duplicateRowsDF.iloc[1])):
+                # if duplicateRowsDF.iloc[1] is False, the first value is single
+                index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
                 
             ################## I am keeping that just in case #################
             #if (duplicateRowsDF.iloc[-1]):
@@ -340,8 +341,13 @@ for folder_year in folder_years:
             B_match_dftimearr_dftimearrdec=(df_final['timearr'].iloc[0] == df_final['timearr_dec'].iloc[0]).astype(int)
             E_match_dftimearr_dftimearrdec=(df_final['timearr'].iloc[-1] == df_final['timearr_dec'].iloc[-1]).astype(int)
             B_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[0] == df_file_being_read['timearr'].iloc[0]).astype(int)
-            E_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[-1] == df_file_being_read['timearr'].iloc[-1]).astype(int)
-            length_match_df_file=int(len(df_final) == len(df_file_being_read))
+            
+            if indiv_file in list(df_issue['name_file_issue']):
+                E_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[-1] == df_file_being_read['timearr'].iloc[index_of_interest[0]-1] ).astype(int)
+            else:
+                E_match_dftimearrdec_filetimearr=(df_final['timearr_dec'].iloc[-1] == df_file_being_read['timearr'].iloc[-1]).astype(int)
+
+            length_match_df_file=int(len(df_final) == (file_being_read['filtfin'].shape[1]))
         
             df_timearrdec_df_secondsgps_0=(np.floor(df_final['timearr_dec'].iloc[0]) == df_final['seconds_gps'].iloc[0]).astype(int)
             df_timearrdec_df_secondsgps_1=(np.floor(df_final['timearr_dec'].iloc[1]) == df_final['seconds_gps'].iloc[1]).astype(int)
@@ -371,7 +377,7 @@ for folder_year in folder_years:
                      "radar_echogram" : file_being_read['filtfin'],
                      "latlontime" : df_final}
             
-            pdb.set_trace()
+            #pdb.set_trace()
             
             #Save the dictionary into a picke file
             filename_tosave='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
