@@ -194,53 +194,32 @@ for folder_year in folder_years:
             if indiv_file in list(df_issue['name_file_issue']):
                 print('We are dealing with the issue file: '+indiv_file)
                 pdb.set_trace()
-         
-                #1. Create a pandas dataframe where I have the date in one column
-                #and in another columns I have the index where I have to stop 
-                #selecting data: done
-                #2. Set the value_end as corresponding to this last index.
                 
-                #1. select the begining of the df_master_file of concern
-                #Select the first and last seconds of the timearr
-                
+                #Identify the last index where we have data                
                 row_of_interest=df_issue[df_issue['name_file_issue']==indiv_file]
                 index_of_interest=np.array(row_of_interest['index_issue'])
                 
+                #1. Identify the value of beginign and end for selection in master file
+                #Select the first and last seconds of the timearr
                 value_begin=df_file_being_read['timearr_floor'].iloc[0]
-                value_end=df_file_being_read['timearr_floor'].iloc[index_of_interest[0]-1]
-                
+                value_end=df_file_being_read['timearr_floor'].iloc[index_of_interest[0]-1] 
+            
                 #Sort out whether the first 'seconds' value is single or doubled
                 dupli=df_file_being_read['timearr_floor']
                 duplicateRowsDF = dupli.duplicated()
-                
-                if (duplicateRowsDF.iloc[1]):
-                    #if (duplicateRowsDF.iloc[1] is True, the first value is double
-                    index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[0]
-                elif (~(duplicateRowsDF.iloc[1])):
-                    # if duplicateRowsDF.iloc[1] is False, the first value is single
-                    index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
-                    
-                if (duplicateRowsDF.index[index_of_interest[0]-1]):
-                    #if (duplicateRowsDF.iloc[-1] is True, the last value is double
-                    index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-1]+1
-                elif (~(duplicateRowsDF.index[index_of_interest[0]-1])):
-                    # if duplicateRowsDF.iloc[-1] is False, the last value is single
-                    index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-2]+1
-                #Apparement y'a pas besoin de index_end
-            
+
             else:
                 #Do the classical processing steps
-                continue
-        
-            #1. select the begining of the df_master_file of concern
-            #Select the first and last seconds of the timearr
-            value_begin=df_file_being_read['timearr_floor'].iloc[0]
-            value_end=df_file_being_read['timearr_floor'].iloc[-1]
-            
-            #Sort out whether the first 'seconds' value is single or doubled
-            dupli=df_file_being_read['timearr_floor']
-            duplicateRowsDF = dupli.duplicated()
-        
+                #1. Identify the value of beginign and end for selection in master file
+                #Select the first and last seconds of the timearr
+                value_begin=df_file_being_read['timearr_floor'].iloc[0]
+                value_end=df_file_being_read['timearr_floor'].iloc[-1]
+
+                #Sort out whether the first 'seconds' value is single or doubled
+                dupli=df_file_being_read['timearr_floor']
+                duplicateRowsDF = dupli.duplicated()
+                                
+            #We need index_begin, but not index_end. However, I keep the calculation for index_end in case.
             if (duplicateRowsDF.iloc[1]):
                 #if (duplicateRowsDF.iloc[1] is True, the first value is double
                 index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[0]
@@ -248,14 +227,15 @@ for folder_year in folder_years:
                 # if duplicateRowsDF.iloc[1] is False, the first value is single
                 index_begin=df_master_file[df_master_file['seconds_gps']==value_begin]['index_gps'].iloc[1]
                 
-            if (duplicateRowsDF.iloc[-1]):
-                #if (duplicateRowsDF.iloc[-1] is True, the last value is double
-                index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-1]+1
-            elif (~(duplicateRowsDF.iloc[-1])):
-                # if duplicateRowsDF.iloc[-1] is False, the last value is single
-                index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-2]+1
-            
-            
+            ################## I am keeping that just in case #################
+            #if (duplicateRowsDF.iloc[-1]):
+            #    #if (duplicateRowsDF.iloc[-1] is True, the last value is double
+            #    index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-1]+1
+            #elif (~(duplicateRowsDF.iloc[-1])):
+            #    # if duplicateRowsDF.iloc[-1] is False, the last value is single
+            #    index_end=df_master_file[df_master_file['seconds_gps']==value_end]['index_gps'].iloc[-2]+1
+            ################### I am keeping that just in case #################
+ 
 ####################### What is in here can be removed #######################
             #Select the corresponding slice of df_master_file:
             #df_slice=df_master_file.iloc[index_begin:index_end]
@@ -300,7 +280,7 @@ for folder_year in folder_years:
             #pdb.set_trace()
             
             #for i in range(0,len(join_duplicates),1):
-            while (i_timearr<len(df_file_being_read)):
+            while (i_timearr<(file_being_read['filtfin'].shape[1]):
                 #if (i_timearr>=len(df_file_being_read)):
                 #    print('break out')
                 #    break
