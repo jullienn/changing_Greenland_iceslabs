@@ -122,28 +122,36 @@ for folder_year in folder_years:
             
             filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+indiv_file.replace(".mat","")+"_aggregated"
 
-            
             ###################################################################
-            ### Investigate on the low quality files based on the quality file:
-            ### Here are the dates having a least one column that is not 100%
-            ### quality:
-            ### may11_03_28,1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
-            ### may11_03_40,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,940), size(timearr)=(1,1000), reset of timearr at index 940 => only data in the first 940 index!
-            ### may11_03_9, 1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,740), size(timearr)=(1,1000), reset of timearr at index 740 => only data in the first 740 index!
-            ### may12_03_13,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,80), size(timearr)=(1,1000), reset of timearr at index 80 => only data in the first 80 index!
-            ### may12_03_17,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,990), size(timearr)=(1,1000), reset of timearr at index 990 => only data in the first 990 index!
-            ### may12_03_38,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,850), size(timearr)=(1,1000), reset of timearr at index 850 => only data in the first 850 index!
-            ### may12_03_39,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,40), size(timearr)=(1,1000), reset of timearr at index 40 => only data in the first 40 index! Attention, another reset at index=850.
-            ### may12_03_44,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,310), size(timearr)=(1,1000), reset of timearr at index 310 => only data in the first 310 index!
-            ### may13_03_3, 1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
-            ### may13_03_30,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,330), size(timearr)=(1,1000), reset of timearr at index 330 => only data in the first 330 index!
-            ### may14_03_11,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,10), size(timearr)=(1,1000), reset of timearr at index 10 => only data in the first 10 index!
-            ### may14_03_15,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,40), size(timearr)=(1,1000), reset of timearr at index 40 => only data in the first 40 index!
-            ### may14_03_52,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,50), size(timearr)=(1,1000), reset of timearr at index 50 => only data in the first 50 index!
-            ### may15_03_3, 1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,330), size(timearr)=(1,1000), reset of timearr at index 330 => only data in the first 330 index!
-            ### may15_03_37,1,1,1,1,1,3,0: Same issue as pb type 2: size(filtfin)=(4095,750), size(timearr)=(1,1000), reset of timearr at index 750 => only data in the first 750 index!
+            ### Investigate on the files having issues
+            ### 1. Problem type 1:
+                
+            ### may11_03_40,1,1,1,1,1,3,0: size(filtfin)=(4095,940), size(timearr)=(1,1000), reset of timearr at index 940 => only data in the first 940 index!
+            ### may11_03_9, 1,1,1,1,1,3,0: size(filtfin)=(4095,740), size(timearr)=(1,1000), reset of timearr at index 740 => only data in the first 740 index!
+            ### may12_03_13,1,1,1,1,1,3,0: size(filtfin)=(4095,80), size(timearr)=(1,1000), reset of timearr at index 80 => only data in the first 80 index!
+            ### may12_03_17,1,1,1,1,1,3,0: size(filtfin)=(4095,990), size(timearr)=(1,1000), reset of timearr at index 990 => only data in the first 990 index!
+            ### may12_03_38,1,1,1,1,1,3,0: size(filtfin)=(4095,850), size(timearr)=(1,1000), reset of timearr at index 850 => only data in the first 850 index!
+            ### may12_03_39,1,1,1,1,1,3,0: size(filtfin)=(4095,40), size(timearr)=(1,1000), reset of timearr at index 40 => only data in the first 40 index! Attention, another reset at index=850.
+            ### may12_03_44,1,1,1,1,1,3,0: size(filtfin)=(4095,310), size(timearr)=(1,1000), reset of timearr at index 310 => only data in the first 310 index!
+            ### may13_03_30,1,1,1,1,1,3,0: size(filtfin)=(4095,330), size(timearr)=(1,1000), reset of timearr at index 330 => only data in the first 330 index!
+            ### may14_03_11,1,1,1,1,1,3,0: size(filtfin)=(4095,10), size(timearr)=(1,1000), reset of timearr at index 10 => only data in the first 10 index!
+            ### may14_03_15,1,1,1,1,1,3,0: size(filtfin)=(4095,40), size(timearr)=(1,1000), reset of timearr at index 40 => only data in the first 40 index!
+            ### may14_03_52,1,1,1,1,1,3,0: size(filtfin)=(4095,50), size(timearr)=(1,1000), reset of timearr at index 50 => only data in the first 50 index!
+            ### may15_03_3, 1,1,1,1,1,3,0: size(filtfin)=(4095,330), size(timearr)=(1,1000), reset of timearr at index 330 => only data in the first 330 index!
+            ### may15_03_37,1,1,1,1,1,3,0: size(filtfin)=(4095,750), size(timearr)=(1,1000), reset of timearr at index 750 => only data in the first 750 index!
+            ### may18_02_30 : size(filtfin)=(4095,230), size(timearr)=(1,1000), reset of timearr at index 230 => only data in the first 230 index!
+            ### may09_03_24 : size(filtfin)=(4095,320), size(timearr)=(1,1000), reset of timearr at index 320 => only data in the first 320 index!
+            ### may09_03_42 : size(filtfin)=(4095,330), size(timearr)=(1,1000), reset of timearr at index 330 => only data in the first 330 index!
+            ### may11_03_15 : size(filtfin)=(4095,10), size(timearr)=(1,1000), reset of timearr at index 10 => only data in the first 10 index!
+            ### may11_03_18 : size(filtfin)=(4095,560), size(timearr)=(1,1000), reset of timearr at index 560 => only data in the first 560 index!
+            ### -> Action needed for these files!
             
-            if (indiv_file=='may15_03_37.mat'):
+            ### 2. Problem type 2:
+            
+            ### may11_03_28,1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
+            ### may13_03_3, 1,1,1,1,1,3,2: the last 'seconds' of df_file_being_read is absent in df_master_file (=jump in df_master_file <=>last row is filled with 0). This is why the last quality index=2. This date is safe and reliable!
+            ### -> No action needed for these files, they are clean
+            if (indiv_file=='may11_03_18.mat'):
                 inv='YES'
                 print('Investigating file: '+indiv_file)
                 pdb.set_trace()
@@ -153,83 +161,6 @@ for folder_year in folder_years:
                 inv='NO'
                 print(indiv_file.replace(".mat","")+"_aggregated"+' file exist, move on to the next date')
                 continue
-            
-            ###################################################################
-            ### Problems in these files are identical, the way of solving ####
-            ### the issue should be the same for the following files: #########
-            ### may18_02_30, may09_03_24, may09_03_42, may11_03_15, may11_03_18
-            
-            if (indiv_file=='may18_02_30.mat'):
-                #This file looks corrupted:
-                #value_begin=1021736384
-                #value_end=1021736383
-                #At index 230, the timearr=1021735999 while at index 230 timearr=1021736498
-                #Bare this issue in mind when analyting traces!
-                
-                # Investigation on December 3rd, 2020
-                # size(filtfin)=(4095,230), size(timearr)=(1,1000)
-                # reset of timearr at index 230
-                # => only data in the first 230 index!
-                print(indiv_file+' file not complete')
-                continue
-            
-            if (indiv_file=='may09_03_24.mat'):
-                #This file looks corrupted:
-                #value_begin=1052493673
-                #value_end=1052493673
-                #At index 320, the timearr=1052493833 while at index 230 timearr=1052493333
-                #Bare this issue in mind when analyting traces!
-                
-                # Investigation on December 3rd, 2020
-                # size(filtfin)=(4095,320), size(timearr)=(1,1000)
-                # reset of timearr at index 320
-                # => only data in the first 320 index!
-                print(indiv_file+' file not complete')
-                continue
-            
-            if (indiv_file=='may09_03_42.mat'):
-                #This file looks corrupted:
-                #value_begin=1052502888
-                #value_end=1052502887
-                #At index 330, the timearr=1052502553 while at index 329 timearr=1052503052
-                #Bare this issue in mind when analyting traces!
-                
-                # Investigation on December 3rd, 2020
-                # size(filtfin)=(4095,330), size(timearr)=(1,1000)
-                # reset of timearr at index 330
-                # => only data in the first 330 index!
-                print(indiv_file+' file not complete')
-                continue
-            
-            if (indiv_file=='may11_03_15.mat'):
-                #This file looks corrupted:
-                #value_begin=1052660053
-                #value_end=1052660053
-                #At index 10, the timearr=1052659558 while at index 9 timearr=1052660058
-                #Bare this issue in mind when analyting traces!
-                
-                # Investigation on December 3rd, 2020
-                # size(filtfin)=(4095,10), size(timearr)=(1,1000)
-                # reset of timearr at index 10
-                # => only data in the first 10 index!
-                print(indiv_file+' file not complete')
-                continue
-            
-            if (indiv_file=='may11_03_18.mat'):
-                #This file looks corrupted:
-                #value_begin=1052662417
-                #value_end=1052662417
-                #At index 560, the timearr=1052662197 while at index 559 timearr=1052662697
-                #Bare this issue in mind when analyting traces!
-                
-                # Investigation on December 3rd, 2020
-                # size(filtfin)=(4095,560), size(timearr)=(1,1000)
-                # reset of timearr at index 560
-                # => only data in the first 560 index!
-                print(indiv_file+' file not complete')
-                continue
-            
-            ###################################################################
 
             #Load the file
             file_being_read=[]
