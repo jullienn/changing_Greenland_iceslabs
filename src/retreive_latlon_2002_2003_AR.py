@@ -67,10 +67,18 @@ for folder_year in folder_years:
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         
         #If files have already been created, do not process and continue
-        #filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+onlyfiles[0].replace(".mat","")+"_aggregated"
-        #if (os.path.isfile(filename_to_check)):
-        #    print('Aggregated files already existent, move on to the next date')
-        #    continue
+        filename_to_check='D://OIB//2002_2003_export//'+folder_year+'//'+folder_day+'//'+onlyfiles[0].replace(".mat","")+"_aggregated"
+        if (os.path.isfile(filename_to_check)):
+            print('Aggregated files already existent, move on to the next date')
+            continue
+        
+        if (folder_year=='2017_Greenland_P3'):
+            print('2017, no need to process, break. Enf of 2002/2003 dataset aggregation.')
+            break
+        
+        if (folder_day=='jun04'):
+            print('There is no need to aggregate the data for june 04 2002 because they are already in the form of lat/lon/data. However, the vertical dimension is 1401 VS 4095 for others, so there might be an issue with this date in terms of vertical resolution!')
+            continue
         
         ############################# MASTER FILE #############################
         # Load the master file of that date
