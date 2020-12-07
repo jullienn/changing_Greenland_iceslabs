@@ -8,7 +8,8 @@ Created on Sat Dec  5 11:34:11 2020
 #Import packages
 
 import scipy.io
-#import rasterio
+import rasterio
+from rasterio.plot import show
 from matplotlib import pyplot
 import numpy as np
 import h5py
@@ -20,6 +21,9 @@ import pdb
 import pickle
 import os.path
 import os
+
+from pysheds.grid import Grid
+
 
 ##############################################################################
 ############################## Define variables ##############################
@@ -66,10 +70,10 @@ for folder_year in folder_years:
             
             # Read the files of this specific day
             onlyfiles = [f for f in listdir(folder_day_name) if isfile(join(folder_day_name, f))]
-            pdb.set_trace()
+            #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-                pdb.set_trace()
+                #pdb.set_trace()
                 
                 #Open the file and read it
                 f_agg = open(folder_day_name+'/'+indiv_file, "rb")
@@ -83,48 +87,83 @@ for folder_year in folder_years:
                 lat=latlontime['lat_gps']
                 lon=latlontime['lon_gps']
                 
-                #Pick the surface!
+                ###############################################################
+                ##I. Process and plot radar echogram
+                #
+                ##Pick the surface!
+                #
+                ##Select the first 30m of radar echogram
+                ##1. Compute the vertical resolution
+                ##a. Time computation according to John Paden's email.
+                #Nt = radar_echo.shape[0]
+                #Time = t0 + dt*np.arange(1,Nt+1)
+                ##b. Calculate the depth:
+                ##self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+                #depths = v * Time / 2.0
+                #
+                ##2. Select the first 100 meters.
+                #depths_100=depths[depths <= 100]
+                #radar_echo_100=radar_echo[depths <= 100]
+                #
+                ##Plot the first 100m of radar echogram and lat/lon on map
+                #
+                ##ticks_yplot=np.around(np.linspace(0, 1400, 432))
+                ##ticks_yplot=ticks_yplot.astype(int)
+                ##labels_yplot=depths[ticks_yplot]
+                #
+                ##Should I use flipud or not??? np.flipud()
+                #
+                ##Change the size of the figure
+                ##pyplot.rcParams["figure.figsize"]=30,30
+                ##Plot the data
+                #pyplot.figure()
+                #color_map=pyplot.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                #pyplot.ylabel('Depth [m]')
+                #pyplot.xlabel('Horizontal distance')
+                ##pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
+                ##pyplot.xticks(fontsize=20)
+                ##pyplot.yticks(fontsize=20)
+                ##pyplot.ylim(0, 200)
+                #pyplot.title('Radar echogram complete')
+                #cbar=pyplot.colorbar()
+                #cbar.set_label('Signal strength')
+                #pyplot.show()
+                #pdb.set_trace()
+                ##Save the figure
                 
-                #Select the first 30m of radar echogram
-                #1. Compute the vertical resolution
-                #a. Time computation according to John Paden's email.
-                Nt = radar_echo.shape[0]
-                Time = t0 + dt*np.arange(1,Nt+1)
-                #b. Calculate the depth:
-                #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-                depths = v * Time / 2.0
+                ###############################################################
+                #II. Process and plot radar echogram localisation
+                #I need greenland map, contour lines, and plot the traces
+                pdb.set_trace()
                 
-                #2. Select the first 100 meters.
-                depths_100=depths[depths <= 100]
-                radar_echo_100=radar_echo[depths <= 100]
+                #greenland_visual = rasterio.open("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/satellite_image/Greenland_natural_90m.tif")
                 
-                #Plot the first 100m of radar echogram and lat/lon on map
+                #show(greenland_visual)
+                #show(greenland_visual.read(), transform=greenland_visual.transform)
+                #show()
                 
+                #pyplot.imshow(greenland_visual.read(1))
+                #pyplot.show()
+
+                pdb.set_trace()
                 
-                #ticks_yplot=np.around(np.linspace(0, 1400, 432))
-                #ticks_yplot=ticks_yplot.astype(int)
-                #labels_yplot=depths[ticks_yplot]
+                                
+                #Open the DEM
+                grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
+
+                #Minnor slicing on borders to enhance colorbars
+                elevDem=grid.dem[:-1,:-1]
                 
-                #Change the size of the figure
-                #pyplot.rcParams["figure.figsize"]=30,30
-                #Plot the data
-                pyplot.figure()
-                color_map=pyplot.pcolor(radar_echo_100,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-                pyplot.ylabel('Depth [m]')
-                pyplot.xlabel('Horizontal distance')
-                #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
-                #pyplot.xticks(fontsize=20)
-                #pyplot.yticks(fontsize=20)
-                #pyplot.ylim(0, 200)
-                pyplot.title('Radar echogram')
-                cbar=pyplot.colorbar()
-                cbar.set_label('Signal strength')
+                #Scale the colormap
+                divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1500, vmax=3000)
+                
+                #Plot dem
+                pyplot.figure(figsize=(12,10))
+                pyplot.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
+                pyplot.colorbar(label='Elevation [m]')
+                pyplot.grid()
                 pyplot.show()
                 
-                #Save the figure
-                
-        
-        
     else:
         print('Folder',folder_year,', continue ...')
         continue
