@@ -24,6 +24,10 @@ import os
 
 from pysheds.grid import Grid
 
+import osgeo.ogr as ogr
+import osgeo.osr as osr
+
+from pyproj import Transformer
 
 ##############################################################################
 ############################## Define variables ##############################
@@ -36,8 +40,15 @@ t0 = 0; # Unknown so set to zero
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 ##############################################################################
 ############################## Define variables ##############################
-##############################################################################              
+##############################################################################
 
+#Open the DEM
+grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
+#Minnor slicing on borders to enhance colorbars
+elevDem=grid.dem[:-1,:-1]              
+#Scale the colormap
+divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
+                             
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 os.chdir(path) # relative path: scripts dir is under Lab
@@ -134,7 +145,7 @@ for folder_year in folder_years:
                 ###############################################################
                 #II. Process and plot radar echogram localisation
                 #I need greenland map, contour lines, and plot the traces
-                pdb.set_trace()
+                #pdb.set_trace()
                 
                 #greenland_visual = rasterio.open("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/satellite_image/Greenland_natural_90m.tif")
                 
@@ -143,26 +154,59 @@ for folder_year in folder_years:
                 #show()
                 
                 #pyplot.imshow(greenland_visual.read(1))
-                #pyplot.show()
-
-                pdb.set_trace()
-                
-                                
-                #Open the DEM
-                grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
-
-                #Minnor slicing on borders to enhance colorbars
-                elevDem=grid.dem[:-1,:-1]
-                
-                #Scale the colormap
-                divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1500, vmax=3000)
+                #pyplot.show()                
                 
                 #Plot dem
-                pyplot.figure(figsize=(12,10))
+                pyplot.figure(figsize=(24,20))
                 pyplot.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
                 pyplot.colorbar(label='Elevation [m]')
                 pyplot.grid()
-                pyplot.show()
+                
+                #Plot radar track
+                #1. reproject the track from WGS 84 to EPSG 3413
+                #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
+                lon=-lon
+                #pdb.set_trace()
+                
+                #Eample from: https://pyproj4.github.io/pyproj/stable/examples.html
+                transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+                points=transformer.transform(np.array(lon),np.array(lat))
+                
+                lon_3413=points[0]
+                lat_3413=points[1]
+
+                ###############################################################
+                ############# Begin from IceBridgeGPR_Manager_v2.py ###########
+                #'''Return the coordinates in North Polar Stereo projection, in (eastings, northings)'''
+                #points = list(zip(lon, lat))
+                ## 2. Convert all points to Polar Stereo grid projection
+                #gcsSR = osr.SpatialReference()
+                #gcsSR.SetWellKnownGeogCS("WGS84") # WGS84 geographical coordinates
+                #npsSR = osr.SpatialReference()
+                #npsSR.ImportFromEPSG(3413) # NSIDC North Pole Stereographic
+                #GCS_TO_NPS = osr.CoordinateTransformation(gcsSR, npsSR)
+        
+                ## Transform to North Polar Stereo
+                #nps_points = np.array(GCS_TO_NPS.TransformPoints(points))
+                ## Cut off the zero "height" dimension
+                #eastings  = np.array([p[0] for p in nps_points])
+                #northings = np.array([p[1] for p in nps_points])
+                ############# End from IceBridgeGPR_Manager_v2.py #############            
+                ###############################################################
+                
+                #2. plot the tracks
+                pyplot.scatter(lon_3413, lat_3413)
+                pyplot.grid()
+                #pyplot.show()
+                
+                #Create the figure name
+                fig_name=[]
+                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
+                
+                #Save the figure
+                pyplot.savefig(fig_name)
+                
+                
                 
     else:
         print('Folder',folder_year,', continue ...')
