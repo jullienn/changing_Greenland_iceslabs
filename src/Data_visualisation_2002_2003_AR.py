@@ -60,11 +60,11 @@ def kernel_function(traces_input,suggested_pixel):
     # 3) Perform surface pick crawling threshold behavior mask (assume a step-change analysis [goes from weak->strong at surface], and continuity of surface in original file.)
     # Create a step-change mask to optimze where the returns transition from "dark" to "bright"
     MASK_RADIUS = 50
-    vertical_span_mask = numpy.empty([MASK_RADIUS*2,], dtype=numpy.float)
+    vertical_span_mask = np.empty([MASK_RADIUS*2,], dtype=np.float)
     vertical_span_mask[:MASK_RADIUS] = -1.0
     vertical_span_mask[MASK_RADIUS:] = +3.0
     
-    vertical_span_mask = vertical_span_mask * _gaussian(numpy.arange(vertical_span_mask.shape[0]),mu=(MASK_RADIUS-5),sigma=(float(MASK_RADIUS)/3.0))
+    vertical_span_mask = vertical_span_mask * _gaussian(np.arange(vertical_span_mask.shape[0]),mu=(MASK_RADIUS-5),sigma=(float(MASK_RADIUS)/3.0))
     
     # Expand the shape to handle array broadcasting below
     vertical_span_mask.shape = vertical_span_mask.shape[0], 1
@@ -72,7 +72,7 @@ def kernel_function(traces_input,suggested_pixel):
     # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
     MASK_SEARCH_RADIUS = 150
     
-    improved_indices = numpy.empty(traces.shape[1], dtype='int64')
+    improved_indices = np.empty(traces.shape[1], dtype='int64')
     # CHECK THAT traces.shape[1] CORRESPONDS TO HORIZONTAL DISTANCE!
     
     # Start at the left with the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE as starting point
@@ -81,7 +81,7 @@ def kernel_function(traces_input,suggested_pixel):
      
     pdb.set_trace()
     # A template graph to use, just have to add in the center vertical index at each point and go from there.
-    search_indices_template = numpy.sum(numpy.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
+    search_indices_template = numpy.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
     for i in range(traces.shape[1]):
         # Create an array of indices spanning the top-to-bottom of the MASK_SEARCH_RADIUS, and fanning out MASK_RADIUS above and below that point.
         search_indices = search_indices_template + last_best_index
@@ -89,12 +89,12 @@ def kernel_function(traces_input,suggested_pixel):
         search_indices[search_indices < 0] = 0
         search_indices[search_indices >= traces.shape[0]] = traces.shape[0]-1
         
-        bestfit_sum = numpy.sum(traces[:,i][search_indices] * vertical_span_mask, axis=0)
+        bestfit_sum = np.sum(traces[:,i][search_indices] * vertical_span_mask, axis=0)
         
         assert bestfit_sum.shape[0] == 2*MASK_SEARCH_RADIUS
         
         # Get the best fit (with the highest value from the transformation fit)
-        last_best_index = search_indices[MASK_RADIUS,numpy.argmax(bestfit_sum)]
+        last_best_index = search_indices[MASK_RADIUS,np.argmax(bestfit_sum)]
         improved_indices[i] = last_best_index
         
         #If there are pixels with particularly strong echo that are being erroneously
@@ -189,22 +189,14 @@ for folder_year in folder_years:
                 
                 #Pick the surface!
                 #There is no 'Surface' variable in 2002/2003 dataset such as 2010/2014 datset. I have to overcome this issue.
-                
+                pdb.set_trace()
                 # Load the suggested pixel for the specific date
                 for date_pix in lines:
-                    pdb.set_trace()
-                    if (date_pix[0:10]==str(indiv_file.replace("_aggregated",""))):
-                        suggested_pixel=int(date_pix[12:16])
-                
-                #index_pos = lines[0][0:10].index(str(indiv_file.replace("_aggregated","")))
-                #lines[:][0:10].index(str('may18_02_4'))
-                
-
-                #if indiv_file in lines:
-                #    lines
-                #    date_and_pixel=lines[count_ite]
-                    
-                
+                    #pdb.set_trace()
+                    if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                        suggested_pixel=int(date_pix.partition(" ")[2])
+                        #If it has found its suggested pixel, leave the loop
+                        continue               
                 
                 #Call the kernel_function to compute the surface
                 surface_indices=kernel_function(radar_echo, suggested_pixel)
