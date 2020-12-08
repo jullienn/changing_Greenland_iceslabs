@@ -1529,7 +1529,7 @@ class IceBridgeGPR_Track_v2():
 
     def _read_original_surface_picks(self):
         print('-------------------- ENTERING _read_original_surface_picks --------------------')
-
+        pdb.set_trace()
         '''Get the default surface picks from the IceBridge radar.  We will use these to improve it.'''
         if self.LIST_original_surface_picks is not None:
             return self.LIST_original_surface_picks
@@ -1545,7 +1545,7 @@ class IceBridgeGPR_Track_v2():
     def _compute_original_surface_indices(self):
         print('-------------------- ENTERING _compute_original_surface_indices --------------------')
         surface_picks = self._read_original_surface_picks()
-
+        pdb.set_trace()
         # If we won't have the sample times down, get it.
         if self.SAMPLE_TIMES is None:
             self.get_trace_array()
@@ -1578,7 +1578,6 @@ class IceBridgeGPR_Track_v2():
 
     def compute_surface_picks(self, export=True):
         print('-------------------- ENTERING compute_surface_picks --------------------')
-        pdb.set_trace()
 
         # 1) Read original traces, subset them to get any foobars off the barfoos.
         # 2) Get masks from the SURFACE_PICK_GUIDE file
@@ -1597,6 +1596,7 @@ class IceBridgeGPR_Track_v2():
         surface_maskname = ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE
         traces = self._subset_array(self.get_trace_array(), mask=surface_maskname)
         # SHOULD I TAKE LOG HERE?  I THINK SO, LET'S TRY IT FIRST.
+        pdb.set_trace()
         traces = numpy.log10(traces)
         # Get the original indicies to use as a starter
         original_indices = self._subset_array(self._compute_original_surface_indices(), mask=surface_maskname)
@@ -1653,10 +1653,11 @@ class IceBridgeGPR_Track_v2():
         ######################################################################
         ######################################################################
         ######################################################################
-
+        pdb.set_trace()
         # Erase most the little "jump" artifacts in the surface picker.
         improved_indices = self._get_rid_of_false_surface_jumps(improved_indices)
         # Must re-expand the surface indices to account for masked values (filled w/ nan)
+        pdb.set_trace()
         improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
 
         ######################################################################
