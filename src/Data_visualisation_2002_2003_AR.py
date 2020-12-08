@@ -85,6 +85,11 @@ for folder_year in folder_years:
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
                 
+                #If indiv_file is the quality file, continue
+                if (indiv_file[0:7]==('quality')):
+                    #pdb.set_trace()
+                    continue
+                
                 #If figure have already been generated, continue
                 filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
                 if (os.path.isfile(filename_to_check)):
@@ -178,9 +183,8 @@ for folder_year in folder_years:
                 
                 #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
                 lon=-lon
-
-                #pdb.set_trace()
                 
+                #Transform the coordinated from WGS84 to EPSG:3413
                 #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
                 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
                 points=transformer.transform(np.array(lon),np.array(lat))
