@@ -164,18 +164,6 @@ for folder_year in folder_years:
                 #Plot radar track
                 #1. reproject the track from WGS 84 to EPSG 3413             
                
-                #if (indiv_file=='may18_02_10_aggregated'):
-                #    pdb.set_trace()
-                #    
-                #if (indiv_file=='may18_02_18_aggregated'):
-                #    pdb.set_trace()
-                #
-                #if (indiv_file=='may18_02_30_aggregated'):
-                #    pdb.set_trace()
-                #    
-                #if (indiv_file=='may18_02_26_aggregated'):
-                #    pdb.set_trace()
-
                 #Some index have lat and lon equal to 0 because of jumps in data aggregation.
                 #Replace these 0 by NaNs
                 lat.replace(0, np.nan, inplace=True)
@@ -191,25 +179,6 @@ for folder_year in folder_years:
                 
                 lon_3413=points[0]
                 lat_3413=points[1]
-
-                ###############################################################
-                ############# Begin from IceBridgeGPR_Manager_v2.py ###########
-                #'''Return the coordinates in North Polar Stereo projection, in (eastings, northings)'''
-                #points = list(zip(lon, lat))
-                ## 2. Convert all points to Polar Stereo grid projection
-                #gcsSR = osr.SpatialReference()
-                #gcsSR.SetWellKnownGeogCS("WGS84") # WGS84 geographical coordinates
-                #npsSR = osr.SpatialReference()
-                #npsSR.ImportFromEPSG(3413) # NSIDC North Pole Stereographic
-                #GCS_TO_NPS = osr.CoordinateTransformation(gcsSR, npsSR)
-        
-                ## Transform to North Polar Stereo
-                #nps_points = np.array(GCS_TO_NPS.TransformPoints(points))
-                ## Cut off the zero "height" dimension
-                #eastings  = np.array([p[0] for p in nps_points])
-                #northings = np.array([p[1] for p in nps_points])
-                ############# End from IceBridgeGPR_Manager_v2.py #############            
-                ###############################################################
                 
                 #2. plot the tracks
                 pyplot.scatter(lon_3413, lat_3413)
@@ -222,9 +191,7 @@ for folder_year in folder_years:
                 
                 #Save the figure
                 pyplot.savefig(fig_name)
-                
-                
-                
+ 
     else:
         print('Folder',folder_year,', continue ...')
         continue
