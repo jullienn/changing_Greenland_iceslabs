@@ -160,7 +160,7 @@ for folder_year in folder_years:
                 #pyplot.xticks(fontsize=20)
                 #pyplot.yticks(fontsize=20)
                 #pyplot.ylim(0, 200)
-                #pyplot.title('Radar echogram complete: '+indiv_file[0:10])
+                pyplot.title('Radar echogram complete: '+indiv_file[0:10])
                 cbar=pyplot.colorbar()
                 cbar.set_label('Signal strength')
                 pyplot.show()

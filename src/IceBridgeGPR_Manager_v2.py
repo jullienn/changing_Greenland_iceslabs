@@ -1626,7 +1626,8 @@ class IceBridgeGPR_Track_v2():
             last_best_index = original_indices[0]
         else:
             last_best_index = alternate_suggested_pick
-
+            
+        pdb.set_trace()
         # A template graph to use, just have to add in the center vertical index at each point and go from there.
         search_indices_template = numpy.sum(numpy.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
         for i in range(traces.shape[1]):
