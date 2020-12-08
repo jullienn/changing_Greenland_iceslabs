@@ -84,7 +84,12 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-                #pdb.set_trace()
+                
+                #If figure have already been generated, continue
+                filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
+                if (os.path.isfile(filename_to_check)):
+                    print('Figure already existent, move on to the next date')
+                    continue
                 
                 #Open the file and read it
                 f_agg = open(folder_day_name+'/'+indiv_file, "rb")
@@ -144,31 +149,39 @@ for folder_year in folder_years:
                 
                 ###############################################################
                 #II. Process and plot radar echogram localisation
-                #I need greenland map, contour lines, and plot the traces
-                #pdb.set_trace()
-                
-                #greenland_visual = rasterio.open("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/satellite_image/Greenland_natural_90m.tif")
-                
-                #show(greenland_visual)
-                #show(greenland_visual.read(), transform=greenland_visual.transform)
-                #show()
-                
-                #pyplot.imshow(greenland_visual.read(1))
-                #pyplot.show()                
                 
                 #Plot dem
-                pyplot.figure(figsize=(24,20))
+                pyplot.figure(figsize=(48,40))
                 pyplot.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
                 pyplot.colorbar(label='Elevation [m]')
                 pyplot.grid()
                 
                 #Plot radar track
-                #1. reproject the track from WGS 84 to EPSG 3413
+                #1. reproject the track from WGS 84 to EPSG 3413             
+               
+                #if (indiv_file=='may18_02_10_aggregated'):
+                #    pdb.set_trace()
+                #    
+                #if (indiv_file=='may18_02_18_aggregated'):
+                #    pdb.set_trace()
+                #
+                #if (indiv_file=='may18_02_30_aggregated'):
+                #    pdb.set_trace()
+                #    
+                #if (indiv_file=='may18_02_26_aggregated'):
+                #    pdb.set_trace()
+
+                #Some index have lat and lon equal to 0 because of jumps in data aggregation.
+                #Replace these 0 by NaNs
+                lat.replace(0, np.nan, inplace=True)
+                lon.replace(0, np.nan, inplace=True)
+                
                 #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
                 lon=-lon
+
                 #pdb.set_trace()
                 
-                #Eample from: https://pyproj4.github.io/pyproj/stable/examples.html
+                #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
                 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
                 points=transformer.transform(np.array(lon),np.array(lat))
                 
