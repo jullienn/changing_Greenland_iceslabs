@@ -91,10 +91,10 @@ for folder_year in folder_years:
                     continue
                 
                 #If figure have already been generated, continue
-                filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
-                if (os.path.isfile(filename_to_check)):
-                    print('Figure already existent, move on to the next date')
-                    continue
+                #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
+                #if (os.path.isfile(filename_to_check)):
+                #    print('Figure already existent, move on to the next date')
+                #    continue
                 
                 #Open the file and read it
                 f_agg = open(folder_day_name+'/'+indiv_file, "rb")
@@ -109,88 +109,88 @@ for folder_year in folder_years:
                 lon=latlontime['lon_gps']
                 
                 ###############################################################
-                ##I. Process and plot radar echogram
-                #
-                ##Pick the surface!
-                #
-                ##Select the first 30m of radar echogram
-                ##1. Compute the vertical resolution
-                ##a. Time computation according to John Paden's email.
-                #Nt = radar_echo.shape[0]
-                #Time = t0 + dt*np.arange(1,Nt+1)
-                ##b. Calculate the depth:
-                ##self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-                #depths = v * Time / 2.0
-                #
-                ##2. Select the first 100 meters.
-                #depths_100=depths[depths <= 100]
-                #radar_echo_100=radar_echo[depths <= 100]
-                #
-                ##Plot the first 100m of radar echogram and lat/lon on map
-                #
-                ##ticks_yplot=np.around(np.linspace(0, 1400, 432))
-                ##ticks_yplot=ticks_yplot.astype(int)
-                ##labels_yplot=depths[ticks_yplot]
-                #
-                ##Should I use flipud or not??? np.flipud()
-                #
-                ##Change the size of the figure
-                ##pyplot.rcParams["figure.figsize"]=30,30
-                ##Plot the data
-                #pyplot.figure()
-                #color_map=pyplot.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-                #pyplot.ylabel('Depth [m]')
-                #pyplot.xlabel('Horizontal distance')
-                ##pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
-                ##pyplot.xticks(fontsize=20)
-                ##pyplot.yticks(fontsize=20)
-                ##pyplot.ylim(0, 200)
-                #pyplot.title('Radar echogram complete')
-                #cbar=pyplot.colorbar()
-                #cbar.set_label('Signal strength')
-                #pyplot.show()
-                #pdb.set_trace()
-                ##Save the figure
+                #I. Process and plot radar echogram
+                
+                #Pick the surface!
+                
+                #Select the first 30m of radar echogram
+                #1. Compute the vertical resolution
+                #a. Time computation according to John Paden's email.
+                Nt = radar_echo.shape[0]
+                Time = t0 + dt*np.arange(1,Nt+1)
+                #b. Calculate the depth:
+                #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+                depths = v * Time / 2.0
+                
+                #2. Select the first 100 meters.
+                depths_100=depths[depths <= 100]
+                radar_echo_100=radar_echo[depths <= 100]
+                
+                #Plot the first 100m of radar echogram and lat/lon on map
+                
+                #ticks_yplot=np.around(np.linspace(0, 1400, 432))
+                #ticks_yplot=ticks_yplot.astype(int)
+                #labels_yplot=depths[ticks_yplot]
+                
+                #Should I use flipud or not??? np.flipud()
+                
+                #Change the size of the figure
+                #pyplot.rcParams["figure.figsize"]=30,30
+                #Plot the data
+                pyplot.figure()
+                color_map=pyplot.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                pyplot.ylabel('Depth [m]')
+                pyplot.xlabel('Horizontal distance')
+                #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
+                #pyplot.xticks(fontsize=20)
+                #pyplot.yticks(fontsize=20)
+                #pyplot.ylim(0, 200)
+                pyplot.title('Radar echogram complete')
+                cbar=pyplot.colorbar()
+                cbar.set_label('Signal strength')
+                pyplot.show()
+                pdb.set_trace()
+                #Save the figure
                 
                 ###############################################################
                 #II. Process and plot radar echogram localisation
                 
                 #Plot dem
-                pyplot.figure(figsize=(48,40))
-                pyplot.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
-                pyplot.colorbar(label='Elevation [m]')
-                pyplot.grid()
+                #pyplot.figure(figsize=(48,40))
+                #pyplot.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
+                #pyplot.colorbar(label='Elevation [m]')
+                #pyplot.grid()
                 
                 #Plot radar track
                 #1. reproject the track from WGS 84 to EPSG 3413             
                
                 #Some index have lat and lon equal to 0 because of jumps in data aggregation.
                 #Replace these 0 by NaNs
-                lat.replace(0, np.nan, inplace=True)
-                lon.replace(0, np.nan, inplace=True)
+                #lat.replace(0, np.nan, inplace=True)
+                #lon.replace(0, np.nan, inplace=True)
                 
                 #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
-                lon=-lon
+                #lon=-lon
                 
                 #Transform the coordinated from WGS84 to EPSG:3413
                 #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
-                transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-                points=transformer.transform(np.array(lon),np.array(lat))
+                #transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+                #points=transformer.transform(np.array(lon),np.array(lat))
                 
-                lon_3413=points[0]
-                lat_3413=points[1]
+                #lon_3413=points[0]
+                #lat_3413=points[1]
                 
                 #2. plot the tracks
-                pyplot.scatter(lon_3413, lat_3413)
-                pyplot.grid()
+                #pyplot.scatter(lon_3413, lat_3413)
+                #pyplot.grid()
                 #pyplot.show()
                 
                 #Create the figure name
-                fig_name=[]
-                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
+                #fig_name=[]
+                #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
                 
                 #Save the figure
-                pyplot.savefig(fig_name)
+                #pyplot.savefig(fig_name)
  
     else:
         print('Folder',folder_year,', continue ...')
