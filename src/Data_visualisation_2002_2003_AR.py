@@ -49,13 +49,17 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 #_gaussian function taken from IceBridgeGPR_Manager_v2.py
 # Define a quick guassian function to scale the cutoff mask above
 def _gaussian(x,mu,sigma):
-    return numpy.exp(-numpy.power((x-mu)/sigma, 2.)/2.)
+    return np.exp(-np.power((x-mu)/sigma, 2.)/2.)
 
 #This function have been taken from 'IceBridgeGPR_Manager_v2.py
 def kernel_function(traces_input,suggested_pixel):
+    pdb.set_trace()
+    
     traces = traces_input
-    traces = np.log10(traces)
-    # We do not have the original indicies to use as a starter
+    #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
+    #traces = np.log10(traces)
+    
+    # We do not have the original indicies to use as a starter so we use our suggestion for surface picking start
     
     # 3) Perform surface pick crawling threshold behavior mask (assume a step-change analysis [goes from weak->strong at surface], and continuity of surface in original file.)
     # Create a step-change mask to optimze where the returns transition from "dark" to "bright"
@@ -73,7 +77,7 @@ def kernel_function(traces_input,suggested_pixel):
     MASK_SEARCH_RADIUS = 150
     
     improved_indices = np.empty(traces.shape[1], dtype='int64')
-    # CHECK THAT traces.shape[1] CORRESPONDS TO HORIZONTAL DISTANCE!
+    #traces.shape[1] indeed correspond to the horizontal distance
     
     # Start at the left with the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE as starting point
     
@@ -81,7 +85,7 @@ def kernel_function(traces_input,suggested_pixel):
      
     pdb.set_trace()
     # A template graph to use, just have to add in the center vertical index at each point and go from there.
-    search_indices_template = numpy.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
+    search_indices_template = np.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
     for i in range(traces.shape[1]):
         # Create an array of indices spanning the top-to-bottom of the MASK_SEARCH_RADIUS, and fanning out MASK_RADIUS above and below that point.
         search_indices = search_indices_template + last_best_index
@@ -105,7 +109,8 @@ def kernel_function(traces_input,suggested_pixel):
         #I do not use any mask so I think I shouldn't need to use that:
         ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
         ##### improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
-        
+    
+    pdb.set_trace()
     return improved_indices
     
 ##############################################################################
@@ -171,7 +176,6 @@ for folder_year in folder_years:
                 #    print('Figure already existent, move on to the next date')
                 #    continue
                 
-                pdb.set_trace()
                 #Open the file and read it
                 f_agg = open(folder_day_name+'/'+indiv_file, "rb")
                 data = pickle.load(f_agg)
@@ -197,7 +201,7 @@ for folder_year in folder_years:
                         suggested_pixel=int(date_pix.partition(" ")[2])
                         #If it has found its suggested pixel, leave the loop
                         continue               
-                
+                pdb.set_trace()
                 #Call the kernel_function to compute the surface
                 surface_indices=kernel_function(radar_echo, suggested_pixel)
                 
@@ -246,6 +250,7 @@ for folder_year in folder_years:
                 #Change the size of the figure
                 #pyplot.rcParams["figure.figsize"]=30,30
                 #Plot the data
+                pyplot.figure(figsize=(48,40))
                 pyplot.figure()
                 color_map=pyplot.pcolor(np.flipud(radar_echo),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                 pyplot.ylabel('Depth [m]')
