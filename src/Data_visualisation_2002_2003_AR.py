@@ -39,7 +39,9 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-raw_radar_echograms='TRUE'
+raw_radar_echograms='FALSE'
+plot_radar_echogram_slice='TRUE'
+plot_radar_loc='FALSE'
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -220,12 +222,6 @@ for folder_year in folder_years:
                     #pdb.set_trace()
                     continue
                 
-                ##If figure have already been generated, continue
-                #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
-                #if (os.path.isfile(filename_to_check)):
-                #    print('Figure already existent, move on to the next date')
-                #    continue
-                
                 #Open the file and read it
                 f_agg = open(folder_day_name+'/'+indiv_file, "rb")
                 data = pickle.load(f_agg)
@@ -246,20 +242,28 @@ for folder_year in folder_years:
                 #b. Calculate the depth:
                 #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
                 depths = v * Time / 2.0
-                pdb.set_trace()
+                
+                #If raw_radar_echograms is set to 'TRUE', then plot the raw
+                #radar echogram of that date and save it
                 if (raw_radar_echograms):
-                    #If raw_radar_echograms is set to 'TRUE', then plot the raw
-                    #radar echogram of that date
-                    
+                    #If figure have already been generated, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
+
                     #Plot the raw radar echogram
                     pyplot.figure(figsize=(48,40))
+                    
+                    #Change label font
+                    pyplot.rcParams.update({'font.size': 40})
+                    
                     #pyplot.figure()
                     color_map=pyplot.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
                     pyplot.ylabel('Depth [m]')
                     pyplot.xlabel('Horizontal distance')
-     
-                    pyplot.title('Raw radar echogram: '+indiv_file[0:10])
+                    pyplot.title('Raw radar echogram: '+indiv_file.replace("_aggregated",""))
                     cbar=pyplot.colorbar()
                     cbar.set_label('Signal strength')
 
@@ -270,122 +274,148 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name)
                     pyplot.clf()
+                
+                #If plot_radar_echogram_slice is set to 'TRUE', then plot the slice
+                #radar echogram of that date and save it
+                if (plot_radar_echogram_slice):
+                    #If figure have already been generated, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
                     
-                    continue
-                
-                ###############################################################
-                #I. Process and plot radar echogram
-                
-                #Pick the surface!
-                #There is no 'Surface' variable in 2002/2003 dataset such as 2010/2014 datset. I have to overcome this issue.
-                #pdb.set_trace()
-                # Load the suggested pixel for the specific date
-                for date_pix in lines:
-                    #pdb.set_trace()
-                    if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
-                        suggested_pixel=int(date_pix.partition(" ")[2])
-                        #If it has found its suggested pixel, leave the loop
-                        continue               
-                #pdb.set_trace()
-                #Call the kernel_function to compute the surface
-                surface_indices=kernel_function(radar_echo, suggested_pixel)
-                
-                #Define the uppermost and lowermost limits
-                meters_cutoff_above=0
-                meters_cutoff_below=30
-                
-                #2. Select the first 30 meters.
-                # Get our slice
-                radar_slice = _return_radar_slice_given_surface(radar_echo,
-                                                                depths,
-                                                                surface_indices,
-                                                                meters_cutoff_above=meters_cutoff_above,
-                                                                meters_cutoff_below=meters_cutoff_below)
-                # I have taken and adatped the functions '_return_radar_slice_given_surface' and
-                # '_radar_slice_indices_above_and_below' from 'IceBridgeGPR_Manager_v2.py'
-                # and it seems to correctly selecting the slice! I did not manually check
-                # by looking in the variables it the job was done correctly but I have
-                # checked several variables such as idx_above, idx_below, output traces
-                # and it seems okay to me!
+                    #I. Process and plot radar echogram
+                    #I.a. Load the surface suggestion pick (there is no 'Surface'
+                    # variable in 2002/2003 dataset such as 2010/2014 datset).
 
-                ##############################################################
-                ############### Begin explanations on pcolor #################
-                
-                #Explainations on how pcolor works. I convinced myself doing a small example that I plotted.
-                #Further explanations: https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.pcolor.html#:~:text=pcolor()%20displays%20all%20columns,Similarly%20for%20the%20rows.
-                #Example: I have a matrix Z that I want to plot
-                
-                #Z=[10,3,24,70,                            40,5,48,22
-                #    2,6,87,21,      ----pcolor(Z)--->     2,6,87,21
-                #    40,5,48,22]                           10,3,24,70
-                
-                #I must use np.flipud(), or invert the y axis to display the data from top to bottom.
-                
-                ################ End explanations on pcolor ##################
-                ##############################################################
-                
-                #Plot the first 30m of radar echogram and lat/lon on map
+                    # Load the suggested pixel for the specific date
+                    for date_pix in lines:
+                        if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                            suggested_pixel=int(date_pix.partition(" ")[2])
+                            #If it has found its suggested pixel, leave the loop
+                            continue               
 
-                #Change the size of the figure
-                #pyplot.rcParams["figure.figsize"]=30,30
-                #Plot the data
-                pyplot.figure(figsize=(48,40))
-                pyplot.figure()
-                color_map=pyplot.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-                pyplot.gca().invert_yaxis() #Imvert the y axis = avoid using flipud.
-                pyplot.ylabel('Depth [m]')
-                pyplot.xlabel('Horizontal distance')
-                #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
-                #pyplot.xticks(fontsize=20)
-                #pyplot.yticks(fontsize=20)
-                #pyplot.ylim(0, 200)
-                pyplot.title('Radar echogram slice: '+indiv_file[0:10])
-                cbar=pyplot.colorbar()
-                cbar.set_label('Signal strength')
-                pyplot.show()
-                pdb.set_trace()
-                #Save the figure
+                    #I.b. Call the kernel_function to pick the surface
+                    surface_indices=kernel_function(radar_echo, suggested_pixel)
+                    
+                    #I.c. Select the radar slice
+                    #Define the uppermost and lowermost limits
+                    meters_cutoff_above=0
+                    meters_cutoff_below=30
+                    
+                    #Get our slice (30 meters as currently set)
+                    radar_slice = _return_radar_slice_given_surface(radar_echo,
+                                                                    depths,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=meters_cutoff_above,
+                                                                    meters_cutoff_below=meters_cutoff_below)
+                    # I have taken and adatped the functions '_return_radar_slice_given_surface' and
+                    # '_radar_slice_indices_above_and_below' from 'IceBridgeGPR_Manager_v2.py'
+                    # and it seems to correctly selecting the slice! I did not manually check
+                    # by looking in the variables it the job was done correctly but I have
+                    # checked several variables such as idx_above, idx_below, output traces
+                    # and it seems okay to me!
+    
+                    ##############################################################
+                    ############### Begin explanations on pcolor #################
+                    
+                    #Explainations on how pcolor works. I convinced myself doing a small example that I plotted.
+                    #Further explanations: https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.pcolor.html#:~:text=pcolor()%20displays%20all%20columns,Similarly%20for%20the%20rows.
+                    #Example: I have a matrix Z that I want to plot
+                    
+                    #Z=[10,3,24,70,                            40,5,48,22
+                    #    2,6,87,21,      ----pcolor(Z)--->     2,6,87,21
+                    #    40,5,48,22]                           10,3,24,70
+                    
+                    #I must use np.flipud(), or invert the y axis to display the data from top to bottom.
+                    
+                    ################ End explanations on pcolor ##################
+                    ##############################################################
+                    
+                    #I.d. Plot the radar slice (first 30m of radar echogram)
+                    
+                    #Plot the data
+                    pyplot.figure(figsize=(48,40))
+                    
+                    #Change label font
+                    pyplot.rcParams.update({'font.size': 40})
+                    
+                    color_map=pyplot.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    pyplot.gca().invert_yaxis() #Imvert the y axis = avoid using flipud.
+                    pyplot.ylabel('Depth [m]')
+                    pyplot.xlabel('Horizontal distance')
+                    #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
+                    #pyplot.xticks(fontsize=20)
+                    #pyplot.yticks(fontsize=20)
+                    #pyplot.ylim(0, 200)
+                    pyplot.title('Radar echogram slice: '+indiv_file.replace("_aggregated",""))
+
+                    cbar=pyplot.colorbar()
+                    cbar.set_label('Signal strength')
+                    #pyplot.show()
+                    pdb.set_trace()
+                    
+                    #Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/'+indiv_file+'.png'
+                    
+                    #Save the figure
+                    pyplot.savefig(fig_name)
+                    pyplot.clf()
                 
-                ###############################################################
-                #II. Process and plot radar echogram localisation
+                #If plot_radar_loc is set to 'TRUE', then plot the location of
+                #radar echogram of that date and save it
+                if (plot_radar_loc):
+                    #If figure have already been generated, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
+                    
+                    #II. Plot radar echogram localisation
+                    
+                    #II.a. Plot dem
+                    pyplot.figure(figsize=(48,40))
+                    
+                    #Change label font
+                    pyplot.rcParams.update({'font.size': 40})
+                    
+                    pyplot.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
+                    pyplot.colorbar(label='Elevation [m]')
+                    pyplot.grid()
+                    pyplot.title('Radar echogram location: '+indiv_file.replace("_aggregated",""))
+   
+                    #II.b. Plot radar track
+                    #II.b.1. Reproject the track from WGS 84 to EPSG 3413
+                    #Some index have lat and lon equal to 0 because of jumps in data aggregation.
+                    #Replace these 0 by NaNs
+                    lat.replace(0, np.nan, inplace=True)
+                    lon.replace(0, np.nan, inplace=True)
+                    
+                    #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
+                    lon=-lon
+                    
+                    #Transform the coordinated from WGS84 to EPSG:3413
+                    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+                    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+                    points=transformer.transform(np.array(lon),np.array(lat))
+                    
+                    lon_3413=points[0]
+                    lat_3413=points[1]
+                    
+                    #II.b.2. Plot the tracks
+                    pyplot.scatter(lon_3413, lat_3413)
+                    pyplot.grid()
+                    #pyplot.show()
+                    
+                    #Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
+                    
+                    #Save the figure
+                    pyplot.savefig(fig_name)
+                    pyplot.clf()
                 
-                ##Plot dem
-                #pyplot.figure(figsize=(48,40))
-                #pyplot.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
-                #pyplot.colorbar(label='Elevation [m]')
-                #pyplot.grid()
-                #
-                ##Plot radar track
-                ##1. reproject the track from WGS 84 to EPSG 3413             
-                #
-                ##Some index have lat and lon equal to 0 because of jumps in data aggregation.
-                ##Replace these 0 by NaNs
-                #lat.replace(0, np.nan, inplace=True)
-                #lon.replace(0, np.nan, inplace=True)
-                #
-                ##Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
-                #lon=-lon
-                #
-                ##Transform the coordinated from WGS84 to EPSG:3413
-                ##Example from: https://pyproj4.github.io/pyproj/stable/examples.html
-                #transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-                #points=transformer.transform(np.array(lon),np.array(lat))
-                #
-                #lon_3413=points[0]
-                #lat_3413=points[1]
-                #
-                ##2. plot the tracks
-                #pyplot.scatter(lon_3413, lat_3413)
-                #pyplot.grid()
-                ##pyplot.show()
-                #
-                ##Create the figure name
-                #fig_name=[]
-                #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
-                #
-                ##Save the figure
-                #pyplot.savefig(fig_name)
-                #pyplot.clf()
  
     else:
         print('Folder',folder_year,', continue ...')
