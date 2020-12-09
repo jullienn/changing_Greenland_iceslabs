@@ -38,6 +38,8 @@ t0 = 0; # Unknown so set to zero
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+
+raw_radar_echograms='TRUE'
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -53,7 +55,7 @@ def _gaussian(x,mu,sigma):
 
 #This function have been taken from 'IceBridgeGPR_Manager_v2.py
 def kernel_function(traces_input,suggested_pixel):
-    pdb.set_trace()
+    #pdb.set_trace()
     
     traces = traces_input
     #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
@@ -83,7 +85,7 @@ def kernel_function(traces_input,suggested_pixel):
     
     last_best_index = suggested_pixel
      
-    pdb.set_trace()
+    #pdb.set_trace()
     # A template graph to use, just have to add in the center vertical index at each point and go from there.
     search_indices_template = np.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
     for i in range(traces.shape[1]):
@@ -110,7 +112,7 @@ def kernel_function(traces_input,suggested_pixel):
         ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
         ##### improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
     
-    pdb.set_trace()
+    #pdb.set_trace()
     return improved_indices
 ##############################################################################
 ############# Define kernel function for surface identification ##############
@@ -120,7 +122,7 @@ def kernel_function(traces_input,suggested_pixel):
 ################## Define functions for radar slice picking ##################
 ##############################################################################
 def _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths):
-    pdb.set_trace()
+    #pdb.set_trace()
 
     delta_distance = np.mean(depths[1:] - depths[:-1])
     idx_above = int(np.round(float(meters_cutoff_above) / delta_distance))
@@ -140,7 +142,7 @@ def _return_radar_slice_given_surface(traces,
     Return value:
     A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
     '''
-    pdb.set_trace()
+    #pdb.set_trace()
     idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
 
     output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
@@ -159,7 +161,7 @@ def _return_radar_slice_given_surface(traces,
                 print(i, s, traces.shape)
                 assert False
             output_traces[:,i] = traces[start:end, i]
-    pdb.set_trace()
+    #pdb.set_trace()
     return output_traces
 ##############################################################################
 ################## Define functions for radar slice picking ##################
@@ -244,13 +246,39 @@ for folder_year in folder_years:
                 #b. Calculate the depth:
                 #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
                 depths = v * Time / 2.0
+                pdb.set_trace()
+                if (raw_radar_echograms):
+                    #If raw_radar_echograms is set to 'TRUE', then plot the raw
+                    #radar echogram of that date
+                    
+                    #Plot the raw radar echogram
+                    pyplot.figure(figsize=(48,40))
+                    #pyplot.figure()
+                    color_map=pyplot.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
+                    pyplot.ylabel('Depth [m]')
+                    pyplot.xlabel('Horizontal distance')
+     
+                    pyplot.title('Raw radar echogram: '+indiv_file[0:10])
+                    cbar=pyplot.colorbar()
+                    cbar.set_label('Signal strength')
+
+                    #Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/'+indiv_file+'.png'
+                    
+                    #Save the figure
+                    pyplot.savefig(fig_name)
+                    pyplot.clf()
+                    
+                    continue
                 
                 ###############################################################
                 #I. Process and plot radar echogram
                 
                 #Pick the surface!
                 #There is no 'Surface' variable in 2002/2003 dataset such as 2010/2014 datset. I have to overcome this issue.
-                pdb.set_trace()
+                #pdb.set_trace()
                 # Load the suggested pixel for the specific date
                 for date_pix in lines:
                     #pdb.set_trace()
@@ -258,7 +286,7 @@ for folder_year in folder_years:
                         suggested_pixel=int(date_pix.partition(" ")[2])
                         #If it has found its suggested pixel, leave the loop
                         continue               
-                pdb.set_trace()
+                #pdb.set_trace()
                 #Call the kernel_function to compute the surface
                 surface_indices=kernel_function(radar_echo, suggested_pixel)
                 
@@ -266,6 +294,7 @@ for folder_year in folder_years:
                 meters_cutoff_above=0
                 meters_cutoff_below=30
                 
+                #2. Select the first 30 meters.
                 # Get our slice
                 radar_slice = _return_radar_slice_given_surface(radar_echo,
                                                                 depths,
@@ -278,18 +307,7 @@ for folder_year in folder_years:
                 # by looking in the variables it the job was done correctly but I have
                 # checked several variables such as idx_above, idx_below, output traces
                 # and it seems okay to me!
-                                
-                #2. Select the first 100 meters.
-                #depths_100=depths[depths <= 100]
-                #radar_echo_100=radar_echo[depths <= 100]
-                
-                #Plot the first 100m of radar echogram and lat/lon on map
-                pdb.set_trace()
-                
-                #ticks_yplot=np.around(np.linspace(0, 1400, 432))
-                #ticks_yplot=ticks_yplot.astype(int)
-                #labels_yplot=depths[ticks_yplot]
-                
+
                 ##############################################################
                 ############### Begin explanations on pcolor #################
                 
@@ -301,24 +319,27 @@ for folder_year in folder_years:
                 #    2,6,87,21,      ----pcolor(Z)--->     2,6,87,21
                 #    40,5,48,22]                           10,3,24,70
                 
-                #I must use np.flipud() to display the data from top to bottom.
+                #I must use np.flipud(), or invert the y axis to display the data from top to bottom.
                 
                 ################ End explanations on pcolor ##################
                 ##############################################################
                 
+                #Plot the first 30m of radar echogram and lat/lon on map
+
                 #Change the size of the figure
                 #pyplot.rcParams["figure.figsize"]=30,30
                 #Plot the data
                 pyplot.figure(figsize=(48,40))
                 pyplot.figure()
-                color_map=pyplot.pcolor(np.flipud(radar_echo),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                color_map=pyplot.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                pyplot.gca().invert_yaxis() #Imvert the y axis = avoid using flipud.
                 pyplot.ylabel('Depth [m]')
                 pyplot.xlabel('Horizontal distance')
                 #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
                 #pyplot.xticks(fontsize=20)
                 #pyplot.yticks(fontsize=20)
                 #pyplot.ylim(0, 200)
-                pyplot.title('Radar echogram complete: '+indiv_file[0:10])
+                pyplot.title('Radar echogram slice: '+indiv_file[0:10])
                 cbar=pyplot.colorbar()
                 cbar.set_label('Signal strength')
                 pyplot.show()
