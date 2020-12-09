@@ -112,9 +112,57 @@ def kernel_function(traces_input,suggested_pixel):
     
     pdb.set_trace()
     return improved_indices
-    
 ##############################################################################
 ############# Define kernel function for surface identification ##############
+##############################################################################
+
+##############################################################################
+################## Define functions for radar slice picking ##################
+##############################################################################
+def _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths):
+    pdb.set_trace()
+
+    delta_distance = np.mean(depths[1:] - depths[:-1])
+    idx_above = int(np.round(float(meters_cutoff_above) / delta_distance))
+    # Add one to the index below to include that last pixel when array-slicing
+    idx_below = int(np.round(float(meters_cutoff_below) / delta_distance)) + 1
+
+    return idx_above, idx_below
+
+def _return_radar_slice_given_surface(traces,
+                                      depths,
+                                      surface_indices,
+                                      meters_cutoff_above,
+                                      meters_cutoff_below):
+    '''From this radar track, return a "slice" of the image above and below the surface by
+    (meters_cutoff_above, meters_cutoff_below), respectively.
+
+    Return value:
+    A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
+    '''
+    pdb.set_trace()
+    idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
+
+    output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
+
+    for i,s in enumerate(surface_indices):
+        try:
+            output_traces[:,i] = traces[(s-idx_above):(s+idx_below), i]
+        except ValueError:
+            # If the surf_i is too close to one end of the array or the other, it extends beyond the edge of the array and breaks.
+            if s < idx_above:
+                start, end = None, idx_above+idx_below
+            elif s > (traces.shape[0] - idx_below):
+                start, end = traces.shape[0] - (idx_above + idx_below), None
+            else:
+                # SHouldn't get here.
+                print(i, s, traces.shape)
+                assert False
+            output_traces[:,i] = traces[start:end, i]
+    pdb.set_trace()
+    return output_traces
+##############################################################################
+################## Define functions for radar slice picking ##################
 ##############################################################################
 
 #Open the DEM
@@ -188,6 +236,15 @@ for folder_year in folder_years:
                 lat=latlontime['lat_gps']
                 lon=latlontime['lon_gps']
                 
+                #Select the first 30m of radar echogram
+                #1. Compute the vertical resolution
+                #a. Time computation according to John Paden's email.
+                Nt = radar_echo.shape[0]
+                Time = t0 + dt*np.arange(1,Nt+1)
+                #b. Calculate the depth:
+                #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+                depths = v * Time / 2.0
+                
                 ###############################################################
                 #I. Process and plot radar echogram
                 
@@ -205,21 +262,23 @@ for folder_year in folder_years:
                 #Call the kernel_function to compute the surface
                 surface_indices=kernel_function(radar_echo, suggested_pixel)
                 
+                #Define the uppermost and lowermost limits
+                meters_cutoff_above=0
+                meters_cutoff_below=30
+                
                 # Get our slice
-                #radar_slice = self._return_radar_slice_given_surface(traces,
-                                                             #surface_indices,
-                                                             #meters_cutoff_above=meters_cutoff_above,
-                                                             #meters_cutoff_below=meters_cutoff_below)
-                
-                #Select the first 30m of radar echogram
-                #1. Compute the vertical resolution
-                #a. Time computation according to John Paden's email.
-                Nt = radar_echo.shape[0]
-                Time = t0 + dt*np.arange(1,Nt+1)
-                #b. Calculate the depth:
-                #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-                depths = v * Time / 2.0
-                
+                radar_slice = _return_radar_slice_given_surface(radar_echo,
+                                                                depths,
+                                                                surface_indices,
+                                                                meters_cutoff_above=meters_cutoff_above,
+                                                                meters_cutoff_below=meters_cutoff_below)
+                # I have taken and adatped the functions '_return_radar_slice_given_surface' and
+                # '_radar_slice_indices_above_and_below' from 'IceBridgeGPR_Manager_v2.py'
+                # and it seems to correctly selecting the slice! I did not manually check
+                # by looking in the variables it the job was done correctly but I have
+                # checked several variables such as idx_above, idx_below, output traces
+                # and it seems okay to me!
+                                
                 #2. Select the first 100 meters.
                 #depths_100=depths[depths <= 100]
                 #radar_echo_100=radar_echo[depths <= 100]
