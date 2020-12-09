@@ -40,8 +40,8 @@ t0 = 0; # Unknown so set to zero
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 raw_radar_echograms='FALSE'
-plot_radar_echogram_slice='TRUE'
-plot_radar_loc='FALSE'
+plot_radar_echogram_slice='FALSE'
+plot_radar_loc='TRUE'
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -245,13 +245,14 @@ for folder_year in folder_years:
                 
                 #If raw_radar_echograms is set to 'TRUE', then plot the raw
                 #radar echogram of that date and save it
-                if (raw_radar_echograms):
-                    #If figure have already been generated, continue
+                pdb.set_trace()
+                if (raw_radar_echograms=='TRUE'):
+                    #If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
                         print('Figure already existent, move on to the next date')
                         continue
-
+                    
                     #Plot the raw radar echogram
                     pyplot.figure(figsize=(48,40))
                     
@@ -274,11 +275,13 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name)
                     pyplot.clf()
+                    
+                    continue
                 
                 #If plot_radar_echogram_slice is set to 'TRUE', then plot the slice
                 #radar echogram of that date and save it
-                if (plot_radar_echogram_slice):
-                    #If figure have already been generated, continue
+                if (plot_radar_echogram_slice=='TRUE'):
+                    #If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
                         print('Figure already existent, move on to the next date')
@@ -362,18 +365,19 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name)
                     pyplot.clf()
+                    
+                    continue
                 
                 #If plot_radar_loc is set to 'TRUE', then plot the location of
                 #radar echogram of that date and save it
-                if (plot_radar_loc):
-                    #If figure have already been generated, continue
+                if (plot_radar_loc=='TRUE'):
+                    #If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
                         print('Figure already existent, move on to the next date')
                         continue
                     
                     #II. Plot radar echogram localisation
-                    
                     #II.a. Plot dem
                     pyplot.figure(figsize=(48,40))
                     
@@ -405,6 +409,7 @@ for folder_year in folder_years:
                     
                     #II.b.2. Plot the tracks
                     pyplot.scatter(lon_3413, lat_3413)
+                    pyplot.scatter(lon_3413[0],lat_3413[0],c='green') #Plot the start in green
                     pyplot.grid()
                     #pyplot.show()
                     
@@ -415,6 +420,8 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name)
                     pyplot.clf()
+                    
+                    continue
                 
  
     else:
