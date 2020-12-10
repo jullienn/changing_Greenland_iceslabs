@@ -45,6 +45,9 @@ raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
 plot_slice_and_loc='TRUE'
+
+#N defines the number of different colors I want to use for the elevation plot
+N=20
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -170,6 +173,20 @@ def _return_radar_slice_given_surface(traces,
     return output_traces
 ##############################################################################
 ################## Define functions for radar slice picking ##################
+##############################################################################
+def discrete_cmap(N, base_cmap=None):
+    """Create an N-bin discrete colormap from the specified input map"""
+    #This piece of code is from: https://gist.github.com/jakevdp/91077b0cae40f8f8244a
+    # Note that if base_cmap is a string or None, you can simply do
+    #    return plt.cm.get_cmap(base_cmap, N)
+    # The following works for string, None, or a colormap instance:
+
+    base = pyplot.cm.get_cmap(base_cmap)
+    color_list = base(np.linspace(0, 1, N))
+    cmap_name = base.name + str(N)
+    return base.from_list(cmap_name, color_list, N)
+##############################################################################
+############### Define function for discrete colorbar display ###############
 ##############################################################################
 
 #Open the DEM
@@ -515,7 +532,7 @@ for folder_year in folder_years:
                     
                     #Subplot N°1:
                     #II.a.3. Plot dem
-                    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
+                    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(N,'hot_r'),norm=divnorm)
                     cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
                     cbar1.set_label('Elevation [m]', fontsize=5)
                     ax1.grid()
@@ -541,7 +558,7 @@ for folder_year in folder_years:
                     ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))
                     ax2.set_title('Radar echogram slice',fontsize=5)
-                    ax2.set_ylabel('Depth [m]') #Change the ylabel!!!
+                    ax2.set_ylabel('Depth [m]')
                     ax2.set_xlabel('Horizontal distance')
                     cbar=fig.colorbar(cb)
                     cbar.set_label('Signal strength', fontsize=5)
@@ -559,25 +576,6 @@ for folder_year in folder_years:
                     pyplot.clf()
                     #Plot the data
                     pdb.set_trace()
-
-                    
-
-                    #f, (a0, a1) = pyplot.subplots(1, 2, gridspec_kw={'width_ratios': [3, 1]})
-                    #a0.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-                    #a1.imshow(elevDem, extent=grid.extent,cmap='hot_r',norm=divnorm)
-                    #f.tight_layout()
-                    #pyplot.show()
-                    #f.savefig('grid_figure.pdf')
-                    
-                    #fig3 = plt.figure(constrained_layout=True)
-                    #gs = fig3.add_gridspec(3, 3)
-                    #f3_ax1 = fig3.add_subplot(gs[-1, 0])
-                    #f3_ax1.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-                    #f3_ax1.set_title('gs[-1, 0]')
-                    #f3_ax2 = fig3.add_subplot(gs[0, :-1])
-                    #f3_ax2.scatter(lon_3413, lat_3413)
-                    #f3_ax2.set_title('gs[-1, -2]')
-
                     
                     continue
                 
