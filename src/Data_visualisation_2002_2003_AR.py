@@ -522,8 +522,8 @@ for folder_year in folder_years:
                     ax1.set_title('Radar echogram localisation',fontsize=5)
                     
                     #II.a.4. Plot the tracks
-                    ax1.scatter(lon_3413, lat_3413,s=1)
-                    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=1) #Plot the start in green
+                    ax1.scatter(lon_3413, lat_3413,s=0.1)
+                    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=0.1) #Plot the start in green
                     ax1.grid()
                     
                     #II.b. Plot the radar slice (first 30m of radar echogram)
@@ -535,9 +535,10 @@ for folder_year in folder_years:
                     #Plot the radar slice
                     cb=ax2.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
-                    #pdb.set_trace()
                     ax2.set_aspect('equal') # X scale matches Y scale
-                    #ax2.set_yticklabels(np.arange(0,radar_slice.shape[0]),list(depths[np.arange(0,radar_slice.shape[0])]),fontsize=12)
+                    #In order to display the depth, I used the example 1 of the
+                    #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
+                    ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))
                     ax2.set_title('Radar echogram slice',fontsize=5)
                     ax2.set_ylabel('Depth [m]') #Change the ylabel!!!
@@ -554,7 +555,7 @@ for folder_year in folder_years:
                     fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
                     
                     #Save the figure
-                    pyplot.savefig(fig_name,dpi=1000)
+                    pyplot.savefig(fig_name,dpi=500)
                     pyplot.clf()
                     #Plot the data
                     pdb.set_trace()
