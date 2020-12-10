@@ -47,7 +47,7 @@ plot_radar_loc='FALSE'
 plot_slice_and_loc='TRUE'
 
 #N defines the number of different colors I want to use for the elevation plot
-N=20
+N=10
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -532,7 +532,7 @@ for folder_year in folder_years:
                     
                     #Subplot N°1:
                     #II.a.3. Plot dem
-                    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(N,'hot_r'),norm=divnorm)
+                    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(N,'cubehelix_r'),norm=divnorm)
                     cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
                     cbar1.set_label('Elevation [m]', fontsize=5)
                     ax1.grid()
