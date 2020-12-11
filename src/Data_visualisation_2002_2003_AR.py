@@ -155,10 +155,12 @@ def _return_radar_slice_given_surface(traces,
     idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
 
     output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
-
+    bottom_indices = np.zeros(shape=(1,traces.shape[1]))
+    
     for i,s in enumerate(surface_indices):
         try:
             output_traces[:,i] = traces[(s-idx_above):(s+idx_below), i]
+            bottom_indices[0,i]=(s+idx_below)
         except ValueError:
             # If the surf_i is too close to one end of the array or the other, it extends beyond the edge of the array and breaks.
             if s < idx_above:
@@ -170,8 +172,8 @@ def _return_radar_slice_given_surface(traces,
                 print(i, s, traces.shape)
                 assert False
             output_traces[:,i] = traces[start:end, i]
-    #pdb.set_trace()
-    return output_traces
+            bottom_indices[0,i]=end
+    return output_traces, bottom_indices
 ##############################################################################
 ################## Define functions for radar slice picking ##################
 ##############################################################################
@@ -609,8 +611,9 @@ for folder_year in folder_years:
                     meters_cutoff_above=0
                     meters_cutoff_below=30
                     
+                    pdb.set_trace()
                     #Get our slice (30 meters as currently set)
-                    radar_slice = _return_radar_slice_given_surface(radar_echo,
+                    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
                                                                     depths,
                                                                     surface_indices,
                                                                     meters_cutoff_above=meters_cutoff_above,
@@ -639,7 +642,7 @@ for folder_year in folder_years:
                     
                     #II.b.2. Display the picked surface over it
                     pdb.set_trace()
-                    ax1.plot(np.arange(0,radar_echo.shape[1]),surface_indices,linestyle='--',color='red',linewidth=0.2)
+                    ax1.plot(np.arange(0,radar_echo.shape[1]),surface_indices,linestyle='--',color='red',linewidth=0.1)
                     #II.b.3. Display the bootom picked surface over it
                     #ax1.plot(np.arange(0,radar_echo.shape[1]),surface_indices,linestyle='--',color='magenta')
                     #II.b.4 Set plot properties
