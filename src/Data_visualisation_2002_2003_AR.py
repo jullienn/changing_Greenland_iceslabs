@@ -301,7 +301,7 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name)
                     pyplot.clf()
-                    pdb.set_trace()
+                    
                     continue
                 
                 #If plot_radar_echogram_slice is set to 'TRUE', then plot the slice
@@ -395,8 +395,6 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name)
                     pyplot.clf()
-                    
-                    pdb.set_trace()
 
                     continue
                 
@@ -485,7 +483,7 @@ for folder_year in folder_years:
                     meters_cutoff_below=30
                     
                     #Get our slice (30 meters as currently set)
-                    radar_slice = _return_radar_slice_given_surface(radar_echo,
+                    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
                                                                     depths,
                                                                     surface_indices,
                                                                     meters_cutoff_above=meters_cutoff_above,
