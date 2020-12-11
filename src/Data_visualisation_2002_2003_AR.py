@@ -41,10 +41,11 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
+surf_pick_selection='TRUE'
 raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
-plot_slice_and_loc='TRUE'
+plot_slice_and_loc='FALSE'
 
 #N defines the number of different colors I want to use for the elevation plot
 N=10
@@ -246,7 +247,7 @@ for folder_year in folder_years:
                 f_agg = open(folder_day_name+'/'+indiv_file, "rb")
                 data = pickle.load(f_agg)
                 f_agg.close()
-                
+                                
                 #Select radar echogram and corresponding lat/lon
                 radar_echo=data['radar_echogram']
                 
@@ -376,7 +377,7 @@ for folder_year in folder_years:
                     cbar=pyplot.colorbar()
                     cbar.set_label('Signal strength')
                     #pyplot.show()
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     
                     #Create the figure name
                     fig_name=[]
@@ -445,7 +446,7 @@ for folder_year in folder_years:
                 
                 #If plot_slice_and_loc is set to 'TRUE', then plot the location of
                 #radar echogram AND the radar slice of that date and save it
-                if (plot_slice_and_loc):
+                if (plot_slice_and_loc=='TRUE'):
                     #If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
@@ -575,11 +576,115 @@ for folder_year in folder_years:
                     pyplot.savefig(fig_name,dpi=500)
                     pyplot.clf()
                     #Plot the data
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     
                     continue
                 
- 
+                #If surf_pick_selection is set to 'TRUE', then plot the raw radar
+                # echogram with the surface overlayed AND the radar slice of
+                #that date and save it
+                if (surf_pick_selection=='TRUE'):
+                    #If file have already been created, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
+                                        
+                    #I. Process and radar echogram
+                    #I.a. Load the surface suggestion pick (there is no 'Surface'
+                    # variable in 2002/2003 dataset such as 2010/2014 datset).
+
+                    # Load the suggested pixel for the specific date
+                    for date_pix in lines:
+                        if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                            suggested_pixel=int(date_pix.partition(" ")[2])
+                            #If it has found its suggested pixel, leave the loop
+                            continue               
+
+                    #I.b. Call the kernel_function to pick the surface
+                    surface_indices=kernel_function(radar_echo, suggested_pixel)
+                    
+                    #I.c. Select the radar slice
+                    #Define the uppermost and lowermost limits
+                    meters_cutoff_above=0
+                    meters_cutoff_below=30
+                    
+                    #Get our slice (30 meters as currently set)
+                    radar_slice = _return_radar_slice_given_surface(radar_echo,
+                                                                    depths,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=meters_cutoff_above,
+                                                                    meters_cutoff_below=meters_cutoff_below)
+                    # I have taken and adatped the functions '_return_radar_slice_given_surface' and
+                    # '_radar_slice_indices_above_and_below' from 'IceBridgeGPR_Manager_v2.py'
+                    # and it seems to correctly selecting the slice! I did not manually check
+                    # by looking in the variables it the job was done correctly but I have
+                    # checked several variables such as idx_above, idx_below, output traces
+                    # and it seems okay to me!
+                    pdb.set_trace()
+                    #Create the y vector for plotting
+                    ticks_yplot=np.arange(0,radar_echo.shape[0],200)
+                    
+                    #II. Plot radar echogram localisation
+                    #II.a. Create the subplot
+                    #pdb.set_trace()
+                    pyplot.figure(figsize=(48,40))
+                    pyplot.rcParams.update({'font.size': 5})
+                    fig, (ax1, ax2) = pyplot.subplots(2, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+                    fig.suptitle(indiv_file.replace("_aggregated",""))
+                    
+                    #II.b. Plot the raw radar slice with the surface highlighted
+                    #II.b.1. Plot the raw radar echogram
+                    cb_1=ax1.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    
+                    #II.b.2. Display the picked surface over it
+                    pdb.set_trace()
+                    ax1.plot(np.arange(0,radar_echo.shape[1]),surface_indices,linestyle='--',color='red',linewidth=0.2)
+                    #II.b.3. Display the bootom picked surface over it
+                    #ax1.plot(np.arange(0,radar_echo.shape[1]),surface_indices,linestyle='--',color='magenta')
+                    #II.b.4 Set plot properties
+                    ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
+                    #ax1.set_aspect('equal') # X scale matches Y scale
+                    ax1.set_yticks(ticks_yplot) 
+                    ax1.set_yticklabels(np.round(depths[ticks_yplot]))
+                    ax1.set_title('Raw radar echogram',fontsize=5)
+                    ax1.set_ylabel('Depth [m]')
+                    ax1.set_xlabel('Horizontal distance')                    
+                    cbar1=fig.colorbar(cb_1, ax=[ax1], location='right')
+                    cbar1.set_label('Signal strength', fontsize=5)
+                    
+                    #II.c. Plot the radar slice (first 30m of radar echogram)
+                    
+                    #Create the y vector for plotting
+                    ticks_yplot=np.arange(0,radar_slice.shape[0],20)
+                    
+                    #Plot the radar slice
+                    cb=ax2.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
+                    ax2.set_aspect('equal') # X scale matches Y scale
+                    #In order to display the depth, I used the example 1 of the
+                    #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
+                    ax2.set_yticks(ticks_yplot) 
+                    ax2.set_yticklabels(np.round(depths[ticks_yplot]))
+                    ax2.set_title('Radar echogram slice',fontsize=5)
+                    ax2.set_ylabel('Depth [m]')
+                    ax2.set_xlabel('Horizontal distance')
+                    cbar=fig.colorbar(cb)
+                    cbar.set_label('Signal strength', fontsize=5)
+                    
+                    #pdb.set_trace()
+                    
+                    #Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    
+                    #Save the figure
+                    pyplot.savefig(fig_name,dpi=500)
+                    pyplot.clf()
+                    #Plot the data
+                    pdb.set_trace()
+
+                    
     else:
         print('Folder',folder_year,', continue ...')
         continue
