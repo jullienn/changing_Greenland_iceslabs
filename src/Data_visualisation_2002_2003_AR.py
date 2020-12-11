@@ -42,8 +42,8 @@ t0 = 0; # Unknown so set to zero
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 surf_pick_selection='FALSE'
-raw_radar_echograms='TRUE'
-plot_radar_echogram_slice='FALSE'
+raw_radar_echograms='FALSE'
+plot_radar_echogram_slice='TRUE'
 plot_radar_loc='FALSE'
 plot_slice_and_loc='FALSE'
 
@@ -275,7 +275,6 @@ for folder_year in folder_years:
                         print('Figure already existent, move on to the next date')
                         continue
                     
-                    
                     #Generate the pick for vertical distance display
                     ticks_yplot=np.arange(0,radar_echo.shape[0],200)
                     
@@ -334,7 +333,7 @@ for folder_year in folder_years:
                     meters_cutoff_below=30
                     
                     #Get our slice (30 meters as currently set)
-                    radar_slice = _return_radar_slice_given_surface(radar_echo,
+                    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
                                                                     depths,
                                                                     surface_indices,
                                                                     meters_cutoff_above=meters_cutoff_above,
@@ -362,6 +361,9 @@ for folder_year in folder_years:
                     ################ End explanations on pcolor ##################
                     ##############################################################
                     
+                    #Generate the pick for vertical distance display
+                    ticks_yplot=np.arange(0,radar_slice.shape[0],20)
+                    
                     #I.d. Plot the radar slice (first 30m of radar echogram)
                     
                     #Plot the data
@@ -371,6 +373,7 @@ for folder_year in folder_years:
                     pyplot.rcParams.update({'font.size': 40})
                     
                     color_map=pyplot.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
                     pyplot.gca().invert_yaxis() #Imvert the y axis = avoid using flipud.
                     pyplot.gca().set_aspect('equal') # X scale matches Y scale
                     pyplot.ylabel('Depth [m]')
@@ -384,7 +387,6 @@ for folder_year in folder_years:
                     cbar=pyplot.colorbar()
                     cbar.set_label('Signal strength')
                     #pyplot.show()
-                    #pdb.set_trace()
                     
                     #Create the figure name
                     fig_name=[]
@@ -394,6 +396,8 @@ for folder_year in folder_years:
                     pyplot.savefig(fig_name)
                     pyplot.clf()
                     
+                    pdb.set_trace()
+
                     continue
                 
                 #If plot_radar_loc is set to 'TRUE', then plot the location of
