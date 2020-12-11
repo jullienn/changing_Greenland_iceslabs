@@ -41,8 +41,8 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='TRUE'
-raw_radar_echograms='FALSE'
+surf_pick_selection='FALSE'
+raw_radar_echograms='TRUE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
 plot_slice_and_loc='FALSE'
@@ -275,21 +275,26 @@ for folder_year in folder_years:
                         print('Figure already existent, move on to the next date')
                         continue
                     
+                    
+                    #Generate the pick for vertical distance display
+                    ticks_yplot=np.arange(0,radar_echo.shape[0],200)
+                    
                     #Plot the raw radar echogram
                     pyplot.figure(figsize=(48,40))
                     
                     #Change label font
                     pyplot.rcParams.update({'font.size': 40})
-                    
+                    pdb.set_trace()
                     #pyplot.figure()
                     color_map=pyplot.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
+                    pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
                     pyplot.ylabel('Depth [m]')
                     pyplot.xlabel('Horizontal distance')
                     pyplot.title('Raw radar echogram: '+indiv_file.replace("_aggregated",""))
                     cbar=pyplot.colorbar()
                     cbar.set_label('Signal strength')
-
+                    
                     #Create the figure name
                     fig_name=[]
                     fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/'+indiv_file+'.png'
@@ -297,7 +302,7 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name)
                     pyplot.clf()
-                    
+                    pdb.set_trace()
                     continue
                 
                 #If plot_radar_echogram_slice is set to 'TRUE', then plot the slice
