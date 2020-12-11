@@ -611,7 +611,6 @@ for folder_year in folder_years:
                     meters_cutoff_above=0
                     meters_cutoff_below=30
                     
-                    pdb.set_trace()
                     #Get our slice (30 meters as currently set)
                     radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
                                                                     depths,
@@ -624,7 +623,7 @@ for folder_year in folder_years:
                     # by looking in the variables it the job was done correctly but I have
                     # checked several variables such as idx_above, idx_below, output traces
                     # and it seems okay to me!
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     #Create the y vector for plotting
                     ticks_yplot=np.arange(0,radar_echo.shape[0],200)
                     
@@ -641,10 +640,10 @@ for folder_year in folder_years:
                     cb_1=ax1.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     
                     #II.b.2. Display the picked surface over it
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     ax1.plot(np.arange(0,radar_echo.shape[1]),surface_indices,linestyle='--',color='red',linewidth=0.1)
                     #II.b.3. Display the bootom picked surface over it
-                    #ax1.plot(np.arange(0,radar_echo.shape[1]),surface_indices,linestyle='--',color='magenta')
+                    ax1.plot(np.arange(0,radar_echo.shape[1]),np.asarray(bottom_indices).flatten(),linestyle='--',color='magenta',linewidth=0.1)
                     #II.b.4 Set plot properties
                     ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
                     #ax1.set_aspect('equal') # X scale matches Y scale
@@ -685,7 +684,7 @@ for folder_year in folder_years:
                     pyplot.savefig(fig_name,dpi=500)
                     pyplot.clf()
                     #Plot the data
-                    pdb.set_trace()
+                    #pdb.set_trace()
 
                     
     else:
