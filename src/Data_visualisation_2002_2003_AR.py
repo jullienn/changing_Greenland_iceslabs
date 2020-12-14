@@ -185,7 +185,6 @@ def _get_rid_of_false_surface_jumps(surface_indices):
     jumps = improved_surface[1:] - improved_surface[:-1]
     # Substitute any large jumps with brightest pixel in a window of original surface.  Do this until large jumps either go away or have all been corrected to original surface.
     for i in range(len(jumps)):
-
         # Slope windowsize = number of pixels we use to average the previous slope.
         slope_windowsize = 10
         if i < slope_windowsize:
