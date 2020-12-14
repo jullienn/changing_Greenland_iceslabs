@@ -88,6 +88,7 @@ def kernel_function(traces_input,suggested_pixel):
     MASK_SEARCH_RADIUS = 150
     
     improved_indices = np.empty(traces.shape[1], dtype='int64')
+    pdb.set_trace()
     #traces.shape[1] indeed correspond to the horizontal distance
     
     # Start at the left with the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE as starting point
@@ -113,9 +114,9 @@ def kernel_function(traces_input,suggested_pixel):
         improved_indices[i] = last_best_index
         
         #If there are pixels with particularly strong echo that are being erroneously
-        #picked up as the surface, then I could do that:
-        ###### Erase most the little "jump" artifacts in the surface picker.
-        ##### improved_indices = self._get_rid_of_false_surface_jumps(improved_indices)
+        #picked up as the surface, erase most the little "jump" artifacts in
+        #the surface picker.
+        improved_indices = _get_rid_of_false_surface_jumps(improved_indices)
         
         #I do not use any mask so I think I shouldn't need to use that:
         ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
@@ -174,8 +175,92 @@ def _return_radar_slice_given_surface(traces,
             output_traces[:,i] = traces[start:end, i]
             bottom_indices[0,i]=end
     return output_traces, bottom_indices
+
+
+
+def _get_rid_of_false_surface_jumps(surface_indices):
+    '''Some of the 2011 files especially, have strong echos that are errantly being picked up as the surface.  Find these big "jumps", and get rid of them.  Use the suggested surface instead.'''
+    improved_surface = surface_indices.copy()
+    
+    jumps = improved_surface[1:] - improved_surface[:-1]
+    # Substitute any large jumps with brightest pixel in a window of original surface.  Do this until large jumps either go away or have all been corrected to original surface.
+    for i in range(len(jumps)):
+
+        # Slope windowsize = number of pixels we use to average the previous slope.
+        slope_windowsize = 10
+        if i < slope_windowsize:
+            continue
+        mean_slope = np.mean(np.array(jumps[i-slope_windowsize:i], dtype=np.float))
+
+        # Find the difference of this slope from the last five stops
+        difference_from_mean_slope = jumps[i] - mean_slope
+        # Ignore if it's jumped less than 3 from the mean recent slope, or less than 50% greater than the mean slope at this time.
+        if (difference_from_mean_slope < 5) or (difference_from_mean_slope < (1.5*mean_slope)):
+            continue
+
+        # tune settings
+        jump_lookahead = 20 # Number of pixels to look ahead to see if we can find a matching down-jump
+        if i+jump_lookahead > len(jumps):
+            jump_lookahead = len(jumps) - i
+
+        # This is how close the surface on the "other side" of the jump must be to the original slope to be considered for it.
+        jump_magnitude_threshold = 1.10
+
+        # See if we can find a point in the near future that would approximate the current slope.
+        slopes_ahead = np.cumsum(jumps[i:i+jump_lookahead]) / np.arange(1,jump_lookahead+1)
+        opposite_match = np.argmax(slopes_ahead <= (mean_slope * jump_magnitude_threshold))
+        
+        if opposite_match > 0:
+            # We found a match, onward!
+            opposite_match_index = i + opposite_match
+            for j in range(i+1,opposite_match_index+1):
+                improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_match_index+1] - improved_surface[i])*(j-i)/(opposite_match_index+1-i))
+
+            # now recompute jumps
+            jumps = improved_surface[1:] - improved_surface[:-1]
+            continue
+
+        # IF THE ABOVE DIDN'T WORK, TRY THE 'JUMP' TECHNIQUE, SEEING WHETHER AN ANOMALOUS 'JUMP' IS COUNTERBALANCED BY AN
+        # OPPOSITE AND (APPROXIMATELY) EQUAL JUMP IN THE OPPOSITE DIRECTION.
+        # Don't worry about any trends less than 12 pixels.  Hills do that.
+        jump = jumps[i]
+        if abs(jump) < 5:
+            continue
+
+        # tune settings
+        jump_lookahead = 50 # Number of pixels to look ahead to see if we can find a matching down-jump
+        jump_magnitude_threshold = 0.50 # What fraction of the original jump the new jump has to be (in the opposite direction) to qualify.
+
+        # see if we can find a jump in the near-future that crosses this threshold in the other direction.  If so, we've found our counter-part
+        if jump < 0:
+            opposite_jump_index = np.argmax((jumps[i:i+jump_lookahead]) > (-jump*jump_magnitude_threshold))
+        elif jump > 0:
+            opposite_jump_index = np.argmax((jumps[i:i+jump_lookahead]) < (-jump*jump_magnitude_threshold))
+
+        if opposite_jump_index > 0:
+            opposite_jump_index += i
+        else: # If we didn't find a partner opposite offset, skip and move along.
+            continue
+
+        # Linearly interpolate, get to the closest pixel
+        try:
+            for j in range(i+1,opposite_jump_index+1):
+                improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_jump_index+1] - improved_surface[i])*(j-i)/(opposite_jump_index+1-i))
+        except IndexError:
+            print("i", i, "j", j, "opposite_jump_index", opposite_jump_index, improved_surface.shape, jumps.shape)
+            # Break the program here.
+            100/0
+
+        # now recompute jumps
+        jumps = improved_surface[1:] - improved_surface[:-1]
+        continue
+    return improved_surface
 ##############################################################################
 ################## Define functions for radar slice picking ##################
+##############################################################################
+
+##############################################################################
+############### Define function for discrete colorbar display ###############
 ##############################################################################
 def discrete_cmap(N, base_cmap=None):
     """Create an N-bin discrete colormap from the specified input map"""
@@ -598,7 +683,7 @@ for folder_year in folder_years:
                     if (os.path.isfile(filename_to_check)):
                         print('Figure already existent, move on to the next date')
                         continue
-                                        
+                    
                     #I. Process and radar echogram
                     #I.a. Load the surface suggestion pick (there is no 'Surface'
                     # variable in 2002/2003 dataset such as 2010/2014 datset).
