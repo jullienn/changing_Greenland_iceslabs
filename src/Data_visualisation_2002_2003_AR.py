@@ -87,8 +87,8 @@ def kernel_function(traces_input,suggested_pixel):
     # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
     MASK_SEARCH_RADIUS = 150
     
-    improved_indices = np.empty(traces.shape[1], dtype='int64')
-    pdb.set_trace()
+    improved_indices = np.zeros(traces.shape[1], dtype='int64')
+    #pdb.set_trace()
     #traces.shape[1] indeed correspond to the horizontal distance
     
     # Start at the left with the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE as starting point
@@ -122,7 +122,7 @@ def kernel_function(traces_input,suggested_pixel):
         ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
         ##### improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
     
-    #pdb.set_trace()
+        #pdb.set_trace()
     return improved_indices
 ##############################################################################
 ############# Define kernel function for surface identification ##############
@@ -368,7 +368,7 @@ for folder_year in folder_years:
                     
                     #Change label font
                     pyplot.rcParams.update({'font.size': 40})
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     #pyplot.figure()
                     color_map=pyplot.pcolor(radar_echo,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
@@ -417,6 +417,7 @@ for folder_year in folder_years:
                     meters_cutoff_above=0
                     meters_cutoff_below=30
                     
+                    #pdb.set_trace()
                     #Get our slice (30 meters as currently set)
                     radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
                                                                     depths,
@@ -450,7 +451,7 @@ for folder_year in folder_years:
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
                     
                     #I.d. Plot the radar slice (first 30m of radar echogram)
-                    
+                    #pdb.set_trace()
                     #Plot the data
                     pyplot.figure(figsize=(48,40))
                     
@@ -694,7 +695,7 @@ for folder_year in folder_years:
                             suggested_pixel=int(date_pix.partition(" ")[2])
                             #If it has found its suggested pixel, leave the loop
                             continue               
-
+                    #pdb.set_trace()
                     #I.b. Call the kernel_function to pick the surface
                     surface_indices=kernel_function(radar_echo, suggested_pixel)
                     
