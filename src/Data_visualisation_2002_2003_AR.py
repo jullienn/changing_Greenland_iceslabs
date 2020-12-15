@@ -214,8 +214,7 @@ def _get_rid_of_false_surface_jumps(surface_indices):
             # We found a match, onward!
             opposite_match_index = i + opposite_match
             for j in range(i+1,opposite_match_index+1):
-                improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_match_index+1] - improved_surface[i])*(j-i)/(opposite_match_index+1-i))
-                print(j)
+                improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_match_index+1] - improved_surface[i])*(j-i)/(opposite_match_index+1-i))    
             # now recompute jumps
             jumps = improved_surface[1:] - improved_surface[:-1]
             continue
