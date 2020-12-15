@@ -113,16 +113,16 @@ def kernel_function(traces_input,suggested_pixel):
         last_best_index = search_indices[MASK_RADIUS,np.argmax(bestfit_sum)]
         improved_indices[i] = last_best_index
         
-        #If there are pixels with particularly strong echo that are being erroneously
-        #picked up as the surface, erase most the little "jump" artifacts in
-        #the surface picker.
-        improved_indices = _get_rid_of_false_surface_jumps(improved_indices)
-        
-        #I do not use any mask so I think I shouldn't need to use that:
-        ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
-        ##### improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
+    #If there are pixels with particularly strong echo that are being erroneously
+    #picked up as the surface, erase most the little "jump" artifacts in
+    #the surface picker.
+    improved_indices = _get_rid_of_false_surface_jumps(improved_indices)
     
-        #pdb.set_trace()
+    #I do not use any mask so I think I shouldn't need to use that:
+    ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
+    ##### improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
+    
+    #pdb.set_trace()
     return improved_indices
 ##############################################################################
 ############# Define kernel function for surface identification ##############
@@ -185,6 +185,7 @@ def _get_rid_of_false_surface_jumps(surface_indices):
     jumps = improved_surface[1:] - improved_surface[:-1]
     # Substitute any large jumps with brightest pixel in a window of original surface.  Do this until large jumps either go away or have all been corrected to original surface.
     for i in range(len(jumps)):
+        
         # Slope windowsize = number of pixels we use to average the previous slope.
         slope_windowsize = 10
         if i < slope_windowsize:
@@ -214,7 +215,7 @@ def _get_rid_of_false_surface_jumps(surface_indices):
             opposite_match_index = i + opposite_match
             for j in range(i+1,opposite_match_index+1):
                 improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_match_index+1] - improved_surface[i])*(j-i)/(opposite_match_index+1-i))
-
+                print(j)
             # now recompute jumps
             jumps = improved_surface[1:] - improved_surface[:-1]
             continue
