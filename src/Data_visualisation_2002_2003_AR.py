@@ -85,7 +85,7 @@ def kernel_function(traces_input,suggested_pixel):
     vertical_span_mask.shape = vertical_span_mask.shape[0], 1
     
     # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
-    MASK_SEARCH_RADIUS = 150
+    MASK_SEARCH_RADIUS = 75
     
     improved_indices = np.zeros(traces.shape[1], dtype='int64')
     #pdb.set_trace()
@@ -323,7 +323,7 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-                
+                #pdb.set_trace()
                 #If indiv_file is the quality file, continue
                 if (indiv_file[0:7]==('quality')):
                     #pdb.set_trace()
@@ -679,11 +679,11 @@ for folder_year in folder_years:
                 # echogram with the surface overlayed AND the radar slice of
                 #that date and save it
                 if (surf_pick_selection=='TRUE'):
-                    #If file have already been created, continue
-                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
-                    if (os.path.isfile(filename_to_check)):
-                        print('Figure already existent, move on to the next date')
-                        continue
+                    ##If file have already been created, continue
+                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    #if (os.path.isfile(filename_to_check)):
+                    #    print('Figure already existent, move on to the next date')
+                    #    continue
                     
                     #I. Process and radar echogram
                     #I.a. Load the surface suggestion pick (there is no 'Surface'
@@ -723,7 +723,7 @@ for folder_year in folder_years:
                     #II. Plot radar echogram localisation
                     #II.a. Create the subplot
                     #pdb.set_trace()
-                    pyplot.figure(figsize=(48,40))
+                    pyplot.figure(figsize=(12,10))
                     pyplot.rcParams.update({'font.size': 5})
                     fig, (ax1, ax2) = pyplot.subplots(2, 1)#, gridspec_kw={'width_ratios': [1, 3]})
                     fig.suptitle(indiv_file.replace("_aggregated",""))
@@ -747,7 +747,7 @@ for folder_year in folder_years:
                     ax1.set_xlabel('Horizontal distance')                    
                     cbar1=fig.colorbar(cb_1, ax=[ax1], location='right')
                     cbar1.set_label('Signal strength', fontsize=5)
-                    
+                    #pdb.set_trace()
                     #II.c. Plot the radar slice (first 30m of radar echogram)
                     
                     #Create the y vector for plotting
