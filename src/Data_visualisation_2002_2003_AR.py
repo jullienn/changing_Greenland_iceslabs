@@ -287,7 +287,7 @@ divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/txt/SURFACE_STARTING_PICKS_Suggestions_2002_2003.txt','r')
 lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
-                             
+
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 os.chdir(path) # relative path: scripts dir is under Lab
@@ -451,7 +451,8 @@ for folder_year in folder_years:
                     
                     #I.d. Plot the radar slice (first 30m of radar echogram)
                     #pdb.set_trace()
-                    #Plot the data
+                    #Plot the data            
+                    
                     pyplot.figure(figsize=(40,10))
                     
                     #Change label font
@@ -480,7 +481,7 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name,dpi=500)
                     pyplot.clf()
-
+                    
                     continue
                 
                 #If plot_radar_loc is set to 'TRUE', then plot the location of
