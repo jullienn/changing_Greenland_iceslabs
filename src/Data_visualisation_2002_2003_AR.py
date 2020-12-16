@@ -41,9 +41,9 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='TRUE'
+surf_pick_selection='FALSE'
 raw_radar_echograms='FALSE'
-plot_radar_echogram_slice='FALSE'
+plot_radar_echogram_slice='TRUE'
 plot_radar_loc='FALSE'
 plot_slice_and_loc='FALSE'
 
@@ -452,7 +452,7 @@ for folder_year in folder_years:
                     #I.d. Plot the radar slice (first 30m of radar echogram)
                     #pdb.set_trace()
                     #Plot the data
-                    pyplot.figure(figsize=(48,40))
+                    pyplot.figure(figsize=(40,10))
                     
                     #Change label font
                     pyplot.rcParams.update({'font.size': 40})
@@ -478,7 +478,7 @@ for folder_year in folder_years:
                     fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/'+indiv_file+'.png'
                     
                     #Save the figure
-                    pyplot.savefig(fig_name)
+                    pyplot.savefig(fig_name,dpi=500)
                     pyplot.clf()
 
                     continue
