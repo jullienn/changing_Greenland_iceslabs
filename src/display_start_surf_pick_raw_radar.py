@@ -49,211 +49,6 @@ N=10
 ############################## Define variables ##############################
 ##############################################################################
 
-
-##############################################################################
-############# Define kernel function for surface identification ##############
-##############################################################################
-#_gaussian function taken from IceBridgeGPR_Manager_v2.py
-# Define a quick guassian function to scale the cutoff mask above
-def _gaussian(x,mu,sigma):
-    return np.exp(-np.power((x-mu)/sigma, 2.)/2.)
-
-#This function have been taken from 'IceBridgeGPR_Manager_v2.py
-def kernel_function(traces_input,suggested_pixel):
-    #pdb.set_trace()
-    
-    traces = traces_input
-    #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
-    #traces = np.log10(traces)
-    
-    # We do not have the original indicies to use as a starter so we use our suggestion for surface picking start
-    
-    # 3) Perform surface pick crawling threshold behavior mask (assume a step-change analysis [goes from weak->strong at surface], and continuity of surface in original file.)
-    # Create a step-change mask to optimze where the returns transition from "dark" to "bright"
-    MASK_RADIUS = 50
-    vertical_span_mask = np.empty([MASK_RADIUS*2,], dtype=np.float)
-    vertical_span_mask[:MASK_RADIUS] = -1.0
-    vertical_span_mask[MASK_RADIUS:] = +3.0
-    
-    vertical_span_mask = vertical_span_mask * _gaussian(np.arange(vertical_span_mask.shape[0]),mu=(MASK_RADIUS-5),sigma=(float(MASK_RADIUS)/3.0))
-    
-    # Expand the shape to handle array broadcasting below
-    vertical_span_mask.shape = vertical_span_mask.shape[0], 1
-    
-    # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
-    MASK_SEARCH_RADIUS = 150
-    
-    improved_indices = np.zeros(traces.shape[1], dtype='int64')
-    #pdb.set_trace()
-    #traces.shape[1] indeed correspond to the horizontal distance
-    
-    # Start at the left with the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE as starting point
-    
-    last_best_index = suggested_pixel
-     
-    #pdb.set_trace()
-    # A template graph to use, just have to add in the center vertical index at each point and go from there.
-    search_indices_template = np.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
-    for i in range(traces.shape[1]):
-        # Create an array of indices spanning the top-to-bottom of the MASK_SEARCH_RADIUS, and fanning out MASK_RADIUS above and below that point.
-        search_indices = search_indices_template + last_best_index
-        # Handle overflow indices if below zero or above max (shouldn't generally happen)... just assign to the top or bottom pixel
-        search_indices[search_indices < 0] = 0
-        search_indices[search_indices >= traces.shape[0]] = traces.shape[0]-1
-        
-        bestfit_sum = np.sum(traces[:,i][search_indices] * vertical_span_mask, axis=0)
-        
-        assert bestfit_sum.shape[0] == 2*MASK_SEARCH_RADIUS
-        
-        # Get the best fit (with the highest value from the transformation fit)
-        last_best_index = search_indices[MASK_RADIUS,np.argmax(bestfit_sum)]
-        improved_indices[i] = last_best_index
-        
-    #If there are pixels with particularly strong echo that are being erroneously
-    #picked up as the surface, erase most the little "jump" artifacts in
-    #the surface picker.
-    improved_indices = _get_rid_of_false_surface_jumps(improved_indices)
-    
-    #I do not use any mask so I think I shouldn't need to use that:
-    ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
-    ##### improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
-    
-    #pdb.set_trace()
-    return improved_indices
-##############################################################################
-############# Define kernel function for surface identification ##############
-##############################################################################
-
-##############################################################################
-################## Define functions for radar slice picking ##################
-##############################################################################
-def _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths):
-    #pdb.set_trace()
-
-    delta_distance = np.mean(depths[1:] - depths[:-1])
-    idx_above = int(np.round(float(meters_cutoff_above) / delta_distance))
-    # Add one to the index below to include that last pixel when array-slicing
-    idx_below = int(np.round(float(meters_cutoff_below) / delta_distance)) + 1
-
-    return idx_above, idx_below
-
-def _return_radar_slice_given_surface(traces,
-                                      depths,
-                                      surface_indices,
-                                      meters_cutoff_above,
-                                      meters_cutoff_below):
-    '''From this radar track, return a "slice" of the image above and below the surface by
-    (meters_cutoff_above, meters_cutoff_below), respectively.
-
-    Return value:
-    A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
-    '''
-    #pdb.set_trace()
-    idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
-
-    output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
-    bottom_indices = np.zeros(shape=(1,traces.shape[1]))
-    
-    for i,s in enumerate(surface_indices):
-        try:
-            output_traces[:,i] = traces[(s-idx_above):(s+idx_below), i]
-            bottom_indices[0,i]=(s+idx_below)
-        except ValueError:
-            # If the surf_i is too close to one end of the array or the other, it extends beyond the edge of the array and breaks.
-            if s < idx_above:
-                start, end = None, idx_above+idx_below
-            elif s > (traces.shape[0] - idx_below):
-                start, end = traces.shape[0] - (idx_above + idx_below), None
-            else:
-                # SHouldn't get here.
-                print(i, s, traces.shape)
-                assert False
-            output_traces[:,i] = traces[start:end, i]
-            bottom_indices[0,i]=end
-    return output_traces, bottom_indices
-
-
-
-def _get_rid_of_false_surface_jumps(surface_indices):
-    '''Some of the 2011 files especially, have strong echos that are errantly being picked up as the surface.  Find these big "jumps", and get rid of them.  Use the suggested surface instead.'''
-    improved_surface = surface_indices.copy()
-    
-    jumps = improved_surface[1:] - improved_surface[:-1]
-    # Substitute any large jumps with brightest pixel in a window of original surface.  Do this until large jumps either go away or have all been corrected to original surface.
-    for i in range(len(jumps)):
-        
-        # Slope windowsize = number of pixels we use to average the previous slope.
-        slope_windowsize = 10
-        if i < slope_windowsize:
-            continue
-        mean_slope = np.mean(np.array(jumps[i-slope_windowsize:i], dtype=np.float))
-
-        # Find the difference of this slope from the last five stops
-        difference_from_mean_slope = jumps[i] - mean_slope
-        # Ignore if it's jumped less than 3 from the mean recent slope, or less than 50% greater than the mean slope at this time.
-        if (difference_from_mean_slope < 5) or (difference_from_mean_slope < (1.5*mean_slope)):
-            continue
-
-        # tune settings
-        jump_lookahead = 20 # Number of pixels to look ahead to see if we can find a matching down-jump
-        if i+jump_lookahead > len(jumps):
-            jump_lookahead = len(jumps) - i
-
-        # This is how close the surface on the "other side" of the jump must be to the original slope to be considered for it.
-        jump_magnitude_threshold = 1.10
-
-        # See if we can find a point in the near future that would approximate the current slope.
-        slopes_ahead = np.cumsum(jumps[i:i+jump_lookahead]) / np.arange(1,jump_lookahead+1)
-        opposite_match = np.argmax(slopes_ahead <= (mean_slope * jump_magnitude_threshold))
-        
-        if opposite_match > 0:
-            # We found a match, onward!
-            opposite_match_index = i + opposite_match
-            for j in range(i+1,opposite_match_index+1):
-                improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_match_index+1] - improved_surface[i])*(j-i)/(opposite_match_index+1-i))    
-            # now recompute jumps
-            jumps = improved_surface[1:] - improved_surface[:-1]
-            continue
-
-        # IF THE ABOVE DIDN'T WORK, TRY THE 'JUMP' TECHNIQUE, SEEING WHETHER AN ANOMALOUS 'JUMP' IS COUNTERBALANCED BY AN
-        # OPPOSITE AND (APPROXIMATELY) EQUAL JUMP IN THE OPPOSITE DIRECTION.
-        # Don't worry about any trends less than 12 pixels.  Hills do that.
-        jump = jumps[i]
-        if abs(jump) < 5:
-            continue
-
-        # tune settings
-        jump_lookahead = 50 # Number of pixels to look ahead to see if we can find a matching down-jump
-        jump_magnitude_threshold = 0.50 # What fraction of the original jump the new jump has to be (in the opposite direction) to qualify.
-
-        # see if we can find a jump in the near-future that crosses this threshold in the other direction.  If so, we've found our counter-part
-        if jump < 0:
-            opposite_jump_index = np.argmax((jumps[i:i+jump_lookahead]) > (-jump*jump_magnitude_threshold))
-        elif jump > 0:
-            opposite_jump_index = np.argmax((jumps[i:i+jump_lookahead]) < (-jump*jump_magnitude_threshold))
-
-        if opposite_jump_index > 0:
-            opposite_jump_index += i
-        else: # If we didn't find a partner opposite offset, skip and move along.
-            continue
-
-        # Linearly interpolate, get to the closest pixel
-        try:
-            for j in range(i+1,opposite_jump_index+1):
-                improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_jump_index+1] - improved_surface[i])*(j-i)/(opposite_jump_index+1-i))
-        except IndexError:
-            print("i", i, "j", j, "opposite_jump_index", opposite_jump_index, improved_surface.shape, jumps.shape)
-            # Break the program here.
-            100/0
-
-        # now recompute jumps
-        jumps = improved_surface[1:] - improved_surface[:-1]
-        continue
-    return improved_surface
-##############################################################################
-################## Define functions for radar slice picking ##################
-##############################################################################
-
 ##############################################################################
 ################### Define function for ice lenses logging ###################
 ##############################################################################
@@ -270,9 +65,9 @@ def onclick(event):
 ################### Define function for ice lenses logging ###################
 ##############################################################################
 
-#Open, read and close the file of suggested surface picks
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/txt/SURFACE_STARTING_PICKS_Suggestions_2002_2003.txt','r')
-lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+#Open, read and close the file of dates that require surface pick improvement
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/dates_for_surf_pick_start.txt','r')
+dates_surf = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
 #Define the working environment
@@ -314,6 +109,13 @@ for folder_year in folder_years:
                 #If indiv_file is the quality file, continue
                 if (indiv_file[0:7]==('quality')):
                     #pdb.set_trace()
+                    continue
+                
+                #If files does not deblong to 'dates_surf', the improvement of
+                #the start surf pick is not neccessary, continue
+                #pdb.set_trace()
+                if (not(indiv_file.replace("_aggregated","") in dates_surf)):
+                    print('No need to improve start surf pick of',indiv_file.replace("_aggregated",""))
                     continue
                 
                 #Open the file and read it
