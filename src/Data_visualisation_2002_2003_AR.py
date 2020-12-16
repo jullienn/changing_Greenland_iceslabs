@@ -679,11 +679,11 @@ for folder_year in folder_years:
                 # echogram with the surface overlayed AND the radar slice of
                 #that date and save it
                 if (surf_pick_selection=='TRUE'):
-                    ##If file have already been created, continue
-                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
-                    #if (os.path.isfile(filename_to_check)):
-                    #    print('Figure already existent, move on to the next date')
-                    #    continue
+                    #If file have already been created, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
                     
                     #I. Process and radar echogram
                     #I.a. Load the surface suggestion pick (there is no 'Surface'
@@ -723,7 +723,7 @@ for folder_year in folder_years:
                     #II. Plot radar echogram localisation
                     #II.a. Create the subplot
                     #pdb.set_trace()
-                    pyplot.figure(figsize=(12,10))
+                    pyplot.figure(figsize=(48,40))
                     pyplot.rcParams.update({'font.size': 5})
                     fig, (ax1, ax2) = pyplot.subplots(2, 1)#, gridspec_kw={'width_ratios': [1, 3]})
                     fig.suptitle(indiv_file.replace("_aggregated",""))
