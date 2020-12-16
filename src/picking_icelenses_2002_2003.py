@@ -259,6 +259,7 @@ def _get_rid_of_false_surface_jumps(surface_indices):
 ##############################################################################
 #This function if adapted from https://stackoverflow.com/questions/37363755/python-mouse-click-coordinates-as-simply-as-possible
 def onclick(event):
+    #This functions print and save the x and y coordinates in pixels!
     print(event.xdata, event.ydata)
     #Fill in the file to log on the information
     filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
