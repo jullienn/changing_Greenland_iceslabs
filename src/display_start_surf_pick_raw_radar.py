@@ -156,8 +156,6 @@ for folder_year in folder_years:
                     
                     #Change label font
                     pyplot.rcParams.update({'font.size': 40})
-                    #pdb.set_trace()
-                    #pyplot.figure()
                     color_map=pyplot.pcolor(radar_echo[:,0:100],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
                     pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
