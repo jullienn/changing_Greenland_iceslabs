@@ -2471,6 +2471,7 @@ class IceBridgeGPR_Track_v2():
         A,B,C = popt
         print(popt)
         if export:
+            pdb.set_trace()
             # Correct the traces and normalize them.
             # Original function is Z = A * e^(By) + C
             # Inverse function to normalize AND get rid of heteroscedasticitiy is 0 = ((Z - C)/A * e^(-By) - 1.0) * e^(By)

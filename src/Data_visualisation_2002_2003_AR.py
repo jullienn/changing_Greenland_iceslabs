@@ -323,7 +323,7 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-                pdb.set_trace()
+                #pdb.set_trace()
                 #If indiv_file is the quality file, continue
                 if (indiv_file[0:7]==('quality')):
                     #pdb.set_trace()
