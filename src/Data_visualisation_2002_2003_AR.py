@@ -64,7 +64,7 @@ def _gaussian(x,mu,sigma):
 
 #This function have been taken from 'IceBridgeGPR_Manager_v2.py
 def kernel_function(traces_input,suggested_pixel):
-    pdb.set_trace()
+    #pdb.set_trace()
     
     traces = traces_input
     #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
@@ -681,16 +681,12 @@ for folder_year in folder_years:
                 # echogram with the surface overlayed AND the radar slice of
                 #that date and save it
                 if (surf_pick_selection=='TRUE'):
-                    ##If file have already been created, continue
-                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
-                    #if (os.path.isfile(filename_to_check)):
-                    #    print('Figure already existent, move on to the next date')
-                    #    continue
-                
-                    if (not(indiv_file=='may24_02_0_aggregated')):
-                        print('Not the wanted investigating file')
+                    #If file have already been created, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
                         continue
-                    pdb.set_trace()
+                    
                     #I. Process and radar echogram
                     #I.a. Load the surface suggestion pick (there is no 'Surface'
                     # variable in 2002/2003 dataset such as 2010/2014 datset).
