@@ -85,7 +85,7 @@ def kernel_function(traces_input,suggested_pixel):
     vertical_span_mask.shape = vertical_span_mask.shape[0], 1
     
     # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
-    MASK_SEARCH_RADIUS = 40
+    MASK_SEARCH_RADIUS = 60
     
     improved_indices = np.zeros(traces.shape[1], dtype='int64')
     #pdb.set_trace()
@@ -323,7 +323,7 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-                #pdb.set_trace()
+                pdb.set_trace()
                 #If indiv_file is the quality file, continue
                 if (indiv_file[0:7]==('quality')):
                     #pdb.set_trace()
@@ -385,6 +385,8 @@ for folder_year in folder_years:
                     #Save the figure
                     pyplot.savefig(fig_name)
                     pyplot.clf()
+                    
+                    #pdb.set_trace()
                     
                     continue
                 
