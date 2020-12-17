@@ -113,6 +113,9 @@ def kernel_function(traces_input,suggested_pixel):
         last_best_index = search_indices[MASK_RADIUS,np.argmax(bestfit_sum)]
         improved_indices[i] = last_best_index
         
+        print(improved_indices[i])
+        pdb.set_trace()
+        
     #If there are pixels with particularly strong echo that are being erroneously
     #picked up as the surface, erase most the little "jump" artifacts in
     #the surface picker.
@@ -681,10 +684,14 @@ for folder_year in folder_years:
                 # echogram with the surface overlayed AND the radar slice of
                 #that date and save it
                 if (surf_pick_selection=='TRUE'):
-                    #If file have already been created, continue
-                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
-                    if (os.path.isfile(filename_to_check)):
-                        print('Figure already existent, move on to the next date')
+                    ##If file have already been created, continue
+                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    #if (os.path.isfile(filename_to_check)):
+                    #    print('Figure already existent, move on to the next date')
+                    #    continue
+                    
+                    if (not(indiv_file=='may24_02_0_aggregated')):
+                        print('Not the wanted investigating file')
                         continue
                     
                     #I. Process and radar echogram
@@ -697,7 +704,7 @@ for folder_year in folder_years:
                             suggested_pixel=int(date_pix.partition(" ")[2])
                             #If it has found its suggested pixel, leave the loop
                             continue               
-                    #pdb.set_trace()
+                    pdb.set_trace()
                     #I.b. Call the kernel_function to pick the surface
                     surface_indices=kernel_function(radar_echo, suggested_pixel)
                     
