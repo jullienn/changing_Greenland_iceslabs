@@ -771,8 +771,7 @@ for folder_year in folder_years:
                     
                     #Create the figure name
                     fig_name=[]
-                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/test'+indiv_file+'.png'
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
                     
                     #Save the figure
                     pyplot.savefig(fig_name,dpi=500)
