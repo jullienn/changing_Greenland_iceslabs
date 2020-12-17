@@ -171,7 +171,87 @@ for folder_year in folder_years:
                     pdb.set_trace()
                     
                     continue
+
+    elif (folder_year=='2017_Greenland_P3'):
+        print('Treating the year',folder_year)
+        
+        #Go into the yearly folders 
+        folder_year_name=path+'/'+folder_year+'/CSARP_qlook'
+        os.chdir(folder_year_name)
+
+        # Read the days of this specific year
+        folder_days = [ f.name for f in os.scandir(folder_year_name) if f.is_dir() ]
+        
+        for folder_day in folder_days:
+                        
+            print('Now in year',folder_year,'day',folder_day)
+            
+            #Go into the daily folders 
+            folder_day_name=folder_year_name+'/'+folder_day
+            os.chdir(folder_day_name)
+            
+            # Read the files of this specific day
+            onlyfiles = [f for f in listdir(folder_day_name) if isfile(join(folder_day_name, f))]
+            #pdb.set_trace()
+            for indiv_file in onlyfiles:
+                print('Treating file',indiv_file)
+                
+                #If files does not belong to 'dates_surf_2017', we do not need
+                #to know the start surf pick, continue
+                #pdb.set_trace()
+                if (not(indiv_file in dates_surf_2017)):
+                    print('No need to improve start surf pick of',indiv_file)
+                    continue
+                
+                #Open the file and read it
+
+                                
+                #Select radar echogram and corresponding lat/lon
+                radar_echo=
+
+                
+                #Select the first 30m of radar echogram
+                #1. Compute the vertical resolution
+                #a. Time computation according to John Paden's email.
+                Nt = radar_echo.shape[0]
+                Time = t0 + dt*np.arange(1,Nt+1)
+                #b. Calculate the depth:
+                #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+                depths = v * Time / 2.0
+                
+                #If raw_radar_echograms is set to 'TRUE', then plot the raw
+                #radar echogram of that date and save it
+                if (raw_radar_echograms=='TRUE'):
+                    ##If file have already been created, continue
+                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/'+indiv_file+'.png'
+                    #if (os.path.isfile(filename_to_check)):
+                    #    print('Figure already existent, move on to the next date')
+                    #    continue
                     
+                    #Generate the pick for vertical distance display
+                    ticks_yplot=np.arange(0,radar_echo.shape[0],200)
+                    
+                    #Plot the raw radar echogram
+                    fig=pyplot.figure(figsize=(48,40))
+                    
+                    #Change label font
+                    pyplot.rcParams.update({'font.size': 40})
+                    color_map=pyplot.pcolor(radar_echo[:,0:100],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
+                    pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
+                    pyplot.ylabel('Depth [m]')
+                    pyplot.xlabel('Horizontal distance')
+                    pyplot.title('Raw radar echogram, first 100 horizontal pixels: '+indiv_file.replace("_aggregated",""))
+                    cbar=pyplot.colorbar()
+                    cbar.set_label('Signal strength')
+                    
+                    fig.canvas.mpl_connect('button_press_event', onclick)
+                    pyplot.show()
+
+                    pdb.set_trace()
+                    
+                    continue
+
     else:
         print('Folder',folder_year,', continue ...')
         continue
