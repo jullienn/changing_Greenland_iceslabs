@@ -1451,7 +1451,7 @@ class IceBridgeGPR_Track_v2():
 
         if self.SAMPLE_TIMES is None:
             self.get_trace_array()
-
+        #pdb.set_trace()
         self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         return
 
@@ -1885,6 +1885,7 @@ class IceBridgeGPR_Track_v2():
             radar_slice = pickle.load(f)
             f.close()
             self.TRACES_surface_slice_100m = radar_slice
+            pdb.set_trace()
             print('-------------------- OUT read_radar_slice_from_picklefile --------------------')
             return radar_slice
         else:
@@ -2446,6 +2447,7 @@ class IceBridgeGPR_Track_v2():
 
         # Subset traces to mask out all NaN values (previously masked)
         mask = self._compute_boolean_mask(traces=traces_all, mask=None)
+        #pdb.set_trace()
         traces = self._subset_array(traces_all, mask=None)
         depths = self.get_sample_depths(trace_array = traces)
 
@@ -2471,7 +2473,7 @@ class IceBridgeGPR_Track_v2():
         A,B,C = popt
         print(popt)
         if export:
-            pdb.set_trace()
+            #pdb.set_trace()
             # Correct the traces and normalize them.
             # Original function is Z = A * e^(By) + C
             # Inverse function to normalize AND get rid of heteroscedasticitiy is 0 = ((Z - C)/A * e^(-By) - 1.0) * e^(By)
@@ -2941,7 +2943,7 @@ class IceBridgeGPR_Track_v2():
 
     def get_sample_depths(self, trace_array = None):
         print('-------------------- ENTERING get_sample_depths --------------------')
-
+        #pdb.set_trace()
         '''Either read them from the picklefile, or get the trace array and derive them.
         If "trace_array" is provided, only return the top M sample depths in that MxN array.'''
         if self.SAMPLE_DEPTHS is not None:
@@ -2949,7 +2951,7 @@ class IceBridgeGPR_Track_v2():
                 return self.SAMPLE_DEPTHS[:trace_array.shape[0]]
             else:
                 return self.SAMPLE_DEPTHS
-
+        
         fname = self.NAME + "_SAMPLE_DEPTHS.pickle"
         pathname = os.path.join(ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER, fname)
 

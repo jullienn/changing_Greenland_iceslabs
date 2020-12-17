@@ -87,6 +87,10 @@ import csv
 from ftplib import FTP
 from datetime import datetime
 
+#Set data we want to download
+download_images='TRUE'
+download_mat='FALSE'
+
 start = datetime.now()
 ftp = FTP('data.cresis.ku.edu')
 ftp.login()
@@ -105,7 +109,12 @@ for folder_year in folders_years:
         
         #Go to folder year
         folder_year_name=[]
-        folder_year_name=path + folder_year + '/CSARP_standard/'
+        
+        if (download_images=='TRUE'):
+            folder_year_name=path + folder_year + '/images/'
+        
+        if(download_mat=='TRUE'):
+            folder_year_name=path + folder_year + '/CSARP_standard/'
         
         #Go to folder CSARP_standard
         ftp.cwd(folder_year_name)
@@ -128,7 +137,7 @@ for folder_year in folders_years:
                  '20170508_02',
                  '20170510_02',
                  '20170511_01']
-        
+        pdb.set_trace()
         #Loop over the folders, and download all the data in this folder
         for folder in folders:
             folder_name=[]
@@ -141,8 +150,8 @@ for folder_year in folders_years:
             files = ftp.nlst()
             
             # Print out and download the files
-            for file in files:
-                if (file[0:9]=='Data_2017'):
+            if (download_images=='TRUE'):
+                for file in files:
                     if (os.path.isfile("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file)):
                         #If the file have already been downloaded, continue
                         print(file+' have already been downloaded. Continue ...')
@@ -150,10 +159,21 @@ for folder_year in folders_years:
                     #Grab only the files starting by 'Data_2017...'
                     print("Downloading..." + file)
                     ftp.retrbinary("RETR " + file ,open("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file, 'wb').write)
-                else:
-                    print('This is a file Data_img ...')
-                    #This is data starting by 'Data_img...', we do not want that
-                    continue
+                
+            if (download_mat=='TRUE'):
+                for file in files:
+                    if (file[0:9]=='Data_2017'):
+                        if (os.path.isfile("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file)):
+                            #If the file have already been downloaded, continue
+                            print(file+' have already been downloaded. Continue ...')
+                            continue
+                        #Grab only the files starting by 'Data_2017...'
+                        print("Downloading..." + file)
+                        ftp.retrbinary("RETR " + file ,open("D:/OIB/AR/" + folder_year + '/' + folder + "/" + file, 'wb').write)
+                    else:
+                        print('This is a file Data_img ...')
+                        #This is data starting by 'Data_img...', we do not want that
+                        continue
             
     else:
         print('This is not 2017')
