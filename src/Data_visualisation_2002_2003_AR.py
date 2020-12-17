@@ -74,7 +74,7 @@ def kernel_function(traces_input,suggested_pixel):
     
     # 3) Perform surface pick crawling threshold behavior mask (assume a step-change analysis [goes from weak->strong at surface], and continuity of surface in original file.)
     # Create a step-change mask to optimze where the returns transition from "dark" to "bright"
-    MASK_RADIUS = 40
+    MASK_RADIUS = 50
     vertical_span_mask = np.empty([MASK_RADIUS*2,], dtype=np.float)
     vertical_span_mask[:MASK_RADIUS] = -1.0
     vertical_span_mask[MASK_RADIUS:] = +3.0
@@ -85,7 +85,7 @@ def kernel_function(traces_input,suggested_pixel):
     vertical_span_mask.shape = vertical_span_mask.shape[0], 1
     
     # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
-    MASK_SEARCH_RADIUS = 60
+    MASK_SEARCH_RADIUS = 40
     
     improved_indices = np.zeros(traces.shape[1], dtype='int64')
     #pdb.set_trace()
