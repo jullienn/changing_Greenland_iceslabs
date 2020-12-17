@@ -64,7 +64,6 @@ def _gaussian(x,mu,sigma):
 
 #This function have been taken from 'IceBridgeGPR_Manager_v2.py
 def kernel_function(traces_input,suggested_pixel):
-    #pdb.set_trace()
     
     traces = traces_input
     #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
@@ -99,6 +98,7 @@ def kernel_function(traces_input,suggested_pixel):
     # A template graph to use, just have to add in the center vertical index at each point and go from there.
     search_indices_template = np.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
     for i in range(traces.shape[1]):
+        
         # Create an array of indices spanning the top-to-bottom of the MASK_SEARCH_RADIUS, and fanning out MASK_RADIUS above and below that point.
         search_indices = search_indices_template + last_best_index
         # Handle overflow indices if below zero or above max (shouldn't generally happen)... just assign to the top or bottom pixel
@@ -112,9 +112,6 @@ def kernel_function(traces_input,suggested_pixel):
         # Get the best fit (with the highest value from the transformation fit)
         last_best_index = search_indices[MASK_RADIUS,np.argmax(bestfit_sum)]
         improved_indices[i] = last_best_index
-        
-        print(improved_indices[i])
-        pdb.set_trace()
         
     #If there are pixels with particularly strong echo that are being erroneously
     #picked up as the surface, erase most the little "jump" artifacts in
@@ -684,14 +681,10 @@ for folder_year in folder_years:
                 # echogram with the surface overlayed AND the radar slice of
                 #that date and save it
                 if (surf_pick_selection=='TRUE'):
-                    ##If file have already been created, continue
-                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
-                    #if (os.path.isfile(filename_to_check)):
-                    #    print('Figure already existent, move on to the next date')
-                    #    continue
-                    
-                    if (not(indiv_file=='may24_02_0_aggregated')):
-                        print('Not the wanted investigating file')
+                    #If file have already been created, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
                         continue
                     
                     #I. Process and radar echogram
@@ -704,7 +697,7 @@ for folder_year in folder_years:
                             suggested_pixel=int(date_pix.partition(" ")[2])
                             #If it has found its suggested pixel, leave the loop
                             continue               
-                    pdb.set_trace()
+                    
                     #I.b. Call the kernel_function to pick the surface
                     surface_indices=kernel_function(radar_echo, suggested_pixel)
                     
@@ -776,17 +769,15 @@ for folder_year in folder_years:
                     cbar=fig.colorbar(cb)
                     cbar.set_label('Signal strength', fontsize=5)
                     
-                    #pdb.set_trace()
-                    
                     #Create the figure name
                     fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/test'+indiv_file+'.png'
                     
                     #Save the figure
                     pyplot.savefig(fig_name,dpi=500)
                     pyplot.clf()
                     #Plot the data
-                    #pdb.set_trace()
 
                     
     else:
