@@ -137,7 +137,7 @@ for folder_year in folders_years:
                  '20170508_02',
                  '20170510_02',
                  '20170511_01']
-        pdb.set_trace()
+        #pdb.set_trace()
         #Loop over the folders, and download all the data in this folder
         for folder in folders:
             folder_name=[]
