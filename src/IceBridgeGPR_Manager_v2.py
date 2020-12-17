@@ -3057,7 +3057,7 @@ def plot_surface_picking_mask_curve():
 if __name__ == "__main__":
 
     ib = IceBridgeGPR_Manager_v2()
-    pdb.set_trace()
+    #pdb.set_trace()
     #ib.export_KML_reference_tracks()
     ib.export_ice_layer_lat_lon_distance_thicknesses()
     # Le 12 Septembre 2020, je sors sans erreur de export_ice_layer_lat_lom_distance_thicknesses!

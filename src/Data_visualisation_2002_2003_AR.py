@@ -85,7 +85,7 @@ def kernel_function(traces_input,suggested_pixel):
     vertical_span_mask.shape = vertical_span_mask.shape[0], 1
     
     # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
-    MASK_SEARCH_RADIUS = 75
+    MASK_SEARCH_RADIUS = 40
     
     improved_indices = np.zeros(traces.shape[1], dtype='int64')
     #pdb.set_trace()
