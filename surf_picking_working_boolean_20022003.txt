@@ -1,4 +1,4 @@
-date,surfpick ok=1
+date,surfpick_ok
 may18_02_0,1
 may18_02_1,1
 may18_02_2,1
