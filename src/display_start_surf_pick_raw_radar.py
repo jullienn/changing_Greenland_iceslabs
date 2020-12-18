@@ -68,9 +68,14 @@ def onclick(event):
 ################### Define function for ice lenses logging ###################
 ##############################################################################
 
-#Open, read and close the file of dates that require surface pick improvement
+#Open, read and close the file of dates that require surface pick improvement for 2002/2003
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/dates_for_surf_pick_start.txt','r')
 dates_surf = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+f.close()
+
+#Open, read and close the file of dates that require surface pick improvement for 2017
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/dates_for_surf_pick_2017.txt','r')
+dates_surf_2017 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
 #Define the working environment
@@ -181,9 +186,10 @@ for folder_year in folder_years:
             print('Folder',folder_year,', continue ...')
             continue
                     
-    if(folder_year=='2017'):
+    if(year_display=='2017'):
         if (folder_year=='2017_Greenland_P3'):
             print('Treating the year',folder_year)
+            #pdb.set_trace()
             
             #Go into the yearly folders 
             folder_year_name=path+'/'+folder_year+'/CSARP_qlook'
@@ -209,34 +215,19 @@ for folder_year in folder_years:
                     #If files does not belong to 'dates_surf_2017', we do not need
                     #to know the start surf pick, continue
                     #pdb.set_trace()
-                    if (not(indiv_file in dates_surf_2017)):
+                    if (not(indiv_file.replace(".mat","") in dates_surf_2017)):
                         print('No need to improve start surf pick of',indiv_file)
                         continue
                     
                     #Open the file and read it
-    
-                                    
-                    #Select radar echogram and corresponding lat/lon
-                    radar_echo=
-    
-                    
-                    #Select the first 30m of radar echogram
-                    #1. Compute the vertical resolution
-                    #a. Time computation according to John Paden's email.
-                    Nt = radar_echo.shape[0]
-                    Time = t0 + dt*np.arange(1,Nt+1)
-                    #b. Calculate the depth:
-                    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-                    depths = v * Time / 2.0
+                    with h5py.File(folder_day_name+'/'+indiv_file, 'r') as f:
+                        f.keys()
+                        #Select radar echogram
+                        radar_echo=f['Data'][:].transpose() #2017 data should be transposed
                     
                     #If raw_radar_echograms is set to 'TRUE', then plot the raw
                     #radar echogram of that date and save it
                     if (raw_radar_echograms=='TRUE'):
-                        ##If file have already been created, continue
-                        #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/'+indiv_file+'.png'
-                        #if (os.path.isfile(filename_to_check)):
-                        #    print('Figure already existent, move on to the next date')
-                        #    continue
                         
                         #Generate the pick for vertical distance display
                         ticks_yplot=np.arange(0,radar_echo.shape[0],200)
@@ -245,13 +236,13 @@ for folder_year in folder_years:
                         fig=pyplot.figure(figsize=(48,40))
                         
                         #Change label font
-                        pyplot.rcParams.update({'font.size': 40})
-                        color_map=pyplot.pcolor(radar_echo[:,0:100],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                        pyplot.rcParams.update({'font.size': 20})
+                        color_map=pyplot.pcolor(np.log10(radar_echo[:,0:100]),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                         pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
-                        pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
-                        pyplot.ylabel('Depth [m]')
+                        #pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
+                        pyplot.ylabel('Depth [pixel]')
                         pyplot.xlabel('Horizontal distance')
-                        pyplot.title('Raw radar echogram, first 100 horizontal pixels: '+indiv_file.replace("_aggregated",""))
+                        pyplot.title('Log10(raw radar echogram), first 100 horizontal pixels: '+indiv_file.replace(".mat",""))
                         cbar=pyplot.colorbar()
                         cbar.set_label('Signal strength')
                         
@@ -259,6 +250,7 @@ for folder_year in folder_years:
                         pyplot.show()
     
                         pdb.set_trace()
+                        
                         
                         continue
 
