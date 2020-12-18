@@ -1885,7 +1885,7 @@ class IceBridgeGPR_Track_v2():
             radar_slice = pickle.load(f)
             f.close()
             self.TRACES_surface_slice_100m = radar_slice
-            pdb.set_trace()
+            #pdb.set_trace()
             print('-------------------- OUT read_radar_slice_from_picklefile --------------------')
             return radar_slice
         else:
