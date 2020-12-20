@@ -303,7 +303,7 @@ for folder_year in folder_years:
         header_list=["date_file","quality"]
         surf_pick_assessment = pd.read_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/surf_picking_working_boolean_20022003.txt',sep=',',header=None,names=header_list)
 
-        pdb.set_trace()
+        #pdb.set_trace()
         count_correct_surf_pick=0
         
         for potential_iceslabs_file in potential_iceslabs:
@@ -340,10 +340,6 @@ for folder_year in folder_years:
         
         for folder_day in folder_days:
             
-            if (folder_day=='jun04'):
-                print('Folder',folder_day,'. Not aggregated files, treat this one at the end. Continue ...')
-                continue
-            
             print('Now in year',folder_year,'day',folder_day)
             
             #Go into the daily folders 
@@ -361,17 +357,27 @@ for folder_year in folder_years:
                     #pdb.set_trace()
                     continue
                 
-                #Open the file and read it
-                f_agg = open(folder_day_name+'/'+indiv_file, "rb")
-                data = pickle.load(f_agg)
-                f_agg.close()
-                                
-                #Select radar echogram and corresponding lat/lon
-                radar_echo=data['radar_echogram']
-                
-                latlontime=data['latlontime']
-                lat=latlontime['lat_gps']
-                lon=latlontime['lon_gps']
+                if (folder_day=='jun04'):
+                    
+                    fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
+                    #Select radar echogram and corresponding lat/lon
+                    radar_echo=fdata['data']
+                    lat=fdata['latitude']
+                    lon=fdata['longitude']
+                    #pdb.set_trace()
+
+                else:
+                    #Open the file and read it
+                    f_agg = open(folder_day_name+'/'+indiv_file, "rb")
+                    data = pickle.load(f_agg)
+                    f_agg.close()
+                                    
+                    #Select radar echogram and corresponding lat/lon
+                    radar_echo=data['radar_echogram']
+                    
+                    latlontime=data['latlontime']
+                    lat=latlontime['lat_gps']
+                    lon=latlontime['lon_gps']                
                 
                 #Select the first 30m of radar echogram
                 #1. Compute the vertical resolution
@@ -394,14 +400,21 @@ for folder_year in folder_years:
                     #I. Process and plot radar echogram
                     #I.a. Load the surface suggestion pick (there is no 'Surface'
                     # variable in 2002/2003 dataset such as 2010/2014 datset).
-
+                     
                     # Load the suggested pixel for the specific date
+                    #pdb.set_trace()
                     for date_pix in lines:
-                        if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
-                            suggested_pixel=int(date_pix.partition(" ")[2])
-                            #If it has found its suggested pixel, leave the loop
-                            continue               
-
+                        if (folder_day=='jun04'):
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue   
+                        else:
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue
+                    
                     #I.b. Call the kernel_function to pick the surface
                     surface_indices=kernel_function(radar_echo, suggested_pixel)
                     
@@ -443,7 +456,12 @@ for folder_year in folder_years:
                     #Log the date we are dealing with in the ice lenses location file
                     filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
                     f_log = open(filename_flog, "a")
-                    f_log.write(str(indiv_file.replace("_aggregated",""))+'\n')
+                    
+                    if (folder_day=='jun04'):
+                        f_log.write(str(indiv_file.replace(".mat",""))+'\n')
+                    else:
+                        f_log.write(str(indiv_file.replace("_aggregated",""))+'\n')
+
                     f_log.close() #Close the file
                     
                     #Generate the pick for vertical distance display
