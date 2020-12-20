@@ -60,17 +60,50 @@ def _gaussian(x,mu,sigma):
 
 #This function have been taken from 'IceBridgeGPR_Manager_v2.py
 def modified_kernel_function(traces_input,suggested_pixel):
-    
-    #Define the dates that need the surface picking  to be semi-automatic
-    dates_surf_pick_impr=['may24_02_23','may24_02_24','may24_02_25','may30_02_1'
-                          ,'may30_02_2','may30_02_4','may30_02_5','may30_02_6'
-                          ,'may30_02_7','may30_02_13','may30_02_14','may30_02_15'
-                          ,'may30_02_50','may30_02_51']
+        
+    pdb.set_trace()
     
     traces = traces_input
     #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
     #traces = np.log10(traces)
     
+    ##########################################################################
+    #           Plot base figure for evolution of surface picking            #
+    ##########################################################################
+    
+    #Create the y vector for plotting
+    ticks_yplot=np.arange(0,traces.shape[0],200)
+    
+    #II. Plot radar echogram localisation
+    #II.a. Create the subplot
+    #pdb.set_trace()
+    pyplot.figure(figsize=(12,10))
+    pyplot.rcParams.update({'font.size': 5})
+    fig, (ax1, ax2) = pyplot.subplots(2, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    fig.suptitle(indiv_file.replace("_aggregated",""))
+    
+    #II.b. Plot the raw radar slice with the surface highlighted
+    #II.b.1. Plot the raw radar echogram
+    cb_1=ax1.pcolor(traces,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+    
+    ax1.set_yticks(ticks_yplot) 
+    ax1.set_yticklabels(np.round(depths[ticks_yplot]))
+    
+    ax1.set_title('Raw radar echogram',fontsize=5)
+    ax1.set_ylabel('Depth [m]')
+    ax1.set_xlabel('Horizontal distance')                    
+    cbar1=fig.colorbar(cb_1, ax=[ax1], location='right')
+    cbar1.set_label('Signal strength', fontsize=5)
+    
+    #plt.axis([xmin,xmax,2000,3000])
+    
+    pyplot.show()
+    
+    pdb.set_trace()
+    ##########################################################################
+    #           Plot base figure for evolution of surface picking            #
+    ##########################################################################
+             
     # We do not have the original indicies to use as a starter so we use our suggestion for surface picking start
     
     # 3) Perform surface pick crawling threshold behavior mask (assume a step-change analysis [goes from weak->strong at surface], and continuity of surface in original file.)
@@ -114,6 +147,22 @@ def modified_kernel_function(traces_input,suggested_pixel):
         # Get the best fit (with the highest value from the transformation fit)
         last_best_index = search_indices[MASK_RADIUS,np.argmax(bestfit_sum)]
         improved_indices[i] = last_best_index
+        
+        #####################################################################
+        #               Plot the evolution of surface picking               #
+        #####################################################################
+        
+        #II.b.2. Display the picked surface over it
+        pdb.set_trace()
+        ax1.plot(np.arange(0,traces.shape[1]),surface_indices,linestyle='--',color='red',linewidth=0.1)
+        #II.b.3. Display the bootom picked surface over it
+        ax1.plot(np.arange(0,traces.shape[1]),np.asarray(bottom_indices).flatten(),linestyle='--',color='magenta',linewidth=0.1)
+        #II.b.4 Set plot properties
+        ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
+        
+        #####################################################################
+        #               Plot the evolution of surface picking               #
+        #####################################################################
         
     #If there are pixels with particularly strong echo that are being erroneously
     #picked up as the surface, erase most the little "jump" artifacts in
@@ -287,6 +336,12 @@ f.close()
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 os.chdir(path) # relative path: scripts dir is under Lab
 
+#Define the dates that need the surface picking  to be semi-automatic
+dates_surf_pick_impr=['may24_02_23','may24_02_24','may24_02_25','may30_02_1'
+                          ,'may30_02_2','may30_02_4','may30_02_5','may30_02_6'
+                          ,'may30_02_7','may30_02_13','may30_02_14','may30_02_15'
+                          ,'may30_02_50','may30_02_51']
+
 # Read the years of data
 folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
 
@@ -314,13 +369,18 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-
-                #pdb.set_trace()
+                
                 #If indiv_file is the quality file, continue
                 if (indiv_file[0:7]==('quality')):
                     #pdb.set_trace()
                     continue
                 
+                if (not(indiv_file.replace("_aggregated","") in list(dates_surf_pick_impr))):
+                    print('Do need to improve surface picking of '+indiv_file)
+                    continue
+
+                print('Start surface picking improvement procedure of '+indiv_file)
+
                 if (folder_day=='jun04'):
                     
                     fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
