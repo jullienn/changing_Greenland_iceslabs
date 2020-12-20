@@ -41,11 +41,11 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='FALSE'
+surf_pick_selection='TRUE'
 raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
-plot_slice_and_loc='TRUE'
+plot_slice_and_loc='FALSE'
 
 #N defines the number of different colors I want to use for the elevation plot
 N=10
@@ -752,7 +752,7 @@ for folder_year in folder_years:
                     # by looking in the variables it the job was done correctly but I have
                     # checked several variables such as idx_above, idx_below, output traces
                     # and it seems okay to me!
-                    #pdb.set_trace()
+                    pdb.set_trace()
                     #Create the y vector for plotting
                     ticks_yplot=np.arange(0,radar_echo.shape[0],200)
                     
@@ -802,7 +802,7 @@ for folder_year in folder_years:
                     ax2.set_xlabel('Horizontal distance')
                     cbar=fig.colorbar(cb)
                     cbar.set_label('Signal strength', fontsize=5)
-                    
+
                     #Create the figure name
                     fig_name=[]
                     fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_raw_and_slice/'+indiv_file+'.png'
