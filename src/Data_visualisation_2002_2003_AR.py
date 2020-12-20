@@ -415,11 +415,17 @@ for folder_year in folder_years:
                     # Load the suggested pixel for the specific date
                     pdb.set_trace()
                     for date_pix in lines:
-                        if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
-                            suggested_pixel=int(date_pix.partition(" ")[2])
-                            #If it has found its suggested pixel, leave the loop
-                            continue               
-
+                        if (folder_day=='jun04'):
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue   
+                        else:
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue               
+                    pdb.set_trace()
                     #I.b. Call the kernel_function to pick the surface
                     surface_indices=kernel_function(radar_echo, suggested_pixel)
                     
@@ -460,7 +466,7 @@ for folder_year in folder_years:
                     
                     #Generate the pick for vertical distance display
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
-                    
+                    pdb.set_trace()
                     #I.d. Plot the radar slice (first 30m of radar echogram)
                     #pdb.set_trace()
                     #Plot the data            
