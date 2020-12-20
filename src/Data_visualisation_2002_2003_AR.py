@@ -41,9 +41,9 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='FALSE'
+surf_pick_selection='TRUE'
 raw_radar_echograms='FALSE'
-plot_radar_echogram_slice='TRUE'
+plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
 plot_slice_and_loc='FALSE'
 
@@ -708,11 +708,18 @@ for folder_year in folder_years:
                     # variable in 2002/2003 dataset such as 2010/2014 datset).
 
                     # Load the suggested pixel for the specific date
+                    pdb.set_trace()
                     for date_pix in lines:
-                        if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
-                            suggested_pixel=int(date_pix.partition(" ")[2])
-                            #If it has found its suggested pixel, leave the loop
-                            continue               
+                        if (folder_day=='jun04'):
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue   
+                        else:
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue
                     
                     #I.b. Call the kernel_function to pick the surface
                     surface_indices=kernel_function(radar_echo, suggested_pixel)
