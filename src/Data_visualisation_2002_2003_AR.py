@@ -42,8 +42,8 @@ t0 = 0; # Unknown so set to zero
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 surf_pick_selection='FALSE'
-raw_radar_echograms='TRUE'
-plot_radar_echogram_slice='FALSE'
+raw_radar_echograms='FALSE'
+plot_radar_echogram_slice='TRUE'
 plot_radar_loc='FALSE'
 plot_slice_and_loc='FALSE'
 
@@ -413,6 +413,7 @@ for folder_year in folder_years:
                     # variable in 2002/2003 dataset such as 2010/2014 datset).
 
                     # Load the suggested pixel for the specific date
+                    pdb.set_trace()
                     for date_pix in lines:
                         if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
                             suggested_pixel=int(date_pix.partition(" ")[2])

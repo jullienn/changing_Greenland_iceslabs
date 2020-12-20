@@ -44,10 +44,8 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 raw_radar_echograms='TRUE'
 
 #Choose the year I want to diplay
-year_display='2017'
+year_display='2002'
 
-#N defines the number of different colors I want to use for the elevation plot
-N=10
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -84,7 +82,7 @@ os.chdir(path) # relative path: scripts dir is under Lab
 
 # Read the years of data
 folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
-
+pdb.set_trace()
 for folder_year in folder_years:
     
     if (year_display in list(['2002','2003'])):
@@ -99,10 +97,6 @@ for folder_year in folder_years:
             folder_days = [ f.name for f in os.scandir(folder_year_name) if f.is_dir() ]
             
             for folder_day in folder_days:
-                
-                if (folder_day=='jun04'):
-                    print('Folder',folder_day,'. Not aggregated files, treat this one at the end. Continue ...')
-                    continue
                 
                 print('Now in year',folder_year,'day',folder_day)
                 
@@ -128,17 +122,27 @@ for folder_year in folder_years:
                         print('No need to improve start surf pick of',indiv_file.replace("_aggregated",""))
                         continue
                     
-                    #Open the file and read it
-                    f_agg = open(folder_day_name+'/'+indiv_file, "rb")
-                    data = pickle.load(f_agg)
-                    f_agg.close()
-                                    
-                    #Select radar echogram and corresponding lat/lon
-                    radar_echo=data['radar_echogram']
-                    
-                    latlontime=data['latlontime']
-                    lat=latlontime['lat_gps']
-                    lon=latlontime['lon_gps']
+                    if (folder_day=='jun04'):
+                        print('Folder is',folder_day,', Special treatment')
+                        
+                        fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
+                        #Select radar echogram and corresponding lat/lon
+                        radar_echo=fdata['data']
+                        lat=fdata['latitude']
+                        lon=fdata['longitude']
+                        pdb.set_trace()
+                    else:
+                        #Open the file and read it
+                        f_agg = open(folder_day_name+'/'+indiv_file, "rb")
+                        data = pickle.load(f_agg)
+                        f_agg.close()
+                                        
+                        #Select radar echogram and corresponding lat/lon
+                        radar_echo=data['radar_echogram']
+                        
+                        latlontime=data['latlontime']
+                        lat=latlontime['lat_gps']
+                        lon=latlontime['lon_gps']
                     
                     #Select the first 30m of radar echogram
                     #1. Compute the vertical resolution
