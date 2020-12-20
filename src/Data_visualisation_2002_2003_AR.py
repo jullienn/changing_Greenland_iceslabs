@@ -41,10 +41,10 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='TRUE'
+surf_pick_selection='FALSE'
 raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
-plot_radar_loc='FALSE'
+plot_radar_loc='TRUE'
 plot_slice_and_loc='FALSE'
 
 #N defines the number of different colors I want to use for the elevation plot
@@ -505,6 +505,7 @@ for folder_year in folder_years:
                 #If plot_radar_loc is set to 'TRUE', then plot the location of
                 #radar echogram of that date and save it
                 if (plot_radar_loc=='TRUE'):
+                    pdb.set_trace()
                     #If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
@@ -527,8 +528,11 @@ for folder_year in folder_years:
                     #II.b.1. Reproject the track from WGS 84 to EPSG 3413
                     #Some index have lat and lon equal to 0 because of jumps in data aggregation.
                     #Replace these 0 by NaNs
-                    lat.replace(0, np.nan, inplace=True)
-                    lon.replace(0, np.nan, inplace=True)
+                    
+                    pdb.set_trace()
+                    if (not(folder_day=='jun04')):
+                        lat.replace(0, np.nan, inplace=True)
+                        lon.replace(0, np.nan, inplace=True)
                     
                     #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
                     lon=-lon
@@ -708,7 +712,7 @@ for folder_year in folder_years:
                     # variable in 2002/2003 dataset such as 2010/2014 datset).
 
                     # Load the suggested pixel for the specific date
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     for date_pix in lines:
                         if (folder_day=='jun04'):
                             if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
