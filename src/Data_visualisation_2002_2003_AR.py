@@ -319,36 +319,36 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-                
-                ##############################################################
-                #              Begining treating june 04 2002                #
-                ##############################################################
-                if (folder_day=='jun04'):
-                    print('Folder',folder_day)
-                    pdb.set_trace()
-                    continue
-                
-                ##############################################################
-                #                End treating june 04 2002                   #
-                ##############################################################
-                
+
                 #pdb.set_trace()
                 #If indiv_file is the quality file, continue
                 if (indiv_file[0:7]==('quality')):
                     #pdb.set_trace()
                     continue
                 
-                #Open the file and read it
-                f_agg = open(folder_day_name+'/'+indiv_file, "rb")
-                data = pickle.load(f_agg)
-                f_agg.close()
-                                
-                #Select radar echogram and corresponding lat/lon
-                radar_echo=data['radar_echogram']
-                
-                latlontime=data['latlontime']
-                lat=latlontime['lat_gps']
-                lon=latlontime['lon_gps']
+                if (folder_day=='jun04'):
+                    print('Folder is',folder_day,', Special treatment')
+                    
+                    fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
+                    #Select radar echogram and corresponding lat/lon
+                    radar_echo=fdata['data']
+                    lat=fdata['latitude']
+                    lon=fdata['longitude']
+                    pdb.set_trace()
+
+                else:
+                    print('Folder is',folder_day,', Classical treatment')
+                    #Open the file and read it
+                    f_agg = open(folder_day_name+'/'+indiv_file, "rb")
+                    data = pickle.load(f_agg)
+                    f_agg.close()
+                                    
+                    #Select radar echogram and corresponding lat/lon
+                    radar_echo=data['radar_echogram']
+                    
+                    latlontime=data['latlontime']
+                    lat=latlontime['lat_gps']
+                    lon=latlontime['lon_gps']
                 
                 #Select the first 30m of radar echogram
                 #1. Compute the vertical resolution
