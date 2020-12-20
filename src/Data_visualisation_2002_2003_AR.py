@@ -41,8 +41,8 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='TRUE'
-raw_radar_echograms='FALSE'
+surf_pick_selection='FALSE'
+raw_radar_echograms='TRUE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
 plot_slice_and_loc='FALSE'
@@ -308,10 +308,6 @@ for folder_year in folder_years:
         
         for folder_day in folder_days:
             
-            if (folder_day=='jun04'):
-                print('Folder',folder_day,'. Not aggregated files, treat this one at the end. Continue ...')
-                continue
-            
             print('Now in year',folder_year,'day',folder_day)
             
             #Go into the daily folders 
@@ -323,6 +319,19 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
+                
+                ##############################################################
+                #              Begining treating june 04 2002                #
+                ##############################################################
+                if (folder_day=='jun04'):
+                    print('Folder',folder_day)
+                    pdb.set_trace()
+                    continue
+                
+                ##############################################################
+                #                End treating june 04 2002                   #
+                ##############################################################
+                
                 #pdb.set_trace()
                 #If indiv_file is the quality file, continue
                 if (indiv_file[0:7]==('quality')):
