@@ -327,7 +327,6 @@ for folder_year in folder_years:
                     continue
                 
                 if (folder_day=='jun04'):
-                    print('Folder is',folder_day,', Special treatment')
                     
                     fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
                     #Select radar echogram and corresponding lat/lon
@@ -337,7 +336,6 @@ for folder_year in folder_years:
                     #pdb.set_trace()
 
                 else:
-                    print('Folder is',folder_day,', Classical treatment')
                     #Open the file and read it
                     f_agg = open(folder_day_name+'/'+indiv_file, "rb")
                     data = pickle.load(f_agg)
@@ -547,7 +545,7 @@ for folder_year in folder_years:
                     
                     #II.b.2. Plot the tracks
                     pyplot.scatter(lon_3413, lat_3413)
-                    pyplot.scatter(lon_3413[0],lat_3413[0],c='m') #Plot the start in green
+                    #pyplot.scatter(lon_3413[0],lat_3413[0],c='m') #Plot the start in green
                     pyplot.grid()
                     #pyplot.show()
                     
@@ -574,7 +572,8 @@ for folder_year in folder_years:
                     #I. Process and plot radar echogram
                     #I.a. Load the surface suggestion pick (there is no 'Surface'
                     # variable in 2002/2003 dataset such as 2010/2014 datset).
-
+                    pdb.set_trace()
+                    
                     # Load the suggested pixel for the specific date
                     for date_pix in lines:
                         if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
