@@ -41,10 +41,10 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='FALSE'
+surf_pick_selection='TRUE'
 raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
-plot_radar_loc='TRUE'
+plot_radar_loc='FALSE'
 plot_slice_and_loc='FALSE'
 
 #N defines the number of different colors I want to use for the elevation plot
