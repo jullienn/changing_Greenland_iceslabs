@@ -82,7 +82,7 @@ os.chdir(path) # relative path: scripts dir is under Lab
 
 # Read the years of data
 folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
-pdb.set_trace()
+#pdb.set_trace()
 for folder_year in folder_years:
     
     if (year_display in list(['2002','2003'])):
@@ -136,7 +136,7 @@ for folder_year in folder_years:
                         radar_echo=fdata['data']
                         lat=fdata['latitude']
                         lon=fdata['longitude']
-                        pdb.set_trace()
+                        #pdb.set_trace()
                     else:
                         #Open the file and read it
                         f_agg = open(folder_day_name+'/'+indiv_file, "rb")
