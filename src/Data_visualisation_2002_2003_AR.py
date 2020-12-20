@@ -41,11 +41,11 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='TRUE'
+surf_pick_selection='FALSE'
 raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
-plot_slice_and_loc='FALSE'
+plot_slice_and_loc='TRUE'
 
 #N defines the number of different colors I want to use for the elevation plot
 N=10
@@ -576,11 +576,17 @@ for folder_year in folder_years:
                     
                     # Load the suggested pixel for the specific date
                     for date_pix in lines:
-                        if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
-                            suggested_pixel=int(date_pix.partition(" ")[2])
-                            #If it has found its suggested pixel, leave the loop
-                            continue               
-
+                        if (folder_day=='jun04'):
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue   
+                        else:
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue                            
+                    
                     #I.b. Call the kernel_function to pick the surface
                     surface_indices=kernel_function(radar_echo, suggested_pixel)
                     
@@ -623,8 +629,10 @@ for folder_year in folder_years:
                     #II.a.1. Reproject the track from WGS 84 to EPSG 3413
                     #Some index have lat and lon equal to 0 because of jumps in data aggregation.
                     #Replace these 0 by NaNs
-                    lat.replace(0, np.nan, inplace=True)
-                    lon.replace(0, np.nan, inplace=True)
+                    
+                    if (not(folder_day=='jun04')):
+                        lat.replace(0, np.nan, inplace=True)
+                        lon.replace(0, np.nan, inplace=True)
                     
                     #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
                     lon=-lon
@@ -665,7 +673,7 @@ for folder_year in folder_years:
                     #Subplot N°2:
                     #Create the y vector for plotting
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
-                    
+                    pdb.set_trace()
                     #Plot the radar slice
                     cb=ax2.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
