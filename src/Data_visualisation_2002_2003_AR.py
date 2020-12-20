@@ -334,7 +334,7 @@ for folder_year in folder_years:
                     radar_echo=fdata['data']
                     lat=fdata['latitude']
                     lon=fdata['longitude']
-                    pdb.set_trace()
+                    #pdb.set_trace()
 
                 else:
                     print('Folder is',folder_day,', Classical treatment')
@@ -413,7 +413,7 @@ for folder_year in folder_years:
                     # variable in 2002/2003 dataset such as 2010/2014 datset).
 
                     # Load the suggested pixel for the specific date
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     for date_pix in lines:
                         if (folder_day=='jun04'):
                             if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
@@ -425,7 +425,7 @@ for folder_year in folder_years:
                                 suggested_pixel=int(date_pix.partition(" ")[2])
                                 #If it has found its suggested pixel, leave the loop
                                 continue               
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     #I.b. Call the kernel_function to pick the surface
                     surface_indices=kernel_function(radar_echo, suggested_pixel)
                     
@@ -466,7 +466,7 @@ for folder_year in folder_years:
                     
                     #Generate the pick for vertical distance display
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     #I.d. Plot the radar slice (first 30m of radar echogram)
                     #pdb.set_trace()
                     #Plot the data            
@@ -505,7 +505,7 @@ for folder_year in folder_years:
                 #If plot_radar_loc is set to 'TRUE', then plot the location of
                 #radar echogram of that date and save it
                 if (plot_radar_loc=='TRUE'):
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     #If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
@@ -529,7 +529,7 @@ for folder_year in folder_years:
                     #Some index have lat and lon equal to 0 because of jumps in data aggregation.
                     #Replace these 0 by NaNs
                     
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     if (not(folder_day=='jun04')):
                         lat.replace(0, np.nan, inplace=True)
                         lon.replace(0, np.nan, inplace=True)
