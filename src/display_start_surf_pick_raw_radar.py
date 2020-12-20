@@ -118,9 +118,15 @@ for folder_year in folder_years:
                     #If files does not deblong to 'dates_surf', the improvement of
                     #the start surf pick is not neccessary, continue
                     #pdb.set_trace()
-                    if (not(indiv_file.replace("_aggregated","") in dates_surf)):
-                        print('No need to improve start surf pick of',indiv_file.replace("_aggregated",""))
-                        continue
+                    
+                    if (folder_day=='jun04'):
+                        if (not(indiv_file.replace(".mat","") in dates_surf)):
+                            print('No need to improve start surf pick of',indiv_file.replace(".mat",""))
+                            continue
+                    else:
+                        if (not(indiv_file.replace("_aggregated","") in dates_surf)):
+                            print('No need to improve start surf pick of',indiv_file.replace("_aggregated",""))
+                            continue
                     
                     if (folder_day=='jun04'):
                         print('Folder is',folder_day,', Special treatment')
