@@ -49,6 +49,9 @@ N=10
 ############################## Define variables ##############################
 ##############################################################################
 
+def onclick(event):
+    #This functions print and save the x and y coordinates in pixels!
+    print(event.xdata, event.ydata)
 
 ##############################################################################
 ############# Define kernel function for surface identification ##############
@@ -59,14 +62,14 @@ def _gaussian(x,mu,sigma):
     return np.exp(-np.power((x-mu)/sigma, 2.)/2.)
 
 #This function have been taken from 'IceBridgeGPR_Manager_v2.py
-def modified_kernel_function(traces_input,suggested_pixel):
+def modified_kernel_function(traces_input,suggested_pixel,drift_start):
         
     pdb.set_trace()
     
     traces = traces_input
     #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
     #traces = np.log10(traces)
-    
+        
     ##########################################################################
     #           Plot base figure for evolution of surface picking            #
     ##########################################################################
@@ -129,7 +132,7 @@ def modified_kernel_function(traces_input,suggested_pixel):
     # A template graph to use, just have to add in the center vertical index at each point and go from there.
     search_indices_template = np.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
     for i in range(traces.shape[1]):
-        pdb.set_trace()
+        
         # Create an array of indices spanning the top-to-bottom of the MASK_SEARCH_RADIUS, and fanning out MASK_RADIUS above and below that point.
         search_indices = search_indices_template + last_best_index
         # Handle overflow indices if below zero or above max (shouldn't generally happen)... just assign to the top or bottom pixel
@@ -148,12 +151,18 @@ def modified_kernel_function(traces_input,suggested_pixel):
         #               Plot the evolution of surface picking               #
         #####################################################################
         #II.b.2. Display the picked surface over it
-        pdb.set_trace()
-        pyplot.plot(np.arange(0,traces.shape[1]),improved_indices,linestyle='--',color='red',linewidth=0.1)
+        pyplot.plot(np.arange(0,traces.shape[1]),improved_indices,linestyle='--',color='red',linewidth=0.1)        
+        
+        fig.canvas.mpl_connect('button_press_event', onclick)
         pyplot.show()
+        #pdb.set_trace()
         #####################################################################
         #               Plot the evolution of surface picking               #
         #####################################################################
+        #Pick up the pixel where it start to drift
+        if (i==drift_start[0]):
+            pdb.set_trace()
+        
         #Change the last index of imprived_indices manually if I see a drift:
         #   This line is to execute directly in the console.
         #improved_indices[i]=
@@ -329,11 +338,16 @@ f.close()
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 os.chdir(path) # relative path: scripts dir is under Lab
 
-#Define the dates that need the surface picking  to be semi-automatic
-dates_surf_pick_impr=['may24_02_23','may24_02_24','may24_02_25','may30_02_1'
-                          ,'may30_02_2','may30_02_4','may30_02_5','may30_02_6'
-                          ,'may30_02_7','may30_02_13','may30_02_14','may30_02_15'
-                          ,'may30_02_50','may30_02_51']
+#Create the dataframe that define the dates that need the surface picking
+#to be semi-automatic as well as the pixel start to drift
+df_dates_surf_pick=pd.DataFrame({'dates_surf_pick_impr':pd.Series(['may24_02_23','may24_02_24','may24_02_25','may30_02_1',
+                                                                   'may30_02_2','may30_02_4','may30_02_5','may30_02_6',
+                                                                   'may30_02_7','may30_02_13','may30_02_14','may30_02_15',
+                                                                   'may30_02_50','may30_02_51']),
+                                 'start_drift_vect':pd.Series([410,150,180,8,
+                                                               470,550,30,35,
+                                                               40,20,150,30,
+                                                               180,450])})
 
 # Read the years of data
 folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
@@ -368,12 +382,12 @@ for folder_year in folder_years:
                     #pdb.set_trace()
                     continue
                 
-                if (not(indiv_file.replace("_aggregated","") in list(dates_surf_pick_impr))):
+                if (not(indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr']))):
                     print('Do need to improve surface picking of '+indiv_file)
                     continue
 
                 print('Start surface picking improvement procedure of '+indiv_file)
-
+                pdb.set_trace()
                 if (folder_day=='jun04'):
                     
                     fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
@@ -433,16 +447,22 @@ for folder_year in folder_years:
                                 #If it has found its suggested pixel, leave the loop
                                 continue
                     
+                    #Grab the pixel where it start to drift
+                    start_drift=[]
+                    start_drift=list(df_dates_surf_pick[df_dates_surf_pick['dates_surf_pick_impr']==indiv_file.replace("_aggregated","")]['start_drift_vect'])
+                    pdb.set_trace()
+                                        
                     #I.b. Call the modified_kernel_function to pick the surface
-                    surface_indices=modified_kernel_function(radar_echo, suggested_pixel)
+                    surface_indices=modified_kernel_function(radar_echo, suggested_pixel,start_drift)
                     
                     #I.c. Save the surface_indices for this specific date
                     
                     #Log the date we are dealing with in the ice lenses location file
-                    filename_surf='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/filename_surf_'+indiv_file.replace(".mat","")'.txt'
+                    filename_surf='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/filename_surf_'+indiv_file.replace(".mat","")+'.txt'
                     
                     f_surf = open(filename_surf, "a")
-                    f_surf.write(str(surface_indices))
+                    for i in range(0,len(surface_indices)):
+                        f_surf.write(str(surface_indices[i])+'\n')
                     f_surf.close() #Close the file
                     
                     #I.d. Select the radar slice
