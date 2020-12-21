@@ -77,25 +77,21 @@ def modified_kernel_function(traces_input,suggested_pixel):
     #II. Plot radar echogram localisation
     #II.a. Create the subplot
     #pdb.set_trace()
-    pyplot.figure(figsize=(12,10))
+    fig = pyplot.figure(figsize=(6,5))
     pyplot.rcParams.update({'font.size': 5})
-    fig, (ax1, ax2) = pyplot.subplots(2, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    fig.suptitle(indiv_file.replace("_aggregated",""))
+    fig.suptitle('Raw radar echogram: '+indiv_file.replace("_aggregated",""),fontsize=5)
     
     #II.b. Plot the raw radar slice with the surface highlighted
     #II.b.1. Plot the raw radar echogram
-    cb_1=ax1.pcolor(traces,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+    cb_1=pyplot.pcolor(traces,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+    pyplot.yticks(ticks_yplot, np.round(depths[ticks_yplot]))
+    #pyplot.set_title('Raw radar echogram',fontsize=5)
+    pyplot.ylabel('Depth [m]')
+    pyplot.xlabel('Horizontal distance [ ]')                    
+    cbar1=fig.colorbar(cb_1)
+    cbar1.set_label('Signal strength [dB]', fontsize=5)
     
-    ax1.set_yticks(ticks_yplot) 
-    ax1.set_yticklabels(np.round(depths[ticks_yplot]))
-    
-    ax1.set_title('Raw radar echogram',fontsize=5)
-    ax1.set_ylabel('Depth [m]')
-    ax1.set_xlabel('Horizontal distance')                    
-    cbar1=fig.colorbar(cb_1, ax=[ax1], location='right')
-    cbar1.set_label('Signal strength', fontsize=5)
-    
-    #plt.axis([xmin,xmax,2000,3000])
+    pyplot.axis([0,traces.shape[1],1250,3500])
     
     pyplot.show()
     
@@ -133,7 +129,7 @@ def modified_kernel_function(traces_input,suggested_pixel):
     # A template graph to use, just have to add in the center vertical index at each point and go from there.
     search_indices_template = np.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
     for i in range(traces.shape[1]):
-        
+        pdb.set_trace()
         # Create an array of indices spanning the top-to-bottom of the MASK_SEARCH_RADIUS, and fanning out MASK_RADIUS above and below that point.
         search_indices = search_indices_template + last_best_index
         # Handle overflow indices if below zero or above max (shouldn't generally happen)... just assign to the top or bottom pixel
@@ -151,18 +147,16 @@ def modified_kernel_function(traces_input,suggested_pixel):
         #####################################################################
         #               Plot the evolution of surface picking               #
         #####################################################################
-        
         #II.b.2. Display the picked surface over it
         pdb.set_trace()
-        ax1.plot(np.arange(0,traces.shape[1]),surface_indices,linestyle='--',color='red',linewidth=0.1)
-        #II.b.3. Display the bootom picked surface over it
-        ax1.plot(np.arange(0,traces.shape[1]),np.asarray(bottom_indices).flatten(),linestyle='--',color='magenta',linewidth=0.1)
-        #II.b.4 Set plot properties
-        ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
-        
+        pyplot.plot(np.arange(0,traces.shape[1]),improved_indices,linestyle='--',color='red',linewidth=0.1)
+        pyplot.show()
         #####################################################################
         #               Plot the evolution of surface picking               #
         #####################################################################
+        #Change the last index of imprived_indices manually if I see a drift:
+        #   This line is to execute directly in the console.
+        #improved_indices[i]=
         
     #If there are pixels with particularly strong echo that are being erroneously
     #picked up as the surface, erase most the little "jump" artifacts in
@@ -173,7 +167,6 @@ def modified_kernel_function(traces_input,suggested_pixel):
     ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
     ##### improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
     
-    #pdb.set_trace()
     return improved_indices
 ##############################################################################
 ############# Define kernel function for surface identification ##############
@@ -443,7 +436,16 @@ for folder_year in folder_years:
                     #I.b. Call the modified_kernel_function to pick the surface
                     surface_indices=modified_kernel_function(radar_echo, suggested_pixel)
                     
-                    #I.c. Select the radar slice
+                    #I.c. Save the surface_indices for this specific date
+                    
+                    #Log the date we are dealing with in the ice lenses location file
+                    filename_surf='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/filename_surf_'+indiv_file.replace(".mat","")'.txt'
+                    
+                    f_surf = open(filename_surf, "a")
+                    f_surf.write(str(surface_indices))
+                    f_surf.close() #Close the file
+                    
+                    #I.d. Select the radar slice
                     #Define the uppermost and lowermost limits
                     meters_cutoff_above=0
                     meters_cutoff_below=30
