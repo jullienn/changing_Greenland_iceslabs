@@ -386,6 +386,11 @@ for folder_year in folder_years:
                 if (not(indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr']))):
                     print('Do need to improve surface picking of '+indiv_file)
                     continue
+                
+                filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/'+indiv_file.replace("_aggregated","")+'_improved_surfpick.png'
+                if (os.path.isfile(filename_to_check)):
+                    print('Surface have already been improved, continue')
+                    continue
 
                 print('Start surface picking improvement procedure of '+indiv_file)
                 pdb.set_trace()
