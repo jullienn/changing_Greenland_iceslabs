@@ -63,8 +63,6 @@ def _gaussian(x,mu,sigma):
 
 #This function have been taken from 'IceBridgeGPR_Manager_v2.py
 def modified_kernel_function(traces_input,suggested_pixel,drift_start):
-        
-    pdb.set_trace()
     
     traces = traces_input
     #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
@@ -98,7 +96,6 @@ def modified_kernel_function(traces_input,suggested_pixel,drift_start):
     
     pyplot.show()
     
-    pdb.set_trace()
     ##########################################################################
     #           Plot base figure for evolution of surface picking            #
     ##########################################################################
@@ -393,7 +390,6 @@ for folder_year in folder_years:
                     continue
 
                 print('Start surface picking improvement procedure of '+indiv_file)
-                pdb.set_trace()
                 if (folder_day=='jun04'):
                     
                     fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
