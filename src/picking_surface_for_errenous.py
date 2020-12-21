@@ -160,12 +160,13 @@ def modified_kernel_function(traces_input,suggested_pixel,drift_start):
         #               Plot the evolution of surface picking               #
         #####################################################################
         #Pick up the pixel where it start to drift
-        if (i==drift_start[0]):
+        if (i>=drift_start[0]):
             pdb.set_trace()
         
         #Change the last index of imprived_indices manually if I see a drift:
         #   This line is to execute directly in the console.
         #improved_indices[i]=
+        #last_best_index
         
     #If there are pixels with particularly strong echo that are being erroneously
     #picked up as the surface, erase most the little "jump" artifacts in
@@ -458,7 +459,7 @@ for folder_year in folder_years:
                     #I.c. Save the surface_indices for this specific date
                     
                     #Log the date we are dealing with in the ice lenses location file
-                    filename_surf='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/filename_surf_'+indiv_file.replace(".mat","")+'.txt'
+                    filename_surf='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/surf_'+indiv_file.replace(".mat","")+'.txt'
                     
                     f_surf = open(filename_surf, "a")
                     for i in range(0,len(surface_indices)):
