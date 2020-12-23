@@ -164,7 +164,8 @@ def modified_kernel_function(traces_input,suggested_pixel,drift_start):
         #   This line is to execute directly in the console.
         #improved_indices[i]=
         #last_best_index
-        
+    
+    pdb.set_trace()
     #If there are pixels with particularly strong echo that are being erroneously
     #picked up as the surface, erase most the little "jump" artifacts in
     #the surface picker.
@@ -342,7 +343,7 @@ df_dates_surf_pick=pd.DataFrame({'dates_surf_pick_impr':pd.Series(['may24_02_23'
                                                                    'may30_02_2','may30_02_4','may30_02_5','may30_02_6',
                                                                    'may30_02_7','may30_02_13','may30_02_14','may30_02_15',
                                                                    'may30_02_50','may30_02_51']),
-                                 'start_drift_vect':pd.Series([410,150,180,8,
+                                 'start_drift_vect':pd.Series([410,150,800,8,
                                                                470,550,30,35,
                                                                40,20,150,30,
                                                                180,450])})
@@ -382,6 +383,10 @@ for folder_year in folder_years:
                 
                 if (not(indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr']))):
                     print('Do need to improve surface picking of '+indiv_file)
+                    continue
+                
+                if (indiv_file == 'may30_02_1_aggregated'):
+                    print('Will do this one later on '+indiv_file)
                     continue
                 
                 filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/'+indiv_file.replace("_aggregated","")+'_improved_surfpick.png'
