@@ -446,11 +446,11 @@ for folder_year in folder_years:
                         
                         #Open, read and close the file of surface picks
                         fsurf = open(filename_improved_indices,'r')
-                        lines = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
+                        lines_fsurf = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
                         fsurf.close()
                         
                         #Store the surface indices into the right variable as int64
-                        surface_indices=np.asarray(lines,dtype=np.int64)
+                        surface_indices=np.asarray(lines_fsurf,dtype=np.int64)
                         
                     else:
                         #I.b.2. If not already semi automatically generated, call
@@ -629,11 +629,11 @@ for folder_year in folder_years:
                         
                         #Open, read and close the file of surface picks
                         fsurf = open(filename_improved_indices,'r')
-                        lines = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
+                        lines_fsurf = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
                         fsurf.close()
                         
                         #Store the surface indices into the right variable as int64
-                        surface_indices=np.asarray(lines,dtype=np.int64)
+                        surface_indices=np.asarray(lines_fsurf,dtype=np.int64)
                         
                     else:
                         #I.b.2. If not already semi automatically generated, call
@@ -795,11 +795,11 @@ for folder_year in folder_years:
                         
                         #Open, read and close the file of surface picks
                         fsurf = open(filename_improved_indices,'r')
-                        lines = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
+                        lines_fsurf = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
                         fsurf.close()
                         
                         #Store the surface indices into the right variable as int64
-                        surface_indices=np.asarray(lines,dtype=np.int64)
+                        surface_indices=np.asarray(lines_fsurf,dtype=np.int64)
                         
                     else:
                         #I.b.2. If not already semi automatically generated, call
