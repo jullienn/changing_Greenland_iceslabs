@@ -43,6 +43,13 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 plot_radar_echogram_slice='TRUE'
 
+#Create the dataframe that define the dates who have experienced a surface
+#picking improvement
+df_dates_surf_pick=pd.DataFrame({'dates_surf_pick_impr':pd.Series(['may24_02_23','may24_02_24','may24_02_25',
+                                                                   'may30_02_2','may30_02_4','may30_02_5','may30_02_6',
+                                                                   'may30_02_7','may30_02_13','may30_02_14','may30_02_15',
+                                                                   'may30_02_50','may30_02_51'])})
+
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -415,9 +422,30 @@ for folder_year in folder_years:
                                 #If it has found its suggested pixel, leave the loop
                                 continue
                     
-                    #I.b. Call the kernel_function to pick the surface
-                    surface_indices=kernel_function(radar_echo, suggested_pixel)
+                    #I.b. Get the surface indices
                     
+                    if (indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr'])):
+                        #I.b.1. If already semi automatically generated, read the file
+                        print(indiv_file+' have a semi-automatic improved file: use it!')
+                        
+                        #Construct the fiename of the wanted file
+                        filename_improved_indices=[]
+                        path_improved_indices='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/surf_'
+                        filename_improved_indices=path_improved_indices+indiv_file+'.txt'
+                        
+                        #Open, read and close the file of surface picks
+                        fsurf = open(filename_improved_indices,'r')
+                        lines = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
+                        fsurf.close()
+                        
+                        #Store the surface indices into the right variable as int64
+                        surface_indices=np.asarray(lines,dtype=np.int64)
+                        
+                    else:
+                        #I.b.2. If not already semi automatically generated, call
+                        #the kernel_function to pick the surface
+                        surface_indices=kernel_function(radar_echo, suggested_pixel)
+                        
                     #I.c. Select the radar slice
                     #Define the uppermost and lowermost limits
                     meters_cutoff_above=0
@@ -501,7 +529,7 @@ for folder_year in folder_years:
                     #pyplot.savefig(fig_name,dpi=500)
                     #pyplot.clf()
                     
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     
                     continue
                     
