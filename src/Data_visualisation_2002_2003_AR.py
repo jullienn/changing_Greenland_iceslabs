@@ -41,11 +41,11 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='TRUE'
+surf_pick_selection='FALSE'
 raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
-plot_slice_and_loc='FALSE'
+plot_slice_and_loc='TRUE'
 
 #N defines the number of different colors I want to use for the elevation plot
 N=10
@@ -723,7 +723,7 @@ for folder_year in folder_years:
                     #Subplot N°2:
                     #Create the y vector for plotting
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     #Plot the radar slice
                     cb=ax2.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
@@ -823,7 +823,7 @@ for folder_year in folder_years:
                     # by looking in the variables it the job was done correctly but I have
                     # checked several variables such as idx_above, idx_below, output traces
                     # and it seems okay to me!
-                    pdb.set_trace()
+                    
                     #Create the y vector for plotting
                     ticks_yplot=np.arange(0,radar_echo.shape[0],200)
                     

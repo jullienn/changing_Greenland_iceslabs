@@ -306,6 +306,7 @@ for folder_year in folder_years:
         potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
         f.close()
         
+        #### 1. Before surface pick improvement from semi-automatic forcing
         #Read the surface picking quality assessment file
         header_list=["date_file","quality"]
         surf_pick_assessment = pd.read_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/surf_picking_working_boolean_20022003.txt',sep=',',header=None,names=header_list)
@@ -331,9 +332,37 @@ for folder_year in folder_years:
                 else:
                     print(potential_iceslabs_file+' is not of good quality')
         
-        print('\nThe performance of surface picking form ice slabs files is:')
+        print('\nThe performance of surface picking from ice slabs files before surface picking improvement from semi-automatic forcing is:')
         print(str(count_correct_surf_pick/len(potential_iceslabs)*100)+' %')
-
+        
+        #### 2. After surface pick improvement from semi-automatic forcing
+        #Read the surface picking quality assessment file after picking improvement (semi-automatic forcing)
+        header_list=["date_file","quality"]
+        surf_pick_assessment_impr = pd.read_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/surf_picking_working_boolean_20022003_after_improvement.txt',sep=',',header=None,names=header_list)
+        
+        count_correct_surf_pick_impr=0
+        
+        for potential_iceslabs_file in potential_iceslabs:
+            #Check the potential ice slabs file have a corresponding quality index
+            if(potential_iceslabs_file in list(surf_pick_assessment_impr["date_file"])):
+                
+                #The two following lines are from:
+                #https://stackoverflow.com/questions/42386629/pandas-find-index-of-value-anywhere-in-dataframe
+                line_of_interest=[]
+                line_of_interest=surf_pick_assessment_impr[surf_pick_assessment_impr.isin([potential_iceslabs_file]).any(axis=1)]
+                
+                quality_of_interest=[]
+                quality_of_interest=np.asarray(line_of_interest["quality"])
+                
+                #Check that the potential ice slab file have a quality=1
+                if(quality_of_interest[0]==1):
+                    count_correct_surf_pick_impr=count_correct_surf_pick_impr+1
+                else:
+                    print(potential_iceslabs_file+' is not of good quality')
+        
+        print('\nThe performance of surface picking from ice slabs files after surface picking improvement from semi-automatic forcing is:')
+        print(str(count_correct_surf_pick_impr/len(potential_iceslabs)*100)+' %')
+        
         ######################################################################
         #                 Assess the surface pick performance                #
         ######################################################################            
