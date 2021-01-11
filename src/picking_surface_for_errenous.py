@@ -157,8 +157,8 @@ def modified_kernel_function(traces_input,suggested_pixel,drift_start):
         #               Plot the evolution of surface picking               #
         #####################################################################
         #Pick up the pixel where it start to drift
-        #if (i>=drift_start[0]):
-        #    pdb.set_trace()
+        if (i>=drift_start[0]):
+            pdb.set_trace()
         
         #Change the last index of imprived_indices manually if I see a drift:
         #   This line is to execute directly in the console.
@@ -387,10 +387,7 @@ for folder_year in folder_years:
                 
                 if (indiv_file == 'may30_02_1_aggregated'):
                     print('Will do this one later on '+indiv_file)
-                    continue
-                if (indiv_file == 'may30_02_50_aggregated'):
-                    print('Will do this one later on '+indiv_file)
-                    continue                
+                    continue         
                 
                 filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/'+indiv_file.replace("_aggregated","")+'_improved_surfpick.png'
                 if (os.path.isfile(filename_to_check)):
