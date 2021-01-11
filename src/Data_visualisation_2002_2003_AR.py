@@ -41,11 +41,11 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-surf_pick_selection='FALSE'
+surf_pick_selection='TRUE'
 raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
-plot_slice_and_loc='TRUE'
+plot_slice_and_loc='FALSE'
 
 #N defines the number of different colors I want to use for the elevation plot
 N=10
@@ -592,11 +592,11 @@ for folder_year in folder_years:
                 #If plot_slice_and_loc is set to 'TRUE', then plot the location of
                 #radar echogram AND the radar slice of that date and save it
                 if (plot_slice_and_loc=='TRUE'):
-                    ##If file have already been created, continue
-                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
-                    #if (os.path.isfile(filename_to_check)):
-                    #    print('Figure already existent, move on to the next date')
-                    #    continue
+                    #If file have already been created, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
                                         
                     #Subplot N°1:
                     #I. Process and plot radar echogram
@@ -617,7 +617,6 @@ for folder_year in folder_years:
                                 continue
                     
                     #I.b. Get the surface indices
-                    pdb.set_trace()
                     
                     if (indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr'])):
                         #I.b.1. If already semi automatically generated, read the file
@@ -640,8 +639,6 @@ for folder_year in folder_years:
                         #I.b.2. If not already semi automatically generated, call
                         #the kernel_function to pick the surface
                         surface_indices=kernel_function(radar_echo, suggested_pixel)
-                    
-                    continue
                     
                     #I.c. Select the radar slice
                     #Define the uppermost and lowermost limits
@@ -785,9 +782,30 @@ for folder_year in folder_years:
                                 #If it has found its suggested pixel, leave the loop
                                 continue
                     
-                    #I.b. Call the kernel_function to pick the surface
-                    surface_indices=kernel_function(radar_echo, suggested_pixel)
+                    #I.b. Get the surface indices
                     
+                    if (indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr'])):
+                        #I.b.1. If already semi automatically generated, read the file
+                        print(indiv_file+' have a semi-automatic improved file: use it!')
+                        
+                        #Construct the fiename of the wanted file
+                        filename_improved_indices=[]
+                        path_improved_indices='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/surf_'
+                        filename_improved_indices=path_improved_indices+indiv_file+'.txt'
+                        
+                        #Open, read and close the file of surface picks
+                        fsurf = open(filename_improved_indices,'r')
+                        lines = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
+                        fsurf.close()
+                        
+                        #Store the surface indices into the right variable as int64
+                        surface_indices=np.asarray(lines,dtype=np.int64)
+                        
+                    else:
+                        #I.b.2. If not already semi automatically generated, call
+                        #the kernel_function to pick the surface
+                        surface_indices=kernel_function(radar_echo, suggested_pixel)
+                
                     #I.c. Select the radar slice
                     #Define the uppermost and lowermost limits
                     meters_cutoff_above=0
