@@ -431,7 +431,7 @@ for folder_year in folder_years:
                                 suggested_pixel=int(date_pix.partition(" ")[2])
                                 #If it has found its suggested pixel, leave the loop
                                 continue               
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     
                     #I.b. Get the surface indices
                     
