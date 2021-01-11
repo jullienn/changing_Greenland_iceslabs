@@ -366,7 +366,7 @@ for folder_year in folder_years:
         ######################################################################
         #                 Assess the surface pick performance                #
         ######################################################################            
-        pdb.set_trace()
+        
         #Go into the yearly folders 
         folder_year_name=path+'/'+folder_year
         os.chdir(folder_year_name)
@@ -393,6 +393,18 @@ for folder_year in folder_years:
                     #pdb.set_trace()
                     continue
                 
+                #If the indiv_file is not in the potential ice slabs file,
+                #move on to the next date
+                if (folder_day=='jun04'):
+                    if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
+                        print(indiv_file+' is not a potential ice slab, move on.')
+                        continue
+                else:
+                    if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
+                        print(indiv_file+'is not a potential ice slab, move on.')
+                        continue
+                
+                #If the date is a potential ice slab, load the data
                 if (folder_day=='jun04'):
                     
                     fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
@@ -531,7 +543,7 @@ for folder_year in folder_years:
                     fig=pyplot.figure(figsize=(40,10))
                     
                     #Change label font
-                    pyplot.rcParams.update({'font.size': 40})
+                    pyplot.rcParams.update({'font.size': 20})
                     
                     color_map=pyplot.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
@@ -558,7 +570,7 @@ for folder_year in folder_years:
                     #pyplot.savefig(fig_name,dpi=500)
                     #pyplot.clf()
                     
-                    #pdb.set_trace()
+                    pdb.set_trace()
                     
                     continue
                     
