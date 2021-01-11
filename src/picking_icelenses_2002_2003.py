@@ -401,7 +401,7 @@ for folder_year in folder_years:
                         continue
                 else:
                     if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
-                        print(indiv_file+'is not a potential ice slab, move on.')
+                        print(indiv_file+' is not a potential ice slab, move on.')
                         continue
                 
                 #If the date is a potential ice slab, load the data
@@ -476,11 +476,11 @@ for folder_year in folder_years:
                         
                         #Open, read and close the file of surface picks
                         fsurf = open(filename_improved_indices,'r')
-                        lines = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
+                        lines_fsurf = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
                         fsurf.close()
                         
                         #Store the surface indices into the right variable as int64
-                        surface_indices=np.asarray(lines,dtype=np.int64)
+                        surface_indices=np.asarray(lines_fsurf,dtype=np.int64)
                         
                     else:
                         #I.b.2. If not already semi automatically generated, call
@@ -551,6 +551,7 @@ for folder_year in folder_years:
                     pyplot.gca().set_aspect('equal') # X scale matches Y scale
                     pyplot.ylabel('Depth [m]')
                     pyplot.xlabel('Horizontal distance')
+                    pyplot.clim(-1,1)
                     #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
                     #pyplot.xticks(fontsize=20)
                     #pyplot.yticks(fontsize=20)
