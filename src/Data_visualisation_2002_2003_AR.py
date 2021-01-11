@@ -451,6 +451,7 @@ for folder_year in folder_years:
                         
                         #Store the surface indices into the right variable as int64
                         surface_indices=np.asarray(lines,dtype=np.int64)
+                        
                     else:
                         #I.b.2. If not already semi automatically generated, call
                         #the kernel_function to pick the surface
