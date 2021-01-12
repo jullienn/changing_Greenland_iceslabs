@@ -532,6 +532,11 @@ for folder_year in folder_years:
                         f_log.write(str(indiv_file.replace("_aggregated",""))+'\n')
 
                     f_log.close() #Close the file
+                                        
+                    #Setting the bounds for the radargram plot
+                    slice_vect=np.array(radar_slice).ravel()
+                    lowerb_plot=np.percentile(slice_vect,5)
+                    upperb_plot=np.percentile(slice_vect,95)
                     
                     #Generate the pick for vertical distance display
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
@@ -551,7 +556,7 @@ for folder_year in folder_years:
                     pyplot.gca().set_aspect('equal') # X scale matches Y scale
                     pyplot.ylabel('Depth [m]')
                     pyplot.xlabel('Horizontal distance')
-                    pyplot.clim(-1,1)
+                    pyplot.clim(lowerb_plot,upperb_plot)
                     #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
                     #pyplot.xticks(fontsize=20)
                     #pyplot.yticks(fontsize=20)
@@ -570,8 +575,6 @@ for folder_year in folder_years:
                     ##Save the figure
                     #pyplot.savefig(fig_name,dpi=500)
                     #pyplot.clf()
-                    
-                    pdb.set_trace()
                     
                     continue
                     
