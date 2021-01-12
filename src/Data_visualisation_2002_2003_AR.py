@@ -267,6 +267,41 @@ def _get_rid_of_false_surface_jumps(surface_indices):
 ##############################################################################
 
 ##############################################################################
+################### Define function for radargram display ####################
+##############################################################################
+#Function taken from IceBridgeGPR_Manager_v2.py
+
+def _export_to_8bit_array(array):
+    '''In order to export a function to a PNG image, use this funciton to
+    export to an 8 bit unsigned integer array of scaled values.'''
+
+    output_array = np.zeros(array.shape, dtype=np.uint8)
+    excluded_mask = np.isnan(array)
+
+    range_min = 0
+    range_max = 2**8 - 1
+    # Get the data minimum and maximum while cutting off 0.5% of outliers
+    nonzero_values = array[~excluded_mask]
+    data_cutoff_min = np.percentile(nonzero_values,  0.5)
+    data_cutoff_max = np.percentile(nonzero_values, 99.5)
+
+    export_array_rescaled = (array - data_cutoff_min) / (data_cutoff_max - data_cutoff_min) * range_max
+    # Round to integer values
+    export_array_rescaled_int = np.rint(export_array_rescaled)
+    # Saturate at top & bottom
+    export_array_rescaled_int[export_array_rescaled_int < range_min] = range_min
+    export_array_rescaled_int[export_array_rescaled_int > range_max] = range_max
+    # Set all numpy.nan values to zero
+    export_array_rescaled_int[excluded_mask] = range_min
+    # plug into the integer array (conversion from larger to smaller integers)
+    output_array[:,:] = export_array_rescaled_int[:,:]
+
+    return output_array
+##############################################################################
+################### Define function for radargram display ####################
+##############################################################################
+
+##############################################################################
 ############### Define function for discrete colorbar display ###############
 ##############################################################################
 def discrete_cmap(N, base_cmap=None):
@@ -592,11 +627,11 @@ for folder_year in folder_years:
                 #If plot_slice_and_loc is set to 'TRUE', then plot the location of
                 #radar echogram AND the radar slice of that date and save it
                 if (plot_slice_and_loc=='TRUE'):
-                    #If file have already been created, continue
-                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
-                    if (os.path.isfile(filename_to_check)):
-                        print('Figure already existent, move on to the next date')
-                        continue
+                    ##If file have already been created, continue
+                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    #if (os.path.isfile(filename_to_check)):
+                    #    print('Figure already existent, move on to the next date')
+                    #    continue
                                         
                     #Subplot N°1:
                     #I. Process and plot radar echogram
@@ -657,6 +692,14 @@ for folder_year in folder_years:
                     # by looking in the variables it the job was done correctly but I have
                     # checked several variables such as idx_above, idx_below, output traces
                     # and it seems okay to me!
+                    
+                    #Rescale the radar slice as MacFerrin et al. 2019
+                    #1.If required to go through _export_to_8bit_array as a vector
+                    #radar_slice_rescaled=_export_to_8bit_array(np.ndarray.flatten(radar_slice))
+                    #radar_slice_rescaled_mat = radar_slice_rescaled.reshape(radar_slice.shape[0],radar_slice.shape[1])
+                    
+                    #2.If not required to go through _export_to_8bit_array as a vector
+                    radar_slice_rescaled_mat=_export_to_8bit_array(radar_slice)
     
                     ##############################################################
                     ############### Begin explanations on pcolor #################
@@ -696,7 +739,7 @@ for folder_year in folder_years:
                     lat_3413=points[1]
                     
                     #II.a.2 Create the subplot
-                    #pdb.set_trace()
+                    pdb.set_trace()
                     pyplot.figure(figsize=(48,40))
                     #Change label font
                     pyplot.rcParams.update({'font.size': 5})
@@ -723,34 +766,34 @@ for folder_year in folder_years:
                     #Subplot N°2:
                     #Create the y vector for plotting
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
-                    #pdb.set_trace()
+                    pdb.set_trace()
                     #Plot the radar slice
-                    cb=ax2.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    cb=ax2.pcolor(radar_slice_rescaled_mat,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
                     ax2.set_aspect('equal') # X scale matches Y scale
                     #In order to display the depth, I used the example 1 of the
                     #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
                     ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                    ax2.set_title('Radar echogram slice',fontsize=5)
+                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256',fontsize=5)
                     ax2.set_ylabel('Depth [m]')
                     ax2.set_xlabel('Horizontal distance')
-                    cbar=fig.colorbar(cb)
-                    cbar.set_label('Signal strength', fontsize=5)
+                    #cbar=fig.colorbar(cb)
+                    #cbar.set_label('Signal strength', fontsize=5)
                     #fig.tight_layout()
-                    #pyplot.show()
+                    pyplot.show()
                     
-                    #pdb.set_trace()
+                    pdb.set_trace()
                     
-                    #Create the figure name
-                    fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    ##Create the figure name
+                    #fig_name=[]
+                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
                     
-                    #Save the figure
-                    pyplot.savefig(fig_name,dpi=500)
-                    pyplot.clf()
-                    #Plot the data
-                    #pdb.set_trace()
+                    ##Save the figure
+                    #pyplot.savefig(fig_name,dpi=500)
+                    #pyplot.clf()
+                    ##Plot the data
+                    ##pdb.set_trace()
                     
                     continue
                 
