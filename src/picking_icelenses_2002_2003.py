@@ -592,7 +592,7 @@ for folder_year in folder_years:
                     fig=pyplot.figure(figsize=(40,10))
                     
                     #Change label font
-                    pyplot.rcParams.update({'font.size': 10})
+                    pyplot.rcParams.update({'font.size': 20})
                     
                     color_map=pyplot.pcolor(radar_slice_rescaled_mat,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
@@ -609,18 +609,18 @@ for folder_year in folder_years:
 
                     #cbar=pyplot.colorbar()
                     #cbar.set_label('Signal strength')
-                    #fig.canvas.mpl_connect('button_press_event', onclick)
+                    fig.canvas.mpl_connect('button_press_event', onclick)
                     
-                    #pyplot.show()
-                    #pdb.set_trace()
+                    pyplot.show()
+                    pdb.set_trace()
                     
                     ##Create the figure name
-                    fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/asMacFerrin_'+indiv_file+'.png'
+                    #fig_name=[]
+                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/asMacFerrin_'+indiv_file+'.png'
                     
                     ##Save the figure
-                    pyplot.savefig(fig_name,dpi=500)
-                    pyplot.clf()
+                    #pyplot.savefig(fig_name,dpi=500)
+                    #pyplot.clf()
                     
                     continue
                     
