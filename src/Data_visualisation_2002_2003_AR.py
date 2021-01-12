@@ -757,11 +757,11 @@ for folder_year in folder_years:
                     
                     #II.a.4. Plot the tracks
                     ax1.scatter(lon_3413, lat_3413,s=0.1)
-                    ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=0.1) #Plot the start in green
+                    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=0.1) #Plot the start in green
                     ax1.grid()
                     
-                    ax1.set_xlim(lon_3413[0,0]-500000, lon_3413[0,0]+500000)
-                    ax1.set_ylim(lat_3413[0,0]-500000, lat_3413[0,0]+500000)
+                    ax1.set_xlim(lon_3413[0]-500000, lon_3413[0]+500000)
+                    ax1.set_ylim(lat_3413[0]-500000, lat_3413[0]+500000)
                     
                     #II.b. Plot the radar slice (first 30m of radar echogram)
                     
