@@ -260,6 +260,42 @@ def _get_rid_of_false_surface_jumps(surface_indices):
 ##############################################################################
 
 ##############################################################################
+################### Define function for radargram display ####################
+##############################################################################
+#Function taken from IceBridgeGPR_Manager_v2.py
+
+def _export_to_8bit_array(array):
+    '''In order to export a function to a PNG image, use this funciton to
+    export to an 8 bit unsigned integer array of scaled values.'''
+
+    output_array = np.zeros(array.shape, dtype=np.uint8)
+    excluded_mask = np.isnan(array)
+
+    range_min = 0
+    range_max = 2**8 - 1
+    # Get the data minimum and maximum while cutting off 0.5% of outliers
+    nonzero_values = array[~excluded_mask]
+    data_cutoff_min = np.percentile(nonzero_values,  0.5)
+    data_cutoff_max = np.percentile(nonzero_values, 99.5)
+
+    export_array_rescaled = (array - data_cutoff_min) / (data_cutoff_max - data_cutoff_min) * range_max
+    # Round to integer values
+    export_array_rescaled_int = np.rint(export_array_rescaled)
+    # Saturate at top & bottom
+    export_array_rescaled_int[export_array_rescaled_int < range_min] = range_min
+    export_array_rescaled_int[export_array_rescaled_int > range_max] = range_max
+    # Set all numpy.nan values to zero
+    export_array_rescaled_int[excluded_mask] = range_min
+    # plug into the integer array (conversion from larger to smaller integers)
+    output_array[:,:] = export_array_rescaled_int[:,:]
+
+    return output_array
+
+##############################################################################
+################### Define function for radargram display ####################
+##############################################################################
+
+##############################################################################
 ################### Define function for ice lenses logging ###################
 ##############################################################################
 #This function if adapted from https://stackoverflow.com/questions/37363755/python-mouse-click-coordinates-as-simply-as-possible
@@ -533,11 +569,19 @@ for folder_year in folder_years:
 
                     f_log.close() #Close the file
                                         
-                    #Setting the bounds for the radargram plot
-                    slice_vect=np.array(radar_slice).ravel()
-                    lowerb_plot=np.percentile(slice_vect,5)
-                    upperb_plot=np.percentile(slice_vect,95)
+                    ##Setting the bounds for the radargram plot
+                    #slice_vect=np.array(radar_slice).ravel()
+                    #lowerb_plot=np.percentile(slice_vect,0.5)
+                    #upperb_plot=np.percentile(slice_vect,99.5)
                     
+                    #Rescale the radar slice as MacFerrin et al. 2019
+                    #1.If required to go through _export_to_8bit_array as a vector
+                    #radar_slice_rescaled=_export_to_8bit_array(np.ndarray.flatten(radar_slice))
+                    #radar_slice_rescaled_mat = radar_slice_rescaled.reshape(radar_slice.shape[0],radar_slice.shape[1])
+                    
+                    #2.If not required to go through _export_to_8bit_array as a vector
+                    radar_slice_rescaled_mat=_export_to_8bit_array(radar_slice)
+
                     #Generate the pick for vertical distance display
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
                     
@@ -548,33 +592,35 @@ for folder_year in folder_years:
                     fig=pyplot.figure(figsize=(40,10))
                     
                     #Change label font
-                    pyplot.rcParams.update({'font.size': 20})
+                    pyplot.rcParams.update({'font.size': 10})
                     
-                    color_map=pyplot.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    color_map=pyplot.pcolor(radar_slice_rescaled_mat,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
                     pyplot.gca().invert_yaxis() #Imvert the y axis = avoid using flipud.
                     pyplot.gca().set_aspect('equal') # X scale matches Y scale
                     pyplot.ylabel('Depth [m]')
                     pyplot.xlabel('Horizontal distance')
-                    pyplot.clim(lowerb_plot,upperb_plot)
+                    #pyplot.clim(lowerb_plot,upperb_plot)
                     #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
                     #pyplot.xticks(fontsize=20)
                     #pyplot.yticks(fontsize=20)
                     #pyplot.ylim(0, 200)
-                    pyplot.title('Radar echogram slice: '+indiv_file.replace("_aggregated",""))
+                    pyplot.title('Radar echogram slice: '+indiv_file.replace("_aggregated","")+' - rescaled from 0 to 256')
 
-                    cbar=pyplot.colorbar()
-                    cbar.set_label('Signal strength')
-                    fig.canvas.mpl_connect('button_press_event', onclick)
-                    pyplot.show()
+                    #cbar=pyplot.colorbar()
+                    #cbar.set_label('Signal strength')
+                    #fig.canvas.mpl_connect('button_press_event', onclick)
                     
-                    #Create the figure name
-                    #fig_name=[]
-                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/'+indiv_file+'.png'
+                    #pyplot.show()
+                    #pdb.set_trace()
+                    
+                    ##Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/asMacFerrin_'+indiv_file+'.png'
                     
                     ##Save the figure
-                    #pyplot.savefig(fig_name,dpi=500)
-                    #pyplot.clf()
+                    pyplot.savefig(fig_name,dpi=500)
+                    pyplot.clf()
                     
                     continue
                     
