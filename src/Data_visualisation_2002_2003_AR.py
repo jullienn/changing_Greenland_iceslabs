@@ -759,6 +759,10 @@ for folder_year in folder_years:
                     ax1.scatter(lon_3413, lat_3413,s=0.1)
                     ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=0.1) #Plot the start in green
                     ax1.grid()
+                    
+                    ax1.set_xlim(lon_3413[0,0]-500000, lon_3413[0,0]+500000)
+                    ax1.set_ylim(lat_3413[0,0]-500000, lat_3413[0,0]+500000)
+                    
                     #II.b. Plot the radar slice (first 30m of radar echogram)
                     
                     #Subplot N°2:
@@ -780,8 +784,6 @@ for folder_year in folder_years:
                     #cbar.set_label('Signal strength', fontsize=5)
                     #fig.tight_layout()
                     #pyplot.show()
-                    
-                    #pdb.set_trace()
                     
                     #Create the figure name
                     fig_name=[]
