@@ -739,7 +739,6 @@ for folder_year in folder_years:
                     lat_3413=points[1]
                     
                     #II.a.2 Create the subplot
-                    pdb.set_trace()
                     pyplot.figure(figsize=(48,40))
                     #Change label font
                     pyplot.rcParams.update({'font.size': 5})
@@ -766,7 +765,7 @@ for folder_year in folder_years:
                     #Subplot N°2:
                     #Create the y vector for plotting
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
-                    pdb.set_trace()
+                    
                     #Plot the radar slice
                     cb=ax2.pcolor(radar_slice_rescaled_mat,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
@@ -781,19 +780,19 @@ for folder_year in folder_years:
                     #cbar=fig.colorbar(cb)
                     #cbar.set_label('Signal strength', fontsize=5)
                     #fig.tight_layout()
-                    pyplot.show()
+                    #pyplot.show()
                     
-                    pdb.set_trace()
+                    #pdb.set_trace()
                     
-                    ##Create the figure name
-                    #fig_name=[]
-                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    #Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
                     
-                    ##Save the figure
-                    #pyplot.savefig(fig_name,dpi=500)
-                    #pyplot.clf()
-                    ##Plot the data
-                    ##pdb.set_trace()
+                    #Save the figure
+                    pyplot.savefig(fig_name,dpi=500)
+                    pyplot.clf()
+                    #Plot the data
+                    #pdb.set_trace()
                     
                     continue
                 
