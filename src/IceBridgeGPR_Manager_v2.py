@@ -2452,6 +2452,7 @@ class IceBridgeGPR_Track_v2():
         depths = self.get_sample_depths(trace_array = traces)
 
         # Use array broadcasting here.
+        #pdb.set_trace()
         depths_expanded = numpy.empty(traces.shape, dtype=depths.dtype)
         # Use array broadcasting to copy the depths into all the trace values
         depths.shape = depths.shape[0],1
@@ -2459,7 +2460,7 @@ class IceBridgeGPR_Track_v2():
         depths.shape = depths.shape[0]
 
         assert traces.shape == depths_expanded.shape
-
+        #pdb.set_trace()
         # 1) Get the exponential curve fit
         def exfunc(y,A,B,C):
             return A * numpy.exp(B * y) + C
