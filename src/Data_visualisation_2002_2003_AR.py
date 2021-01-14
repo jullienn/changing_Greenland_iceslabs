@@ -656,11 +656,11 @@ for folder_year in folder_years:
                 #If plot_slice_and_loc is set to 'TRUE', then plot the location of
                 #radar echogram AND the radar slice of that date and save it
                 if (plot_slice_and_loc=='TRUE'):
-                    ##If file have already been created, continue
-                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
-                    #if (os.path.isfile(filename_to_check)):
-                    #    print('Figure already existent, move on to the next date')
-                    #    continue
+                    #If file have already been created, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
                                         
                     #Subplot N°1:
                     #I. Process and plot radar echogram
@@ -815,23 +815,23 @@ for folder_year in folder_years:
                     #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
                     ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256, from 4m below the surface',fontsize=5)
+                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256',fontsize=5)
                     ax2.set_ylabel('Depth [m]')
                     ax2.set_xlabel('Horizontal distance')
                     #cbar=fig.colorbar(cb)
                     #cbar.set_label('Signal strength', fontsize=5)
                     #fig.tight_layout()
-                    pyplot.show()
+                    #pyplot.show()
                     
-                    ##Create the figure name
-                    #fig_name=[]
-                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/below_4_'+indiv_file+'.png'
+                    #Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
                     
-                    ##Save the figure
-                    #pyplot.savefig(fig_name,dpi=500)
-                    #pyplot.clf()
-                    ##Plot the data
-                    pdb.set_trace()
+                    #Save the figure
+                    pyplot.savefig(fig_name,dpi=500)
+                    pyplot.clf()
+                    #Plot the data
+                    #pdb.set_trace()
                     
                     continue
                 
