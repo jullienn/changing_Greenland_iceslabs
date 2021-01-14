@@ -160,30 +160,58 @@ def _return_radar_slice_given_surface(traces,
     Return value:
     A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
     '''
+    whereto = 'below'
     #pdb.set_trace()
-    idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
-
-    output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
-    bottom_indices = np.zeros(shape=(1,traces.shape[1]))
+    if (whereto == 'above'):
+        
+        idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
     
-    for i,s in enumerate(surface_indices):
-        try:
-            output_traces[:,i] = traces[(s-idx_above):(s+idx_below), i]
-            bottom_indices[0,i]=(s+idx_below)
-        except ValueError:
-            # If the surf_i is too close to one end of the array or the other, it extends beyond the edge of the array and breaks.
-            if s < idx_above:
-                start, end = None, idx_above+idx_below
-            elif s > (traces.shape[0] - idx_below):
-                start, end = traces.shape[0] - (idx_above + idx_below), None
-            else:
-                # SHouldn't get here.
-                print(i, s, traces.shape)
-                assert False
-            output_traces[:,i] = traces[start:end, i]
-            bottom_indices[0,i]=end
+        output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
+        bottom_indices = np.zeros(shape=(1,traces.shape[1]))
+        
+        for i,s in enumerate(surface_indices):
+            try:
+                output_traces[:,i] = traces[(s-idx_above):(s+idx_below), i]
+                bottom_indices[0,i]=(s+idx_below)
+            except ValueError:
+                # If the surf_i is too close to one end of the array or the other, it extends beyond the edge of the array and breaks.
+                if s < idx_above:
+                    start, end = None, idx_above+idx_below
+                elif s > (traces.shape[0] - idx_below):
+                    start, end = traces.shape[0] - (idx_above + idx_below), None
+                else:
+                    # SHouldn't get here.
+                    print(i, s, traces.shape)
+                    assert False
+                output_traces[:,i] = traces[start:end, i]
+                bottom_indices[0,i]=end
+                
+    if (whereto == 'below'):
+        
+        idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
+    
+        output_traces = np.empty((-idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
+        bottom_indices = np.zeros(shape=(1,traces.shape[1]))
+        
+        for i,s in enumerate(surface_indices):
+            try:
+                output_traces[:,i] = traces[(s+idx_above):(s+idx_below), i]
+                bottom_indices[0,i]=(s+idx_below)
+            except ValueError:
+                print('Should not come here')
+                # If the surf_i is too close to one end of the array or the other, it extends beyond the edge of the array and breaks.
+                if s < idx_above:
+                    start, end = None, idx_above+idx_below
+                elif s > (traces.shape[0] + idx_below):
+                    start, end = traces.shape[0] - (idx_above + idx_below), None
+                else:
+                    # SHouldn't get here.
+                    print(i, s, traces.shape)
+                    assert False
+                output_traces[:,i] = traces[start:end, i]
+                bottom_indices[0,i]=end
+                
     return output_traces, bottom_indices
-
 
 
 def _get_rid_of_false_surface_jumps(surface_indices):
@@ -627,11 +655,11 @@ for folder_year in folder_years:
                 #If plot_slice_and_loc is set to 'TRUE', then plot the location of
                 #radar echogram AND the radar slice of that date and save it
                 if (plot_slice_and_loc=='TRUE'):
-                    #If file have already been created, continue
-                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
-                    if (os.path.isfile(filename_to_check)):
-                        print('Figure already existent, move on to the next date')
-                        continue
+                    ##If file have already been created, continue
+                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    #if (os.path.isfile(filename_to_check)):
+                    #    print('Figure already existent, move on to the next date')
+                    #    continue
                                         
                     #Subplot N°1:
                     #I. Process and plot radar echogram
@@ -677,7 +705,7 @@ for folder_year in folder_years:
                     
                     #I.c. Select the radar slice
                     #Define the uppermost and lowermost limits
-                    meters_cutoff_above=0
+                    meters_cutoff_above=4
                     meters_cutoff_below=30
                     
                     #Get our slice (30 meters as currently set)
@@ -792,17 +820,17 @@ for folder_year in folder_years:
                     #cbar=fig.colorbar(cb)
                     #cbar.set_label('Signal strength', fontsize=5)
                     #fig.tight_layout()
-                    #pyplot.show()
+                    pyplot.show()
                     
-                    #Create the figure name
-                    fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    ##Create the figure name
+                    #fig_name=[]
+                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
                     
-                    #Save the figure
-                    pyplot.savefig(fig_name,dpi=500)
-                    pyplot.clf()
+                    ##Save the figure
+                    #pyplot.savefig(fig_name,dpi=500)
+                    #pyplot.clf()
                     #Plot the data
-                    #pdb.set_trace()
+                    pdb.set_trace()
                     
                     continue
                 
