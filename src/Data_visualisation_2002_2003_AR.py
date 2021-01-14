@@ -185,7 +185,6 @@ def _return_radar_slice_given_surface(traces,
             bottom_indices[0,i]=end 
     return output_traces, bottom_indices
 
-
 def _return_radar_slice_given_surface_below_surf(traces,
                                       depths,
                                       surface_indices,
