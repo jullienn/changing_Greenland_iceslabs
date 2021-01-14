@@ -160,7 +160,8 @@ def _return_radar_slice_given_surface(traces,
     Return value:
     A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
     '''
-    whereto = 'below'
+    whereto = 'above'
+    #Abive is the original, below is a modified version from me allowing selecting below the surface
     #pdb.set_trace()
     if (whereto == 'above'):
         
@@ -705,7 +706,7 @@ for folder_year in folder_years:
                     
                     #I.c. Select the radar slice
                     #Define the uppermost and lowermost limits
-                    meters_cutoff_above=4
+                    meters_cutoff_above=0
                     meters_cutoff_below=30
                     
                     #Get our slice (30 meters as currently set)
@@ -814,7 +815,7 @@ for folder_year in folder_years:
                     #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
                     ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256',fontsize=5)
+                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256, from 4m below the surface',fontsize=5)
                     ax2.set_ylabel('Depth [m]')
                     ax2.set_xlabel('Horizontal distance')
                     #cbar=fig.colorbar(cb)
@@ -824,12 +825,12 @@ for folder_year in folder_years:
                     
                     ##Create the figure name
                     #fig_name=[]
-                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/below_4_'+indiv_file+'.png'
                     
                     ##Save the figure
                     #pyplot.savefig(fig_name,dpi=500)
                     #pyplot.clf()
-                    #Plot the data
+                    ##Plot the data
                     pdb.set_trace()
                     
                     continue
