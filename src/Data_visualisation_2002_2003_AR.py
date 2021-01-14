@@ -627,7 +627,7 @@ for folder_year in folder_years:
                 #If plot_slice_and_loc is set to 'TRUE', then plot the location of
                 #radar echogram AND the radar slice of that date and save it
                 if (plot_slice_and_loc=='TRUE'):
-                    #If file have already been created, continue
+                    If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
                         print('Figure already existent, move on to the next date')
@@ -757,11 +757,18 @@ for folder_year in folder_years:
                     
                     #II.a.4. Plot the tracks
                     ax1.scatter(lon_3413, lat_3413,s=0.1)
-                    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=0.1) #Plot the start in green
+                    
+                    if (folder_day=='jun04'):
+                        ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=0.1) #Plot the start in green
+                    else:
+                        ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=0.1)
+                    
                     ax1.grid()
                     
-                    ax1.set_xlim(lon_3413[0]-500000, lon_3413[0]+500000)
-                    ax1.set_ylim(lat_3413[0]-500000, lat_3413[0]+500000)
+                    if (folder_day=='jun04'):
+                        ax1.set_xlim(lon_3413[0,0]-500000, lon_3413[0,0]+500000)
+                    else:
+                        ax1.set_ylim(lat_3413[0]-500000, lat_3413[0]+500000)
                     
                     #II.b. Plot the radar slice (first 30m of radar echogram)
                     
