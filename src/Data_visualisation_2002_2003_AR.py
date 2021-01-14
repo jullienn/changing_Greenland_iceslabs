@@ -975,6 +975,7 @@ for folder_year in folder_years:
                 #plot the radar slice of that date and as well as the radar slice
                 #that is free from the very bright surface, save it
                 if (plot_original_slice_and_cutted_slice=='TRUE'):
+                    
                     #If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_cutted_slice/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
