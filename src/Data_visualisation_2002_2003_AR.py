@@ -161,6 +161,7 @@ def _return_radar_slice_given_surface(traces,
     Return value:
     A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
     '''
+    #pdb.set_trace()
     idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
     
     output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
@@ -975,7 +976,6 @@ for folder_year in folder_years:
                 #plot the radar slice of that date and as well as the radar slice
                 #that is free from the very bright surface, save it
                 if (plot_original_slice_and_cutted_slice=='TRUE'):
-                    
                     #If file have already been created, continue
                     filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_cutted_slice/'+indiv_file+'.png'
                     if (os.path.isfile(filename_to_check)):
