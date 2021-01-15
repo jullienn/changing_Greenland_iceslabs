@@ -45,8 +45,8 @@ surf_pick_selection='FALSE'
 raw_radar_echograms='FALSE'
 plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
-plot_slice_and_loc='FALSE'
-plot_original_slice_and_cutted_slice='TRUE'
+plot_slice_and_loc='TRUE'
+plot_original_slice_and_cutted_slice='FALSE'
 
 #N defines the number of different colors I want to use for the elevation plot
 N=10
@@ -318,8 +318,8 @@ def _export_to_8bit_array(array):
     range_max = 2**8 - 1
     # Get the data minimum and maximum while cutting off 0.5% of outliers
     nonzero_values = array[~excluded_mask]
-    data_cutoff_min = np.percentile(nonzero_values,  0.5)
-    data_cutoff_max = np.percentile(nonzero_values, 99.5)
+    data_cutoff_min = np.percentile(nonzero_values,  5)
+    data_cutoff_max = np.percentile(nonzero_values, 95)
 
     export_array_rescaled = (array - data_cutoff_min) / (data_cutoff_max - data_cutoff_min) * range_max
     # Round to integer values
@@ -663,11 +663,11 @@ for folder_year in folder_years:
                 #If plot_slice_and_loc is set to 'TRUE', then plot the location of
                 #radar echogram AND the radar slice of that date and save it
                 if (plot_slice_and_loc=='TRUE'):
-                    #If file have already been created, continue
-                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
-                    if (os.path.isfile(filename_to_check)):
-                        print('Figure already existent, move on to the next date')
-                        continue
+                    ##If file have already been created, continue
+                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    #if (os.path.isfile(filename_to_check)):
+                    #    print('Figure already existent, move on to the next date')
+                    #    continue
                                         
                     #Subplot N°1:
                     #I. Process and plot radar echogram
@@ -822,7 +822,7 @@ for folder_year in folder_years:
                     #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
                     ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256',fontsize=5)
+                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256 - 5-95%',fontsize=5)
                     ax2.set_ylabel('Depth [m]')
                     ax2.set_xlabel('Horizontal distance')
                     #cbar=fig.colorbar(cb)
@@ -832,7 +832,7 @@ for folder_year in folder_years:
                     
                     #Create the figure name
                     fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'.png'
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'_5_95.png'
                     
                     #Save the figure
                     pyplot.savefig(fig_name,dpi=500)
