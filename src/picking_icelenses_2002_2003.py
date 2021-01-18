@@ -260,6 +260,142 @@ def _get_rid_of_false_surface_jumps(surface_indices):
 ##############################################################################
 
 ##############################################################################
+############# Define function for depth correction of the traces #############
+##############################################################################
+#Function taken from IceBridgeGPR_Manager_v2.py
+
+def perform_depth_correction(traces_all,depths_all,surface_indices,trace_name,export, max_depth_m = 100):
+    
+    #We perform the depth correction over the first 100m below the surface, so
+    #select the 100m slice before
+    
+    #Get our slice (100 meters for depth correction)
+    traces, bottom_indices_100m = _return_radar_slice_given_surface(traces_all,
+                                                                    depths_all,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=0,
+                                                                    meters_cutoff_below=100)
+    
+    #Create an array for the depths ranging from 0 to 100m
+    depths=depths_all[np.arange(0,(np.where(np.round(depths_all)==100)[-1][-1]+1))]
+    
+    # Use array broadcasting here.
+    #pdb.set_trace()
+    depths_expanded = np.zeros(traces.shape, dtype=depths.dtype)
+    # Use array broadcasting to copy the depths into all the trace values
+    depths.shape = depths.shape[0],1
+    depths_expanded[:] = depths
+    depths.shape = depths.shape[0]
+
+    assert traces.shape == depths_expanded.shape
+    #pdb.set_trace()
+    # 1) Get the exponential curve fit
+    def exfunc(y,A,B,C):
+        return A * np.exp(B * y) + C
+
+    popt, pcov = scipy.optimize.curve_fit(exfunc, depths_expanded.flatten(), traces.flatten(),
+                                          bounds=((-np.inf, -np.inf, -np.inf),
+                                                  ( np.inf,0,0)),
+                                          max_nfev=1000000)
+
+    A,B,C = popt
+    print(popt)
+
+    # Correct the traces and normalize them.
+    # Original function is Z = A * e^(By) + C
+    # Inverse function to normalize AND get rid of heteroscedasticitiy is 0 = ((Z - C)/A * e^(-By) - 1.0) * e^(By)
+    traces_norm = ((traces - C) / A * np.exp(-B * depths_expanded) - 1.0) * np.exp(B * depths_expanded)
+    # Then divide by the standard deviation of the traces to have them normalized for variance
+    # All traces  for all tracks will have a MEAN of zero and a STDDEV of 1
+    traces_norm = traces_norm / (np.std(traces_norm))
+
+    if (export=='TRUE'):
+        ###################################################
+        ## Depth-correction and normalization PLOT
+        ###################################################
+        # We don't need to plot all the traces, just a subset (100,000 will do)
+        if traces.size > 100000:
+            # Subset to only plot 100000 (?) of the points
+            gap = int(traces.size / 100000)
+            traces_subset = traces.flatten()[::gap]
+            # Contract the variability of the points to have ~ the same variability as the original points, for display only
+            norm_subset = (traces_norm.flatten()/4.0)[::gap]
+            depths_subset = depths_expanded.flatten()[::gap]
+        else:
+            traces_subset = traces.flatten()
+            norm_subset = (traces_norm/4.0).flatten()
+            depths_subset = depths_expanded.flatten()
+
+        curve_fit_y = exfunc(depths, *popt)
+        # 2) Make a plot, save it.
+        fig = pyplot.figure(figsize=(5,3))
+        # Plot the corrected points below, in pink/red
+        pyplot.plot(depths_subset, norm_subset, "o", ms=1, color="salmon", fillstyle="full", mec="salmon")
+        pyplot.axhline(y=0,color="red",ls="--",label="corrected")
+
+        # Plot the original points atop, in blue
+        pyplot.plot(depths_subset, traces_subset, "o", ms=1, color="lightblue", fillstyle="full", mec="lightblue")
+        pyplot.plot(depths, curve_fit_y, color="blue",label="uncorrected")
+
+        ax = fig.axes[0]
+
+        equation_string = "$\Omega(y) = {0:0.3f} ".format(A) + "\cdot e^{" + "{0:0.5f}\cdot y".format(B) + "}" + "{0:0.3f}$".format(C)
+        pyplot.text(0.04,0.10,equation_string,
+                 horizontalalignment="left",
+                 verticalalignment="center",
+                 transform=ax.transAxes)
+
+        # Plot legend
+        handles, labels = ax.get_legend_handles_labels()
+        # Even thought we plotted the corrected first, put the uncorrected first in the legend
+        handles = handles[::-1]
+        labels = labels[::-1]
+        ax.legend(handles, labels, loc="upper right", fontsize="x-small", markerscale=0.70)
+
+        # Title and axis labels
+        pyplot.title(trace_name)
+        pyplot.xlabel("Depth $y$ (m)")
+        pyplot.ylabel("GPR $\Omega$ (dB)")
+
+        # Begin: Added on September 16, 2020 to fit MacFerrins' figures
+        #ax.set_xlim(0,100)
+        #ax.set_ylim(-8,2)
+        # End: Added on September 16, 2020 to fit MacFerrins' figures
+
+        pyplot.tight_layout()
+        figname = os.path.join('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/depth_correction', trace_name + "_DEPTH_CURVE_PLOT.png")
+        pyplot.savefig(figname, dpi=600)
+        print("Exported", os.path.split(figname)[1])
+        pyplot.cla()
+        pyplot.close()
+
+        #######################################
+        ### Export picklefile
+        #######################################
+        #traces_norm_inflated = self._refill_array(traces_norm, mask)
+        #
+        #f = open(self.FNAME_depth_corrected_picklefile, 'wb')
+        #pickle.dump(traces_norm_inflated, f)
+        #f.close()
+        #print("Exported", os.path.split(self.FNAME_depth_corrected_picklefile)[-1])
+        #
+        ## Save to object
+        #self.TRACES_depth_corrected = traces_norm_inflated
+
+        #######################################
+        ### Export corrected image
+        #######################################
+        #cutoff_30m = depths[(depths <= 30.0)].size
+        #traces_export = traces_norm_inflated[:cutoff_30m, :]
+        #self.export_image(traces_export,"_XDEPTHCORRECT_AFTER")
+
+    # 3) Return depth-correction parameters
+    return traces_norm
+##############################################################################
+############# Define function for depth correction of the traces #############
+##############################################################################
+
+##############################################################################
 ################### Define function for radargram display ####################
 ##############################################################################
 #Function taken from IceBridgeGPR_Manager_v2.py
@@ -522,19 +658,27 @@ for folder_year in folder_years:
                         #I.b.2. If not already semi automatically generated, call
                         #the kernel_function to pick the surface
                         surface_indices=kernel_function(radar_echo, suggested_pixel)
-                        
-                    #I.c. Select the radar slice
+                    
+                    #I.c. Perform depth correction
+                    depth_corrected_traces=perform_depth_correction(radar_echo, depths, surface_indices, indiv_file.replace("_aggregated",""), 'FALSE')
+
+                    #I.d. Select the radar slice
                     #Define the uppermost and lowermost limits
                     meters_cutoff_above=0
                     meters_cutoff_below=30
                     
-                    #pdb.set_trace()
+                    #Redefine the 'surface_indices' variable: the surface have just been picked
+                    #for the depth correction, so now we want to pick from the top down to
+                    #30m depth, thus the 'surface_indices' must be [0,0,...,0]!!
+                    surface_indices=np.zeros(surface_indices.shape[0],dtype=np.int64)
+                    
                     #Get our slice (30 meters as currently set)
-                    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
+                    radar_slice, bottom_indices = _return_radar_slice_given_surface(depth_corrected_traces,
                                                                     depths,
                                                                     surface_indices,
                                                                     meters_cutoff_above=meters_cutoff_above,
                                                                     meters_cutoff_below=meters_cutoff_below)
+                    
                     # I have taken and adatped the functions '_return_radar_slice_given_surface' and
                     # '_radar_slice_indices_above_and_below' from 'IceBridgeGPR_Manager_v2.py'
                     # and it seems to correctly selecting the slice! I did not manually check
