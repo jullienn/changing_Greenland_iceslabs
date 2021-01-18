@@ -338,6 +338,141 @@ def _export_to_8bit_array(array):
 ##############################################################################
 
 ##############################################################################
+############# Define function for depth correction of the traces #############
+##############################################################################
+
+def perform_depth_correction(self, export=True, max_depth_m = 100):
+    print('-------------------- ENTERING perform_depth_correction --------------------')
+    #pdb.set_trace()
+
+    # Get our traces and the trace depths
+    traces_all = self.get_processed_traces(datatype="roll_corrected")
+
+    # Subset traces to mask out all NaN values (previously masked)
+    mask = self._compute_boolean_mask(traces=traces_all, mask=None)
+    #pdb.set_trace()
+    traces = self._subset_array(traces_all, mask=None)
+    depths = self.get_sample_depths(trace_array = traces)
+
+    # Use array broadcasting here.
+    #pdb.set_trace()
+    depths_expanded = numpy.empty(traces.shape, dtype=depths.dtype)
+    # Use array broadcasting to copy the depths into all the trace values
+    depths.shape = depths.shape[0],1
+    depths_expanded[:] = depths
+    depths.shape = depths.shape[0]
+
+    assert traces.shape == depths_expanded.shape
+    #pdb.set_trace()
+    # 1) Get the exponential curve fit
+    def exfunc(y,A,B,C):
+        return A * numpy.exp(B * y) + C
+
+    popt, pcov = scipy.optimize.curve_fit(exfunc, depths_expanded.flatten(), traces.flatten(),
+                                          bounds=((-numpy.inf, -numpy.inf, -numpy.inf),
+                                                  ( numpy.inf,0,0)),
+                                          max_nfev=1000000)
+
+    A,B,C = popt
+    print(popt)
+    if export:
+        #pdb.set_trace()
+        # Correct the traces and normalize them.
+        # Original function is Z = A * e^(By) + C
+        # Inverse function to normalize AND get rid of heteroscedasticitiy is 0 = ((Z - C)/A * e^(-By) - 1.0) * e^(By)
+        traces_norm = ((traces - C) / A * numpy.exp(-B * depths_expanded) - 1.0) * numpy.exp(B * depths_expanded)
+        # Then divide by the standard deviation of the traces to have them normalized for variance
+        # All traces  for all tracks will have a MEAN of zero and a STDDEV of 1
+        traces_norm = traces_norm / (numpy.std(traces_norm))
+
+
+        ###################################################
+        ## Depth-correction and normalization PLOT
+        ###################################################
+        # We don't need to plot all the traces, just a subset (100,000 will do)
+        if traces.size > 100000:
+            # Subset to only plot 100000 (?) of the points
+            gap = int(traces.size / 100000)
+            traces_subset = traces.flatten()[::gap]
+            # Contract the variability of the points to have ~ the same variability as the original points, for display only
+            norm_subset = (traces_norm.flatten()/4.0)[::gap]
+            depths_subset = depths_expanded.flatten()[::gap]
+        else:
+            traces_subset = traces.flatten()
+            norm_subset = (traces_norm/4.0).flatten()
+            depths_subset = depths_expanded.flatten()
+
+        curve_fit_y = exfunc(depths, *popt)
+
+        # 2) Make a plot, save it.
+        fig = plt.figure(figsize=(5,3))
+        # Plot the corrected points below, in pink/red
+        plt.plot(depths_subset, norm_subset, "o", ms=1, color="salmon", fillstyle="full", mec="salmon")
+        plt.axhline(y=0,color="red",ls="--",label="corrected")
+
+        # Plot the original points atop, in blue
+        plt.plot(depths_subset, traces_subset, "o", ms=1, color="lightblue", fillstyle="full", mec="lightblue")
+        plt.plot(depths, curve_fit_y, color="blue",label="uncorrected")
+
+        ax = fig.axes[0]
+
+        equation_string = "$\Omega(y) = {0:0.3f} ".format(A) + "\cdot e^{" + "{0:0.5f}\cdot y".format(B) + "}" + "{0:0.3f}$".format(C)
+        plt.text(0.04,0.10,equation_string,
+                 horizontalalignment="left",
+                 verticalalignment="center",
+                 transform=ax.transAxes)
+
+        # Plot legend
+        handles, labels = ax.get_legend_handles_labels()
+        # Even thought we plotted the corrected first, put the uncorrected first in the legend
+        handles = handles[::-1]
+        labels = labels[::-1]
+        ax.legend(handles, labels, loc="upper right", fontsize="x-small", markerscale=0.70)
+
+        # Title and axis labels
+        plt.title(self.NAME)
+        plt.xlabel("Depth $y$ (m)")
+        plt.ylabel("GPR $\Omega$ (dB)")
+
+        # Begin: Added on September 16, 2020 to fit MacFerrins' figures
+        #ax.set_xlim(0,100)
+        #ax.set_ylim(-8,2)
+        # End: Added on September 16, 2020 to fit MacFerrins' figures
+
+        plt.tight_layout()
+        figname = os.path.join(ICEBRIDGE_EXPORT_FOLDER, self.NAME + "_DEPTH_CURVE_PLOT.png")
+        plt.savefig(figname, dpi=600)
+        print("Exported", os.path.split(figname)[1])
+        plt.cla()
+        plt.close()
+
+        ######################################
+        ## Export picklefile
+        ######################################
+        traces_norm_inflated = self._refill_array(traces_norm, mask)
+
+        f = open(self.FNAME_depth_corrected_picklefile, 'wb')
+        pickle.dump(traces_norm_inflated, f)
+        f.close()
+        print("Exported", os.path.split(self.FNAME_depth_corrected_picklefile)[-1])
+
+        # Save to object
+        self.TRACES_depth_corrected = traces_norm_inflated
+
+        ######################################
+        ## Export corrected image
+        ######################################
+        cutoff_30m = depths[(depths <= 30.0)].size
+        traces_export = traces_norm_inflated[:cutoff_30m, :]
+        self.export_image(traces_export,"_XDEPTHCORRECT_AFTER")
+
+    # 3) Return depth-correction parameters
+    return popt
+##############################################################################
+############# Define function for depth correction of the traces #############
+##############################################################################
+
+##############################################################################
 ############### Define function for discrete colorbar display ###############
 ##############################################################################
 def discrete_cmap(N, base_cmap=None):
