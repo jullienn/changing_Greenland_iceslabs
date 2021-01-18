@@ -341,22 +341,24 @@ def _export_to_8bit_array(array):
 ############# Define function for depth correction of the traces #############
 ##############################################################################
 
-def perform_depth_correction(self, export=True, max_depth_m = 100):
-    print('-------------------- ENTERING perform_depth_correction --------------------')
-    #pdb.set_trace()
-
-    # Get our traces and the trace depths
-    traces_all = self.get_processed_traces(datatype="roll_corrected")
-
-    # Subset traces to mask out all NaN values (previously masked)
-    mask = self._compute_boolean_mask(traces=traces_all, mask=None)
-    #pdb.set_trace()
-    traces = self._subset_array(traces_all, mask=None)
-    depths = self.get_sample_depths(trace_array = traces)
-
+def perform_depth_correction(traces_all,depths_all,surface_indices,trace_name,export, max_depth_m = 100):
+    
+    #We perform the depth correction over the first 100m below the surface, so
+    #select the 100m slice before
+    
+    #Get our slice (100 meters for depth correction)
+    traces, bottom_indices_100m = _return_radar_slice_given_surface(traces_all,
+                                                                    depths_all,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=0,
+                                                                    meters_cutoff_below=100)
+    
+    #Create an array for the depths ranging from 0 to 100m
+    depths=depths_all[np.arange(0,(np.where(np.round(depths_all)==100)[-1][-1]+1))]
+    
     # Use array broadcasting here.
     #pdb.set_trace()
-    depths_expanded = numpy.empty(traces.shape, dtype=depths.dtype)
+    depths_expanded = np.zeros(traces.shape, dtype=depths.dtype)
     # Use array broadcasting to copy the depths into all the trace values
     depths.shape = depths.shape[0],1
     depths_expanded[:] = depths
@@ -366,24 +368,23 @@ def perform_depth_correction(self, export=True, max_depth_m = 100):
     #pdb.set_trace()
     # 1) Get the exponential curve fit
     def exfunc(y,A,B,C):
-        return A * numpy.exp(B * y) + C
+        return A * np.exp(B * y) + C
 
     popt, pcov = scipy.optimize.curve_fit(exfunc, depths_expanded.flatten(), traces.flatten(),
-                                          bounds=((-numpy.inf, -numpy.inf, -numpy.inf),
-                                                  ( numpy.inf,0,0)),
+                                          bounds=((-np.inf, -np.inf, -np.inf),
+                                                  ( np.inf,0,0)),
                                           max_nfev=1000000)
 
     A,B,C = popt
     print(popt)
     if export:
-        #pdb.set_trace()
         # Correct the traces and normalize them.
         # Original function is Z = A * e^(By) + C
         # Inverse function to normalize AND get rid of heteroscedasticitiy is 0 = ((Z - C)/A * e^(-By) - 1.0) * e^(By)
-        traces_norm = ((traces - C) / A * numpy.exp(-B * depths_expanded) - 1.0) * numpy.exp(B * depths_expanded)
+        traces_norm = ((traces - C) / A * np.exp(-B * depths_expanded) - 1.0) * np.exp(B * depths_expanded)
         # Then divide by the standard deviation of the traces to have them normalized for variance
         # All traces  for all tracks will have a MEAN of zero and a STDDEV of 1
-        traces_norm = traces_norm / (numpy.std(traces_norm))
+        traces_norm = traces_norm / (np.std(traces_norm))
 
 
         ###################################################
@@ -403,21 +404,20 @@ def perform_depth_correction(self, export=True, max_depth_m = 100):
             depths_subset = depths_expanded.flatten()
 
         curve_fit_y = exfunc(depths, *popt)
-
         # 2) Make a plot, save it.
-        fig = plt.figure(figsize=(5,3))
+        fig = pyplot.figure(figsize=(5,3))
         # Plot the corrected points below, in pink/red
-        plt.plot(depths_subset, norm_subset, "o", ms=1, color="salmon", fillstyle="full", mec="salmon")
-        plt.axhline(y=0,color="red",ls="--",label="corrected")
+        pyplot.plot(depths_subset, norm_subset, "o", ms=1, color="salmon", fillstyle="full", mec="salmon")
+        pyplot.axhline(y=0,color="red",ls="--",label="corrected")
 
         # Plot the original points atop, in blue
-        plt.plot(depths_subset, traces_subset, "o", ms=1, color="lightblue", fillstyle="full", mec="lightblue")
-        plt.plot(depths, curve_fit_y, color="blue",label="uncorrected")
+        pyplot.plot(depths_subset, traces_subset, "o", ms=1, color="lightblue", fillstyle="full", mec="lightblue")
+        pyplot.plot(depths, curve_fit_y, color="blue",label="uncorrected")
 
         ax = fig.axes[0]
 
         equation_string = "$\Omega(y) = {0:0.3f} ".format(A) + "\cdot e^{" + "{0:0.5f}\cdot y".format(B) + "}" + "{0:0.3f}$".format(C)
-        plt.text(0.04,0.10,equation_string,
+        pyplot.text(0.04,0.10,equation_string,
                  horizontalalignment="left",
                  verticalalignment="center",
                  transform=ax.transAxes)
@@ -430,44 +430,44 @@ def perform_depth_correction(self, export=True, max_depth_m = 100):
         ax.legend(handles, labels, loc="upper right", fontsize="x-small", markerscale=0.70)
 
         # Title and axis labels
-        plt.title(self.NAME)
-        plt.xlabel("Depth $y$ (m)")
-        plt.ylabel("GPR $\Omega$ (dB)")
+        pyplot.title(trace_name)
+        pyplot.xlabel("Depth $y$ (m)")
+        pyplot.ylabel("GPR $\Omega$ (dB)")
 
         # Begin: Added on September 16, 2020 to fit MacFerrins' figures
         #ax.set_xlim(0,100)
         #ax.set_ylim(-8,2)
         # End: Added on September 16, 2020 to fit MacFerrins' figures
 
-        plt.tight_layout()
-        figname = os.path.join(ICEBRIDGE_EXPORT_FOLDER, self.NAME + "_DEPTH_CURVE_PLOT.png")
-        plt.savefig(figname, dpi=600)
+        pyplot.tight_layout()
+        figname = os.path.join('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/depth_correction', trace_name + "_DEPTH_CURVE_PLOT.png")
+        pyplot.savefig(figname, dpi=600)
         print("Exported", os.path.split(figname)[1])
-        plt.cla()
-        plt.close()
+        pyplot.cla()
+        pyplot.close()
 
-        ######################################
-        ## Export picklefile
-        ######################################
-        traces_norm_inflated = self._refill_array(traces_norm, mask)
+        #######################################
+        ### Export picklefile
+        #######################################
+        #traces_norm_inflated = self._refill_array(traces_norm, mask)
+        #
+        #f = open(self.FNAME_depth_corrected_picklefile, 'wb')
+        #pickle.dump(traces_norm_inflated, f)
+        #f.close()
+        #print("Exported", os.path.split(self.FNAME_depth_corrected_picklefile)[-1])
+        #
+        ## Save to object
+        #self.TRACES_depth_corrected = traces_norm_inflated
 
-        f = open(self.FNAME_depth_corrected_picklefile, 'wb')
-        pickle.dump(traces_norm_inflated, f)
-        f.close()
-        print("Exported", os.path.split(self.FNAME_depth_corrected_picklefile)[-1])
-
-        # Save to object
-        self.TRACES_depth_corrected = traces_norm_inflated
-
-        ######################################
-        ## Export corrected image
-        ######################################
-        cutoff_30m = depths[(depths <= 30.0)].size
-        traces_export = traces_norm_inflated[:cutoff_30m, :]
-        self.export_image(traces_export,"_XDEPTHCORRECT_AFTER")
+        #######################################
+        ### Export corrected image
+        #######################################
+        #cutoff_30m = depths[(depths <= 30.0)].size
+        #traces_export = traces_norm_inflated[:cutoff_30m, :]
+        #self.export_image(traces_export,"_XDEPTHCORRECT_AFTER")
 
     # 3) Return depth-correction parameters
-    return popt
+    return traces_norm
 ##############################################################################
 ############# Define function for depth correction of the traces #############
 ##############################################################################
@@ -845,14 +845,17 @@ for folder_year in folder_years:
                         #I.b.2. If not already semi automatically generated, call
                         #the kernel_function to pick the surface
                         surface_indices=kernel_function(radar_echo, suggested_pixel)
-                    
-                    #I.c. Select the radar slice
+                        
+                    #I.c. Perform depth correction
+                    depth_corrected_traces=perform_depth_correction(radar_echo, depths, surface_indices, indiv_file.replace("_aggregated",""), 'TRUE')
+
+                    #I.d. Select the radar slice
                     #Define the uppermost and lowermost limits
                     meters_cutoff_above=0
                     meters_cutoff_below=30
                     
                     #Get our slice (30 meters as currently set)
-                    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
+                    radar_slice, bottom_indices = _return_radar_slice_given_surface(depth_corrected_traces,
                                                                     depths,
                                                                     surface_indices,
                                                                     meters_cutoff_above=meters_cutoff_above,
@@ -967,7 +970,7 @@ for folder_year in folder_years:
                     
                     #Create the figure name
                     fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'_5_95.png'
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/depth_correction/'+indiv_file+'_5_95_after_depth_corr.png'
                     
                     #Save the figure
                     pyplot.savefig(fig_name,dpi=500)
