@@ -317,8 +317,8 @@ def _export_to_8bit_array(array):
     range_max = 2**8 - 1
     # Get the data minimum and maximum while cutting off 0.5% of outliers
     nonzero_values = array[~excluded_mask]
-    data_cutoff_min = np.percentile(nonzero_values,  0.5)
-    data_cutoff_max = np.percentile(nonzero_values, 99.5)
+    data_cutoff_min = np.percentile(nonzero_values,  5)
+    data_cutoff_max = np.percentile(nonzero_values, 95)
 
     export_array_rescaled = (array - data_cutoff_min) / (data_cutoff_max - data_cutoff_min) * range_max
     # Round to integer values
@@ -376,16 +376,16 @@ def perform_depth_correction(traces_all,depths_all,surface_indices,trace_name,ex
 
     A,B,C = popt
     print(popt)
-    if export:
-        # Correct the traces and normalize them.
-        # Original function is Z = A * e^(By) + C
-        # Inverse function to normalize AND get rid of heteroscedasticitiy is 0 = ((Z - C)/A * e^(-By) - 1.0) * e^(By)
-        traces_norm = ((traces - C) / A * np.exp(-B * depths_expanded) - 1.0) * np.exp(B * depths_expanded)
-        # Then divide by the standard deviation of the traces to have them normalized for variance
-        # All traces  for all tracks will have a MEAN of zero and a STDDEV of 1
-        traces_norm = traces_norm / (np.std(traces_norm))
 
+    # Correct the traces and normalize them.
+    # Original function is Z = A * e^(By) + C
+    # Inverse function to normalize AND get rid of heteroscedasticitiy is 0 = ((Z - C)/A * e^(-By) - 1.0) * e^(By)
+    traces_norm = ((traces - C) / A * np.exp(-B * depths_expanded) - 1.0) * np.exp(B * depths_expanded)
+    # Then divide by the standard deviation of the traces to have them normalized for variance
+    # All traces  for all tracks will have a MEAN of zero and a STDDEV of 1
+    traces_norm = traces_norm / (np.std(traces_norm))
 
+    if (export=='TRUE'):
         ###################################################
         ## Depth-correction and normalization PLOT
         ###################################################
@@ -846,7 +846,7 @@ for folder_year in folder_years:
                         surface_indices=kernel_function(radar_echo, suggested_pixel)
                         
                     #I.c. Perform depth correction
-                    depth_corrected_traces=perform_depth_correction(radar_echo, depths, surface_indices, indiv_file.replace("_aggregated",""), 'TRUE')
+                    depth_corrected_traces=perform_depth_correction(radar_echo, depths, surface_indices, indiv_file.replace("_aggregated",""), 'FALSE')
 
                     #I.d. Select the radar slice
                     #Define the uppermost and lowermost limits
@@ -964,7 +964,7 @@ for folder_year in folder_years:
                     #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
                     ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256 - 0.5-99.5%',fontsize=5)
+                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256 - 5-95%',fontsize=5)
                     ax2.set_ylabel('Depth [m]')
                     ax2.set_xlabel('Horizontal distance')
                     #cbar=fig.colorbar(cb)
@@ -974,7 +974,7 @@ for folder_year in folder_years:
                     
                     #Create the figure name
                     fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/depth_correction/'+indiv_file+'_05_995_after_depth_corr.png'
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'_5_95_after_depth_corr.png'
                     
                     #Save the figure
                     pyplot.savefig(fig_name,dpi=500)
