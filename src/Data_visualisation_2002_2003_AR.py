@@ -41,11 +41,15 @@ t0 = 0; # Unknown so set to zero
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
+
+#In the following sections, we do perform depth correction of the traces
+plot_radar_echogram_slice='FALSE'
+plot_slice_and_loc='TRUE'
+
+#In the following sections, we DO NOT perform depth correction of the traces
 surf_pick_selection='FALSE'
 raw_radar_echograms='FALSE'
-plot_radar_echogram_slice='FALSE'
 plot_radar_loc='FALSE'
-plot_slice_and_loc='TRUE'
 plot_original_slice_and_cutted_slice='FALSE'
 
 #N defines the number of different colors I want to use for the elevation plot
@@ -662,18 +666,26 @@ for folder_year in folder_years:
                         #the kernel_function to pick the surface
                         surface_indices=kernel_function(radar_echo, suggested_pixel)
                     
-                    #I.c. Select the radar slice
+                    #I.c. Perform depth correction
+                    depth_corrected_traces=perform_depth_correction(radar_echo, depths, surface_indices, indiv_file.replace("_aggregated",""), 'FALSE')
+
+                    #I.d. Select the radar slice
                     #Define the uppermost and lowermost limits
                     meters_cutoff_above=0
                     meters_cutoff_below=30
                     
-                    #pdb.set_trace()
+                    #Redefine the 'surface_indices' variable: the surface have just been picked
+                    #for the depth correction, so now we want to pick from the top down to
+                    #30m depth, thus the 'surface_indices' must be [0,0,...,0]!!
+                    surface_indices=np.zeros(surface_indices.shape[0],dtype=np.int64)
+                    
                     #Get our slice (30 meters as currently set)
-                    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
+                    radar_slice, bottom_indices = _return_radar_slice_given_surface(depth_corrected_traces,
                                                                     depths,
                                                                     surface_indices,
                                                                     meters_cutoff_above=meters_cutoff_above,
                                                                     meters_cutoff_below=meters_cutoff_below)
+                    
                     # I have taken and adatped the functions '_return_radar_slice_given_surface' and
                     # '_radar_slice_indices_above_and_below' from 'IceBridgeGPR_Manager_v2.py'
                     # and it seems to correctly selecting the slice! I did not manually check
