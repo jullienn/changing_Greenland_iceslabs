@@ -964,7 +964,7 @@ for folder_year in folder_years:
                     #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
                     ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256 - 5-95%',fontsize=5)
+                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256 - 0.5-99.5%',fontsize=5)
                     ax2.set_ylabel('Depth [m]')
                     ax2.set_xlabel('Horizontal distance')
                     #cbar=fig.colorbar(cb)
