@@ -161,7 +161,6 @@ def _return_radar_slice_given_surface(traces,
     Return value:
     A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
     '''
-    #pdb.set_trace()
     idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
     
     output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
@@ -318,8 +317,8 @@ def _export_to_8bit_array(array):
     range_max = 2**8 - 1
     # Get the data minimum and maximum while cutting off 0.5% of outliers
     nonzero_values = array[~excluded_mask]
-    data_cutoff_min = np.percentile(nonzero_values,  5)
-    data_cutoff_max = np.percentile(nonzero_values, 95)
+    data_cutoff_min = np.percentile(nonzero_values,  0.5)
+    data_cutoff_max = np.percentile(nonzero_values, 99.5)
 
     export_array_rescaled = (array - data_cutoff_min) / (data_cutoff_max - data_cutoff_min) * range_max
     # Round to integer values
@@ -854,6 +853,11 @@ for folder_year in folder_years:
                     meters_cutoff_above=0
                     meters_cutoff_below=30
                     
+                    #Redefine the 'surface_indices' variable: the surface have just been picked
+                    #for the depth correction, so now we want to pick from the top down to
+                    #30m depth, thus the 'surface_indices' must be [0,0,...,0]!!
+                    surface_indices=np.zeros(surface_indices.shape[0],dtype=np.int64)
+                    
                     #Get our slice (30 meters as currently set)
                     radar_slice, bottom_indices = _return_radar_slice_given_surface(depth_corrected_traces,
                                                                     depths,
@@ -970,7 +974,7 @@ for folder_year in folder_years:
                     
                     #Create the figure name
                     fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/depth_correction/'+indiv_file+'_5_95_after_depth_corr.png'
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/depth_correction/'+indiv_file+'_05_995_after_depth_corr.png'
                     
                     #Save the figure
                     pyplot.savefig(fig_name,dpi=500)
