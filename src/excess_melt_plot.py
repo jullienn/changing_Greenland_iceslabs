@@ -31,9 +31,9 @@ wanted_year='2006'
 #Load satellite image
 path_image=global_path+'greenland_topo_data/satellite_image/Greenland_natural_90m.tif'
 
-im = rasterio.open(path_image)
-show(im)
-show(im.read(), transform=im.transform)
+#im = rasterio.open(path_image)
+#show(im)
+#show(im.read(), transform=im.transform)
 
 #Load the DEM
 grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
