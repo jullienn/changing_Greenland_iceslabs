@@ -81,13 +81,6 @@ lon=DS.y.data
 #Load melt data
 melt_data= DS.M_e
 
-#Select a single year
-melt_year = melt_data.sel(time=wanted_year)
-melt_year_np = melt_year.values
-
-melt_year_plot=np.asarray(melt_year_np)
-melt_year_plot=melt_year_plot[0,0,:,:,0]
-
 ##########################################################################
 ###                          Load excess melt data   	               ###
 ##########################################################################
@@ -96,28 +89,37 @@ melt_year_plot=melt_year_plot[0,0,:,:,0]
 ###                          Plot excess melt data   	               ###
 ##########################################################################
 
-##Where excess melt is above 500 mm w.e./year, equal to 1, else equal to 0
-#melt_year_plot_binary=melt_year_plot[melt_year_plot<500]=0
-#melt_year_plot_binary=melt_year_plot[~(melt_year_plot<500)]=1
+for year in list(np.arange(1990,2020)):
+    
+    #Define the year
+    wanted_year=str(year)
+    
+    #Select the data associated with the wanted year
+    melt_year = melt_data.sel(time=wanted_year)
+    melt_year_np = melt_year.values
+    
+    melt_year_plot=np.asarray(melt_year_np)
+    melt_year_plot=melt_year_plot[0,0,:,:,0]
+    
+    #Plot dem and contours elevation
+    plt.figure(figsize=(48,40))
+    ax = plt.subplot(111)
+    dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
+    plt.imshow(np.squeeze(np.flipud(melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(5,'hot_r'))
+    
+    plt.colorbar(label='Excess melt [mm w.e./year]')
+    plt.clim(0,1000)
+    ax.grid()
+    #contours.plot(ax=ax, edgecolor='black')
+    plt.title('Excess melt plot, year: '+wanted_year)
 
-#Plot dem and contours elevation
-plt.figure()
-ax = plt.subplot(111)
-dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
-plt.imshow(np.squeeze(np.flipud(melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(5,'plasma_r'))
-
-plt.colorbar(label='Excess melt [mm w.e./year]')
-plt.clim(0,1000)
-#contours.plot(ax=ax, edgecolor='black')
-plt.title('Excess melt plot, year: '+wanted_year)
-
-##Create the figure name
-#fig_name=[]
-#fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_data_localisation/'+indiv_file+'.png'
-                    
-##Save the figure
-#pyplot.savefig(fig_name)
-#pyplot.clf()
+    #Create the figure name
+    fig_name=[]
+    fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/excess_melt_'+wanted_year+'.png'
+                        
+    #Save the figure
+    plt.savefig(fig_name)
+    plt.clf()
 
 
 
