@@ -18,6 +18,9 @@ from matplotlib import pyplot
 import numpy as np
 from pysheds.grid import Grid
 
+from osgeo import gdal
+import elevation 
+
 #Define path of the working directory
 global_path='C:/Users/jullienn/Documents/working_environment/'
 
@@ -42,6 +45,41 @@ elevDem=grid.dem[:-1,:-1]
 
 ##########################################################################
 ###                      Load Greenland satellite image	               ###
+##########################################################################
+
+##########################################################################
+###                          Compute DEM contour	                       ###
+##########################################################################
+#Following the procedure from: https://www.earthdatascience.org/tutorials/visualize-digital-elevation-model-contours-matplotlib/
+
+#1. Read the data
+filename="C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif"
+gdal_data = gdal.Open(filename)
+gdal_band = gdal_data.GetRasterBand(1)
+nodataval = gdal_band.GetNoDataValue()
+
+#2. Some adjustments
+# convert to a numpy array
+data_array = gdal_data.ReadAsArray().astype(np.float)
+
+# replace missing values if necessary
+if np.any(data_array == nodataval):
+    data_array[data_array == nodataval] = np.nan
+
+#3. Plot quickly the data
+#Plot out data with Matplotlib's 'contour'
+fig = pyplot.figure(figsize = (12, 8))
+ax = fig.add_subplot(111)
+pyplot.contour(data_array, cmap = "viridis", 
+            levels = list(range(0, 3300, 1000)))
+pyplot.title("Elevation Contours of GrIS")
+cbar = pyplot.colorbar()
+pyplot.gca().set_aspect('equal', adjustable='box')
+pyplot.show()
+
+
+##########################################################################
+###                          Compute DEM contour	                       ###
 ##########################################################################
 
 
@@ -91,6 +129,8 @@ pyplot.imshow(np.flipud(melt_year_plot),extent=grid.extent,cmap='plasma_r')
 pyplot.clim(0,1000)
 pyplot.colorbar(label='Excess melt [mm w.e./year]')
 pyplot.title('Excess melt plot, year: '+wanted_year)
+pyplot.contour(np.flipud(data_array),extent=grid.extent,cmap = "viridis", 
+            levels = list(range(0, 3300, 1000)))
                     
 ##Create the figure name
 #fig_name=[]
