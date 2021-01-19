@@ -24,6 +24,24 @@ global_path='C:/Users/jullienn/Documents/working_environment/'
 #Define the desired year to plot
 wanted_year='2006'
 
+##############################################################################
+############### Define function for discrete colorbar display ###############
+##############################################################################
+def discrete_cmap(N, base_cmap=None):
+    """Create an N-bin discrete colormap from the specified input map"""
+    #This piece of code is from: https://gist.github.com/jakevdp/91077b0cae40f8f8244a
+    # Note that if base_cmap is a string or None, you can simply do
+    #    return plt.cm.get_cmap(base_cmap, N)
+    # The following works for string, None, or a colormap instance:
+
+    base = plt.cm.get_cmap(base_cmap)
+    color_list = base(np.linspace(0, 1, N))
+    cmap_name = base.name + str(N)
+    return base.from_list(cmap_name, color_list, N)
+##############################################################################
+############### Define function for discrete colorbar display ###############
+##############################################################################
+
 ##########################################################################
 ###                      Load Greenland DEM and contours               ###
 ##########################################################################
@@ -86,10 +104,11 @@ melt_year_plot=melt_year_plot[0,0,:,:,0]
 plt.figure()
 ax = plt.subplot(111)
 dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
-plt.imshow(np.squeeze(np.flipud(melt_year_plot)), extent=dem_extent,cmap='plasma_r')
+plt.imshow(np.squeeze(np.flipud(melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(5,'plasma_r'))
+
 plt.colorbar(label='Excess melt [mm w.e./year]')
 plt.clim(0,1000)
-contours.plot(ax=ax, edgecolor='black')
+#contours.plot(ax=ax, edgecolor='black')
 plt.title('Excess melt plot, year: '+wanted_year)
 
 ##Create the figure name
@@ -99,7 +118,6 @@ plt.title('Excess melt plot, year: '+wanted_year)
 ##Save the figure
 #pyplot.savefig(fig_name)
 #pyplot.clf()
-
 
 
 
