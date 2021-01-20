@@ -24,6 +24,11 @@ import pickle
 import pdb
 import pandas as pd
 import pyproj
+import matplotlib.gridspec as gridspec
+from pyproj import Transformer
+from pysheds.grid import Grid
+import matplotlib.colors as mcolors
+
 
 ##############################################################################
 ############################## Define variables ##############################
@@ -551,6 +556,13 @@ if (generate_excess_melt_traces_with_slices=='TRUE'):
                                                                    'may30_02_7','may30_02_13','may30_02_14','may30_02_15',
                                                                    'may30_02_50','may30_02_51'])})
     
+    #Open the DEM
+    grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
+    #Minnor slicing on borders to enhance colorbars
+    elevDem=grid.dem[:-1,:-1]              
+    #Scale the colormap
+    divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
+
     #Define the working environment for loading the data
     path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
     os.chdir(path) # relative path: scripts dir is under Lab
@@ -645,7 +657,60 @@ if (generate_excess_melt_traces_with_slices=='TRUE'):
                     lon=-lon
                     
                     ##########################################################
-                    ###             SUBPLOT 1: EXCESS MELT plot            ###
+                    ###                  CREATE FIGURE                     ###
+                    ##########################################################                    
+                    plt.rcParams.update({'font.size': 10})
+                    fig = plt.figure(figsize=(19,10))
+                    fig.suptitle(indiv_file.replace("_aggregated",""))
+                    
+                    gs = gridspec.GridSpec(2, 4)
+                    gs.update(wspace=0.1)
+                    ax1 = plt.subplot(gs[0, :2], )
+                    ax2 = plt.subplot(gs[0, 2:])
+                    ax3 = plt.subplot(gs[1, 0:4])
+                    ##########################################################
+                    ###                  CREATE FIGURE                     ###
+                    ########################################################## 
+                    
+                    ##########################################################
+                    ###                SUBPLOT 1: TOPO plot                ###
+                    ##########################################################
+                    
+                    #Copy lat/lon into new variables
+                    lat_topo=lat
+                    lon_topo=lon
+                    
+                    #Transform the coordinated from WGS84 to EPSG:3413
+                    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+                    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+                    points=transformer.transform(np.array(lon_topo),np.array(lat_topo))
+                    
+                    lon_3413=points[0]
+                    lat_3413=points[1]
+                    
+                    #Plot dem
+                    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm)
+                    
+                    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+                    cbar1.set_label('Elevation [m]')
+                    
+                    ax1.grid()
+                    ax1.set_title('Elevation plot')
+                    
+                    #II.a.4. Plot the tracks
+                    ax1.scatter(lon_3413, lat_3413,s=0.1)
+                    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=0.1)
+                    ax1.grid()
+                    
+                    ax1.set_xlim(lon_3413[0]-200000, lon_3413[0]+200000)
+                    ax1.set_ylim(lat_3413[0]-200000, lat_3413[0]+200000)
+                    
+                    ##########################################################
+                    ###                SUBPLOT 1: TOPO plot                ###
+                    ##########################################################
+                    
+                    ##########################################################
+                    ###             SUBPLOT 2: EXCESS MELT plot            ###
                     ##########################################################
                     
                     ######################################################
@@ -667,34 +732,30 @@ if (generate_excess_melt_traces_with_slices=='TRUE'):
                     ###################################################### 
                     
                     #Plot excess melt map and traces localisation
-                    plt.rcParams.update({'font.size': 10})
-                    plt.figure(figsize=(48,40))
-                    fig, (ax1, ax2) = plt.subplots(2, 1)
-                    
-                    plot_melt=DS.M_e.sel(time=desired_year).plot(ax=ax1)
+                    plot_melt=DS.M_e.sel(time=str(int(folder_year)-1)).plot(ax=ax2)
                     
                     plot_melt.set_clim(0,1000)
                     plot_melt.set_cmap(discrete_cmap(10, 'hot_r'))
                     #plt.colorbar(label='Excess melt [mm w.e./year]')
                     
-                    df_latlon_gdf.plot(ax=ax1, marker='o', markersize=1, zorder=45, color='blue')
+                    df_latlon_gdf.plot(ax=ax2, marker='o', markersize=1, zorder=45, color='blue')
                     
                     #Display begining of tracks
                     begining_traces=df_latlon_gdf.loc[0:10]
-                    begining_traces.plot(ax=ax1, marker='o', markersize=1, zorder=45, color='magenta')
+                    begining_traces.plot(ax=ax2, marker='o', markersize=1, zorder=45, color='magenta')
                     
-                    ax1.set_xlim(df_latlon_gdf['geometry'].iloc[0].x-500000,df_latlon_gdf['geometry'].iloc[0].x+500000)
-                    ax1.set_ylim(df_latlon_gdf['geometry'].iloc[0].y-300000,df_latlon_gdf['geometry'].iloc[0].y+300000)
+                    ax2.set_xlim(df_latlon_gdf['geometry'].iloc[0].x-80000,df_latlon_gdf['geometry'].iloc[0].x+80000)
+                    ax2.set_ylim(df_latlon_gdf['geometry'].iloc[0].y-80000,df_latlon_gdf['geometry'].iloc[0].y+80000)
                     
                     #Display title
-                    plt.title(indiv_file.replace("_aggregated","")+' with excess melt year: '+desired_year)
+                    ax2.set_title('Excess melt plot, year: '+ str(int(folder_year)-1))
                     
                     ##########################################################
-                    ###             SUBPLOT 1: EXCESS MELT plot            ###
+                    ###             SUBPLOT 2: EXCESS MELT plot            ###
                     ##########################################################
                     
                     ##########################################################
-                    ###             SUBPLOT 2: Radar slice plot            ###
+                    ###             SUBPLOT 3: Radar slice plot            ###
                     ##########################################################
                     
                     #I. Process and plot radar echogram
@@ -784,34 +845,34 @@ if (generate_excess_melt_traces_with_slices=='TRUE'):
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
                     
                     #Plot the radar slice
-                    cb=ax2.pcolor(radar_slice_rescaled_mat,cmap=plt.get_cmap('gray'))#,norm=divnorm)
-                    ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
-                    ax2.set_aspect('equal') # X scale matches Y scale
+                    cb=ax3.pcolor(radar_slice_rescaled_mat,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+                    ax3.invert_yaxis() #Invert the y axis = avoid using flipud.
+                    ax3.set_aspect('equal') # X scale matches Y scale
                     #In order to display the depth, I used the example 1 of the
                     #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
-                    ax2.set_yticks(ticks_yplot) 
-                    ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                    ax2.set_title('Radar echogram slice, rescaled from 0 to 256 - 5-95% - No depth correction',fontsize=5)
-                    ax2.set_ylabel('Depth [m]')
-                    ax2.set_xlabel('Horizontal distance')
+                    ax3.set_yticks(ticks_yplot) 
+                    ax3.set_yticklabels(np.round(depths[ticks_yplot]))
+                    ax3.set_title('Radar echogram slice, rescaled from 0 to 256 - 5-95% - No depth correction')
+                    ax3.set_ylabel('Depth [m]')
+                    ax3.set_xlabel('Horizontal distance')
                     #cbar=fig.colorbar(cb)
                     #cbar.set_label('Signal strength', fontsize=5)
                     #fig.tight_layout()
-                    plt.show()        
+                    #plt.show()
                     
                     ##########################################################
-                    ###             SUBPLOT 2: Radar slice plot            ###
+                    ###             SUBPLOT 3: Radar slice plot            ###
                     ##########################################################                     
                     
-                    ##Create the figure name
-                    #fig_name=[]
-                    #fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/'+desired_year+'/year_'+desired_year+'_'+indiv_file.replace("_aggregated","")+'.png'
-                    #
-                    ##Save the figure
-                    #plt.savefig(fig_name)
-                    #plt.clf()
+                    #Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/potential_iceslabs/year_'+desired_year+'_'+indiv_file.replace("_aggregated","")+'.png'
                     
-                    pdb.set_trace()
+                    #Save the figure
+                    plt.savefig(fig_name)
+                    plt.clf()
+                    
+                    #pdb.set_trace()
 
 if (generate_raw_excess_melt=='TRUE'):
     #Generate and save the raw annual excess melt figures
