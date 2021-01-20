@@ -23,6 +23,7 @@ import pickle
 import pdb
 import pandas as pd
 import pyproj
+import scipy.io
 
 
 #Define path of the working directory
@@ -83,8 +84,8 @@ data_path = path+'excess_melt_mbyear.nc'
 DS = xr.open_dataset(data_path)
 
 #Extract coordinates
-lat=DS.x.data
-lon=DS.y.data
+lat_M_e=DS.x.data
+lon_M_e=DS.y.data
 
 #Load melt data
 melt_data= DS.M_e
@@ -134,16 +135,17 @@ if (generate_excess_melt_traces=='TRUE'):
                         continue
                     
                     if (folder_day=='jun04'):
-                        continue
-                    
-                    if (folder_day=='jun04'):
                         
                         fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
                         #Select radar echogram and corresponding lat/lon
                         radar_echo=fdata['data']
                         lat=fdata['latitude']
                         lon=fdata['longitude']
-                        #pdb.set_trace()
+                        
+                        #Transform lat and lon variables into series to be able
+                        #to create the pandas dataframes:
+                        lat=pd.Series(lat.flatten())
+                        lon=pd.Series(lon.flatten())
     
                     else:
                         #Open the file and read it
@@ -158,104 +160,104 @@ if (generate_excess_melt_traces=='TRUE'):
                         lat=latlontime['lat_gps']
                         lon=latlontime['lon_gps']
 
-                        #II. Plot radar echogram localisation
-                        #II.a. Plot radar track
-                        #II.a.1. Reproject the track from WGS 84 to EPSG 3413
-                        #Some index have lat and lon equal to 0 because of jumps in data aggregation.
-                        #Replace these 0 by NaNs
-                        
-                        if (not(folder_day=='jun04')):
-                            lat.replace(0, np.nan, inplace=True)
-                            lon.replace(0, np.nan, inplace=True)
-                        
-                        #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
-                        lon=-lon
-                        
-                        ######################################################
-                        ###     Convert lat/lon into MAR's projection      ###
-                        #This piece of code is adapted from Andrew
-                        
-                        #1. Create a dataframe of traces with lat/lon in EPSG:4326
-                        df_latlon=pd.DataFrame({'lon':pd.Series(lon),
-                                                'lat':pd.Series(lat)})
-                        
-                        #2. Create the geodataframe
-                        df_latlon_gdf = gpd.GeoDataFrame(df_latlon, geometry=gpd.points_from_xy(df_latlon.lon, df_latlon.lat), crs=4326)
-                        
-                        #3. Convert the data from EPSG:4326 to MAR's projection
-                        mar_proj4 = '+proj=stere +lat_0=89.5 +lon_0=-40 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
-                        df_latlon_gdf = df_latlon_gdf.to_crs(mar_proj4)
-                        
-                        ###     Convert lat/lon into MAR's projection      ###
-                        ######################################################
+                    #II. Plot radar echogram localisation
+                    #II.a. Plot radar track
+                    #II.a.1. Reproject the track from WGS 84 to EPSG 3413
+                    #Some index have lat and lon equal to 0 because of jumps in data aggregation.
+                    #Replace these 0 by NaNs
+                    
+                    if (not(folder_day=='jun04')):
+                        lat.replace(0, np.nan, inplace=True)
+                        lon.replace(0, np.nan, inplace=True)
+                    
+                    #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
+                    lon=-lon
+                    
+                    ######################################################
+                    ###     Convert lat/lon into MAR's projection      ###
+                    #This piece of code is adapted from Andrew
+                    
+                    #1. Create a dataframe of traces with lat/lon in EPSG:4326
+                    df_latlon=pd.DataFrame({'lon':pd.Series(lon),
+                                            'lat':pd.Series(lat)})
+                    
+                    #2. Create the geodataframe
+                    df_latlon_gdf = gpd.GeoDataFrame(df_latlon, geometry=gpd.points_from_xy(df_latlon.lon, df_latlon.lat), crs=4326)
+                    
+                    #3. Convert the data from EPSG:4326 to MAR's projection
+                    mar_proj4 = '+proj=stere +lat_0=70.5 +lon_0=-40 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
+                    df_latlon_gdf = df_latlon_gdf.to_crs(mar_proj4)
+                    
+                    ###     Convert lat/lon into MAR's projection      ###
+                    ######################################################
 
-                        ######################################################                        
-                        ###           Load excess melt data                ###
-        
-                        #Select the data associated with the wanted year (desired_year)
-                        melt_year = melt_data.sel(time=desired_year)
-                        melt_year_np = melt_year.values
-                        
-                        melt_year_plot=np.asarray(melt_year_np)
-                        melt_year_plot=melt_year_plot[0,0,:,:,0]
-                        
-                        ###           Load excess melt data                ###
-                        ######################################################                        
+                    ######################################################                        
+                    ###           Load excess melt data                ###
+                    
+                    #Select the data associated with the wanted year (desired_year)
+                    melt_year = melt_data.sel(time=desired_year)
+                    melt_year_np = melt_year.values
+                    
+                    melt_year_plot=np.asarray(melt_year_np)
+                    melt_year_plot=melt_year_plot[0,0,:,:,0]
+                    
+                    ###           Load excess melt data                ###
+                    ######################################################                        
 
 
-                        #Plot excess melt data with traces over it
-                        plt.rcParams.update({'font.size': 20})
-                        plt.figure(figsize=(48,40))
-                        ax = plt.subplot(111)
-                        dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
-                        #plot excess melt
-                        plt.imshow(np.squeeze(np.flipud(melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(5,'hot_r'))
-                        plt.colorbar(label='Excess melt [mm w.e./year]')
-                        plt.clim(0,1000)
-                        ax.grid()
-                        
-                        #plot tracks
-                        df_latlon_gdf.plot(ax=ax, marker='o', markersize=1, zorder=45, color='blue')
-                        
-                        #Display begining of tracks
-                        begining_traces=df_latlon_gdf.loc[0:10]
-                        begining_traces.plot(ax=ax, marker='o', markersize=1, zorder=45, color='magenta')
-                        
-                        #contours.plot(ax=ax, edgecolor='black')
-                        plt.title(indiv_file.replace("_aggregated","")+' with excess melt year: '+desired_year)
-                        
-                        plt.show()
-                        pdb.set_trace()
+                    #Plot excess melt data with traces over it
+                    plt.rcParams.update({'font.size': 20})
+                    plt.figure(figsize=(48,40))
+                    ax = plt.subplot(111)
+                    dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
+                    #plot excess melt
+                    plt.imshow(np.squeeze(np.flipud(melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(5,'hot_r'))
+                    plt.colorbar(label='Excess melt [mm w.e./year]')
+                    plt.clim(0,1000)
+                    ax.grid()
+                    
+                    #plot tracks
+                    df_latlon_gdf.plot(ax=ax, marker='o', markersize=1, zorder=45, color='blue')
+                    
+                    #Display begining of tracks
+                    begining_traces=df_latlon_gdf.loc[0:10]
+                    begining_traces.plot(ax=ax, marker='o', markersize=1, zorder=45, color='magenta')
+                    
+                    #contours.plot(ax=ax, edgecolor='black')
+                    plt.title(indiv_file.replace("_aggregated","")+' with excess melt year: '+desired_year)
+                    
+                    plt.show()
+                    pdb.set_trace()
 
  
-                        #if (folder_day=='jun04'):
-                        #    ax1.set_xlim(lon_3413[0,0]-500000, lon_3413[0,0]+500000)
-                        #    ax1.set_ylim(lat_3413[0,0]-500000, lat_3413[0,0]+500000)
-                        #else:
-                        #    ax1.set_xlim(lon_3413[0]-500000, lon_3413[0]+500000)
-                        #    ax1.set_ylim(lat_3413[0]-500000, lat_3413[0]+500000)
+                    #if (folder_day=='jun04'):
+                    #    ax1.set_xlim(lon_3413[0,0]-500000, lon_3413[0,0]+500000)
+                    #    ax1.set_ylim(lat_3413[0,0]-500000, lat_3413[0,0]+500000)
+                    #else:
+                    #    ax1.set_xlim(lon_3413[0]-500000, lon_3413[0]+500000)
+                    #    ax1.set_ylim(lat_3413[0]-500000, lat_3413[0]+500000)
 
 
-                        ##II.a.4. Plot the tracks
-                        #ax.scatter(lon_3413, lat_3413,s=0.1)
-                        #
-                        #if (folder_day=='jun04'):
-                        #    ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=0.1) #Plot the start in green
-                        #else:
-                        #    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=0.1)
-                        
-                        #ax1.grid()
+                    ##II.a.4. Plot the tracks
+                    #ax.scatter(lon_3413, lat_3413,s=0.1)
+                    #
+                    #if (folder_day=='jun04'):
+                    #    ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=0.1) #Plot the start in green
+                    #else:
+                    #    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=0.1)
+                    
+                    #ax1.grid()
 
 
 
                     
-                        ##Create the figure name
-                        #fig_name=[]
-                        #fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/excess_melt_'+wanted_year+'.png'
-                                            
-                        ##Save the figure
-                        #plt.savefig(fig_name)
-                        #plt.clf()
+                    ##Create the figure name
+                    #fig_name=[]
+                    #fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/excess_melt_'+wanted_year+'.png'
+                    
+                    ##Save the figure
+                    #plt.savefig(fig_name)
+                    #plt.clf()
 
 
 
