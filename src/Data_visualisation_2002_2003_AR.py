@@ -982,17 +982,17 @@ for folder_year in folder_years:
                     #cbar=fig.colorbar(cb)
                     #cbar.set_label('Signal strength', fontsize=5)
                     #fig.tight_layout()
-                    #pyplot.show()
+                    pyplot.show()
                     
                     #Create the figure name
-                    fig_name=[]
-                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'_5_95_after_depth_corr.png'
+                    #fig_name=[]
+                    #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/'+indiv_file+'_5_95_after_depth_corr.png'
                     
-                    #Save the figure
-                    pyplot.savefig(fig_name,dpi=500)
-                    pyplot.clf()
-                    #Plot the data
-                    #pdb.set_trace()
+                    ##Save the figure
+                    #pyplot.savefig(fig_name,dpi=500)
+                    #pyplot.clf()
+                    ##Plot the data
+                    pdb.set_trace()
                     
                     continue
                 
