@@ -539,10 +539,10 @@ if (generate_excess_melt_traces_with_slices=='TRUE'):
     #2. Plot on the top the excess melt map with traces location
     #3. Plot on the bottom the slice
     
-    ##Open, read and close the potential ice slabs file
-    #f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/potential_iceslabs.txt','r')
-    #potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
-    #f.close()
+    #Open, read and close the potential ice slabs file
+    f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/potential_iceslabs.txt','r')
+    potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+    f.close()
     
     #Open, read and close the file of suggested surface picks
     f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/txt/SURFACE_STARTING_PICKS_Suggestions_2002_2003.txt','r')
@@ -599,26 +599,29 @@ if (generate_excess_melt_traces_with_slices=='TRUE'):
                         #pdb.set_trace()
                         continue
                     
-                    ##If the indiv_file is not in the potential ice slabs file,
-                    ##move on to the next date
-                    #if (folder_day=='jun04'):
-                    #    if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
-                    #        print(indiv_file+' is not a potential ice slab, move on.')
-                    #       continue
-                    #else:
-                    #    if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
-                    #        print(indiv_file+' is not a potential ice slab, move on.')
-                    #        continue
+                    #If the indiv_file is not in the potential ice slabs file,
+                    #move on to the next date
+                    if (folder_day=='jun04'):
+                        if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
+                            print(indiv_file+' is not a potential ice slab, move on.')
+                            continue
+                    else:
+                        if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
+                            print(indiv_file+' is not a potential ice slab, move on.')
+                            continue
                         
                     #Print which file is processed
                     print('Treating file',indiv_file)
                     
-                    ##If file have already been created, continue
-                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/'+desired_year+'/year_'+desired_year+'_'+indiv_file.replace("_aggregated","")+'.png'
-                    #if (os.path.isfile(filename_to_check)):
-                    #    print('Figure already existent, move on to the next date')
-                    #    continue
-
+                    #If file have already been created, continue
+                    ##If all traces to plot, then:
+                    #filename_to_check='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/all_traces/'+folder_day+'/year_'+str(int(folder_year)-1)+'_'+indiv_file.replace("_aggregated","")+'.png'
+                    #If potential ice slabs to plot, then:
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/potential_iceslabs/year_'+str(int(folder_year)-1)+'_'+indiv_file.replace("_aggregated","")+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
+                    
                     #Load the data                    
                     if (folder_day=='jun04'):
                         fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
@@ -866,8 +869,11 @@ if (generate_excess_melt_traces_with_slices=='TRUE'):
                     
                     #Create the figure name
                     fig_name=[]
-                    #fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/potential_iceslabs/year_'+desired_year+'_'+indiv_file.replace("_aggregated","")+'.png'
-                    fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/all_traces/'+folder_day+'/year_'+desired_year+'_'+indiv_file.replace("_aggregated","")+'.png'
+                    #To create figures for potential ice slabs
+                    fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/potential_iceslabs/year_'+str(int(folder_year)-1)+'_'+indiv_file.replace("_aggregated","")+'.png'
+                    
+                    ##To create figures for all traces
+                    #fig_name='C:/Users/jullienn/Documents/working_environment/excess_melt/figures_excess_melt/all_traces/'+folder_day+'/year_'+str(int(folder_year)-1)+'_'+indiv_file.replace("_aggregated","")+'.png'
                     
                     #Save the figure
                     plt.savefig(fig_name)
