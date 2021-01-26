@@ -516,6 +516,12 @@ for folder_year in folder_years:
                         #Collect the radar slice signal for average
                         for_radar_average=np.append(for_radar_average,radar_slice.flatten())
                     else:
+                        #If file have already been created, continue
+                        filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/'+indiv_file.replace("_aggregated","")+'_'+technique
+                        if (os.path.isfile(filename_to_check)):
+                            print('Figure already existent, move on to the next date')
+                            continue
+                        
                         #The range have already been computed, plot the data:
                         if (technique=='perc_25_75'):
                             if (folder_year=='2002'):
