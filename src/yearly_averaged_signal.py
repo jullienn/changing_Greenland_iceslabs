@@ -49,6 +49,7 @@ df_dates_surf_pick=pd.DataFrame({'dates_surf_pick_impr':pd.Series(['may24_02_23'
                                                                    'may30_02_50','may30_02_51'])})
 
 plot_slice_and_improved_slice='TRUE'
+display_only_potential_ice_slabs='TRUE'
 collect_range='FALSE'
 technique='perc_2p5_97p5'
 ##############################################################################
@@ -395,16 +396,18 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 
-                ##If the indiv_file is not in the potential ice slabs file,
-                ##move on to the next date
-                #if (folder_day=='jun04'):
-                #    if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
-                #        print(indiv_file+' is not a potential ice slab, move on.')
-                #        continue
-                #else:
-                #    if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
-                #        print(indiv_file+' is not a potential ice slab, move on.')
-                #        continue
+                if (display_only_potential_ice_slabs=='TRUE'):
+                    #If we want to display only potential iceslabs files:
+                    #If the indiv_file is not in the potential ice slabs file,
+                    #move on to the next date
+                    if (folder_day=='jun04'):
+                        if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
+                            print(indiv_file+' is not a potential ice slab, move on.')
+                            continue
+                    else:
+                        if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
+                            print(indiv_file+' is not a potential ice slab, move on.')
+                            continue
                 
                 print('Treating file',indiv_file)
 
@@ -517,10 +520,16 @@ for folder_year in folder_years:
                         for_radar_average=np.append(for_radar_average,radar_slice.flatten())
                     else:
                         #If file have already been created, continue
-                        filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/'+indiv_file.replace("_aggregated","")+'_'+technique
-                        if (os.path.isfile(filename_to_check)):
-                            print('Figure already existent, move on to the next date')
-                            continue
+                        if (display_only_potential_ice_slabs=='TRUE'):
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/potential_iceslabs/'+indiv_file.replace("_aggregated","")+'_'+technique
+                            if (os.path.isfile(filename_to_check)):
+                                print('Figure already existent, move on to the next date')
+                                continue
+                        else:
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/'+indiv_file.replace("_aggregated","")+'_'+technique
+                            if (os.path.isfile(filename_to_check)):
+                                print('Figure already existent, move on to the next date')
+                                continue
                         
                         #The range have already been computed, plot the data:
                         if (technique=='perc_25_75'):
@@ -604,10 +613,16 @@ for folder_year in folder_years:
                         
                         #Create the figure name
                         fig_name=[]
-                        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/'+indiv_file.replace("_aggregated","")+'_'+technique+'.png'
+                        if (display_only_potential_ice_slabs=='TRUE'):
+                            fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/potential_iceslabs/'+indiv_file.replace("_aggregated","")+'_'+technique+'.png'
+                        else:
+                            fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/'+indiv_file.replace("_aggregated","")+'_'+technique+'.png'
+
                         #Save the figure
                         pyplot.savefig(fig_name,dpi=500)
                         pyplot.clf()
+                        
+                        #pdb.set_trace()
                                                 
     else:
         print('Folder',folder_year,', continue ...')
