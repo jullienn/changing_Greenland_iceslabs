@@ -2,6 +2,23 @@
 """
 Created on Tue Jan 19 14:25:01 2021
 
+#Description of the code:
+    
+This code does the averaging for any year of the radar signal:
+- 'plot_slice_and_improved_slice' must always be set to 'TRUE'
+There are 2 possibilities:
+    1. Calculate the lower and upper xth (to define!) percentiles, then:
+        - 'collect_range' ='TRUE'
+        - 'display_only_potential_ice_slabs' ='TRUE'
+        - technique ='perc_2p5_97p5' or 'perc_75' or ...
+        
+    2. Plot the resulted rescaled radar slices:
+        - 'collect_range' ='FALSE'
+        2.a. Only potential ice slabes:
+            - 'display_only_potential_ice_slabs' ='TRUE'
+        2.b. All the traces:
+            - 'display_only_potential_ice_slabs' ='FALSE'
+
 @author: JullienN
 """
 
@@ -49,7 +66,7 @@ df_dates_surf_pick=pd.DataFrame({'dates_surf_pick_impr':pd.Series(['may24_02_23'
                                                                    'may30_02_50','may30_02_51'])})
 
 plot_slice_and_improved_slice='TRUE'
-display_only_potential_ice_slabs='FALSE'
+display_only_potential_ice_slabs='TRUE'
 collect_range='FALSE'
 technique='perc_2p5_97p5'
 ##############################################################################
