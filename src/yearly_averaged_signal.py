@@ -49,7 +49,7 @@ df_dates_surf_pick=pd.DataFrame({'dates_surf_pick_impr':pd.Series(['may24_02_23'
                                                                    'may30_02_50','may30_02_51'])})
 
 plot_slice_and_improved_slice='TRUE'
-display_only_potential_ice_slabs='TRUE'
+display_only_potential_ice_slabs='FALSE'
 collect_range='FALSE'
 technique='perc_2p5_97p5'
 ##############################################################################
@@ -514,19 +514,19 @@ for folder_year in folder_years:
                                                                     surface_indices,
                                                                     meters_cutoff_above=meters_cutoff_above,
                                                                     meters_cutoff_below=meters_cutoff_below)
-                    
+                    #pdb.set_trace()
                     if (collect_range=='TRUE'):
                         #Collect the radar slice signal for average
                         for_radar_average=np.append(for_radar_average,radar_slice.flatten())
                     else:
                         #If file have already been created, continue
                         if (display_only_potential_ice_slabs=='TRUE'):
-                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/potential_iceslabs/'+indiv_file.replace("_aggregated","")+'_'+technique
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/potential_iceslabs/'+indiv_file.replace("_aggregated","")+'_'+technique+'.png'
                             if (os.path.isfile(filename_to_check)):
                                 print('Figure already existent, move on to the next date')
                                 continue
                         else:
-                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/'+indiv_file.replace("_aggregated","")+'_'+technique
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/rescale/'+folder_year+'/'+indiv_file.replace("_aggregated","")+'_'+technique+'.png'
                             if (os.path.isfile(filename_to_check)):
                                 print('Figure already existent, move on to the next date')
                                 continue
