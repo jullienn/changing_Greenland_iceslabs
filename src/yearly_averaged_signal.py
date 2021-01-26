@@ -395,16 +395,16 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 
-                #If the indiv_file is not in the potential ice slabs file,
-                #move on to the next date
-                if (folder_day=='jun04'):
-                    if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
-                        print(indiv_file+' is not a potential ice slab, move on.')
-                        continue
-                else:
-                    if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
-                        print(indiv_file+' is not a potential ice slab, move on.')
-                        continue
+                ##If the indiv_file is not in the potential ice slabs file,
+                ##move on to the next date
+                #if (folder_day=='jun04'):
+                #    if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
+                #        print(indiv_file+' is not a potential ice slab, move on.')
+                #        continue
+                #else:
+                #    if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
+                #        print(indiv_file+' is not a potential ice slab, move on.')
+                #        continue
                 
                 print('Treating file',indiv_file)
 
