@@ -44,13 +44,18 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 #In the following sections, we do perform depth correction of the traces
 plot_radar_echogram_slice='FALSE'
-plot_slice_and_loc='TRUE'
+plot_slice_and_loc='FALSE'
 
 #In the following sections, we DO NOT perform depth correction of the traces
 surf_pick_selection='FALSE'
 raw_radar_echograms='FALSE'
 plot_radar_loc='FALSE'
 plot_original_slice_and_cutted_slice='FALSE'
+plot_slice_and_loc_rescaled='TRUE'
+
+#Which resclaing procedure we want. Choose among:
+#perc_25_75, perc_5_95, perc_2p5_97p5, perc_05_995
+technique='perc_2p5_97p5'
 
 #N defines the number of different colors I want to use for the elevation plot
 N=10
@@ -1293,7 +1298,225 @@ for folder_year in folder_years:
                     
                     continue
 
+                #If plot_slice_and_loc_rescaled is set to 'TRUE', then plot the location of
+                #radar echogram AND the rescaled radar slice of that date and save it
+                if (plot_slice_and_loc_rescaled=='TRUE'):
+                    #If file have already been created, continue
+                    filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc_rescaled/'+indiv_file.replace("_aggregated","")+technique+'.png'
+                    if (os.path.isfile(filename_to_check)):
+                        print('Figure already existent, move on to the next date')
+                        continue
+                                        
+                    #Subplot N°1:
+                    #I. Process and plot radar echogram
+                    #I.a. Load the surface suggestion pick (there is no 'Surface'
+                    # variable in 2002/2003 dataset such as 2010/2014 datset).
                     
+                    # Load the suggested pixel for the specific date
+                    for date_pix in lines:
+                        if (folder_day=='jun04'):
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue   
+                        else:
+                            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                                suggested_pixel=int(date_pix.partition(" ")[2])
+                                #If it has found its suggested pixel, leave the loop
+                                continue
+                    
+                    #I.b. Get the surface indices
+                    
+                    if (indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr'])):
+                        #I.b.1. If already semi automatically generated, read the file
+                        print(indiv_file+' have a semi-automatic improved file: use it!')
+                        
+                        #Construct the fiename of the wanted file
+                        filename_improved_indices=[]
+                        path_improved_indices='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/surf_'
+                        filename_improved_indices=path_improved_indices+indiv_file+'.txt'
+                        
+                        #Open, read and close the file of surface picks
+                        fsurf = open(filename_improved_indices,'r')
+                        lines_fsurf = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
+                        fsurf.close()
+                        
+                        #Store the surface indices into the right variable as int64
+                        surface_indices=np.asarray(lines_fsurf,dtype=np.int64)
+                        
+                    else:
+                        #I.b.2. If not already semi automatically generated, call
+                        #the kernel_function to pick the surface
+                        surface_indices=kernel_function(radar_echo, suggested_pixel)
+                        
+                    #I.c. Perform depth correction
+                    #depth_corrected_traces=perform_depth_correction(radar_echo, depths, surface_indices, indiv_file.replace("_aggregated",""), 'FALSE')
+                    depth_corrected_traces=radar_echo
+                    
+                    #I.d. Select the radar slice
+                    #Define the uppermost and lowermost limits
+                    meters_cutoff_above=0
+                    meters_cutoff_below=30
+                    
+                    #Redefine the 'surface_indices' variable: the surface have just been picked
+                    #for the depth correction, so now we want to pick from the top down to
+                    #30m depth, thus the 'surface_indices' must be [0,0,...,0]!!
+                    #surface_indices=np.zeros(surface_indices.shape[0],dtype=np.int64)
+                    
+                    #Get our slice (30 meters as currently set)
+                    radar_slice, bottom_indices = _return_radar_slice_given_surface(depth_corrected_traces,
+                                                                    depths,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=meters_cutoff_above,
+                                                                    meters_cutoff_below=meters_cutoff_below)
+                    # I have taken and adatped the functions '_return_radar_slice_given_surface' and
+                    # '_radar_slice_indices_above_and_below' from 'IceBridgeGPR_Manager_v2.py'
+                    # and it seems to correctly selecting the slice! I did not manually check
+                    # by looking in the variables it the job was done correctly but I have
+                    # checked several variables such as idx_above, idx_below, output traces
+                    # and it seems okay to me!
+                    
+                    #DO NOT rescale the radar slice as MacFerrin et al. 2019
+                    #radar_slice_rescaled_mat=_export_to_8bit_array(radar_slice)
+    
+                    ##############################################################
+                    ############### Begin explanations on pcolor #################
+                    
+                    #Explainations on how pcolor works. I convinced myself doing a small example that I plotted.
+                    #Further explanations: https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.pcolor.html#:~:text=pcolor()%20displays%20all%20columns,Similarly%20for%20the%20rows.
+                    #Example: I have a matrix Z that I want to plot
+                    
+                    #Z=[10,3,24,70,                            40,5,48,22
+                    #    2,6,87,21,      ----pcolor(Z)--->     2,6,87,21
+                    #    40,5,48,22]                           10,3,24,70
+                    
+                    #I must use np.flipud(), or invert the y axis to display the data from top to bottom.
+                    
+                    ################ End explanations on pcolor ##################
+                    ##############################################################
+                    
+                    #II. Plot radar echogram localisation
+                    #II.a. Plot radar track
+                    #II.a.1. Reproject the track from WGS 84 to EPSG 3413
+                    #Some index have lat and lon equal to 0 because of jumps in data aggregation.
+                    #Replace these 0 by NaNs
+                    
+                    if (not(folder_day=='jun04')):
+                        lat.replace(0, np.nan, inplace=True)
+                        lon.replace(0, np.nan, inplace=True)
+                    
+                    #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
+                    lon=-lon
+                    
+                    #Transform the coordinated from WGS84 to EPSG:3413
+                    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+                    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+                    points=transformer.transform(np.array(lon),np.array(lat))
+                    
+                    lon_3413=points[0]
+                    lat_3413=points[1]
+                    
+                    #II.a.2 Create the subplot
+                    pyplot.figure(figsize=(48,40))
+                    #Change label font
+                    pyplot.rcParams.update({'font.size': 5})
+                    #fig, (ax1, ax2) = pyplot.subplots(1, 2)
+                    fig, (ax1, ax2) = pyplot.subplots(2, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+
+                    fig.suptitle(indiv_file.replace("_aggregated",""))
+                    
+                    #Subplot N°1:
+                    #II.a.3. Plot dem
+                    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(N,'cubehelix_r'),norm=divnorm)
+                    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+                    cbar1.set_label('Elevation [m]', fontsize=5)
+                    ax1.grid()
+                    ax1.set_title('Radar echogram localisation',fontsize=5)
+                    
+                    #II.a.4. Plot the tracks
+                    ax1.scatter(lon_3413, lat_3413,s=0.1)
+                    
+                    if (folder_day=='jun04'):
+                        ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=0.1) #Plot the start in green
+                    else:
+                        ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=0.1)
+                    
+                    ax1.grid()
+                    
+                    if (folder_day=='jun04'):
+                        ax1.set_xlim(lon_3413[0,0]-500000, lon_3413[0,0]+500000)
+                        ax1.set_ylim(lat_3413[0,0]-500000, lat_3413[0,0]+500000)
+                    else:
+                        ax1.set_xlim(lon_3413[0]-500000, lon_3413[0]+500000)
+                        ax1.set_ylim(lat_3413[0]-500000, lat_3413[0]+500000)
+                    
+                    #II.b. Plot the radar slice (first 30m of radar echogram)
+                    
+                    #Subplot N°2:
+                    #Create the y vector for plotting
+                    ticks_yplot=np.arange(0,radar_slice.shape[0],20)
+                    
+                    #Select the lower and upper end for rescaling.
+                    #These data are from 'yearly_averaged_signal.py' function
+                    #The range have already been computed, plot the data:
+                    if (technique=='perc_25_75'):
+                        if (folder_year=='2002'):
+                            perc_lower_end=-0.08318485583215623
+                            perc_upper_end=0.09414986209628376
+                        elif (folder_year=='2003'):
+                            perc_lower_end=-0.08488332785270308
+                            perc_upper_end=0.09654050592743407
+                    elif (technique=='perc_5_95'):
+                        if (folder_year=='2002'):
+                            perc_lower_end=-0.2870889087496134
+                            perc_upper_end=0.3138722799744009
+                        elif (folder_year=='2003'):
+                            perc_lower_end=-0.31927843730229416
+                            perc_upper_end=0.3682849426401127
+                    elif (technique=='perc_05_995'):
+                        if (folder_year=='2002'):
+                            perc_lower_end=-2.1488917418616134
+                            perc_upper_end=2.650167679823621
+                        elif (folder_year=='2003'):
+                            perc_lower_end=-1.661495950494564
+                            perc_upper_end=1.9431298622848088
+                    elif (technique=='perc_2p5_97p5'):
+                        if (folder_year=='2002'):
+                            perc_lower_end=-0.5709792307554173
+                            perc_upper_end=0.7082634842114803
+                        elif (folder_year=='2003'):
+                            perc_lower_end=-0.6061610403154447
+                            perc_upper_end=0.7572821079440079  
+                    
+                    #Plot the radar slice
+                    cb2=ax2.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                    ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
+                    ax2.set_aspect('equal') # X scale matches Y scale
+                    #In order to display the depth, I used the example 1 of the
+                    #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
+                    ax2.set_yticks(ticks_yplot) 
+                    ax2.set_yticklabels(np.round(depths[ticks_yplot]))
+                    ax2.set_title('Radar echogram slice, not depth correct, rescaling: '+technique+' percentiles',fontsize=5)
+                    ax2.set_ylabel('Depth [m]')
+                    ax2.set_xlabel('Horizontal distance')
+                    
+                    cb2.set_clim(perc_lower_end,perc_upper_end)
+                    cbar2=fig.colorbar(cb2, ax=[ax2], location='right')
+                    cbar2.set_label('Signal strength')
+                    #fig.tight_layout()
+                    #pyplot.show()
+                    
+                    ##Create the figure name
+                    fig_name=[]
+                    fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc_rescaled/'+indiv_file.replace("_aggregated","")+technique+'.png'
+                    
+                    ##Save the figure
+                    pyplot.savefig(fig_name,dpi=500)
+                    pyplot.clf()
+                    #Plot the data
+                    #pdb.set_trace()
+                    
+                    continue                    
     else:
         print('Folder',folder_year,', continue ...')
         continue
