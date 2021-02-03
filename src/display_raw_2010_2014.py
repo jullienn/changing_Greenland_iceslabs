@@ -455,7 +455,7 @@ for folder_year in folder_years:
     if (folder_year in list(['2002','2003'])):
         continue
     
-    if (folder_year == '2010_Greenland_P3'):
+    if (folder_year == '2014_Greenland_P3'):
         print('Treating the year',folder_year)
 
         #Go into the yearly folders 
@@ -478,23 +478,136 @@ for folder_year in folder_years:
             #pdb.set_trace()
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
+                #pdb.set_trace()
+                ##Load data
+                #fdata_p0= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
+                #fdata_p1= scipy.io.loadmat(folder_day_name+'/Data_20100507_01_009.mat')
+                #fdata_p2= scipy.io.loadmat(folder_day_name+'/Data_20100507_01_010.mat')
+                #
+                #pdb.set_trace()
+                #
+                ##Select radar echogram
+                #radar_echo_p0=fdata_p0['Data']
+                #radar_echo_p1=fdata_p1['Data']
+                #radar_echo_p2=fdata_p2['Data']
+                #
+                #radar_echo_p0_p1=np.append(radar_echo_p0,radar_echo_p1,axis=1)
+                #radar_echo=np.append(radar_echo_p0_p1,radar_echo_p2,axis=1)
+                #
+                ##Tranform in log10
+                #radar_echo=np.log10(radar_echo)
+
+                if (folder_year=='2010_Greenland_P3'):
+                    
+                    plot_name1='20100508_01_114'
+                    plot_name2='20100508_01_114'
+                    plot_name3='20100508_01_115'
+                    
+                if (folder_year=='2011_Greenland_P3'):
+                    
+                    plot_name1='20110419_01_008'
+                    plot_name2='20110419_01_009'
+                    plot_name3='20110419_01_010'
+                    
+                if (folder_year=='2012_Greenland_P3'):
+                    
+                    plot_name1='20120418_01_129'
+                    plot_name2='20120418_01_130'
+                    plot_name3='20120418_01_131'
+                                        
+                if (folder_year=='2013_Greenland_P3'):
+                    
+                    plot_name1='20130405_01_165'
+                    plot_name2='20130405_01_166'
+                    plot_name3='20130405_01_167'
+                    
+                #if (folder_year=='2014_Greenland_P3'):
+                #    
+                #    plot_name1='20140424_01_002'
+                #    plot_name2='20140424_01_003'
+                #    plot_name3='20140424_01_004'
+                #pdb.set_trace()
                 
                 #Load data
-                fdata_p0= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
-                fdata_p1= scipy.io.loadmat(folder_day_name+'/Data_20100507_01_009.mat')
-                fdata_p2= scipy.io.loadmat(folder_day_name+'/Data_20100507_01_010.mat')
+                fdata1= scipy.io.loadmat(folder_day_name+'/Data_'+plot_name1+'.mat')
+                radar_echo1=fdata1['Data']
+                time_echo1=fdata1['Time']
+                    
+                fdata2= scipy.io.loadmat(folder_day_name+'/Data_'+plot_name2+'.mat')
+                radar_echo2=fdata2['Data']
+                time_echo2=fdata2['Time']
+                    
+                fdata3= scipy.io.loadmat(folder_day_name+'/Data_'+plot_name3+'.mat')
+                radar_echo3=fdata3['Data']
+                time_echo3=fdata3['Time']
+                
+                #Plot the data
+                
+                #Create the subplot
+                pyplot.figure(figsize=(48,40))
+                pyplot.rcParams.update({'font.size': 5})
+                fig, (ax1, ax2) = pyplot.subplots(1, 2)#, gridspec_kw={'width_ratios': [1, 3]})
+    
+                fig.suptitle(str(plot_name1))
+    
+                #Plot the radar slice
+                cb1=ax1.pcolor(np.log10(radar_echo1),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
+                ax1.set_aspect('equal') # X scale matches Y scale
+                ax1.set_title('log10(radar echo)')
+                ax1.set_ylabel('Depth [m]')
+                ax1.set_xlabel('Horizontal distance')
+                cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+                cbar1.set_label('Signal strength')
+    
+                ax2.plot(time_echo1)
+                ax2.grid()
+                ax2.set_title('Time')
+                ax2.set_xlabel('1:length(time)')
+                ax2.set_ylabel('Time [s]')
+                
+                fig_name=[]
+                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/investigation_2012_2013_bug/'+folder_year[0:4]+'_example.png'
+                #Save the figure
+                pyplot.savefig(fig_name,dpi=500)
+                pyplot.clf()
+                    
+                #Create the subplot
+                pyplot.figure(figsize=(48,40))
+                pyplot.rcParams.update({'font.size': 5})
+                fig, (ax1, ax2, ax3) = pyplot.subplots(1, 3)#, gridspec_kw={'width_ratios': [1, 3]})
+    
+                fig.suptitle('Time variable')
+                    
+                #Subplot N°1:
+                ax1.plot(time_echo1)
+                ax1.grid()
+                ax1.set_title(str(plot_name1))
+                ax1.set_xlabel('1:length(time)')
+                ax1.set_ylabel('Time [s]')
+                    
+                #Subplot N°2:
+                ax2.plot(time_echo2)
+                ax2.grid()
+                ax2.set_title(str(plot_name2))
+                ax2.set_xlabel('1:length(time)')
+                ax2.set_ylabel('Time [s]')
+    
+                #Subplot N°1:
+                ax3.plot(time_echo3)
+                ax3.grid()
+                ax3.set_title(str(plot_name3))
+                ax3.set_xlabel('1:length(time)')
+                ax3.set_ylabel('Time [s]')
+                
+                fig_name=[]
+                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/investigation_2012_2013_bug/'+folder_year[0:4]+'_time_example.png'
+                #Save the figure
+                pyplot.savefig(fig_name,dpi=500)
+                pyplot.clf()
+                    
                 pdb.set_trace()
-                
-                #Select radar echogram
-                radar_echo_p0=fdata_p0['Data']
-                radar_echo_p1=fdata_p1['Data']
-                radar_echo_p2=fdata_p2['Data']
-                
-                radar_echo_p0_p1=np.append(radar_echo_p0,radar_echo_p1,axis=1)
-                radar_echo=np.append(radar_echo_p0_p1,radar_echo_p2,axis=1)
-                
-                #Tranform in log10
-                radar_echo=np.log10(radar_echo)
+                break
                 
                 #Select the first 30m of radar echogram
                 #1. Compute the vertical resolution

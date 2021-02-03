@@ -490,9 +490,9 @@ class IceBridgeRadarDB:
                     row['Roll']    = numpy.nan
                     row['Pitch']   = numpy.nan
                     row['Heading'] = numpy.nan
-
+                
                 row['GPS_time']        = data['GPS_time'].flatten()[i]
-                row['Surface']         = data['Surface'].flatten()[i]
+                row['Surface'] = data['Surface'].flatten()[i]
                 row.append()
 
             if datafile != None:
