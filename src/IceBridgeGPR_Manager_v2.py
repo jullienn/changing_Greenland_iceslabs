@@ -1435,26 +1435,6 @@ class IceBridgeGPR_Track_v2():
         assert table_idx == self.TABLE_coords_table.shape[0]
 
         self.TRACES = traces
-        
-        ######################################################################
-        ### BEGIN - If the tim_col have negative time in it, transform the ###
-        ### time_col into a full positive vector. This is done because the ###
-        ### time variable stored in 2012-2013 data have negative values,   ###
-        ### making the ice slabs processing to fails!                      ###
-        ### This piece of code was added on February 3rd, 2021 at 16h35    ###
-        ######################################################################
-        ##pdb.set_trace()
-        #if (time_col[0]<0):
-        #    time_col=time_col+abs(time_col[0])
-        
-        ######################################################################
-        ### END - If the tim_col have negative time in it, transform the ###
-        ### time_col into a full positive vector. This is done because the ###
-        ### time variable stored in 2012-2013 data have negative values,   ###
-        ### making the ice slabs processing to fails!                      ###
-        ### This piece of code was added on February 3rd, 2021 at 16h35    ###
-        ######################################################################
-        
         self.SAMPLE_TIMES = time_col
         self.compute_sample_depths()
         #So far we have read the data, stored the traces into self and computed the depths and stored them into self!
