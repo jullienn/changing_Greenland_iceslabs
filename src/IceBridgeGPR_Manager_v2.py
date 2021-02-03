@@ -1450,7 +1450,34 @@ class IceBridgeGPR_Track_v2():
         if self.SAMPLE_TIMES is None:
             self.get_trace_array()
         #pdb.set_trace()
-        self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+        #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+        
+        ######################################################################
+        ### BEGIN - If the depths have negative values in it, transform the ###
+        ### depths into a full positive vector. This is done because the   ###
+        ### time variable stored in 2012-2013 data have negative values,   ###
+        ### making the ice slabs processing to fail!                       ###
+        ### This piece of code was added on February 3rd, 2021 at 18h20    ###
+        ######################################################################
+        pdb.set_trace()
+        
+        depth_check=self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+        
+        if (depth_check[10]<0):
+            #depth_check[10] so that I am sure that the whole vector is negative and
+            #not the first as can be for some date were the proccessing is working
+            depth_check=depth_check+abs(depth_check[0])
+            self.SAMPLE_DEPTHS = depth_check
+        else:
+            self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+        
+        ######################################################################
+        ### END - If the depths have negative values in it, transform the ###
+        ### depths into a full positive vector. This is done because the   ###
+        ### time variable stored in 2012-2013 data have negative values,   ###
+        ### making the ice slabs processing to fail!                       ###
+        ### This piece of code was added on February 3rd, 2021 at 18h20    ###
+        ######################################################################
         return
 
     def return_coordinates_lat_lon(self):
@@ -2450,27 +2477,6 @@ class IceBridgeGPR_Track_v2():
         traces = self._subset_array(traces_all, mask=None)
         pdb.set_trace()
         depths = self.get_sample_depths(trace_array = traces)
-        
-        ######################################################################
-        ### BEGIN - If the depths have negative values in it, transform the ###
-        ### depths into a full positive vector. This is done because the ###
-        ### time variable stored in 2012-2013 data have negative values,   ###
-        ### making the ice slabs processing to fails!                      ###
-        ### This piece of code was added on February 3rd, 2021 at 17h40    ###
-        ######################################################################
-        pdb.set_trace()
-        if (depths[10]<0):
-            #depth[10] so that I am sure that the whole vector is negative and
-            #not the first as can be for some date were the proccessing is working
-            depths=depths+abs(depths[0])
-        
-        ######################################################################
-        ### END - If the depths have negative values in it, transform the ###
-        ### depths into a full positive vector. This is done because the ###
-        ### time variable stored in 2012-2013 data have negative values,   ###
-        ### making the ice slabs processing to fails!                      ###
-        ### This piece of code was added on February 3rd, 2021 at 17h40    ###
-        ######################################################################
 
         # Use array broadcasting here.
         pdb.set_trace()
