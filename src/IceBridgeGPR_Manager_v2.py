@@ -1459,7 +1459,7 @@ class IceBridgeGPR_Track_v2():
         ### making the ice slabs processing to fail!                       ###
         ### This piece of code was added on February 3rd, 2021 at 18h20    ###
         ######################################################################
-        pdb.set_trace()
+        #pdb.set_trace()
         
         depth_check=self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         
@@ -1705,7 +1705,7 @@ class IceBridgeGPR_Track_v2():
 
             mean_returns = numpy.mean(radar_slice, axis=1)
             plt.axhline(y=0,linestyle="--",color="black")
-            pdb.set_trace()
+            #pdb.set_trace()
             plt.plot(mean_returns, -numpy.arange(-idx_above,idx_below,1)*numpy.mean(self.SAMPLE_DEPTHS[1:] - self.SAMPLE_DEPTHS[:-1]))
             plt.title(self.NAME)
             plt.xlabel("Mean Strength (dB)")
@@ -2475,11 +2475,11 @@ class IceBridgeGPR_Track_v2():
         mask = self._compute_boolean_mask(traces=traces_all, mask=None)
         #pdb.set_trace()
         traces = self._subset_array(traces_all, mask=None)
-        pdb.set_trace()
+        #pdb.set_trace()
         depths = self.get_sample_depths(trace_array = traces)
 
         # Use array broadcasting here.
-        pdb.set_trace()
+        #pdb.set_trace()
         depths_expanded = numpy.empty(traces.shape, dtype=depths.dtype)
         # Use array broadcasting to copy the depths into all the trace values
         depths.shape = depths.shape[0],1
@@ -2583,7 +2583,7 @@ class IceBridgeGPR_Track_v2():
 
             # Save to object
             self.TRACES_depth_corrected = traces_norm_inflated
-            pdb.set_trace()
+            #pdb.set_trace()
             ######################################
             ## Export corrected image
             ######################################

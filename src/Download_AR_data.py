@@ -103,7 +103,7 @@ ftp.cwd(path)
 folders_years = ftp.nlst()
 
 for folder_year in folders_years:
-    
+    pdb.set_trace()
     if (folder_year == '2017_Greenland_P3'):
         print('Downloading 2017 data')
         
