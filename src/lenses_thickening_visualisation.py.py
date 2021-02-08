@@ -20,11 +20,11 @@ plot_years_overlay='FALSE'
 path='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
 if (plot_depth_corrected=='TRUE'):
-    path_data_toplot='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/Depth_Corrected_Picklefiles/'
+    path_data_toplot='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Depth_Corrected_Picklefiles/'
 else:
-    path_data_toplot='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/Boolean Array Picklefiles/'
+    path_data_toplot='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Boolean Array Picklefiles/'
 
-path_mask='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/Boolean Array Picklefiles/'
+path_mask='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Boolean Array Picklefiles/'
 
 #Define the years and data to investigate:
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
@@ -33,10 +33,23 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat']}
 
+#investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
+                    #2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
+                    #2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
+                    #2013:'empty',
+                    #2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat']}
+
 dataframe={}
+
+pdb.set_trace()
 
 for single_year in investigation_year.keys():
     print(single_year)
+    
+    #If no data, continue
+    if (investigation_year[single_year]=='empty'):
+        print('No data for year '+str(single_year)+', continue')
+        continue
     
     ###1. Load the mask and depth_corrected files:
     start_date_track=investigation_year[single_year][0]
@@ -147,7 +160,7 @@ for single_year in investigation_year.keys():
         max_lon=max_lon_temp
         #print('Max is:'+str(max_lon))
 
-#pdb.set_trace()
+pdb.set_trace()
 
 if (plot_years_overlay=='TRUE'):
     #Create an empty radar slice to plot data over it
@@ -308,7 +321,7 @@ pdb.set_trace()
 #To do:
 #    1. append data and lat/lon1 OK
 #    2. load data from 2010 to 2014 OK
-#    3. select as a function of lat/lon box
-#    4. plot the data
-#    5. compare!
-#    6. Decide whether I should work with depth corrected, or other post-precessed files that are available in 'Boolean Array Picklefiles' folder
+#    3. select as a function of lat/lon box OK
+#    4. plot the data OK
+#    5. compare! OK
+#    6. Decide whether I should work with depth corrected, or other post-precessed files that are available in 'Boolean Array Picklefiles' folder OK
