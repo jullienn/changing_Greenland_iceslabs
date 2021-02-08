@@ -206,7 +206,7 @@ for single_year in investigation_year.keys():
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax1.set_aspect(0.0025) # X scale matches Y scale
-        ax1.set_title(str(single_year)+' '+file_for_title)
+        ax1.set_title(date_track+' '+file_for_title)
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')
         ax1.set_xlim(-47.9,-46.8)
@@ -219,7 +219,7 @@ for single_year in investigation_year.keys():
 
         #Create the figure name
         fig_name=[]
-        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+file_for_title+'_'+str(single_year)+'.png'
+        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
     
         #Save the figure
         pyplot.savefig(fig_name,dpi=2000)
@@ -239,7 +239,7 @@ for single_year in investigation_year.keys():
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,alpha=0.1,edgecolor='none')#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax1.set_aspect(0.0025) # X scale matches Y scale
-        ax1.set_title(str(single_year)+' '+file_for_title)
+        ax1.set_title(date_track+' '+file_for_title)
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')        
         ax1.set_xlim(-47.9,-46.8)
@@ -252,7 +252,7 @@ for single_year in investigation_year.keys():
         
         #Create the figure name
         fig_name=[]
-        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+file_for_title+'_'+str(single_year)+'.png'
+        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
     
         #Save the figure
         pyplot.savefig(fig_name,dpi=2000)
