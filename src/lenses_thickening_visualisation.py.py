@@ -11,17 +11,18 @@ import pdb
 import h5py
 from matplotlib import pyplot
 
-plot_boolean='FALSE'
-plot_depth_corrected='TRUE'
-
+plot_boolean_orig_cut045_th000='FALSE'
+plot_boolean_SG1_cut045_th000='FALSE'
+plot_boolean_SG1_cut045_th350='TRUE'
+plot_depth_corrected='FALSE'
+plot_years_overlay='FALSE'
 #Load raw data:
 path='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
 if (plot_depth_corrected=='TRUE'):
-    path_depth_corrected='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/Depth_Corrected_Picklefiles/'
-
-if (plot_boolean=='TRUE'):
-    path_depth_corrected='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/Boolean Array Picklefiles/'
+    path_data_toplot='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/Depth_Corrected_Picklefiles/'
+else:
+    path_data_toplot='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/Boolean Array Picklefiles/'
 
 path_mask='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/Boolean Array Picklefiles/'
 
@@ -42,16 +43,24 @@ for single_year in investigation_year.keys():
     end_date_track=investigation_year[single_year][-1]
     date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
     
+    #pdb.set_trace()
+    
     #Define file names
     if (plot_depth_corrected=='TRUE'):
-        file_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
+        file_data_toplot=date_track+'_DEPTH_CORRECTED.pickle'
     
-    if (plot_boolean=='TRUE'):
-        file_depth_corrected=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
+    if (plot_boolean_orig_cut045_th000=='TRUE'):
+        file_data_toplot=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.pickle'
+        
+    if (plot_boolean_SG1_cut045_th000=='TRUE'):
+        file_data_toplot=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
+        
+    if (plot_boolean_SG1_cut045_th350=='TRUE'):
+        file_data_toplot=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.pickle'
     
-    f_depth_corrected = open(path_depth_corrected+file_depth_corrected, "rb")
-    radar = pickle.load(f_depth_corrected)
-    f_depth_corrected.close()
+    f_data_toplot = open(path_data_toplot+file_data_toplot, "rb")
+    radar = pickle.load(f_data_toplot)
+    f_data_toplot.close()
     
     #mask file
     file_mask=date_track+'_mask.pickle'
@@ -59,6 +68,14 @@ for single_year in investigation_year.keys():
     f_mask = open(path_mask+file_mask, "rb")
     data_mask = pickle.load(f_mask)
     f_mask.close()
+    
+    #Create the title for the figures
+    file_for_title=file_data_toplot
+    file_for_title=file_for_title.partition("_")[2]
+    file_for_title=file_for_title.partition("_")[2]
+    file_for_title=file_for_title.partition("_")[2]
+    file_for_title=file_for_title.partition("_")[2]
+    file_for_title=file_for_title.partition(".pickle")[0]
     
     ###2. Load the latitude and longitude
     
@@ -130,7 +147,9 @@ for single_year in investigation_year.keys():
         max_lon=max_lon_temp
         #print('Max is:'+str(max_lon))
 
-if (plot_boolean=='TRUE'):
+#pdb.set_trace()
+
+if (plot_years_overlay=='TRUE'):
     #Create an empty radar slice to plot data over it
     empty_slice=np.empty((dataframe[str(single_year)]['radar'].shape[0],5000))
     #Plot the data:
@@ -160,36 +179,6 @@ if (plot_boolean=='TRUE'):
 
 for single_year in investigation_year.keys():
     
-    if (plot_boolean=='TRUE'):
-        pyplot.figure(figsize=(40,8))
-        pyplot.rcParams.update({'font.size': 5})
-        fig, (ax1) = pyplot.subplots(1, 1)
-    
-        #fig.suptitle(str(plot_name1))
-        X=dataframe[str(single_year)]['lon_appended']
-        Y=np.arange(0,20,20/dataframe[str(single_year)]['radar'].shape[0])
-        C=dataframe[str(single_year)]['radar'].astype(float)
-        C[C==0]=np.nan
-        
-        cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'),alpha=0.1,edgecolor='none')#,norm=divnorm)
-        ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
-        ax1.set_aspect(0.005) # X scale matches Y scale
-        ax1.set_title(str(single_year))
-        ax1.set_ylabel('Depth [m]')
-        ax1.set_xlabel('Longitude [°]')
-        ax1.set_xlim(-48,-46.8)
-        
-        pdb.set_trace()
-        
-        #Create the figure name
-        fig_name=[]
-        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/boolean_'+str(single_year)+'.png'
-    
-        #Save the figure
-        pyplot.savefig(fig_name,dpi=2000)
-        pyplot.clf()
-        
-        
     if (plot_depth_corrected=='TRUE'):
             
         pyplot.figure(figsize=(40,20))
@@ -204,7 +193,7 @@ for single_year in investigation_year.keys():
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax1.set_aspect(0.0025) # X scale matches Y scale
-        ax1.set_title(str(single_year))
+        ax1.set_title(str(single_year)+' '+file_for_title)
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')
         ax1.set_xlim(-47.9,-46.8)
@@ -217,11 +206,46 @@ for single_year in investigation_year.keys():
 
         #Create the figure name
         fig_name=[]
-        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/depth_corr_'+str(single_year)+'.png'
+        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+file_for_title+'_'+str(single_year)+'.png'
     
         #Save the figure
         pyplot.savefig(fig_name,dpi=2000)
         pyplot.clf()
+    
+    else:
+        pyplot.figure(figsize=(40,20))
+        pyplot.rcParams.update({'font.size': 3})
+        fig, (ax1) = pyplot.subplots(1, 1)
+    
+        #fig.suptitle(str(plot_name1))
+        X=dataframe[str(single_year)]['lon_appended']
+        Y=np.arange(0,20,20/dataframe[str(single_year)]['radar'].shape[0])
+        C=dataframe[str(single_year)]['radar'].astype(float)
+        C[C==0]=np.nan
+        
+        cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,alpha=0.1,edgecolor='none')#,norm=divnorm)
+        ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
+        ax1.set_aspect(0.0025) # X scale matches Y scale
+        ax1.set_title(str(single_year)+' '+file_for_title)
+        ax1.set_ylabel('Depth [m]')
+        ax1.set_xlabel('Longitude [°]')        
+        ax1.set_xlim(-47.9,-46.8)
+        #ax1.set_ylim(30,0)
+        
+        cbar1=fig.colorbar(cb1, ax=[ax1], location='right',shrink=0.12,aspect=10,pad=0.01)
+        cbar1.set_label('Signal strength')
+        
+        #pdb.set_trace()
+        
+        #Create the figure name
+        fig_name=[]
+        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+file_for_title+'_'+str(single_year)+'.png'
+    
+        #Save the figure
+        pyplot.savefig(fig_name,dpi=2000)
+        pyplot.clf()
+        
+
           
 
 pdb.set_trace()
