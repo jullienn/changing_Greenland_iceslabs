@@ -375,6 +375,22 @@ def discrete_cmap(N, base_cmap=None):
 ############### Define function for discrete colorbar display ###############
 ##############################################################################
 
+##############################################################################
+################### Define function for ice lenses logging ###################
+##############################################################################
+#This function if adapted from https://stackoverflow.com/questions/37363755/python-mouse-click-coordinates-as-simply-as-possible
+def onclick(event):
+    #This functions print and save the x and y coordinates in pixels!
+    print(event.xdata, event.ydata)
+    #Fill in the file to log on the information
+    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+    f_log = open(filename_flog, "a")
+    f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
+    f_log.close() #Close the quality assessment file when we’re done!
+##############################################################################
+################### Define function for ice lenses logging ###################
+##############################################################################
+
 #Open, read and close the file of suggested surface picks
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/txt/SURFACE_STARTING_PICKS_Suggestions_2002_2003.txt','r')
 lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
@@ -384,6 +400,12 @@ f.close()
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/potential_iceslabs_rescale.txt','r')
 potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
+
+#Create the file to log on the information
+filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+f_log = open(filename_flog, "a")
+f_log.write('xcoord'+','+'ycoord'+'\n')
+f_log.close() #Close the quality assessment file when we’re done!
 
 #Open the DEM
 grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -398,8 +420,6 @@ os.chdir(path) # relative path: scripts dir is under Lab
 
 # Read the years of data
 folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
-
-pdb.set_trace()
 
 for folder_year in folder_years:
     for_radar_average=[]
@@ -434,7 +454,7 @@ for folder_year in folder_years:
                     radar_echo=fdata['data']
                     lat=fdata['latitude']
                     lon=fdata['longitude']
-                    pdb.set_trace()
+                    #pdb.set_trace()
 
                 else:
                     #Open the file and read it
@@ -449,7 +469,6 @@ for folder_year in folder_years:
                     lat=latlontime['lat_gps']
                     lon=latlontime['lon_gps']
                     
-                    pdb.set_trace()
                 
                 #Select the first 30m of radar echogram
                 #1. Compute the vertical resolution
@@ -566,7 +585,6 @@ for folder_year in folder_years:
                                 continue
                     
                     #I.b. Get the surface indices
-                    pdb.set_trace()
                     
                     if (indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr'])):
                         #I.b.1. If already semi automatically generated, read the file
@@ -665,7 +683,16 @@ for folder_year in folder_years:
                         radar_slice=np.fliplr(radar_slice)
                         
                     if (str(indiv_file.replace("_aggregated",""))=='may24_02_25'):
-                        radar_slice=np.fliplr(radar_slice)                        
+                        radar_slice=np.fliplr(radar_slice)   
+                    
+                    #Log the date we are dealing with in the ice lenses location file
+                    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+                    f_log = open(filename_flog, "a")
+                    if (folder_day=='jun04'):
+                        f_log.write(str(indiv_file.replace(".mat",""))+'\n')
+                    else:
+                        f_log.write(str(indiv_file.replace("_aggregated",""))+'\n')
+                    f_log.close() #Close the file
                     
                     #Generate the pick for vertical distance display
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
@@ -687,6 +714,10 @@ for folder_year in folder_years:
                     cb2.set_clim(perc_lower_end,perc_upper_end)
                     cbar2=fig.colorbar(cb2, ax=[ax2], location='right')
                     cbar2.set_label('Signal strength')
+                    
+                    fig.canvas.mpl_connect('button_press_event', onclick)
+                    pdb.set_trace()
+                    
                     pyplot.show()
                     
 print('End of processing')
