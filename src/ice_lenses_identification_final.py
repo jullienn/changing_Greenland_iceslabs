@@ -399,6 +399,8 @@ os.chdir(path) # relative path: scripts dir is under Lab
 # Read the years of data
 folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
 
+pdb.set_trace()
+
 for folder_year in folder_years:
     for_radar_average=[]
     
@@ -564,6 +566,7 @@ for folder_year in folder_years:
                                 continue
                     
                     #I.b. Get the surface indices
+                    pdb.set_trace()
                     
                     if (indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr'])):
                         #I.b.1. If already semi automatically generated, read the file
