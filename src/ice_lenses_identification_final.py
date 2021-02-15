@@ -4,7 +4,9 @@ Created on Mon Feb 15 12:02:59 2021
 
 #Description of the code:
     
-Identification of ice lenses in 2002-2003 data
+Identification of ice lenses in 2002-2003 data:
+    - Not depth corrected
+    - Colorbar rescaled as a function of the xth percentile wanted
 
 @author: JullienN
 """
@@ -54,7 +56,6 @@ df_dates_surf_pick=pd.DataFrame({'dates_surf_pick_impr':pd.Series(['may24_02_23'
                                                                    'may30_02_50','may30_02_51'])})
 
 plot_slice_and_improved_slice='TRUE'
-display_only_potential_ice_slabs='TRUE'
 technique='perc_2p5_97p5'
 #perc_2p5_97p5
 
