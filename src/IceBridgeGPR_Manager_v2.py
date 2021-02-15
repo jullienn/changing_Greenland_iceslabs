@@ -2625,7 +2625,7 @@ class IceBridgeGPR_Track_v2():
         ######################################################################
         ######################### Jusque là on est bon! ######################
         ######################################################################
-        #pdb.set_trace()
+        pdb.set_trace()
         
         # We identified the minimum signal-cutoff and continuity-threshold values for each algorithm.  They
         # gave very close results.  Produce one image from each Algorithm and we will evaluate which one worked best on all the datasets.
