@@ -23,6 +23,8 @@ import scipy.io
 ##############################################################################
 
 class SelectFromCollection:
+    
+    # Taken from https://matplotlib.org/stable/gallery/widgets/polygon_selector_demo.html
     """
     Select indices from a matplotlib collection using `PolygonSelector`.
 
@@ -791,12 +793,10 @@ if __name__ == '__main__':
                         #plt.show()
                         
                             #fig, ax = plt.subplots()
-                        
-                        pdb.set_trace()
-                        
-                        grid_x = np.tile(np.arange(0,radar_slice.shape[1],10), radar_slice.shape[0])
-                        grid_y = np.repeat(np.arange(0,radar_slice.shape[1],10), radar_slice.shape[0])
-                        pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=0.5)
+                                                
+                        grid_x = np.tile(np.arange(0,radar_slice.shape[1],1), radar_slice.shape[0])
+                        grid_y = np.repeat(np.arange(0,radar_slice.shape[1],1), radar_slice.shape[0])
+                        pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=0.5,s=1)
                         
                         ax2.set_ylim(0,radar_slice.shape[0])
                         ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
@@ -814,7 +814,10 @@ if __name__ == '__main__':
                         
                         ax2.set_yticks(ticks_yplot) 
                         ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                    
+                        
+                        plt.show()
+                        pdb.set_trace()
+
                         #grid_x = np.tile(np.arange(grid_size), grid_size)
                         #grid_y = np.repeat(np.arange(grid_size), grid_size)
                     
