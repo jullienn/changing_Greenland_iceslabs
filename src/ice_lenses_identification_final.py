@@ -56,6 +56,7 @@ df_dates_surf_pick=pd.DataFrame({'dates_surf_pick_impr':pd.Series(['may24_02_23'
                                                                    'may30_02_50','may30_02_51'])})
 
 plot_slice_and_improved_slice='TRUE'
+display_only_potential_iceslabs='TRUE'
 technique='perc_2p5_97p5'
 #perc_2p5_97p5
 
@@ -482,6 +483,16 @@ for folder_year in folder_years:
                 #If plot_slice_and_improved_slice is set to 'TRUE', then plot the
                 #radar echogram slice and the imprived radar slice of that date and save it
                 if (plot_slice_and_improved_slice=='TRUE'):
+                    
+                    if (display_only_potential_iceslabs=='TRUE'):
+                        if (folder_day=='jun04'):
+                            if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
+                                print(indiv_file.replace(".mat",""),'not a potential iceslabs: continue')
+                                continue
+                        else:
+                            if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
+                                print(indiv_file.replace("_aggregated",""),'not a potential iceslabs: continue')
+                                continue
                     
                     #II.a. Plot radar track
                     #II.a.1. Reproject the track from WGS 84 to EPSG 3413
