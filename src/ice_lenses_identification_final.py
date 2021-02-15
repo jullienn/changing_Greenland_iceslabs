@@ -37,40 +37,6 @@ import matplotlib.animation as animation
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
-#Choose the dates
-
-#SW Greenland
-date_a='jun04_02proc_4'
-#date_a='may12_03_36'
-
-#NW Greenland
-#date_a='may13_03_29'
-#date_a='may14_03_51'
-#date_a='may18_02_0'
-
-#SW Greenland
-#date_a='may12_03_1'
-#date_a='jun04_02proc_53'
-
-#NW Greenland
-#date_a='may30_02_51'
-#date_a='may13_03_29'
-
-#date_a='may30_02_51'
-#date_a='may14_03_51'
-
-#NW Greenland
-#date_a='may30_02_51'
-#date_a='may15_03_37'
-
-#date_a='jun04_02proc_52'
-#date_a='may12_03_1'
-
-#date_a='may24_02_25'
-#date_a='may15_03_37'
-
-#date_a='may24_02_25'
-#date_a='may15_03_37'
 
 #Define variables
 dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
@@ -459,16 +425,6 @@ for folder_year in folder_years:
             for indiv_file in onlyfiles:
                 
                 if (folder_day=='jun04'):
-                    if (not(str(indiv_file.replace(".mat",""))==date_a)):
-                        print('Not the date we are interested in, continue')
-                        continue
-                else:
-                    if (not(str(indiv_file.replace("_aggregated",""))==date_a)):
-                        print('Not the date we are interested in, continue')
-                        continue
-                print('Treating file',indiv_file)
-                
-                if (folder_day=='jun04'):
                     
                     fdata= scipy.io.loadmat(folder_day_name+'/'+indiv_file)
                     #Select radar echogram and corresponding lat/lon
@@ -727,94 +683,6 @@ for folder_year in folder_years:
                     cb2.set_clim(perc_lower_end,perc_upper_end)
                     cbar2=fig.colorbar(cb2, ax=[ax2], location='right')
                     cbar2.set_label('Signal strength')
-                    pyplot.show()                    
-                    
-                    ##Create figure or radar signal evolution
-                    #start_vertical_cut=370
-                    #end_vertical_cut=420
-                    
-                    start_vertical_cut=384
-                    end_vertical_cut=388
-                    
-                    lonely_cut=391
-                    #II.a.2 Create the subplot
-                    pyplot.figure(figsize=(48,40))
-                    #Change label font
-                    pyplot.rcParams.update({'font.size': 5})
-                    fig, (ax1, ax2) = pyplot.subplots(1, 2)#, gridspec_kw={'width_ratios': [1, 3]})
-
-                    fig.suptitle(indiv_file.replace("_aggregated",""))
-                    
-                    #Plot the radar slice
-                    cb1=ax1.pcolor(radar_slice[:,start_vertical_cut-30:end_vertical_cut+30],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-                    
-                    ax1.plot(np.ones(radar_slice[:,start_vertical_cut].size)*(start_vertical_cut-(start_vertical_cut-30)),np.arange(0,radar_slice[:,start_vertical_cut].size),color='red')
-                    ax1.plot(np.ones(radar_slice[:,end_vertical_cut].size)*(end_vertical_cut-(start_vertical_cut-30)),np.arange(0,radar_slice[:,end_vertical_cut].size),color='red')
-
-                    #ax1.plot(np.ones(radar_slice[:,lonely_cut].size)*(lonely_cut-start_vertical_cut),np.arange(0,radar_slice[:,lonely_cut].size),color='red')
-                    ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
-                    ax1.set_aspect('equal') # X scale matches Y scale
-                    #In order to display the depth, I used the example 1 of the
-                    #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
-                    ax1.set_yticks(ticks_yplot) 
-                    ax1.set_yticklabels(np.round(depths[ticks_yplot]))
-                    ax1.set_title('Radar echogram slice - vertical cut, rescaling: '+technique+' percentiles',fontsize=5)
-                    ax1.set_ylabel('Depth [m]')
-                    ax1.set_xlabel('Horizontal distance')
-                        
-                    #Colorbar custom
-                    cb1.set_clim(perc_lower_end,perc_upper_end)
-                    cbar1=fig.colorbar(cb1, ax=[ax1], location='right')
-                    cbar1.set_label('Signal strength')
-                    
-                    #Plot the radar strength evolution
-                    #ax2.plot(radar_slice[:,start_vertical_cut+16],np.arange(0,radar_slice[:,vertical_cut].size))#,norm=divnorm)
-                    #ax2.plot(radar_slice[:,lonely_cut],np.arange(0,radar_slice[:,lonely_cut].size),color='red')
-                    
-                    #If several vertical lines to plot and plot average
-                    for i in range (start_vertical_cut,end_vertical_cut+1):
-                        print(i)
-                        ax2.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
-                    ax2.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color='red')
-                    
-                    #ax2.set_ylim(0,30)
-                    
-                    #max_plot=np.maximum(np.absolute(np.min(radar_slice[:,lonely_cut])),np.absolute(np.max(radar_slice[:,lonely_cut])))
-                    #max_plot=max_plot+0.1*max_plot
-                    #ax2.set_xlim(-max_plot,max_plot)
-                    ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
-                    ax2.set_yticks(ticks_yplot) 
-                    ax2.set_yticklabels(np.round(depths[ticks_yplot]))                    
-                    ax2.set_title('Radar signal strength',fontsize=5)
-                    ax2.set_ylabel('Depth [m]')
-                    ax2.set_xlabel('Radar signal strength')
-                    ax2.grid()
-                    
-                    pdb.set_trace()
-                    
-                    #Create an animated plot
-                    
-                    fig, ax = plt.subplots()
-                    
-                    
-                    for i in range (start_vertical_cut,end_vertical_cut+1):
-                        print(i)
-                        ax2.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
-                                        
-                    ax2.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color='red')
-                    
-                    x = np.arange(0, 2*np.pi, 0.01)
-                    line, = ax.plot(x, np.sin(x))
-                    
-                    
-                    def animate(i):
-                        line.set_ydata(np.sin(x + i / 50))  # update the data.
-                        return line,
-                    
-                    
-                    ani = animation.FuncAnimation(
-                    fig, animate, interval=20, blit=True, save_count=50)
-
-                    
+                    pyplot.show()
                     
 print('End of processing')
