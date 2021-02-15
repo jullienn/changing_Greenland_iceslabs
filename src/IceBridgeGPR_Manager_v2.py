@@ -1458,6 +1458,7 @@ class IceBridgeGPR_Track_v2():
         ### time variable stored in 2012-2013 data have negative values,   ###
         ### making the ice slabs processing to fail!                       ###
         ### This piece of code was added on February 3rd, 2021 at 18h20    ###
+        ### self.NAME[0:4]=='2014' added on Feb 15th 2021 at 10h00                           ###
         ######################################################################
         #pdb.set_trace()
         
@@ -1471,12 +1472,20 @@ class IceBridgeGPR_Track_v2():
         else:
             self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         
+        if (self.NAME[0:4]=='2014'):
+            if (depth_check[10]>1):
+                #depth_check[10] so that I am sure that the whole vector is largely positive and
+                #not the first as can be for some date were the proccessing is working
+                depth_check=depth_check-abs(depth_check[0])
+                self.SAMPLE_DEPTHS = depth_check
+        
         ######################################################################
         ### END - If the depths have negative values in it, transform the ###
         ### depths into a full positive vector. This is done because the   ###
         ### time variable stored in 2012-2013 data have negative values,   ###
         ### making the ice slabs processing to fail!                       ###
         ### This piece of code was added on February 3rd, 2021 at 18h20    ###
+        ### self.NAME[0:4]=='2014' added on Feb 15th 2021 at 10h00                           ###
         ######################################################################
         return
 
@@ -2610,12 +2619,14 @@ class IceBridgeGPR_Track_v2():
         traces = self._subset_array(traces, mask=None)
         # Retreive the depths, subset to max_depth_m (20 m)
         depths = self.get_sample_depths(trace_array = traces)
+        #pdb.set_trace()
         depth_N = numpy.count_nonzero(depths <= max_depth_m)
         traces = traces[:depth_N,:]
         ######################################################################
         ######################### Jusque là on est bon! ######################
         ######################################################################
-
+        #pdb.set_trace()
+        
         # We identified the minimum signal-cutoff and continuity-threshold values for each algorithm.  They
         # gave very close results.  Produce one image from each Algorithm and we will evaluate which one worked best on all the datasets.
         # These sets of cutoffs were produced from examination done in validate_reference_track_w_in_situ_data(),

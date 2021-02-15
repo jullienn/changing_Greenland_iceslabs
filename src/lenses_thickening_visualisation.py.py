@@ -27,17 +27,29 @@ else:
 path_mask='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Boolean Array Picklefiles/'
 
 #Define the years and data to investigate:
-investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
-                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
-                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
-                    2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
-                    2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat']}
+#investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
+#                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
+#                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
+#                    2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
+#                    2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
+#                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat']}
 
 #investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
-                    #2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
-                    #2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
-                    #2013:'empty',
-                    #2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat']}
+#                    2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
+#                    2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
+#                    2013:'empty',
+#                    2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat'],
+#                    2017:['Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat']}
+
+
+investigation_year={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
+                    2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
+                    2012:'empty',
+                    2013:'empty',
+                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
+                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat']}
+
+
 
 dataframe={}
 
@@ -107,7 +119,13 @@ for single_year in investigation_year.keys():
             fdata_filename = h5py.File(path_raw_data+indiv_file_load)
             lat_filename=fdata_filename['Latitude'][:,:]
             lon_filename=fdata_filename['Longitude'][:,:]
-        
+            
+        elif (single_year==2017):
+            
+            fdata_filename = h5py.File(path_raw_data+indiv_file_load)
+            lat_filename=fdata_filename['Latitude'][:,:]
+            lon_filename=fdata_filename['Longitude'][:,:]
+            
         else:
             fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
             lat_filename = fdata_filename['Latitude']
@@ -147,6 +165,15 @@ min_lon=0
 max_lon=-180
 
 for single_year in investigation_year.keys():
+    
+    #If no data, continue
+    if (investigation_year[single_year]=='empty'):
+        print('No data for year '+str(single_year)+', continue')
+        continue
+    
+    start_date_track=investigation_year[single_year][0]
+    end_date_track=investigation_year[single_year][-1]
+    date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
     
     #Calculate the min longitude
     min_lon_temp=np.ndarray.min(dataframe[str(single_year)]['lon_appended'])
@@ -192,10 +219,22 @@ if (plot_years_overlay=='TRUE'):
 
 for single_year in investigation_year.keys():
     
+    #If no data, continue
+    if (investigation_year[single_year]=='empty'):
+        print('No data for year '+str(single_year)+', continue')
+        continue
+    
+    start_date_track=investigation_year[single_year][0]
+    end_date_track=investigation_year[single_year][-1]
+    date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
+    
     if (plot_depth_corrected=='TRUE'):
-            
+        pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
+        pyplot.rcParams['xtick.major.width']=0.1
+        pyplot.rcParams['ytick.major.width']=0.1
+        
         pyplot.figure(figsize=(40,20))
-        pyplot.rcParams.update({'font.size': 3})
+        pyplot.rcParams.update({'font.size': 2})
         fig, (ax1) = pyplot.subplots(1, 1)
         
         #fig.suptitle(str(plot_name1))
@@ -206,10 +245,12 @@ for single_year in investigation_year.keys():
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax1.set_aspect(0.0025) # X scale matches Y scale
-        ax1.set_title(str(single_year)+' from track '+date_track+' '+file_for_title)
+        ax1.set_title(date_track+' '+file_for_title)
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')
-        ax1.set_xlim(-47.9,-46.8)
+        #pdb.set_trace()
+        #ax1.set_xlim(-47.9,-46.8)
+        ax1.set_xlim(min_lon,max_lon)
         ax1.set_ylim(30,0)
         
         cbar1=fig.colorbar(cb1, ax=[ax1], location='right',shrink=0.12,aspect=10,pad=0.01)
@@ -219,13 +260,18 @@ for single_year in investigation_year.keys():
 
         #Create the figure name
         fig_name=[]
-        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+str(single_year)+'_'+date_track+'_'+file_for_title+'.png'
+        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
     
         #Save the figure
         pyplot.savefig(fig_name,dpi=2000)
         pyplot.clf()
     
     else:
+        
+        pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
+        pyplot.rcParams['xtick.major.width']=0.1
+        pyplot.rcParams['ytick.major.width']=0.1
+        
         pyplot.figure(figsize=(40,20))
         pyplot.rcParams.update({'font.size': 3})
         fig, (ax1) = pyplot.subplots(1, 1)
@@ -239,10 +285,11 @@ for single_year in investigation_year.keys():
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,alpha=0.1,edgecolor='none')#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax1.set_aspect(0.0025) # X scale matches Y scale
-        ax1.set_title(str(single_year)+' from track '+date_track+' '+file_for_title)
+        ax1.set_title(date_track+' '+file_for_title)
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')        
-        ax1.set_xlim(-47.9,-46.8)
+        #ax1.set_xlim(-47.9,-46.8)
+        ax1.set_xlim(min_lon,max_lon)
         #ax1.set_ylim(30,0)
         
         cbar1=fig.colorbar(cb1, ax=[ax1], location='right',shrink=0.12,aspect=10,pad=0.01)
@@ -252,7 +299,7 @@ for single_year in investigation_year.keys():
         
         #Create the figure name
         fig_name=[]
-        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+str(single_year)+'_'+date_track+'_'+file_for_title+'.png'
+        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
     
         #Save the figure
         pyplot.savefig(fig_name,dpi=2000)
