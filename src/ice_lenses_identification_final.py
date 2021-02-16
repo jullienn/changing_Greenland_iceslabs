@@ -107,6 +107,8 @@ if __name__ == '__main__':
     
     import matplotlib.gridspec as gridspec
     import matplotlib.animation as animation
+    
+    import sys
     ##############################################################################
     ############################## Define variables ##############################
     ##############################################################################
@@ -454,12 +456,11 @@ if __name__ == '__main__':
     def onclick(event):
         #This functions print and save the x and y coordinates in pixels!
         print(event.xdata, event.ydata)
-        
-        #Fill in the file to log on the information
-        filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-        f_log = open(filename_flog, "a")
-        f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
-        f_log.close() #Close the quality assessment file when we’re done!
+        ##Fill in the file to log on the information
+        #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+        #f_log = open(filename_flog, "a")
+        #f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
+        #f_log.close() #Close the quality assessment file when we’re done!
         return
     ##############################################################################
     ################### Define function for ice lenses logging ###################
@@ -475,11 +476,11 @@ if __name__ == '__main__':
     potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
     f.close()
     
-    #Create the file to log on the information
-    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-    f_log = open(filename_flog, "a")
-    f_log.write('xcoord'+','+'ycoord'+'\n')
-    f_log.close() #Close the quality assessment file when we’re done!
+    ##Create the file to log on the information
+    #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+    #f_log = open(filename_flog, "a")
+    #f_log.write('xcoord'+','+'ycoord'+'\n')
+    #f_log.close() #Close the quality assessment file when we’re done!
     
     #Open the DEM
     grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -774,14 +775,6 @@ if __name__ == '__main__':
                         if (str(indiv_file.replace("_aggregated",""))=='may24_02_25'):
                             radar_slice=np.fliplr(radar_slice)   
                         
-                        #Log the date we are dealing with in the ice lenses location file
-                        filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-                        f_log = open(filename_flog, "a")
-                        if (folder_day=='jun04'):
-                            f_log.write(str(indiv_file.replace(".mat",""))+'\n')
-                        else:
-                            f_log.write(str(indiv_file.replace("_aggregated",""))+'\n')
-                        f_log.close() #Close the file
                         
                         #Generate the pick for vertical distance display
                         ticks_yplot=np.arange(0,radar_slice.shape[0],20)
@@ -804,26 +797,10 @@ if __name__ == '__main__':
                         
                         ax2.set_yticks(ticks_yplot) 
                         ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                        pdb.set_trace()
-                        
+                                                
                         fig.canvas.mpl_connect('key_press_event', onclick)
                         pdb.set_trace()
                         plt.show()
-                        
-                        #Create the file to log on the information
-                        
-                        if (folder_day=='jun04'):
-                            namedate=str(indiv_file.replace(".mat",""))
-                        else:
-                            namedate=str(indiv_file.replace("_aggregated",""))
-                        
-                        filename_flog_coord='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/flog_icelenses_'+namedate+'.txt'
-                        f_log = open(filename_flog_coord, "a")
-                        f_log.write('xcoord'+' '+'ycoord'+'\n')
-                        f_log.write(str(selector.xys[selector.ind]))
-                        f_log.close()
-                        
-                        pdb.set_trace()
 
                         
     print('End of processing')
