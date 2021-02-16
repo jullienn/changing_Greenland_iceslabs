@@ -792,15 +792,13 @@ if __name__ == '__main__':
                             
                         #Colorbar custom
                         cb2.set_clim(perc_lower_end,perc_upper_end)
-                        cbar2=fig.colorbar(cb2, ax=[ax2], location='right')
-                        cbar2.set_label('Signal strength')
+                        #cbar2=fig.colorbar(cb2, ax=[ax2], location='right')
+                        #cbar2.set_label('Signal strength')
                         
                         ax2.set_yticks(ticks_yplot) 
                         ax2.set_yticklabels(np.round(depths[ticks_yplot]))
                                                 
                         fig.canvas.mpl_connect('key_press_event', onclick)
                         pdb.set_trace()
-                        plt.show()
-
                         
     print('End of processing')
