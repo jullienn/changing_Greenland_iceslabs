@@ -624,7 +624,7 @@ if __name__ == '__main__':
                         
                         
                         #II.a.2 Create the subplot
-                        plt.figure(figsize=(48,40))
+                        #plt.figure(figsize=(48,40))
                         #Change label font
                         plt.rcParams.update({'font.size': 5})
                         #fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -793,10 +793,15 @@ if __name__ == '__main__':
                         #plt.show()
                         
                             #fig, ax = plt.subplots()
-                                                
-                        grid_x = np.tile(np.arange(0,radar_slice.shape[1],0.1), radar_slice.shape[0]*10)
-                        grid_y = np.repeat(np.arange(0,radar_slice.shape[1],0.1), radar_slice.shape[0]*10)
-                        pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=0,s=0.01)
+                            
+                        xv, yv = np.meshgrid(np.arange(0,radar_slice.shape[1],2), np.arange(0,radar_slice.shape[1],2), sparse=False, indexing='ij')
+                        grid_x=np.ndarray.flatten(xv)
+                        grid_y=np.ndarray.flatten(yv)
+                        pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=1,s=1)
+
+                        #grid_x = np.tile(np.arange(0,radar_slice.shape[1],0.1), radar_slice.shape[0]*10)
+                        #grid_y = np.repeat(np.arange(0,radar_slice.shape[1],0.1), radar_slice.shape[0]*10)
+                        #pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=0,s=0.01)
                         
                         ax2.set_ylim(0,radar_slice.shape[0])
                         ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
