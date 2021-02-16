@@ -797,7 +797,7 @@ if __name__ == '__main__':
                         xv, yv = np.meshgrid(np.arange(0,radar_slice.shape[1],2), np.arange(0,radar_slice.shape[1],2), sparse=False, indexing='ij')
                         grid_x=np.ndarray.flatten(xv)
                         grid_y=np.ndarray.flatten(yv)
-                        pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=1,s=1)
+                        pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=0,s=1)
 
                         #grid_x = np.tile(np.arange(0,radar_slice.shape[1],0.1), radar_slice.shape[0]*10)
                         #grid_y = np.repeat(np.arange(0,radar_slice.shape[1],0.1), radar_slice.shape[0]*10)
@@ -840,6 +840,22 @@ if __name__ == '__main__':
                         # After figure is closed print the coordinates of the selected points
                         print('\nSelected points:')
                         print(selector.xys[selector.ind])
+                        
+                        # After figure is closed, save the coordinates of the selected points
+                        print('\nSaving coordinates')
+                        
+                        #Create the file to log on the information
+                        
+                        if (folder_day=='jun04'):
+                            namedate=str(indiv_file.replace(".mat",""))
+                        else:
+                            namedate=str(indiv_file.replace("_aggregated",""))
+                        
+                        filename_flog_coord='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/flog_icelenses_'+namedate+'.txt'
+                        f_log = open(filename_flog_coord, "a")
+                        f_log.write('xcoord'+' '+'ycoord'+'\n')
+                        f_log.write(str(selector.xys[selector.ind]))
+                        f_log.close()
                         
                         pdb.set_trace()
 
