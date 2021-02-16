@@ -454,11 +454,13 @@ if __name__ == '__main__':
     def onclick(event):
         #This functions print and save the x and y coordinates in pixels!
         print(event.xdata, event.ydata)
+        
         #Fill in the file to log on the information
         filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
         f_log = open(filename_flog, "a")
         f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
         f_log.close() #Close the quality assessment file when we’re done!
+        return
     ##############################################################################
     ################### Define function for ice lenses logging ###################
     ##############################################################################
@@ -787,23 +789,6 @@ if __name__ == '__main__':
                         ### Plot the data by changing the range
                         #Plot the radar slice
                         cb2=ax2.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
-                        
-                        #fig.canvas.mpl_connect('button_press_event', onclick)
-                        #pdb.set_trace()
-                        #plt.show()
-                        
-                            #fig, ax = plt.subplots()
-                            
-                        xv, yv = np.meshgrid(np.arange(0,radar_slice.shape[1],2), np.arange(0,radar_slice.shape[1],2), sparse=False, indexing='ij')
-                        grid_x=np.ndarray.flatten(xv)
-                        grid_y=np.ndarray.flatten(yv)
-                        pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=0,s=1)
-
-                        #grid_x = np.tile(np.arange(0,radar_slice.shape[1],0.1), radar_slice.shape[0]*10)
-                        #grid_y = np.repeat(np.arange(0,radar_slice.shape[1],0.1), radar_slice.shape[0]*10)
-                        #pts = ax2.scatter(grid_x, grid_y,lw=0, alpha=0,s=0.01)
-                        
-                        ax2.set_ylim(0,radar_slice.shape[0])
                         ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
                         ax2.set_aspect('equal') # X scale matches Y scale
                         #In order to display the depth, I used the example 1 of the
@@ -819,30 +804,11 @@ if __name__ == '__main__':
                         
                         ax2.set_yticks(ticks_yplot) 
                         ax2.set_yticklabels(np.round(depths[ticks_yplot]))
+                        pdb.set_trace()
                         
-                        #plt.show()
-                        #pdb.set_trace()
-
-                        #grid_x = np.tile(np.arange(grid_size), grid_size)
-                        #grid_y = np.repeat(np.arange(grid_size), grid_size)
-                    
-                        selector = SelectFromCollection(ax2, pts)
-                    
-                        print("Select points in the figure by enclosing them within a polygon.")
-                        print("Press the 'esc' key to start a new polygon.")
-                        print("Try holding the 'shift' key to move all of the vertices.")
-                        print("Try holding the 'ctrl' key to move a single vertex.")
-                    
+                        fig.canvas.mpl_connect('key_press_event', onclick)
+                        pdb.set_trace()
                         plt.show()
-                    
-                        selector.disconnect()
-                    
-                        # After figure is closed print the coordinates of the selected points
-                        print('\nSelected points:')
-                        print(selector.xys[selector.ind])
-                        
-                        # After figure is closed, save the coordinates of the selected points
-                        print('\nSaving coordinates')
                         
                         #Create the file to log on the information
                         
