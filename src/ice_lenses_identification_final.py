@@ -131,6 +131,7 @@ if __name__ == '__main__':
     plot_slice_and_improved_slice='TRUE'
     display_only_potential_iceslabs='TRUE'
     technique='perc_2p5_97p5'
+    identification='FALSE'
     #perc_2p5_97p5
     
     #N defines the number of different colors I want to use for the elevation plot
@@ -797,8 +798,45 @@ if __name__ == '__main__':
                         
                         ax2.set_yticks(ticks_yplot) 
                         ax2.set_yticklabels(np.round(depths[ticks_yplot]))
-                                                
-                        fig.canvas.mpl_connect('key_press_event', onclick)
+                        
                         pdb.set_trace()
                         
+                        if (identification=='TRUE'):
+                            #If TRUE then the identification process is being doing.
+                            #If not, it means it was already done, thus plot the
+                            #results of ice slabs
+                            fig.canvas.mpl_connect('key_press_event', onclick)
+                            #Found I could play with the type of command (e.g.
+                            #'key_press_event') on this website:
+                            # https://stackoverflow.com/questions/51349959/get-mouse-coordinates-without-clicking-in-matplotlib
+                            pdb.set_trace()
+                        else:
+                            print('Ice lenses identification process done, plot the results')
+                            #Read the excel file:
+                            filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_top_bottom.xls'
+                            xls = pd.read_excel(filename_excel, sheet_name=None,header=1)
+                            if (indiv_file in list(xls.keys())):
+                                print(indiv_file+' hold ice lens!')
+                                #This file have ice lenses in it: read the data:
+                                pdb.set_trace()
+                                df_temp=xls[indiv_file]
+                                df_colnames = list(df_temp.keys())
+                                
+                                for i in range (0,int(len(df_colnames)),2):
+                                    #print('There are',int(len(list(df_temp.keys()))/2),'lines to plot')
+                                    print(i)
+                                    
+                                    print(df_colnames[i])
+                                    print(df_colnames[i+1])
+                                    
+                                    x_vect=df_temp[df_colnames[i]]
+                                    y_vect=df_temp[df_colnames[i+1]]
+                                    
+                                    ax2.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
+                                    plt.show()
+                                    pdb.set_trace()
+                                
+                            else:
+                                print(indiv_file+' does not hold ice lens, continue')
+                                
     print('End of processing')
