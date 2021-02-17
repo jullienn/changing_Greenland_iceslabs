@@ -830,16 +830,22 @@ if __name__ == '__main__':
                                     
                                     #Display ice lens
                                     ax2.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
-                                    #Compute and display ice lense median depth
+                                    
+                                    #Compute ice lense median, min and max depth
                                     median_depth=depths[int(np.round(np.nanmedian(y_vect)))]
-                                    #Define x loc where to display median
+                                    min_depth=depths[int(np.round(np.nanmin(y_vect)))]
+                                    max_depth=depths[int(np.round(np.nanmax(y_vect)))]
+                                    
+                                    #Define x loc where to display numbers
                                     ax2.plot(np.arange(0,radar_slice.shape[1],1),np.ones(radar_slice.shape[1])*np.nanmedian(y_vect),color='blue',linestyle='dashed',linewidth=0.3)
                                     if (np.nanmedian(x_vect)>500):
                                         where_x_to=0
                                     else:
-                                        where_x_to=875
+                                        where_x_to=radar_slice.shape[1]*0.77
+                                    
                                     #Plot the text
-                                    ax2.text(where_x_to,np.nanmedian(y_vect),'Median = '+str(np.round(median_depth,1))+'m',color='white',fontsize=5)
+                                    text_to_plot='Median = '+str(np.round(median_depth,1))+'m, min = '+str(np.round(min_depth,1))+'m, max = '+str(np.round(max_depth,1))+'m'
+                                    ax2.text(where_x_to,np.nanmedian(y_vect),text_to_plot,color='white',fontsize=5)
                                     #plt.show()
                                     
                                     #Save the x coordinates for map plotting
