@@ -865,7 +865,7 @@ if __name__ == '__main__':
                                 print('Done with this date')
                                 
                                 #Display the average, min and max depth
-                                #Display on the location figure area where ice lenses are present.
+                                #Display on the location figure area where ice lenses are present. OK
                                 #Save the figures OK
                                 
                                 #Create the figure name
