@@ -804,7 +804,6 @@ if __name__ == '__main__':
                         ax2.set_yticks(ticks_yplot) 
                         ax2.set_yticklabels(np.round(depths[ticks_yplot]))
                         
-                        pdb.set_trace()
                         
                         if (identification=='TRUE'):
                             #If TRUE then the identification process is being doing.
@@ -814,29 +813,68 @@ if __name__ == '__main__':
                             #Found I could play with the type of command (e.g.
                             #'key_press_event') on this website:
                             # https://stackoverflow.com/questions/51349959/get-mouse-coordinates-without-clicking-in-matplotlib
-                            pdb.set_trace()
                         else:
                             print('Ice lenses identification process done, plot the results')
                             if (indiv_file in list(xls.keys())):
                                 print(indiv_file+' hold ice lens!')
                                 #This file have ice lenses in it: read the data:
-                                pdb.set_trace()
                                 df_temp=xls[indiv_file]
                                 df_colnames = list(df_temp.keys())
+                                x_loc=[]
                                 
                                 for i in range (0,int(len(df_colnames)),2):
                                     #print('There are',int(len(list(df_temp.keys()))/2),'lines to plot')
-                                    print(i)
-                                    
-                                    print(df_colnames[i])
-                                    print(df_colnames[i+1])
                                     
                                     x_vect=df_temp[df_colnames[i]]
                                     y_vect=df_temp[df_colnames[i+1]]
                                     
+                                    #Display ice lens
                                     ax2.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
-                                    plt.show()
-                                    pdb.set_trace()
+                                    #Compute and display ice lense median depth
+                                    median_depth=depths[int(np.round(np.nanmedian(y_vect)))]
+                                    #Define x loc where to display median
+                                    ax2.plot(np.arange(0,radar_slice.shape[1],1),np.ones(radar_slice.shape[1])*np.nanmedian(y_vect),color='blue',linestyle='dashed',linewidth=0.3)
+                                    if (np.nanmedian(x_vect)>500):
+                                        where_x_to=0
+                                    else:
+                                        where_x_to=875
+                                    #Plot the text
+                                    ax2.text(where_x_to,np.nanmedian(y_vect),'Median = '+str(np.round(median_depth,1))+'m',color='white',fontsize=5)
+                                    #plt.show()
+                                    
+                                    #Save the x coordinates for map plotting
+                                    x_loc=np.append(x_loc,np.round(x_vect))
+                                
+                                #Display on the map where ice lenses have been identified:
+                                #If last index+1 is in xloc, remove it (artifact of visual identification)
+                                if (np.nanmax(x_loc)>=radar_slice.shape[1]):
+                                    x_loc[x_loc==np.nanmax(x_loc)]=np.nan
+                                #remove nan from x_loc
+                                x_loc= x_loc[~np.isnan(x_loc)]
+                                #keep unique x_loc and transform into integer
+                                x_loc=(np.unique(x_loc)).astype(int)
+
+                                #Plot ice lenses location
+                                if (folder_day=='jun04'):
+                                    ax1.scatter(lon_3413[0,x_loc],lat_3413[0,x_loc],c='r',s=1) #Plot the start in green
+                                else:
+                                    ax1.scatter(lon_3413[x_loc],lat_3413[x_loc],c='r',s=1)
+                                
+                                pdb.set_trace()
+                                #pdb.set_trace()
+                                print('Done with this date')
+                                
+                                #Display the average, min and max depth
+                                #Display on the location figure area where ice lenses are present.
+                                #Save the figures OK
+                                
+                                #Create the figure name
+                                fig_name=[]
+                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
+                                
+                                #Save the figure
+                                plt.savefig(fig_name,dpi=500)
+                                plt.clf()
                                 
                             else:
                                 print(indiv_file+' does not hold ice lens, continue')
