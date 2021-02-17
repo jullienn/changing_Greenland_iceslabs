@@ -131,8 +131,13 @@ if __name__ == '__main__':
     plot_slice_and_improved_slice='TRUE'
     display_only_potential_iceslabs='TRUE'
     technique='perc_2p5_97p5'
-    identification='FALSE'
     #perc_2p5_97p5
+    identification='FALSE'
+    
+    if (identification == 'FALSE'):
+        #Read the excel file:
+        filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_top_bottom.xls'
+        xls = pd.read_excel(filename_excel, sheet_name=None,header=1)
     
     #N defines the number of different colors I want to use for the elevation plot
     N=10
@@ -812,9 +817,6 @@ if __name__ == '__main__':
                             pdb.set_trace()
                         else:
                             print('Ice lenses identification process done, plot the results')
-                            #Read the excel file:
-                            filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_top_bottom.xls'
-                            xls = pd.read_excel(filename_excel, sheet_name=None,header=1)
                             if (indiv_file in list(xls.keys())):
                                 print(indiv_file+' hold ice lens!')
                                 #This file have ice lenses in it: read the data:
