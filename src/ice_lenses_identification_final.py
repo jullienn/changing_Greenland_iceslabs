@@ -814,6 +814,12 @@ if __name__ == '__main__':
                             #'key_press_event') on this website:
                             # https://stackoverflow.com/questions/51349959/get-mouse-coordinates-without-clicking-in-matplotlib
                         else:
+                            #If file have already been created, continue
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
+                            if (os.path.isfile(filename_to_check)):
+                                print('Figure already existent, move on to the next date')
+                                continue
+                            
                             print('Ice lenses identification process done, plot the results')
                             if (indiv_file in list(xls.keys())):
                                 print(indiv_file+' hold ice lens!')
@@ -866,7 +872,6 @@ if __name__ == '__main__':
                                 else:
                                     ax1.scatter(lon_3413[x_loc],lat_3413[x_loc],c='r',s=1)
                                 
-                                pdb.set_trace()
                                 #pdb.set_trace()
                                 print('Done with this date')
                                 
@@ -883,6 +888,7 @@ if __name__ == '__main__':
                                 plt.clf()
                                 
                             else:
+                                plt.clf()
                                 print(indiv_file+' does not hold ice lens, continue')
                                 
     print('End of processing')

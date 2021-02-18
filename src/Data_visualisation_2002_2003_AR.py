@@ -55,7 +55,7 @@ plot_slice_and_loc_rescaled='TRUE'
 
 #Which resclaing procedure we want. Choose among:
 #perc_25_75, perc_5_95, perc_2p5_97p5, perc_05_995
-technique='perc_2p5_97p5'
+technique='perc_5_95'
 
 #N defines the number of different colors I want to use for the elevation plot
 N=10
@@ -508,6 +508,11 @@ divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 #Open, read and close the file of suggested surface picks
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/txt/SURFACE_STARTING_PICKS_Suggestions_2002_2003.txt','r')
 lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+f.close()
+
+#Open, read and close the potential ice slabs rescale file
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_slice_and_loc/potential_iceslabs_rescale.txt','r')
+potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
 #Define the working environment
@@ -1306,6 +1311,16 @@ for folder_year in folder_years:
                     if (os.path.isfile(filename_to_check)):
                         print('Figure already existent, move on to the next date')
                         continue
+                    
+                    #If not a potential ice slabs, continue
+                    if (folder_day=='jun04'):
+                        if (not(indiv_file.replace(".mat","") in list(potential_iceslabs))):
+                            print(indiv_file.replace(".mat",""),'not a potential iceslabs: continue')
+                            continue
+                    else:
+                        if (not(indiv_file.replace("_aggregated","") in list(potential_iceslabs))):
+                            print(indiv_file.replace("_aggregated",""),'not a potential iceslabs: continue')
+                            continue
                                         
                     #Subplot N°1:
                     #I. Process and plot radar echogram
