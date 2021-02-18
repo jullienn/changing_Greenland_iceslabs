@@ -465,11 +465,11 @@ if __name__ == '__main__':
         #This functions print and save the x and y coordinates in pixels!
         print(event.xdata, event.ydata)
         #Fill in the file to log on the information
-        filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-        f_log = open(filename_flog, "a")
+        #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+        #f_log = open(filename_flog, "a")
         #f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
-        f_log.write(str(event.xdata)+','+str(event.ydata)+'\n')
-        f_log.close() #Close the quality assessment file when we’re done!
+        #f_log.write(str(event.xdata)+','+str(event.ydata)+'\n')
+        #f_log.close() #Close the quality assessment file when we’re done!
         return
     ##############################################################################
     ################### Define function for ice lenses logging ###################
@@ -485,11 +485,11 @@ if __name__ == '__main__':
     potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
     f.close()
     
-    #Create the file to log on the information
-    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-    f_log = open(filename_flog, "a")
-    f_log.write('xcoord'+','+'ycoord'+'\n')
-    f_log.close() #Close the quality assessment file when we’re done!
+    ##Create the file to log on the information
+    #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+    #f_log = open(filename_flog, "a")
+    #f_log.write('xcoord'+','+'ycoord'+'\n')
+    #f_log.close() #Close the quality assessment file when we’re done!
     
     #Open the DEM
     grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
