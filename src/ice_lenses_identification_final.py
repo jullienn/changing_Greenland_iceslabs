@@ -130,13 +130,15 @@ if __name__ == '__main__':
     
     plot_slice_and_improved_slice='TRUE'
     display_only_potential_iceslabs='TRUE'
-    technique='perc_2p5_97p5'
+    #perc_2p5_97p5 perc_5_95
+    technique='perc_5_95'
     #perc_2p5_97p5
     identification='FALSE'
     
     if (identification == 'FALSE'):
         #Read the excel file:
-        filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_top_bottom.xls'
+        #filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_top_bottom.xls'
+        filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_18022020.xls'
         xls = pd.read_excel(filename_excel, sheet_name=None,header=1)
     
     #N defines the number of different colors I want to use for the elevation plot
@@ -462,11 +464,12 @@ if __name__ == '__main__':
     def onclick(event):
         #This functions print and save the x and y coordinates in pixels!
         print(event.xdata, event.ydata)
-        ##Fill in the file to log on the information
-        #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-        #f_log = open(filename_flog, "a")
+        #Fill in the file to log on the information
+        filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+        f_log = open(filename_flog, "a")
         #f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
-        #f_log.close() #Close the quality assessment file when we’re done!
+        f_log.write(str(event.xdata)+','+str(event.ydata)+'\n')
+        f_log.close() #Close the quality assessment file when we’re done!
         return
     ##############################################################################
     ################### Define function for ice lenses logging ###################
@@ -482,11 +485,11 @@ if __name__ == '__main__':
     potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
     f.close()
     
-    ##Create the file to log on the information
-    #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-    #f_log = open(filename_flog, "a")
-    #f_log.write('xcoord'+','+'ycoord'+'\n')
-    #f_log.close() #Close the quality assessment file when we’re done!
+    #Create the file to log on the information
+    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+    f_log = open(filename_flog, "a")
+    f_log.write('xcoord'+','+'ycoord'+'\n')
+    f_log.close() #Close the quality assessment file when we’re done!
     
     #Open the DEM
     grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -804,7 +807,6 @@ if __name__ == '__main__':
                         ax2.set_yticks(ticks_yplot) 
                         ax2.set_yticklabels(np.round(depths[ticks_yplot]))
                         
-                        
                         if (identification=='TRUE'):
                             #If TRUE then the identification process is being doing.
                             #If not, it means it was already done, thus plot the
@@ -813,12 +815,14 @@ if __name__ == '__main__':
                             #Found I could play with the type of command (e.g.
                             #'key_press_event') on this website:
                             # https://stackoverflow.com/questions/51349959/get-mouse-coordinates-without-clicking-in-matplotlib
+                            pdb.set_trace()
+                            print('Done with this date')
                         else:
-                            #If file have already been created, continue
-                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
-                            if (os.path.isfile(filename_to_check)):
-                                print('Figure already existent, move on to the next date')
-                                continue
+                            ##If file have already been created, continue
+                            #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
+                            #if (os.path.isfile(filename_to_check)):
+                            #    print('Figure already existent, move on to the next date')
+                            #    continue
                             
                             print('Ice lenses identification process done, plot the results')
                             if (indiv_file in list(xls.keys())):
@@ -843,17 +847,17 @@ if __name__ == '__main__':
                                     max_depth=depths[int(np.round(np.nanmax(y_vect)))]
                                     
                                     #Define x loc where to display numbers
-                                    ax2.plot(np.arange(0,radar_slice.shape[1],1),np.ones(radar_slice.shape[1])*np.nanmedian(y_vect),color='blue',linestyle='dashed',linewidth=0.3)
+                                    #ax2.plot(np.arange(0,radar_slice.shape[1],1),np.ones(radar_slice.shape[1])*np.nanmedian(y_vect),color='blue',linestyle='dashed',linewidth=0.3)
                                     if (np.nanmedian(x_vect)>500):
                                         where_x_to=0
                                     else:
-                                        where_x_to=radar_slice.shape[1]*0.77
+                                        where_x_to=radar_slice.shape[1]*0.74
                                     
                                     #Plot the text
                                     text_to_plot='Median = '+str(np.round(median_depth,1))+'m, min = '+str(np.round(min_depth,1))+'m, max = '+str(np.round(max_depth,1))+'m'
-                                    ax2.text(where_x_to,np.nanmedian(y_vect),text_to_plot,color='white',fontsize=5)
+                                    ax2.text(where_x_to,np.nanmedian(y_vect),text_to_plot,color='blue',fontsize=4)
                                     #plt.show()
-                                    
+                                    #pdb.set_trace()
                                     #Save the x coordinates for map plotting
                                     x_loc=np.append(x_loc,np.round(x_vect))
                                 
@@ -872,7 +876,12 @@ if __name__ == '__main__':
                                 else:
                                     ax1.scatter(lon_3413[x_loc],lat_3413[x_loc],c='r',s=1)
                                 
-                                #pdb.set_trace()
+                                #Display the start of the traces
+                                if (folder_day=='jun04'):
+                                    ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=1) #Plot the start in green
+                                else:
+                                    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=1)
+                                
                                 print('Done with this date')
                                 
                                 #Display the average, min and max depth
@@ -881,11 +890,12 @@ if __name__ == '__main__':
                                 
                                 #Create the figure name
                                 fig_name=[]
-                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
+                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/newround_ice_lenses_identification_'+indiv_file+'.png'
                                 
                                 #Save the figure
                                 plt.savefig(fig_name,dpi=500)
                                 plt.clf()
+                                #pdb.set_trace()
                                 
                             else:
                                 plt.clf()
