@@ -131,7 +131,7 @@ if __name__ == '__main__':
     plot_slice_and_improved_slice='TRUE'
     display_only_potential_iceslabs='TRUE'
     #perc_2p5_97p5 perc_5_95
-    technique='perc_5_95'
+    technique='perc_2p5_97p5'
     #perc_2p5_97p5
     identification='FALSE'
     
@@ -855,7 +855,7 @@ if __name__ == '__main__':
                                     
                                     #Plot the text
                                     text_to_plot='Median = '+str(np.round(median_depth,1))+'m, min = '+str(np.round(min_depth,1))+'m, max = '+str(np.round(max_depth,1))+'m'
-                                    ax2.text(where_x_to,np.nanmedian(y_vect),text_to_plot,color='blue',fontsize=4)
+                                    #ax2.text(where_x_to,np.nanmedian(y_vect),text_to_plot,color='blue',fontsize=4)
                                     #plt.show()
                                     #pdb.set_trace()
                                     #Save the x coordinates for map plotting
