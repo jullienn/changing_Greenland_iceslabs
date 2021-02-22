@@ -612,7 +612,7 @@ if __name__ == '__main__':
                         
                         lon_3413=points[0]
                         lat_3413=points[1]
-                        pdb.set_trace()
+                        #pdb.set_trace()
                         
                         if (build_coord_2002_3_file=='TRUE'):
                             metadata_coord[folder_year][folder_day][indiv_file]=[lat_3413,lon_3413]
@@ -771,7 +771,8 @@ if __name__ == '__main__':
                             #Found I could play with the type of command (e.g.
                             #'key_press_event') on this website:
                             # https://stackoverflow.com/questions/51349959/get-mouse-coordinates-without-clicking-in-matplotlib
-                            pdb.set_trace()
+                            #pdb.set_trace()
+                            plt.clf()
                             print('Done with this date')
                         else:
                             ##If file have already been created, continue
@@ -858,3 +859,9 @@ if __name__ == '__main__':
                                 print(indiv_file+' does not hold ice lens, continue')
                                 
     print('End of processing')
+    
+    #Save the metadata_coord dictionary into a picke file
+    metadata_coord_tosave='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/metadata_coord_2002_2003'
+    outfile= open(metadata_coord_tosave, "wb" )
+    pickle.dump(metadata_coord,outfile)
+    outfile.close()
