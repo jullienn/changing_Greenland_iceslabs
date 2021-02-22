@@ -129,11 +129,12 @@ if __name__ == '__main__':
                                                                        'may30_02_50','may30_02_51'])})
     
     plot_slice_and_improved_slice='TRUE'
-    display_only_potential_iceslabs='TRUE'
+    display_only_potential_iceslabs='FALSE'
     #perc_2p5_97p5 perc_5_95
     technique='perc_2p5_97p5'
     #perc_2p5_97p5
-    identification='FALSE'
+    identification='TRUE'
+    build_coord_2002_3_file='TRUE'
     
     if (identification == 'FALSE'):
         #Read the excel file:
@@ -465,11 +466,11 @@ if __name__ == '__main__':
         #This functions print and save the x and y coordinates in pixels!
         print(event.xdata, event.ydata)
         #Fill in the file to log on the information
-        #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-        #f_log = open(filename_flog, "a")
-        #f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
-        #f_log.write(str(event.xdata)+','+str(event.ydata)+'\n')
-        #f_log.close() #Close the quality assessment file when we’re done!
+        filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+        f_log = open(filename_flog, "a")
+        f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
+        f_log.write(str(event.xdata)+','+str(event.ydata)+'\n')
+        f_log.close() #Close the quality assessment file when we’re done!
         return
     ##############################################################################
     ################### Define function for ice lenses logging ###################
@@ -485,11 +486,11 @@ if __name__ == '__main__':
     potential_iceslabs = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
     f.close()
     
-    ##Create the file to log on the information
-    #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-    #f_log = open(filename_flog, "a")
-    #f_log.write('xcoord'+','+'ycoord'+'\n')
-    #f_log.close() #Close the quality assessment file when we’re done!
+    #Create the file to log on the information
+    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+    f_log = open(filename_flog, "a")
+    f_log.write('xcoord'+','+'ycoord'+'\n')
+    f_log.close() #Close the quality assessment file when we’re done!
     
     #Open the DEM
     grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -501,6 +502,9 @@ if __name__ == '__main__':
     #Define the working environment
     path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
     os.chdir(path) # relative path: scripts dir is under Lab
+    
+    if (build_coord_2002_3_file=='TRUE'):
+        metadata_coord = {k: {} for k in list(['2002','2003'])}
     
     # Read the years of data
     folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
@@ -518,6 +522,9 @@ if __name__ == '__main__':
             # Read the days of this specific year
             folder_days = [ f.name for f in os.scandir(folder_year_name) if f.is_dir() ]
             
+            if (build_coord_2002_3_file=='TRUE'):
+                metadata_coord[folder_year]={k: {} for k in folder_days}
+            
             for folder_day in folder_days:
                 
                 print('Now in year',folder_year,'day',folder_day)
@@ -528,6 +535,10 @@ if __name__ == '__main__':
                 
                 # Read the files of this specific day
                 onlyfiles = [f for f in listdir(folder_day_name) if isfile(join(folder_day_name, f))]
+                
+                if (build_coord_2002_3_file=='TRUE'):
+                    metadata_coord[folder_year][folder_day]={k: {} for k in list(onlyfiles)}
+                
                 #pdb.set_trace()
                 for indiv_file in onlyfiles:
                     
@@ -601,6 +612,10 @@ if __name__ == '__main__':
                         
                         lon_3413=points[0]
                         lat_3413=points[1]
+                        pdb.set_trace()
+                        
+                        if (build_coord_2002_3_file=='TRUE'):
+                            metadata_coord[folder_year][folder_day][indiv_file]=[lat_3413,lon_3413]
                         
                         if (str(indiv_file.replace("_aggregated",""))=='may12_03_36'):
                             lon_3413=np.flipud(lon_3413)
@@ -634,6 +649,9 @@ if __name__ == '__main__':
                             lon_3413=np.flipud(lon_3413)
                             lat_3413=np.flipud(lat_3413)
                         
+                        if (display_only_potential_iceslabs=='FALSE'):
+                            #Save the coordinates of the 2002-2003 flight tracks
+                            pdb.set_trace()
                         
                         #II.a.2 Create the subplot
                         #plt.figure(figsize=(48,40))
@@ -887,14 +905,14 @@ if __name__ == '__main__':
                                 #Display the average, min and max depth
                                 #Display on the location figure area where ice lenses are present. OK
                                 #Save the figures OK
+                                plt.show()
+                                ##Create the figure name
+                                #fig_name=[]
+                                #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/newround_ice_lenses_identification_'+indiv_file+'.png'
                                 
-                                #Create the figure name
-                                fig_name=[]
-                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/newround_ice_lenses_identification_'+indiv_file+'.png'
-                                
-                                #Save the figure
-                                plt.savefig(fig_name,dpi=500)
-                                plt.clf()
+                                ##Save the figure
+                                #plt.savefig(fig_name,dpi=500)
+                                #plt.clf()
                                 #pdb.set_trace()
                                 
                             else:
