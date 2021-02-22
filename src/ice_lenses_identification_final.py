@@ -617,10 +617,6 @@ if __name__ == '__main__':
                         if (build_coord_2002_3_file=='TRUE'):
                             metadata_coord[folder_year][folder_day][indiv_file]=[lat_3413,lon_3413]
                         
-                        if (display_only_potential_iceslabs=='FALSE'):
-                            #Save the coordinates of the 2002-2003 flight tracks
-                            pdb.set_trace()
-                        
                         #II.a.2 Create the subplot
                         #plt.figure(figsize=(48,40))
                         #Change label font
@@ -744,32 +740,6 @@ if __name__ == '__main__':
                             elif (folder_year=='2003'):
                                 perc_lower_end=-0.6061610403154447
                                 perc_upper_end=0.7572821079440079      
-                                
-                        
-                        if (str(indiv_file.replace("_aggregated",""))=='may12_03_36'):
-                            radar_slice=np.fliplr(radar_slice)
-                        
-                        if (str(indiv_file.replace("_aggregated",""))=='may14_03_51'):
-                            radar_slice=np.fliplr(radar_slice)                    
-                        
-                        if (str(indiv_file.replace("_aggregated",""))=='may13_03_29'):
-                            radar_slice=np.fliplr(radar_slice)  
-                            
-                        if (str(indiv_file.replace(".mat",""))=='jun04_02proc_53'):
-                            radar_slice=np.fliplr(radar_slice)
-    
-                        if (str(indiv_file.replace("_aggregated",""))=='may30_02_51'):
-                            radar_slice=np.fliplr(radar_slice)
-                            
-                        if (str(indiv_file.replace("_aggregated",""))=='may15_03_37'):
-                            radar_slice=np.fliplr(radar_slice)
-                            
-                        if (str(indiv_file.replace(".mat",""))=='jun04_02proc_52'):
-                            radar_slice=np.fliplr(radar_slice)
-                            
-                        if (str(indiv_file.replace("_aggregated",""))=='may24_02_25'):
-                            radar_slice=np.fliplr(radar_slice)   
-                        
                         
                         #Generate the pick for vertical distance display
                         ticks_yplot=np.arange(0,radar_slice.shape[0],20)
