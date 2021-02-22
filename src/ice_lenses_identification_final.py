@@ -617,38 +617,6 @@ if __name__ == '__main__':
                         if (build_coord_2002_3_file=='TRUE'):
                             metadata_coord[folder_year][folder_day][indiv_file]=[lat_3413,lon_3413]
                         
-                        if (str(indiv_file.replace("_aggregated",""))=='may12_03_36'):
-                            lon_3413=np.flipud(lon_3413)
-                            lat_3413=np.flipud(lat_3413)
-                            
-                        if (str(indiv_file.replace("_aggregated",""))=='may14_03_51'):
-                            lon_3413=np.flipud(lon_3413)
-                            lat_3413=np.flipud(lat_3413)                        
-    
-                        if (str(indiv_file.replace("_aggregated",""))=='may13_03_29'):
-                            lon_3413=np.flipud(lon_3413)
-                            lat_3413=np.flipud(lat_3413)
-                        
-                        if (str(indiv_file.replace(".mat",""))=='jun04_02proc_53'):
-                            lon_3413=np.fliplr(lon_3413)
-                            lat_3413=np.fliplr(lat_3413)
-                            
-                        if (str(indiv_file.replace("_aggregated",""))=='may30_02_51'):
-                            lon_3413=np.flipud(lon_3413)
-                            lat_3413=np.flipud(lat_3413)
-                            
-                        if (str(indiv_file.replace("_aggregated",""))=='may15_03_37'):
-                            lon_3413=np.flipud(lon_3413)
-                            lat_3413=np.flipud(lat_3413)                        
-                        
-                        if (str(indiv_file.replace(".mat",""))=='jun04_02proc_52'):
-                            lon_3413=np.fliplr(lon_3413)
-                            lat_3413=np.fliplr(lat_3413) 
-                            
-                        if (str(indiv_file.replace("_aggregated",""))=='may24_02_25'):
-                            lon_3413=np.flipud(lon_3413)
-                            lat_3413=np.flipud(lat_3413)
-                        
                         if (display_only_potential_iceslabs=='FALSE'):
                             #Save the coordinates of the 2002-2003 flight tracks
                             pdb.set_trace()
