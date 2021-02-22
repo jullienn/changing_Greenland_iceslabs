@@ -860,8 +860,9 @@ if __name__ == '__main__':
                                 
     print('End of processing')
     
-    #Save the metadata_coord dictionary into a picke file
-    metadata_coord_tosave='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/metadata_coord_2002_2003'
-    outfile= open(metadata_coord_tosave, "wb" )
-    pickle.dump(metadata_coord,outfile)
-    outfile.close()
+    if (build_coord_2002_3_file=='TRUE'):
+        #Save the metadata_coord dictionary into a picke file
+        metadata_coord_tosave='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/metadata_coord_2002_2003'
+        outfile= open(metadata_coord_tosave, "wb" )
+        pickle.dump(metadata_coord,outfile)
+        outfile.close()
