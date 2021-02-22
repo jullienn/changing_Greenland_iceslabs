@@ -134,7 +134,7 @@ if __name__ == '__main__':
     technique='perc_2p5_97p5'
     #perc_2p5_97p5
     identification='TRUE'
-    build_coord_2002_3_file='TRUE'
+    build_coord_2002_3_file='FALSE'
     
     if (identification == 'FALSE'):
         #Read the excel file:
@@ -468,7 +468,7 @@ if __name__ == '__main__':
         #Fill in the file to log on the information
         filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
         f_log = open(filename_flog, "a")
-        f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
+        #f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
         f_log.write(str(event.xdata)+','+str(event.ydata)+'\n')
         f_log.close() #Close the quality assessment file when we’re done!
         return
@@ -771,8 +771,8 @@ if __name__ == '__main__':
                             #Found I could play with the type of command (e.g.
                             #'key_press_event') on this website:
                             # https://stackoverflow.com/questions/51349959/get-mouse-coordinates-without-clicking-in-matplotlib
-                            #pdb.set_trace()
-                            plt.clf()
+                            pdb.set_trace()
+                            #plt.clf()
                             print('Done with this date')
                         else:
                             ##If file have already been created, continue
