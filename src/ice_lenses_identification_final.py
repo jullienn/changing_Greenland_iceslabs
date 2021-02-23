@@ -791,7 +791,7 @@ if __name__ == '__main__':
                             print('Done with this date')
                         else:
                             #If file have already been created, continue
-                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
                             if (os.path.isfile(filename_to_check)):
                                 print('Figure already existent, move on to the next date')
                                 continue
@@ -889,11 +889,11 @@ if __name__ == '__main__':
         pickle.dump(metadata_coord,outfile)
         outfile.close()
         
-    if (build_coord_2002_3_icelens_file=='TRUE'):
-        #Save the metadata_coord_lens dictionary into a picke file
-        metadata_coord_lens_tosave='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/metadata_coord_icelens_2002_2003'
-        outfile= open(metadata_coord_lens_tosave, "wb" )
-        pickle.dump(metadata_coord_lens,outfile)
-        outfile.close()
+    #if (build_coord_2002_3_icelens_file=='TRUE'):
+    #    #Save the metadata_coord_lens dictionary into a picke file
+    #    metadata_coord_lens_tosave='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/metadata_coord_icelens_2002_2003'
+    #    outfile= open(metadata_coord_lens_tosave, "wb" )
+    #    pickle.dump(metadata_coord_lens,outfile)
+    #    outfile.close()
         
         
