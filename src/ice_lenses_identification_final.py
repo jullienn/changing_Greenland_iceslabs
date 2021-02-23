@@ -133,13 +133,15 @@ if __name__ == '__main__':
     #perc_2p5_97p5 perc_5_95
     technique='perc_2p5_97p5'
     #perc_2p5_97p5
-    identification='TRUE'
+    identification='FALSE'
     build_coord_2002_3_file='FALSE'
+    build_coord_2002_3_icelens_file='TRUE'
     
     if (identification == 'FALSE'):
         #Read the excel file:
         #filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_top_bottom.xls'
-        filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_18022020.xls'
+        #filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_18022020.xls'
+        filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
         xls = pd.read_excel(filename_excel, sheet_name=None,header=1)
     
     #N defines the number of different colors I want to use for the elevation plot
@@ -505,6 +507,9 @@ if __name__ == '__main__':
     
     if (build_coord_2002_3_file=='TRUE'):
         metadata_coord = {k: {} for k in list(['2002','2003'])}
+        
+    if (build_coord_2002_3_icelens_file=='TRUE'):
+        metadata_coord_lens = {k: {} for k in list(['2002','2003'])}
     
     # Read the years of data
     folder_years = [ f.name for f in os.scandir(path) if f.is_dir() ]
@@ -524,9 +529,12 @@ if __name__ == '__main__':
             
             if (build_coord_2002_3_file=='TRUE'):
                 metadata_coord[folder_year]={k: {} for k in folder_days}
+
+            if (build_coord_2002_3_icelens_file=='TRUE'):
+                metadata_coord_lens[folder_year]={k: {} for k in folder_days}
             
             for folder_day in folder_days:
-                
+                #pdb.set_trace()
                 print('Now in year',folder_year,'day',folder_day)
                 
                 #Go into the daily folders 
@@ -538,6 +546,9 @@ if __name__ == '__main__':
                 
                 if (build_coord_2002_3_file=='TRUE'):
                     metadata_coord[folder_year][folder_day]={k: {} for k in list(onlyfiles)}
+                
+                if (build_coord_2002_3_icelens_file=='TRUE'):
+                    metadata_coord_lens[folder_year][folder_day]={k: {} for k in list(onlyfiles)}
                 
                 #pdb.set_trace()
                 for indiv_file in onlyfiles:
@@ -609,6 +620,10 @@ if __name__ == '__main__':
                         #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
                         transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
                         points=transformer.transform(np.array(lon),np.array(lat))
+                        
+                        #Reset the lat_3413 and lon_3413 to empty vectors.
+                        lon_3413=[]
+                        lat_3413=[]
                         
                         lon_3413=points[0]
                         lat_3413=points[1]
@@ -772,16 +787,15 @@ if __name__ == '__main__':
                             #'key_press_event') on this website:
                             # https://stackoverflow.com/questions/51349959/get-mouse-coordinates-without-clicking-in-matplotlib
                             pdb.set_trace()
-                            #plt.clf()
+                            plt.clf()
                             print('Done with this date')
                         else:
-                            ##If file have already been created, continue
-                            #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
-                            #if (os.path.isfile(filename_to_check)):
-                            #    print('Figure already existent, move on to the next date')
-                            #    continue
+                            #If file have already been created, continue
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
+                            if (os.path.isfile(filename_to_check)):
+                                print('Figure already existent, move on to the next date')
+                                continue
                             
-                            print('Ice lenses identification process done, plot the results')
                             if (indiv_file in list(xls.keys())):
                                 print(indiv_file+' hold ice lens!')
                                 #This file have ice lenses in it: read the data:
@@ -798,23 +812,24 @@ if __name__ == '__main__':
                                     #Display ice lens
                                     ax2.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
                                     
-                                    #Compute ice lense median, min and max depth
-                                    median_depth=depths[int(np.round(np.nanmedian(y_vect)))]
-                                    min_depth=depths[int(np.round(np.nanmin(y_vect)))]
-                                    max_depth=depths[int(np.round(np.nanmax(y_vect)))]
+                                    ##Compute ice lense median, min and max depth
+                                    #median_depth=depths[int(np.round(np.nanmedian(y_vect)))]
+                                    #min_depth=depths[int(np.round(np.nanmin(y_vect)))]
+                                    #max_depth=depths[int(np.round(np.nanmax(y_vect)))]
                                     
-                                    #Define x loc where to display numbers
-                                    #ax2.plot(np.arange(0,radar_slice.shape[1],1),np.ones(radar_slice.shape[1])*np.nanmedian(y_vect),color='blue',linestyle='dashed',linewidth=0.3)
-                                    if (np.nanmedian(x_vect)>500):
-                                        where_x_to=0
-                                    else:
-                                        where_x_to=radar_slice.shape[1]*0.74
+                                    ##Define x loc where to display numbers
+                                    ##ax2.plot(np.arange(0,radar_slice.shape[1],1),np.ones(radar_slice.shape[1])*np.nanmedian(y_vect),color='blue',linestyle='dashed',linewidth=0.3)
+                                    #if (np.nanmedian(x_vect)>500):
+                                    #    where_x_to=0
+                                    #else:
+                                    #    where_x_to=radar_slice.shape[1]*0.74
                                     
-                                    #Plot the text
-                                    text_to_plot='Median = '+str(np.round(median_depth,1))+'m, min = '+str(np.round(min_depth,1))+'m, max = '+str(np.round(max_depth,1))+'m'
-                                    #ax2.text(where_x_to,np.nanmedian(y_vect),text_to_plot,color='blue',fontsize=4)
-                                    #plt.show()
-                                    #pdb.set_trace()
+                                    ##Plot the text
+                                    #text_to_plot='Median = '+str(np.round(median_depth,1))+'m, min = '+str(np.round(min_depth,1))+'m, max = '+str(np.round(max_depth,1))+'m'
+                                    ##ax2.text(where_x_to,np.nanmedian(y_vect),text_to_plot,color='blue',fontsize=4)
+                                    ##plt.show()
+                                    ##pdb.set_trace()
+                                    
                                     #Save the x coordinates for map plotting
                                     x_loc=np.append(x_loc,np.round(x_vect))
                                 
@@ -838,24 +853,31 @@ if __name__ == '__main__':
                                     ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=1) #Plot the start in green
                                 else:
                                     ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=1)
+                                                                
+                                #Save the ice lens locations
+                                if (build_coord_2002_3_icelens_file=='TRUE'):
+                                    if (folder_day=='jun04'):
+                                        metadata_coord_lens[folder_year][folder_day][indiv_file]=[lat_3413[0,x_loc],lon_3413[0,x_loc]]
+                                    else:
+                                        metadata_coord_lens[folder_year][folder_day][indiv_file]=[lat_3413[x_loc],lon_3413[x_loc]]
                                 
                                 print('Done with this date')
                                 
                                 #Display the average, min and max depth
                                 #Display on the location figure area where ice lenses are present. OK
                                 #Save the figures OK
-                                plt.show()
+                                #plt.show()
                                 ##Create the figure name
-                                #fig_name=[]
-                                #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/newround_ice_lenses_identification_'+indiv_file+'.png'
+                                fig_name=[]
+                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
                                 
-                                ##Save the figure
-                                #plt.savefig(fig_name,dpi=500)
-                                #plt.clf()
+                                #Save the figure
+                                plt.savefig(fig_name,dpi=500)
+                                plt.clf()
                                 #pdb.set_trace()
                                 
                             else:
-                                plt.clf()
+                                plt.close()
                                 print(indiv_file+' does not hold ice lens, continue')
                                 
     print('End of processing')
@@ -866,3 +888,12 @@ if __name__ == '__main__':
         outfile= open(metadata_coord_tosave, "wb" )
         pickle.dump(metadata_coord,outfile)
         outfile.close()
+        
+    if (build_coord_2002_3_icelens_file=='TRUE'):
+        #Save the metadata_coord_lens dictionary into a picke file
+        metadata_coord_lens_tosave='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/metadata_coord_icelens_2002_2003'
+        outfile= open(metadata_coord_lens_tosave, "wb" )
+        pickle.dump(metadata_coord_lens,outfile)
+        outfile.close()
+        
+        
