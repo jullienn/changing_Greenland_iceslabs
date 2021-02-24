@@ -189,7 +189,7 @@ def _get_rid_of_false_surface_jumps(surface_indices):
         if opposite_jump_index > 0:
             opposite_jump_index += i
         else: # If we didn't find a partner opposite offset, skip and move along.
-        continue
+            continue
     
         # Linearly interpolate, get to the closest pixel
         try:
@@ -210,20 +210,6 @@ def _get_rid_of_false_surface_jumps(surface_indices):
     
 #################### Define functions for surface picking ###################
 
-#Import packages
-import rasterio
-from rasterio.plot import show
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-import pandas as pd
-from os import listdir
-from os.path import isfile, join
-import pickle
-from pysheds.grid import Grid
-import pdb
-import numpy as np
-from pyproj import Transformer
-
 ##############################################################################
 ############### Define function for discrete colorbar display ###############
 ##############################################################################
@@ -243,7 +229,131 @@ def discrete_cmap(N, base_cmap=None):
 ##############################################################################
 
 
-pdb.set_trace()
+def plot_radar_slice(ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique):
+    #pdb.set_trace()
+    
+    #Define the uppermost and lowermost limits
+    meters_cutoff_above=0
+    meters_cutoff_below=30
+    
+    dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
+    t0 = 0; # Unknown so set to zero
+    #Compute the speed (Modified Robin speed):
+    # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+    v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+    
+    if (folder_day=='jun04'):
+        #Open the file and read it
+        fdata= scipy.io.loadmat(path_radar_slice)
+        #Select radar echogram
+        radar_echo=fdata['data']
+    else:
+        #Open the file and read it
+        f_agg = open(path_radar_slice, "rb")
+        radar_data = pickle.load(f_agg)
+        f_agg.close()
+                                                
+        #Select radar echogram
+        radar_echo=radar_data['radar_echogram']
+    
+    #1. Compute the vertical resolution
+    #a. Time computation according to John Paden's email.
+    Nt = radar_echo.shape[0]
+    Time = t0 + dt*np.arange(1,Nt+1)
+    #b. Calculate the depth:
+    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+    depths = v * Time / 2.0
+    
+    # Load the suggested pixel for the specific date
+    for date_pix in lines:
+        if (folder_day=='jun04'):
+            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                suggested_pixel=int(date_pix.partition(" ")[2])
+                #If it has found its suggested pixel, leave the loop
+                continue   
+        else:
+            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                suggested_pixel=int(date_pix.partition(" ")[2])
+                #If it has found its suggested pixel, leave the loop
+                continue
+    #pdb.set_trace()
+    surface_indices=kernel_function(radar_echo, suggested_pixel)
+    
+    #Get our slice (30 meters as currently set)
+    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
+                                                                    depths,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=meters_cutoff_above,
+                                                                    meters_cutoff_below=meters_cutoff_below)
+    
+    #The range have already been computed, plot the data:
+    if (technique=='perc_25_75'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.08318485583215623
+            perc_upper_end=0.09414986209628376
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.08488332785270308
+            perc_upper_end=0.09654050592743407
+    elif (technique=='perc_5_95'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.2870889087496134
+            perc_upper_end=0.3138722799744009
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.31927843730229416
+            perc_upper_end=0.3682849426401127
+    elif (technique=='perc_05_995'):
+        if (folder_year=='2002'):
+            perc_lower_end=-2.1488917418616134
+            perc_upper_end=2.650167679823621
+        elif (folder_year=='2003'):
+            perc_lower_end=-1.661495950494564
+            perc_upper_end=1.9431298622848088
+    elif (technique=='perc_2p5_97p5'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.5709792307554173
+            perc_upper_end=0.7082634842114803
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.6061610403154447
+            perc_upper_end=0.7572821079440079      
+    
+    #Generate the pick for vertical distance display
+    ticks_yplot=np.arange(0,radar_slice.shape[0],20)
+    
+    #Plot the radar slice
+    cb2=ax_plot.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
+    ax_plot.set_aspect('equal') # X scale matches Y scale
+    ax_plot.set_title('May36',fontsize=5)
+    ax_plot.set_ylabel('Depth [m]')
+    #ax_plot.set_xlabel('Horizontal distance')
+    
+    #Colorbar custom
+    cb2.set_clim(perc_lower_end,perc_upper_end)
+    #cbar2=fig.colorbar(cb2, ax=[ax_plot], location='left')
+    #cbar2.set_label('Signal strength')
+    
+    ax_plot.set_yticks(ticks_yplot) 
+    ax_plot.set_yticklabels(np.round(depths[ticks_yplot]))
+    
+    return
+
+#Import packages
+import rasterio
+from rasterio.plot import show
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import pandas as pd
+from os import listdir
+from os.path import isfile, join
+import pickle
+from pysheds.grid import Grid
+import pdb
+import numpy as np
+from pyproj import Transformer
+import matplotlib.gridspec as gridspec
+import scipy.io
+
+technique='perc_2p5_97p5'
 ########################## Load GrIS elevation ##########################
 #Open the DEM
 grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -316,12 +426,21 @@ lat_3413_MacFerrin=points[1]
 ################### Load 2010-2014 ice slabs location ##################
 
 ################################### Plot ##################################
-plt.rcParams.update({'font.size': 5})
-fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Insert title')
+
+#Prepare plot
+fig = plt.figure(figsize=(19,10))
+fig.suptitle('Work in progress')
+gs = gridspec.GridSpec(10, 20)
+gs.update(wspace=0.1)
+ax1 = plt.subplot(gs[0:10, 5:15])
+ax2 = plt.subplot(gs[1:3, 0:5])
+ax3 = plt.subplot(gs[7:10, 0:5])
+ax4 = plt.subplot(gs[1:3, 15:20])
+ax5 = plt.subplot(gs[7:10, 15:20])
+
+#Display elevation
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm)
-cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-cbar1.set_label('Elevation [m]', fontsize=5)
+#cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
 #ax1.grid()
 ax1.set_title('Ice lenses and slabs mapping',fontsize=5)
 
@@ -341,51 +460,42 @@ ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
 #dry snow zone:may18_02_16 or 18_02_12
 # east greenland: jun04_proc02_7.mat
 
-
-
-path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-folder_day='may12'
-indiv_file='may12_03_36_aggregated'
-
-#Open the file and read it
-f_agg = open(path_radar_data+'/2003/'+folder_day+'/'+indiv_file, "rb")
-may12_03_36_aggregated = pickle.load(f_agg)
-f_agg.close()
-                                        
-#Select radar echogram and corresponding lat/lon
-radar_echo=may12_03_36_aggregated['radar_echogram']
-
-
 #Open, read and close the file of suggested surface picks
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/txt/SURFACE_STARTING_PICKS_Suggestions_2002_2003.txt','r')
 lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
-    
-# Load the suggested pixel for the specific date
-for date_pix in lines:
-    if (folder_day=='jun04'):
-        if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
-            suggested_pixel=int(date_pix.partition(" ")[2])
-            #If it has found its suggested pixel, leave the loop
-            continue   
-    else:
-        if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
-            suggested_pixel=int(date_pix.partition(" ")[2])
-            #If it has found its suggested pixel, leave the loop
-            continue
 
-surface_indices=kernel_function(radar_echo, suggested_pixel)
+#Specify the general path name
+path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 
-#J'en suis là!
+#pdb.set_trace()
+#Plot date 1
+folder_year='2003'
+folder_day='may12'
+indiv_file='may12_03_36_aggregated'
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax2,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
 
-                    #Select the first 30m of radar echogram
-                    #1. Compute the vertical resolution
-                    #a. Time computation according to John Paden's email.
-                    Nt = radar_echo.shape[0]
-                    Time = t0 + dt*np.arange(1,Nt+1)
-                    #b. Calculate the depth:
-                    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-                    depths = v * Time / 2.0
+#pdb.set_trace()
+#Plot date 2
+folder_year='2002'
+folder_day='jun04'
+indiv_file='jun04_02proc_53.mat'
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax3,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
 
+#pdb.set_trace()
+#Plot date 3
+folder_year='2003'
+folder_day='may11'
+indiv_file='may11_03_29_aggregated'
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax4,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
 
-
+#pdb.set_trace()
+#Plot date 4
+folder_year='2003'
+folder_day='may11'
+indiv_file='may11_03_1_aggregated.mat'
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax5,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
