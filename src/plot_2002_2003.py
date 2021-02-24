@@ -229,7 +229,7 @@ def discrete_cmap(N, base_cmap=None):
 ##############################################################################
 
 
-def plot_radar_slice(ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique):
+def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique):
     #pdb.set_trace()
     
     #Define the uppermost and lowermost limits
@@ -245,16 +245,45 @@ def plot_radar_slice(ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv
     if (folder_day=='jun04'):
         #Open the file and read it
         fdata= scipy.io.loadmat(path_radar_slice)
-        #Select radar echogram
+        #Select radar echogram, lat and lon
         radar_echo=fdata['data']
+        lat=fdata['latitude']
+        lon=fdata['longitude']
     else:
         #Open the file and read it
         f_agg = open(path_radar_slice, "rb")
         radar_data = pickle.load(f_agg)
         f_agg.close()
                                                 
-        #Select radar echogram
+        #Select radar echogram, lat and lon
         radar_echo=radar_data['radar_echogram']
+        
+        latlontime=radar_data['latlontime']
+        lat=latlontime['lat_gps']
+        lon=latlontime['lon_gps']
+        
+        #Remove zeros in lat/lon
+        lat.replace(0, np.nan, inplace=True)
+        lon.replace(0, np.nan, inplace=True)
+    
+    pdb.set_trace()
+    #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
+    lon=-lon
+                        
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.array(lon),np.array(lat))
+    
+    #Reset the lat_3413 and lon_3413 to empty vectors.
+    lon_3413=[]
+    lat_3413=[]
+    
+    lon_3413=points[0]
+    lat_3413=points[1]
+    
+    #Display on the map where is this track
+    ax_map.scatter(lon_3413, lat_3413,s=0.2,color='red')
     
     #1. Compute the vertical resolution
     #a. Time computation according to John Paden's email.
@@ -323,9 +352,10 @@ def plot_radar_slice(ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv
     cb2=ax_plot.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
     ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
     ax_plot.set_aspect('equal') # X scale matches Y scale
-    ax_plot.set_title('May36',fontsize=5)
-    ax_plot.set_ylabel('Depth [m]')
     #ax_plot.set_xlabel('Horizontal distance')
+    
+    #remove xtick
+    ax_plot.set_xticks([])
     
     #Colorbar custom
     cb2.set_clim(perc_lower_end,perc_upper_end)
@@ -334,6 +364,22 @@ def plot_radar_slice(ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv
     
     ax_plot.set_yticks(ticks_yplot) 
     ax_plot.set_yticklabels(np.round(depths[ticks_yplot]))
+    
+    if (ax_nb==2):
+        ax_plot.set_title('Ablation zone',fontsize=10)
+        ax_plot.set_ylabel('Depth [m]')
+    elif (ax_nb==3):
+        ax_plot.set_title('Percolation zone - ice lenses',fontsize=10)
+        #Remove ytick label
+        #ax_plot.set_yticklabels([])
+    elif (ax_nb==4):
+        ax_plot.set_title('Percolation zone - ice slabs',fontsize=10)
+        #Remove ytick label
+        #ax_plot.set_yticklabels([])
+    elif (ax_nb==5):
+        ax_plot.set_title('Dry snow zone',fontsize=10)
+        #Remove ytick label
+        #ax_plot.set_yticklabels([])
     
     return
 
@@ -432,11 +478,11 @@ fig = plt.figure(figsize=(19,10))
 fig.suptitle('Work in progress')
 gs = gridspec.GridSpec(10, 20)
 gs.update(wspace=0.1)
-ax1 = plt.subplot(gs[0:10, 5:15])
-ax2 = plt.subplot(gs[1:3, 0:5])
-ax3 = plt.subplot(gs[7:10, 0:5])
-ax4 = plt.subplot(gs[1:3, 15:20])
-ax5 = plt.subplot(gs[7:10, 15:20])
+ax1 = plt.subplot(gs[0:10, 10:20])
+ax2 = plt.subplot(gs[1:3, 0:10])
+ax3 = plt.subplot(gs[3:5, 0:10])
+ax4 = plt.subplot(gs[5:7, 0:10])
+ax5 = plt.subplot(gs[7:9, 0:10])
 
 #Display elevation
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm)
@@ -449,9 +495,6 @@ ax1.scatter(lon_all, lat_all,s=0.1,color='lightgrey')
 
 #Plot all the 2002-2003 icelenses
 ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.1,color='slateblue')
-
-#Plot all the 2002-2003 icelenses
-ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
 ################################### Plot ##################################
 
 #Open several files to display on top of the map
@@ -471,31 +514,39 @@ path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFer
 #pdb.set_trace()
 #Plot date 1
 folder_year='2003'
-folder_day='may12'
-indiv_file='may12_03_36_aggregated'
+folder_day='may11'
+indiv_file='may11_03_1_aggregated'
+ax_nb=2
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax2,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
 
 #pdb.set_trace()
 #Plot date 2
 folder_year='2002'
 folder_day='jun04'
 indiv_file='jun04_02proc_53.mat'
+ax_nb=3
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax3,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
 
-#pdb.set_trace()
 #Plot date 3
 folder_year='2003'
-folder_day='may11'
-indiv_file='may11_03_29_aggregated'
+folder_day='may12'
+indiv_file='may12_03_36_aggregated'
+ax_nb=4
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax4,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
 
 #pdb.set_trace()
 #Plot date 4
 folder_year='2003'
 folder_day='may11'
-indiv_file='may11_03_1_aggregated.mat'
+indiv_file='may11_03_29_aggregated'
+ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax5,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+
+#pdb.set_trace()
+
+#Plot all the 2002-2003 icelenses
+ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
