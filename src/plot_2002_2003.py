@@ -229,7 +229,7 @@ def discrete_cmap(N, base_cmap=None):
 ##############################################################################
 
 
-def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique):
+def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses):
     #pdb.set_trace()
     
     #Define the uppermost and lowermost limits
@@ -282,46 +282,47 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     lon_3413=points[0]
     lat_3413=points[1]
     
-    #Order the radar track from down to up
-    if (str(indiv_file.replace("_aggregated",""))=='may12_03_36'):
-        radar_echo=np.fliplr(radar_echo)
-        lon_3413=np.flipud(lon_3413)
-        lat_3413=np.flipud(lat_3413)
-    
-    if (str(indiv_file.replace("_aggregated",""))=='may14_03_51'):
-        radar_echo=np.fliplr(radar_echo)    
-        lon_3413=np.flipud(lon_3413)
-        lat_3413=np.flipud(lat_3413)                 
-    
-    if (str(indiv_file.replace("_aggregated",""))=='may13_03_29'):
-        radar_echo=np.fliplr(radar_echo)
-        lon_3413=np.flipud(lon_3413)
-        lat_3413=np.flipud(lat_3413)
-    
-    if (str(indiv_file.replace(".mat",""))=='jun04_02proc_53'):
-        radar_echo=np.fliplr(radar_echo)
-        lon_3413=np.fliplr(lon_3413)
-        lat_3413=np.fliplr(lat_3413)
-    
-    if (str(indiv_file.replace("_aggregated",""))=='may30_02_51'):
-        radar_echo=np.fliplr(radar_echo)
-        lon_3413=np.flipud(lon_3413)
-        lat_3413=np.flipud(lat_3413)
-    
-    if (str(indiv_file.replace("_aggregated",""))=='may15_03_37'):
-        radar_echo=np.fliplr(radar_echo)
-        lon_3413=np.flipud(lon_3413)
-        lat_3413=np.flipud(lat_3413) 
-    
-    if (str(indiv_file.replace(".mat",""))=='jun04_02proc_52'):
-        radar_echo=np.fliplr(radar_echo)
-        lon_3413=np.fliplr(lon_3413)
-        lat_3413=np.fliplr(lat_3413) 
-    
-    if (str(indiv_file.replace("_aggregated",""))=='may24_02_25'):
-        radar_echo=np.fliplr(radar_echo)
-        lon_3413=np.flipud(lon_3413)
-        lat_3413=np.flipud(lat_3413)
+    if (making_down_to_up=='TRUE'):
+        #Order the radar track from down to up
+        if (str(indiv_file.replace("_aggregated",""))=='may12_03_36'):
+            radar_echo=np.fliplr(radar_echo)
+            lon_3413=np.flipud(lon_3413)
+            lat_3413=np.flipud(lat_3413)
+        
+        if (str(indiv_file.replace("_aggregated",""))=='may14_03_51'):
+            radar_echo=np.fliplr(radar_echo)    
+            lon_3413=np.flipud(lon_3413)
+            lat_3413=np.flipud(lat_3413)                 
+        
+        if (str(indiv_file.replace("_aggregated",""))=='may13_03_29'):
+            radar_echo=np.fliplr(radar_echo)
+            lon_3413=np.flipud(lon_3413)
+            lat_3413=np.flipud(lat_3413)
+        
+        if (str(indiv_file.replace(".mat",""))=='jun04_02proc_53'):
+            radar_echo=np.fliplr(radar_echo)
+            lon_3413=np.fliplr(lon_3413)
+            lat_3413=np.fliplr(lat_3413)
+        
+        if (str(indiv_file.replace("_aggregated",""))=='may30_02_51'):
+            radar_echo=np.fliplr(radar_echo)
+            lon_3413=np.flipud(lon_3413)
+            lat_3413=np.flipud(lat_3413)
+        
+        if (str(indiv_file.replace("_aggregated",""))=='may15_03_37'):
+            radar_echo=np.fliplr(radar_echo)
+            lon_3413=np.flipud(lon_3413)
+            lat_3413=np.flipud(lat_3413) 
+        
+        if (str(indiv_file.replace(".mat",""))=='jun04_02proc_52'):
+            radar_echo=np.fliplr(radar_echo)
+            lon_3413=np.fliplr(lon_3413)
+            lat_3413=np.fliplr(lat_3413) 
+        
+        if (str(indiv_file.replace("_aggregated",""))=='may24_02_25'):
+            radar_echo=np.fliplr(radar_echo)
+            lon_3413=np.flipud(lon_3413)
+            lat_3413=np.flipud(lat_3413)
     
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=0.2,color='red')
@@ -422,6 +423,25 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         #Remove ytick label
         #ax_plot.set_yticklabels([])
     
+    #Display the ice lenses identification:
+    pdb.set_trace()
+
+    if (indiv_file in list(xls_icelenses.keys())):
+        print(indiv_file+' hold ice lens!')
+        #This file have ice lenses in it: read the data:
+        df_temp=xls_icelenses[indiv_file]
+        df_colnames = list(df_temp.keys())
+        x_loc=[]
+
+        for i in range (0,int(len(df_colnames)),2):
+        	#print('There are',int(len(list(df_temp.keys()))/2),'lines to plot')
+        	x_vect=df_temp[df_colnames[i]]
+        	y_vect=df_temp[df_colnames[i+1]]
+        	
+        	#Display ice lens
+        	ax_plot.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
+    
+    
     return
 
 #Import packages
@@ -441,6 +461,7 @@ import matplotlib.gridspec as gridspec
 import scipy.io
 
 technique='perc_2p5_97p5'
+making_down_to_up='FALSE'
 ########################## Load GrIS elevation ##########################
 #Open the DEM
 grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -549,6 +570,10 @@ f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/dat
 lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
+#Open and read the excel file having the ice lenses/slabs in it
+filename_icelenses='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
+xls_icelenses = pd.read_excel(filename_icelenses, sheet_name=None,header=1)
+
 #Specify the general path name
 path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 
@@ -559,7 +584,7 @@ folder_day='may11'
 indiv_file='may11_03_1_aggregated' #From down to up: OK!
 ax_nb=2
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
 
 #pdb.set_trace()
 #Plot date 2
@@ -568,7 +593,7 @@ folder_day='jun04'
 indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
 ax_nb=3
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
 
 #Plot date 3
 folder_year='2003'
@@ -576,7 +601,7 @@ folder_day='may12'
 indiv_file='may12_03_36_aggregated' #From up to down: need reversing! Already fone, OK!
 ax_nb=4
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
 
 #pdb.set_trace()
 #Plot date 4
@@ -585,7 +610,7 @@ folder_day='may11'
 indiv_file='may11_03_29_aggregated' #High elevation, no need: OK!
 ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
+plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
 
 #pdb.set_trace()
 
