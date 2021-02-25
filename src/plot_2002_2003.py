@@ -612,7 +612,6 @@ ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
 
-#pdb.set_trace()
 
 #Plot all the 2002-2003 icelenses
 ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
