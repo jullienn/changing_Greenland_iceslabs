@@ -133,9 +133,12 @@ if __name__ == '__main__':
     #perc_2p5_97p5 perc_5_95
     technique='perc_2p5_97p5'
     #perc_2p5_97p5
-    identification='FALSE'
+    identification='TRUE'
     build_coord_2002_3_file='FALSE'
-    build_coord_2002_3_icelens_file='TRUE'
+    build_coord_2002_3_icelens_file='FALSE'
+    file_to_investigate='jun04_02proc_52.mat'
+    #may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
+    pdb.set_trace()
     
     if (identification == 'FALSE'):
         #Read the excel file:
@@ -552,6 +555,11 @@ if __name__ == '__main__':
                 
                 #pdb.set_trace()
                 for indiv_file in onlyfiles:
+                    if (not(indiv_file == file_to_investigate)):
+                        continue
+                    else:
+                        print('working on file:',indiv_file)
+                        pdb.set_trace()
                     
                     #If indiv_file is the quality file, continue
                     if (indiv_file[0:7]==('quality')):
@@ -679,7 +687,7 @@ if __name__ == '__main__':
                                     suggested_pixel=int(date_pix.partition(" ")[2])
                                     #If it has found its suggested pixel, leave the loop
                                     continue
-                        
+                        pdb.set_trace()
                         #I.b. Get the surface indices
                         
                         if (indiv_file.replace("_aggregated","") in list(df_dates_surf_pick['dates_surf_pick_impr'])):
@@ -711,7 +719,7 @@ if __name__ == '__main__':
                         #I.d. Select the radar slice
                         #Define the uppermost and lowermost limits
                         meters_cutoff_above=0
-                        meters_cutoff_below=30
+                        meters_cutoff_below=40
                         
                         #Redefine the 'surface_indices' variable: the surface have just been picked
                         #for the depth correction, so now we want to pick from the top down to

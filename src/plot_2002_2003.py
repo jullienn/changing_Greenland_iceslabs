@@ -266,7 +266,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         lat.replace(0, np.nan, inplace=True)
         lon.replace(0, np.nan, inplace=True)
     
-    pdb.set_trace()
+    #pdb.set_trace()
     #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
     lon=-lon
                         
@@ -281,6 +281,47 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     
     lon_3413=points[0]
     lat_3413=points[1]
+    
+    #Order the radar track from down to up
+    if (str(indiv_file.replace("_aggregated",""))=='may12_03_36'):
+        radar_echo=np.fliplr(radar_echo)
+        lon_3413=np.flipud(lon_3413)
+        lat_3413=np.flipud(lat_3413)
+    
+    if (str(indiv_file.replace("_aggregated",""))=='may14_03_51'):
+        radar_echo=np.fliplr(radar_echo)    
+        lon_3413=np.flipud(lon_3413)
+        lat_3413=np.flipud(lat_3413)                 
+    
+    if (str(indiv_file.replace("_aggregated",""))=='may13_03_29'):
+        radar_echo=np.fliplr(radar_echo)
+        lon_3413=np.flipud(lon_3413)
+        lat_3413=np.flipud(lat_3413)
+    
+    if (str(indiv_file.replace(".mat",""))=='jun04_02proc_53'):
+        radar_echo=np.fliplr(radar_echo)
+        lon_3413=np.fliplr(lon_3413)
+        lat_3413=np.fliplr(lat_3413)
+    
+    if (str(indiv_file.replace("_aggregated",""))=='may30_02_51'):
+        radar_echo=np.fliplr(radar_echo)
+        lon_3413=np.flipud(lon_3413)
+        lat_3413=np.flipud(lat_3413)
+    
+    if (str(indiv_file.replace("_aggregated",""))=='may15_03_37'):
+        radar_echo=np.fliplr(radar_echo)
+        lon_3413=np.flipud(lon_3413)
+        lat_3413=np.flipud(lat_3413) 
+    
+    if (str(indiv_file.replace(".mat",""))=='jun04_02proc_52'):
+        radar_echo=np.fliplr(radar_echo)
+        lon_3413=np.fliplr(lon_3413)
+        lat_3413=np.fliplr(lat_3413) 
+    
+    if (str(indiv_file.replace("_aggregated",""))=='may24_02_25'):
+        radar_echo=np.fliplr(radar_echo)
+        lon_3413=np.flipud(lon_3413)
+        lat_3413=np.flipud(lat_3413)
     
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=0.2,color='red')
