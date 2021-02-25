@@ -556,7 +556,7 @@ path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFer
 #Plot date 1
 folder_year='2003'
 folder_day='may11'
-indiv_file='may11_03_1_aggregated'
+indiv_file='may11_03_1_aggregated' #From down to up: OK!
 ax_nb=2
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
@@ -565,7 +565,7 @@ plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,ind
 #Plot date 2
 folder_year='2002'
 folder_day='jun04'
-indiv_file='jun04_02proc_53.mat'
+indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
 ax_nb=3
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
@@ -573,7 +573,7 @@ plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,ind
 #Plot date 3
 folder_year='2003'
 folder_day='may12'
-indiv_file='may12_03_36_aggregated'
+indiv_file='may12_03_36_aggregated' #From up to down: need reversing! Already fone, OK!
 ax_nb=4
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
@@ -582,7 +582,7 @@ plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,ind
 #Plot date 4
 folder_year='2003'
 folder_day='may11'
-indiv_file='may11_03_29_aggregated'
+indiv_file='may11_03_29_aggregated' #High elevation, no need: OK!
 ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique)
