@@ -767,6 +767,7 @@ if __name__ == '__main__':
                         ### Plot the data by changing the range
                         #Plot the radar slice
                         cb2=ax2.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+                        ax_plot.set_ylim(0,radar_slice.shape[0])
                         ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
                         ax2.set_aspect('equal') # X scale matches Y scale
                         #In order to display the depth, I used the example 1 of the
@@ -875,11 +876,11 @@ if __name__ == '__main__':
                                 #pdb.set_trace()
                                 ##Create the figure name
                                 fig_name=[]
-                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/FINAL_ice_lenses_identification_'+indiv_file+'.png'
+                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
                                 
                                 #Save the figure
                                 plt.savefig(fig_name,dpi=500)
-                                plt.clf()
+                                plt.close()
                                 #pdb.set_trace()
                                 
                             else:
