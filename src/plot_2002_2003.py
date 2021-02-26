@@ -282,47 +282,13 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     lon_3413=points[0]
     lat_3413=points[1]
     
-    if (making_down_to_up=='TRUE'):
-        #Order the radar track from down to up
-        if (str(indiv_file.replace("_aggregated",""))=='may12_03_36'):
-            radar_echo=np.fliplr(radar_echo)
-            lon_3413=np.flipud(lon_3413)
-            lat_3413=np.flipud(lat_3413)
+    #pdb.set_trace()
+    #Define the dates that need reversed display
+    list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
+                       'may13_03_29_aggregated','may30_02_51_aggregated',
+                       'may24_02_25_aggregated','may15_03_37_aggregated']
         
-        if (str(indiv_file.replace("_aggregated",""))=='may14_03_51'):
-            radar_echo=np.fliplr(radar_echo)    
-            lon_3413=np.flipud(lon_3413)
-            lat_3413=np.flipud(lat_3413)                 
-        
-        if (str(indiv_file.replace("_aggregated",""))=='may13_03_29'):
-            radar_echo=np.fliplr(radar_echo)
-            lon_3413=np.flipud(lon_3413)
-            lat_3413=np.flipud(lat_3413)
-        
-        if (str(indiv_file.replace(".mat",""))=='jun04_02proc_53'):
-            radar_echo=np.fliplr(radar_echo)
-            lon_3413=np.fliplr(lon_3413)
-            lat_3413=np.fliplr(lat_3413)
-        
-        if (str(indiv_file.replace("_aggregated",""))=='may30_02_51'):
-            radar_echo=np.fliplr(radar_echo)
-            lon_3413=np.flipud(lon_3413)
-            lat_3413=np.flipud(lat_3413)
-        
-        if (str(indiv_file.replace("_aggregated",""))=='may15_03_37'):
-            radar_echo=np.fliplr(radar_echo)
-            lon_3413=np.flipud(lon_3413)
-            lat_3413=np.flipud(lat_3413) 
-        
-        if (str(indiv_file.replace(".mat",""))=='jun04_02proc_52'):
-            radar_echo=np.fliplr(radar_echo)
-            lon_3413=np.fliplr(lon_3413)
-            lat_3413=np.fliplr(lat_3413) 
-        
-        if (str(indiv_file.replace("_aggregated",""))=='may24_02_25'):
-            radar_echo=np.fliplr(radar_echo)
-            lon_3413=np.flipud(lon_3413)
-            lat_3413=np.flipud(lat_3413)
+    list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
     
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=0.2,color='red')
@@ -425,7 +391,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         #ax_plot.set_yticklabels([])
     
     #Display the ice lenses identification:
-    pdb.set_trace()
+    #pdb.set_trace()
 
     if (indiv_file in list(xls_icelenses.keys())):
         print(indiv_file+' hold ice lens!')
@@ -442,6 +408,14 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         	#Display ice lens
         	ax_plot.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
     
+        pdb.set_trace()
+    
+    #Order the radar track from down to up if needed      
+    if (indiv_file in list(list_reverse_agg)):
+        ax_plot.set_xlim(radar_slice.shape[1],0)
+    
+    if (indiv_file in list(list_reverse_mat)):
+        ax_plot.set_xlim(radar_slice.shape[1],0)
     
     return
 
@@ -496,7 +470,7 @@ for year in list(all_2002_3_flightlines.keys()):
 
 ################### Load 2002-2003 ice lenses location ##################
 #Open the file and read it
-f_icelens_flightlines = open(path_data+'/metadata_coord_icelens_2002_2003', "rb")
+f_icelens_flightlines = open(path_data+'/metadata_coord_icelens_2002_2003_26022020', "rb")
 icelens_2002_3_flightlines = pickle.load(f_icelens_flightlines)
 f_icelens_flightlines.close()
 
