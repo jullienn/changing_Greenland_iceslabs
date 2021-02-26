@@ -767,7 +767,7 @@ if __name__ == '__main__':
                         ### Plot the data by changing the range
                         #Plot the radar slice
                         cb2=ax2.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
-                        ax_plot.set_ylim(0,radar_slice.shape[0])
+                        ax2.set_ylim(0,radar_slice.shape[0])
                         ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
                         ax2.set_aspect('equal') # X scale matches Y scale
                         #In order to display the depth, I used the example 1 of the
