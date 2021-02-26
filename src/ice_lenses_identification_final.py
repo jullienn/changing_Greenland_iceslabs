@@ -871,8 +871,8 @@ if __name__ == '__main__':
                                 #Display the average, min and max depth
                                 #Display on the location figure area where ice lenses are present. OK
                                 #Save the figures OK
-                                plt.show()
-                                pdb.set_trace()
+                                #plt.show()
+                                #pdb.set_trace()
                                 ##Create the figure name
                                 fig_name=[]
                                 fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/FINAL_ice_lenses_identification_'+indiv_file+'.png'
