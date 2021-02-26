@@ -795,11 +795,11 @@ if __name__ == '__main__':
                             plt.clf()
                             print('Done with this date')
                         else:
-                            ##If file have already been created, continue
-                            #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
-                            #if (os.path.isfile(filename_to_check)):
-                            #    print('Figure already existent, move on to the next date')
-                            #    continue
+                            #If file have already been created, continue
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
+                            if (os.path.isfile(filename_to_check)):
+                                print('Figure already existent, move on to the next date')
+                                continue
                             
                             if (indiv_file in list(xls.keys())):
                                 print(indiv_file+' hold ice lens!')
