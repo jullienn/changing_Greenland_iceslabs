@@ -133,11 +133,11 @@ if __name__ == '__main__':
     #perc_2p5_97p5 perc_5_95
     technique='perc_2p5_97p5'
     #perc_2p5_97p5
-    identification='TRUE'
+    identification='FALSE'
     build_coord_2002_3_file='FALSE'
-    build_coord_2002_3_icelens_file='FALSE'
+    build_coord_2002_3_icelens_file='TRUE'
     
-    file_to_investigate='jun04_02proc_53.mat' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
+    #file_to_investigate='jun04_02proc_53.mat' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
     
     if (identification == 'FALSE'):
         #Read the excel file:
@@ -553,10 +553,10 @@ if __name__ == '__main__':
                     metadata_coord_lens[folder_year][folder_day]={k: {} for k in list(onlyfiles)}
                 
                 for indiv_file in onlyfiles:
-                    if (not(indiv_file == file_to_investigate)):
-                        continue
-                    else:
-                        print('working on file:',indiv_file)
+                    #if (not(indiv_file == file_to_investigate)):
+                    #    continue
+                    #else:
+                    #    print('working on file:',indiv_file)
                     
                     #If indiv_file is the quality file, continue
                     if (indiv_file[0:7]==('quality')):
@@ -875,7 +875,7 @@ if __name__ == '__main__':
                                 pdb.set_trace()
                                 ##Create the figure name
                                 fig_name=[]
-                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
+                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/FINAL_ice_lenses_identification_'+indiv_file+'.png'
                                 
                                 #Save the figure
                                 plt.savefig(fig_name,dpi=500)
@@ -895,11 +895,11 @@ if __name__ == '__main__':
         pickle.dump(metadata_coord,outfile)
         outfile.close()
         
-    #if (build_coord_2002_3_icelens_file=='TRUE'):
-    #    #Save the metadata_coord_lens dictionary into a picke file
-    #    metadata_coord_lens_tosave='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/metadata_coord_icelens_2002_2003'
-    #    outfile= open(metadata_coord_lens_tosave, "wb" )
-    #    pickle.dump(metadata_coord_lens,outfile)
-    #    outfile.close()
+    if (build_coord_2002_3_icelens_file=='TRUE'):
+        #Save the metadata_coord_lens dictionary into a picke file
+        metadata_coord_lens_tosave='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/metadata_coord_icelens_2002_2003_26022020'
+        outfile= open(metadata_coord_lens_tosave, "wb" )
+        pickle.dump(metadata_coord_lens,outfile)
+        outfile.close()
         
         
