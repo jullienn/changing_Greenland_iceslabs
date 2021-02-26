@@ -392,6 +392,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     
     #Plot the radar slice
     cb2=ax_plot.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    ax_plot.set_ylim(0,radar_slice.shape[0])
     ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
     ax_plot.set_aspect('equal') # X scale matches Y scale
     #ax_plot.set_xlabel('Horizontal distance')

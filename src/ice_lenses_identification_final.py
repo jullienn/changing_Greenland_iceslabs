@@ -137,7 +137,7 @@ if __name__ == '__main__':
     build_coord_2002_3_file='FALSE'
     build_coord_2002_3_icelens_file='FALSE'
     
-    #file_to_investigate='jun04_02proc_4.mat' #may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
+    file_to_investigate='jun04_02proc_53.mat' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
     
     if (identification == 'FALSE'):
         #Read the excel file:
@@ -553,11 +553,10 @@ if __name__ == '__main__':
                     metadata_coord_lens[folder_year][folder_day]={k: {} for k in list(onlyfiles)}
                 
                 for indiv_file in onlyfiles:
-                    #if (not(indiv_file == file_to_investigate)):
-                    #    continue
-                    #else:
-                    #    print('working on file:',indiv_file)
-                    #    pdb.set_trace()
+                    if (not(indiv_file == file_to_investigate)):
+                        continue
+                    else:
+                        print('working on file:',indiv_file)
                     
                     #If indiv_file is the quality file, continue
                     if (indiv_file[0:7]==('quality')):
@@ -796,11 +795,11 @@ if __name__ == '__main__':
                             plt.clf()
                             print('Done with this date')
                         else:
-                            #If file have already been created, continue
-                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
-                            if (os.path.isfile(filename_to_check)):
-                                print('Figure already existent, move on to the next date')
-                                continue
+                            ##If file have already been created, continue
+                            #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
+                            #if (os.path.isfile(filename_to_check)):
+                            #    print('Figure already existent, move on to the next date')
+                            #    continue
                             
                             if (indiv_file in list(xls.keys())):
                                 print(indiv_file+' hold ice lens!')
@@ -872,7 +871,8 @@ if __name__ == '__main__':
                                 #Display the average, min and max depth
                                 #Display on the location figure area where ice lenses are present. OK
                                 #Save the figures OK
-                                #plt.show()
+                                plt.show()
+                                pdb.set_trace()
                                 ##Create the figure name
                                 fig_name=[]
                                 fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
