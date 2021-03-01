@@ -408,7 +408,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         	#Display ice lens
         	ax_plot.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
     
-        pdb.set_trace()
+    pdb.set_trace()
     
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
@@ -587,6 +587,24 @@ ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
 
+#Plot all the 2002-2003 icelenses
+ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
+
+#Plot the whole GrIS 2002-2003 radar tracks
+#Prepare plot
+fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('2002-2003 radar overview')
+
+#Display elevation
+cb=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm)
+cbar=fig.colorbar(cb, ax=[ax1], location='left')
+cbar.set_label('Elevation [m]', fontsize=5)
+
+#Plot all the 2002-2003 flightlines
+ax1.scatter(lon_all, lat_all,s=0.1,color='lightgrey')
+
+#Plot all the 2002-2003 icelenses
+ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.1,color='slateblue')
 
 #Plot all the 2002-2003 icelenses
 ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
