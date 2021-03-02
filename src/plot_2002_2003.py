@@ -291,7 +291,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
     
     #Display on the map where is this track
-    ax_map.scatter(lon_3413, lat_3413,s=0.2,color='red')
+    ax_map.scatter(lon_3413, lat_3413,s=1,facecolors='black', edgecolors='none')
     
     #1. Compute the vertical resolution
     #a. Time computation according to John Paden's email.
@@ -400,37 +400,27 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         df_colnames = list(df_temp.keys())
         x_loc=[]
         
-        pdb.set_trace()
-        
         #Trafic light information
         df_trafic_light=trafic_light[indiv_file]
         df_colnames_trafic_light = list(df_trafic_light.keys())
-
+        
         for i in range (0,int(len(df_colnames)),2):
-        	#print('There are',int(len(list(df_temp.keys()))/2),'lines to plot')
-        	x_vect=df_temp[df_colnames[i]]
-        	y_vect=df_temp[df_colnames[i+1]]
-            
+            x_vect=df_temp[df_colnames[i]]
+            y_vect=df_temp[df_colnames[i+1]]
             #Load trafic light color
-            trafic_light_invid_color=df_colnames_trafic_light[i]
-            
+            trafic_light_indiv_color=df_colnames_trafic_light[i]
             #Define the color in which to display the ice lens
-            if (trafic_light_invid_color[0:3]=='gre'):
-                color_to_display='green'
-                color_code=1
-            elif (trafic_light_invid_color[0:3]=='ora'):
-                color_to_display='orange'
-                color_code=0
-            elif (trafic_light_invid_color[0:3]=='red'):
-                color_to_display='red'
-                color_code=-1
+            if (trafic_light_indiv_color[0:3]=='gre'):
+                color_to_display='#00441b'
+            elif (trafic_light_indiv_color[0:3]=='ora'):
+                color_to_display='#fd8d3c'
+            elif (trafic_light_indiv_color[0:3]=='red'):
+                color_to_display='#fed976'
             else:
                 print('The color is not known!')
-        	
-        	#Display ice lens
-        	ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.3)
-    
-    #pdb.set_trace()
+            
+            #Display ice lens
+            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.5)
     
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
@@ -512,7 +502,6 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 print('No ice lens, continue')
                 continue
             else:
-                pdb.set_trace()
                 lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
                 lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
                 colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
@@ -548,16 +537,17 @@ ax4 = plt.subplot(gs[5:7, 0:10])
 ax5 = plt.subplot(gs[7:9, 0:10])
 
 #Display elevation
-cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm)
+cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm,alpha=0.5)
 #cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
 #ax1.grid()
 ax1.set_title('Ice lenses and slabs location',fontsize=5)
 
-#Plot all the 2002-2003 flightlines
-ax1.scatter(lon_all, lat_all,s=0.1,color='lightgrey')
+#Plot all the 2010-2014 icelenses
+ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=1,facecolors='cornflowerblue', edgecolors='none')
+#ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,color='red',marker='o',alpha=0.2)
 
-#Plot all the 2002-2003 icelenses
-ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.1,color='slateblue')
+#Plot all the 2002-2003 flightlines
+ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
 ################################### Plot ##################################
 
 #Open several files to display on top of the map
@@ -574,7 +564,7 @@ f.close()
 #Open and read the excel file having the ice lenses/slabs in it
 filename_icelenses='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
 xls_icelenses = pd.read_excel(filename_icelenses, sheet_name=None,header=2)
-trafic_light=pd.read_excel(filename_excel, sheet_name=None,header=1)
+trafic_light=pd.read_excel(filename_icelenses, sheet_name=None,header=1)
 
 #Specify the general path name
 path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
@@ -614,13 +604,13 @@ ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
 
-#Plot all the 2002-2003 icelenses according to their condifence color
+#Plot all the 2002-2003 icelenses according to their confidence color 
 #1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=0.1,color='red')
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#fed976', edgecolors='none')
 #2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=0.1,color='orange')
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fd8d3c', edgecolors='none')
 #3. Green
-ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=0.1,color='green')
+ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
 
 #Zoom on SW Greenland
 ax1.set_xlim(-380100,106800)
@@ -637,23 +627,23 @@ fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('2002-2003 radar overview')
 
 #Display elevation
-cb=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm)
+cb=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm,alpha=0.5)
 cbar=fig.colorbar(cb, ax=[ax1], location='left')
 cbar.set_label('Elevation [m]')#, fontsize=5)
 
-#Plot all the 2002-2003 flightlines
-ax1.scatter(lon_all, lat_all,s=0.01,color='lightgrey')
-
 #Plot all the 2010-2014 icelenses
-ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.01,color='slateblue')
+ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=1,facecolors='cornflowerblue', edgecolors='none')
+
+#Plot all the 2002-2003 flightlines
+ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
 
 #Plot all the 2002-2003 icelenses according to their condifence color
 #1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=0.01,color='red')
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#fed976', edgecolors='none')
 #2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=0.01,color='orange')
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fd8d3c', edgecolors='none')
 #3. Green
-ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=0.01,color='green')
+ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
 
 #Correct zoom
 ax1.set_xlim(-650000,900000)
