@@ -137,7 +137,7 @@ if __name__ == '__main__':
     build_coord_2002_3_file='FALSE'
     build_coord_2002_3_icelens_file='FALSE'
     
-    file_to_investigate='may12_03_15_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
+    file_to_investigate='may14_03_21_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
     
     if (identification == 'FALSE'):
         #Read the excel file:
