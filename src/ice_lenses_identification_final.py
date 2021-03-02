@@ -883,7 +883,6 @@ if __name__ == '__main__':
                                     else:
                                         ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=1)
                                     
-                                    pdb.set_trace()
                                     #Aggregate all the coordinates and colors to save them
                                     x_loc=np.append(x_loc,x_vect)
                                     x_color=np.append(x_color,np.ones(x_vect.shape[0])*color_code)

@@ -482,6 +482,7 @@ f_icelens_flightlines.close()
 
 lat_icelens=[]
 lon_icelens=[]
+colorcode_icelens=[]
 
 for year in list(icelens_2002_3_flightlines.keys()):
     for days in list(icelens_2002_3_flightlines[year].keys()):
@@ -497,6 +498,11 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 pdb.set_trace()
                 lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
                 lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
+                colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
+
+red_icelenses=
+
+
 ################### Load 2002-2003 ice lenses location ##################
 
 ################### Load 2010-2014 ice slabs location ##################
@@ -594,8 +600,13 @@ ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
 
-#Plot all the 2002-2003 icelenses
-ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
+#Plot all the 2002-2003 icelenses according to their condifence color
+#1. Red
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=0.1,color='red')
+#2. Orange
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=0.1,color='orange')
+#3. Green
+ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=0.1,color='green')
 
 #Zoom on SW Greenland
 ax1.set_xlim(-380100,106800)
@@ -619,11 +630,16 @@ cbar.set_label('Elevation [m]')#, fontsize=5)
 #Plot all the 2002-2003 flightlines
 ax1.scatter(lon_all, lat_all,s=0.01,color='lightgrey')
 
-#Plot all the 2002-2003 icelenses
+#Plot all the 2010-2014 icelenses
 ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.01,color='slateblue')
 
-#Plot all the 2002-2003 icelenses
-ax1.scatter(lon_icelens, lat_icelens,s=0.01,color='blue')
+#Plot all the 2002-2003 icelenses according to their condifence color
+#1. Red
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=0.01,color='red')
+#2. Orange
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=0.01,color='orange')
+#3. Green
+ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=0.01,color='green')
 
 #Correct zoom
 ax1.set_xlim(-650000,900000)
