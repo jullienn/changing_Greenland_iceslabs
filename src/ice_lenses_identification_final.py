@@ -133,18 +133,19 @@ if __name__ == '__main__':
     #perc_2p5_97p5 perc_5_95
     technique='perc_2p5_97p5'
     #perc_2p5_97p5
-    identification='TRUE'
+    identification='FALSE'
     build_coord_2002_3_file='FALSE'
-    build_coord_2002_3_icelens_file='FALSE'
+    build_coord_2002_3_icelens_file='TRUE'
     
-    file_to_investigate='may14_03_21_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
+    #file_to_investigate='may14_03_21_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
     
     if (identification == 'FALSE'):
         #Read the excel file:
         #filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_top_bottom.xls'
         #filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_18022020.xls'
         filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
-        xls = pd.read_excel(filename_excel, sheet_name=None,header=1)
+        xls = pd.read_excel(filename_excel, sheet_name=None,header=2)
+        trafic_light=pd.read_excel(filename_excel, sheet_name=None,header=1)
     
     #N defines the number of different colors I want to use for the elevation plot
     N=10
@@ -553,10 +554,10 @@ if __name__ == '__main__':
                     metadata_coord_lens[folder_year][folder_day]={k: {} for k in list(onlyfiles)}
                 
                 for indiv_file in onlyfiles:
-                    if (not(indiv_file == file_to_investigate)):
-                        continue
-                    else:
-                        print('working on file:',indiv_file)
+                    #if (not(indiv_file == file_to_investigate)):
+                    #    continue
+                    #else:
+                    #    print('working on file:',indiv_file)
                     
                     #If indiv_file is the quality file, continue
                     if (indiv_file[0:7]==('quality')):
@@ -797,26 +798,43 @@ if __name__ == '__main__':
                             print('Done with this date')
                         else:
                             #If file have already been created, continue
-                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
+                            filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_new_ice_lenses_identification_'+indiv_file+'.png'
                             if (os.path.isfile(filename_to_check)):
                                 print('Figure already existent, move on to the next date')
                                 continue
                             
                             if (indiv_file in list(xls.keys())):
                                 print(indiv_file+' hold ice lens!')
+                                pdb.set_trace()
                                 #This file have ice lenses in it: read the data:
                                 df_temp=xls[indiv_file]
                                 df_colnames = list(df_temp.keys())
                                 x_loc=[]
                                 
+                                #Trafic light information
+                                df_trafic_light=trafic_light[indiv_file]
+                                df_colnames_trafic_light = list(df_trafic_light.keys())
                                 for i in range (0,int(len(df_colnames)),2):
                                     #print('There are',int(len(list(df_temp.keys()))/2),'lines to plot')
                                     
                                     x_vect=df_temp[df_colnames[i]]
                                     y_vect=df_temp[df_colnames[i+1]]
                                     
+                                    #Load trafic light color
+                                    trafic_light_invid_color=df_colnames_trafic_light[i]
+                                    
+                                    #Define the color in which to display the ice lens
+                                    if (trafic_light_invid_color[0:3]=='gre'):
+                                        color_to_display='green'
+                                    elif (trafic_light_invid_color[0:3]=='ora'):
+                                        color_to_display='orange'
+                                    elif (trafic_light_invid_color[0:3]=='red'):
+                                        color_to_display='red'
+                                    else:
+                                        print('The color is not known!')
+                                    
                                     #Display ice lens
-                                    ax2.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
+                                    ax2.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.3)
                                     
                                     ##Compute ice lense median, min and max depth
                                     #median_depth=depths[int(np.round(np.nanmedian(y_vect)))]
@@ -838,7 +856,8 @@ if __name__ == '__main__':
                                     
                                     #Save the x coordinates for map plotting
                                     x_loc=np.append(x_loc,np.round(x_vect))
-                                
+                                    
+
                                 #Display on the map where ice lenses have been identified:
                                 #If last index+1 is in xloc, remove it (artifact of visual identification)
                                 if (np.nanmax(x_loc)>=radar_slice.shape[1]):
@@ -876,7 +895,7 @@ if __name__ == '__main__':
                                 #pdb.set_trace()
                                 ##Create the figure name
                                 fig_name=[]
-                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_ice_lenses_identification_'+indiv_file+'.png'
+                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_new_ice_lenses_identification_'+indiv_file+'.png'
                                 
                                 #Save the figure
                                 plt.savefig(fig_name,dpi=500)
