@@ -814,6 +814,7 @@ if __name__ == '__main__':
                                 #Trafic light information
                                 df_trafic_light=trafic_light[indiv_file]
                                 df_colnames_trafic_light = list(df_trafic_light.keys())
+                                
                                 for i in range (0,int(len(df_colnames)),2):
                                     #print('There are',int(len(list(df_temp.keys()))/2),'lines to plot')
                                     
@@ -854,31 +855,34 @@ if __name__ == '__main__':
                                     ##plt.show()
                                     ##pdb.set_trace()
                                     
-                                    #Save the x coordinates for map plotting
-                                    x_loc=np.append(x_loc,np.round(x_vect))
+                                    #Display on the map where ice lenses have been identified:
                                     
-
-                                #Display on the map where ice lenses have been identified:
-                                #If last index+1 is in xloc, remove it (artifact of visual identification)
-                                if (np.nanmax(x_loc)>=radar_slice.shape[1]):
-                                    x_loc[x_loc==np.nanmax(x_loc)]=np.nan
-                                #remove nan from x_loc
-                                x_loc= x_loc[~np.isnan(x_loc)]
-                                #keep unique x_loc and transform into integer
-                                x_loc=(np.unique(x_loc)).astype(int)
-
-                                #Plot ice lenses location
-                                if (folder_day=='jun04'):
-                                    ax1.scatter(lon_3413[0,x_loc],lat_3413[0,x_loc],c='r',s=1) #Plot the start in green
-                                else:
-                                    ax1.scatter(lon_3413[x_loc],lat_3413[x_loc],c='r',s=1)
-                                
-                                #Display the start of the traces
-                                if (folder_day=='jun04'):
-                                    ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=1) #Plot the start in green
-                                else:
-                                    ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=1)
-                                                                
+                                    x_vect=np.asarray(np.round(x_vect))
+                                    
+                                    #If last index+1 is in x_vect, remove it (artifact of visual identification)
+                                    if (np.nanmax(x_vect)>=radar_slice.shape[1]):
+                                        x_vect[x_vect==np.nanmax(x_vect)]=np.nan
+                                    #remove nan from x_vect
+                                    x_vect= x_vect[~np.isnan(x_vect)]
+                                    #keep unique x_loc and transform into integer
+                                    x_vect=(np.unique(x_vect)).astype(int)
+                                    
+                                    #Plot ice lenses location
+                                    if (folder_day=='jun04'):
+                                        ax1.scatter(lon_3413[0,x_vect],lat_3413[0,x_vect],c=color_to_display,s=1) #Plot the start in green
+                                    else:
+                                        ax1.scatter(lon_3413[x_vect],lat_3413[x_vect],c=color_to_display,s=1)
+                                    
+                                    #Display the start of the traces
+                                    if (folder_day=='jun04'):
+                                        ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='m',s=1) #Plot the start in green
+                                    else:
+                                        ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=1)
+                                    
+                                    #Aggregate all the coordinates to save them and transform into integer
+                                    x_loc=np.append(x_loc,x_vect)
+                                    x_loc=x_loc.astype(int)
+                                    
                                 #Save the ice lens locations
                                 if (build_coord_2002_3_icelens_file=='TRUE'):
                                     if (folder_day=='jun04'):
