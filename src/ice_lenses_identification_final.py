@@ -805,11 +805,12 @@ if __name__ == '__main__':
                             
                             if (indiv_file in list(xls.keys())):
                                 print(indiv_file+' hold ice lens!')
-                                pdb.set_trace()
+                                #pdb.set_trace()
                                 #This file have ice lenses in it: read the data:
                                 df_temp=xls[indiv_file]
                                 df_colnames = list(df_temp.keys())
                                 x_loc=[]
+                                x_color=[]
                                 
                                 #Trafic light information
                                 df_trafic_light=trafic_light[indiv_file]
@@ -827,10 +828,13 @@ if __name__ == '__main__':
                                     #Define the color in which to display the ice lens
                                     if (trafic_light_invid_color[0:3]=='gre'):
                                         color_to_display='green'
+                                        color_code=1
                                     elif (trafic_light_invid_color[0:3]=='ora'):
                                         color_to_display='orange'
+                                        color_code=0
                                     elif (trafic_light_invid_color[0:3]=='red'):
                                         color_to_display='red'
+                                        color_code=-1
                                     else:
                                         print('The color is not known!')
                                     
@@ -879,16 +883,22 @@ if __name__ == '__main__':
                                     else:
                                         ax1.scatter(lon_3413[0],lat_3413[0],c='m',s=1)
                                     
-                                    #Aggregate all the coordinates to save them and transform into integer
+                                    pdb.set_trace()
+                                    #Aggregate all the coordinates and colors to save them
                                     x_loc=np.append(x_loc,x_vect)
-                                    x_loc=x_loc.astype(int)
+                                    x_color=np.append(x_color,np.ones(x_vect.shape[0])*color_code)
+                                    
+                                    
+                                #Make x_loc and x_color as integer
+                                x_loc=x_loc.astype(int)
+                                x_color=x_color.astype(int)
                                     
                                 #Save the ice lens locations
                                 if (build_coord_2002_3_icelens_file=='TRUE'):
                                     if (folder_day=='jun04'):
-                                        metadata_coord_lens[folder_year][folder_day][indiv_file]=[lat_3413[0,x_loc],lon_3413[0,x_loc]]
+                                        metadata_coord_lens[folder_year][folder_day][indiv_file]=[lat_3413[0,x_loc],lon_3413[0,x_loc],x_color]
                                     else:
-                                        metadata_coord_lens[folder_year][folder_day][indiv_file]=[lat_3413[x_loc],lon_3413[x_loc]]
+                                        metadata_coord_lens[folder_year][folder_day][indiv_file]=[lat_3413[x_loc],lon_3413[x_loc],x_color]
                                 
                                 print('Done with this date')
                                 

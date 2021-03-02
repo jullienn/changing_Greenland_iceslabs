@@ -453,6 +453,12 @@ path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/ic
 f_flightlines = open(path_data+'/metadata_coord_2002_2003', "rb")
 all_2002_3_flightlines = pickle.load(f_flightlines)
 f_flightlines.close()
+################# Load 2002-2003 flightlines coordinates ################
+
+#################### Load 2002-2003 flightlines color ###################
+filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
+trafic_light=pd.read_excel(filename_excel, sheet_name=None,header=1)
+#################### Load 2002-2003 flightlines color ###################
 
 lat_all=[]
 lon_all=[]
@@ -488,6 +494,7 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 print('No ice lens, continue')
                 continue
             else:
+                pdb.set_trace()
                 lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
                 lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
 ################### Load 2002-2003 ice lenses location ##################
