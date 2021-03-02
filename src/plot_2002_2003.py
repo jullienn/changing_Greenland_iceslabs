@@ -229,7 +229,7 @@ def discrete_cmap(N, base_cmap=None):
 ##############################################################################
 
 
-def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses):
+def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light):
     #pdb.set_trace()
     
     #Define the uppermost and lowermost limits
@@ -399,14 +399,36 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         df_temp=xls_icelenses[indiv_file]
         df_colnames = list(df_temp.keys())
         x_loc=[]
+        
+        pdb.set_trace()
+        
+        #Trafic light information
+        df_trafic_light=trafic_light[indiv_file]
+        df_colnames_trafic_light = list(df_trafic_light.keys())
 
         for i in range (0,int(len(df_colnames)),2):
         	#print('There are',int(len(list(df_temp.keys()))/2),'lines to plot')
         	x_vect=df_temp[df_colnames[i]]
         	y_vect=df_temp[df_colnames[i+1]]
+            
+            #Load trafic light color
+            trafic_light_invid_color=df_colnames_trafic_light[i]
+            
+            #Define the color in which to display the ice lens
+            if (trafic_light_invid_color[0:3]=='gre'):
+                color_to_display='green'
+                color_code=1
+            elif (trafic_light_invid_color[0:3]=='ora'):
+                color_to_display='orange'
+                color_code=0
+            elif (trafic_light_invid_color[0:3]=='red'):
+                color_to_display='red'
+                color_code=-1
+            else:
+                print('The color is not known!')
         	
         	#Display ice lens
-        	ax_plot.plot(x_vect,y_vect,color='blue',linestyle='dashed',linewidth=0.3)
+        	ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.3)
     
     #pdb.set_trace()
     
@@ -455,11 +477,6 @@ all_2002_3_flightlines = pickle.load(f_flightlines)
 f_flightlines.close()
 ################# Load 2002-2003 flightlines coordinates ################
 
-#################### Load 2002-2003 flightlines color ###################
-filename_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
-trafic_light=pd.read_excel(filename_excel, sheet_name=None,header=1)
-#################### Load 2002-2003 flightlines color ###################
-
 lat_all=[]
 lon_all=[]
 
@@ -499,10 +516,6 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
                 lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
                 colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
-
-red_icelenses=
-
-
 ################### Load 2002-2003 ice lenses location ##################
 
 ################### Load 2010-2014 ice slabs location ##################
@@ -560,7 +573,8 @@ f.close()
 
 #Open and read the excel file having the ice lenses/slabs in it
 filename_icelenses='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
-xls_icelenses = pd.read_excel(filename_icelenses, sheet_name=None,header=1)
+xls_icelenses = pd.read_excel(filename_icelenses, sheet_name=None,header=2)
+trafic_light=pd.read_excel(filename_excel, sheet_name=None,header=1)
 
 #Specify the general path name
 path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
@@ -572,7 +586,7 @@ folder_day='may11'
 indiv_file='may11_03_1_aggregated' #From down to up: OK!
 ax_nb=2
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
+plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
 
 #pdb.set_trace()
 #Plot date 2
@@ -581,7 +595,7 @@ folder_day='jun04'
 indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
 ax_nb=3
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
+plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
 
 #Plot date 3
 folder_year='2003'
@@ -589,7 +603,7 @@ folder_day='may12'
 indiv_file='may12_03_36_aggregated' #From up to down: need reversing! Already fone, OK!
 ax_nb=4
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
+plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
 
 #pdb.set_trace()
 #Plot date 4
@@ -598,7 +612,7 @@ folder_day='may11'
 indiv_file='may11_03_29_aggregated' #High elevation, no need: OK!
 ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses)
+plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
 
 #Plot all the 2002-2003 icelenses according to their condifence color
 #1. Red
