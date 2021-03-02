@@ -406,9 +406,9 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         	y_vect=df_temp[df_colnames[i+1]]
         	
         	#Display ice lens
-        	ax_plot.plot(x_vect,y_vect,color='red',linestyle='dashed',linewidth=0.3)
+        	ax_plot.plot(x_vect,y_vect,color='blue',linestyle='dashed',linewidth=0.3)
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
@@ -512,7 +512,7 @@ lat_3413_MacFerrin=points[1]
 
 #Prepare plot
 fig = plt.figure(figsize=(19,10))
-fig.suptitle('Work in progress')
+fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
 gs = gridspec.GridSpec(10, 20)
 gs.update(wspace=0.1)
 ax1 = plt.subplot(gs[0:10, 10:20])
@@ -525,7 +525,7 @@ ax5 = plt.subplot(gs[7:9, 0:10])
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm)
 #cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
 #ax1.grid()
-ax1.set_title('Ice lenses and slabs mapping',fontsize=5)
+ax1.set_title('Ice lenses and slabs location',fontsize=5)
 
 #Plot all the 2002-2003 flightlines
 ax1.scatter(lon_all, lat_all,s=0.1,color='lightgrey')
@@ -590,6 +590,15 @@ plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,ind
 #Plot all the 2002-2003 icelenses
 ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
 
+#Zoom on SW Greenland
+ax1.set_xlim(-380100,106800)
+ax1.set_ylim(-2810000,-2215200)
+
+#Save the figure
+fig_name=[]
+fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
+plt.savefig(fig_name,dpi=500)
+
 #Plot the whole GrIS 2002-2003 radar tracks
 #Prepare plot
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
@@ -598,13 +607,23 @@ fig.suptitle('2002-2003 radar overview')
 #Display elevation
 cb=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm)
 cbar=fig.colorbar(cb, ax=[ax1], location='left')
-cbar.set_label('Elevation [m]', fontsize=5)
+cbar.set_label('Elevation [m]')#, fontsize=5)
 
 #Plot all the 2002-2003 flightlines
-ax1.scatter(lon_all, lat_all,s=0.1,color='lightgrey')
+ax1.scatter(lon_all, lat_all,s=0.01,color='lightgrey')
 
 #Plot all the 2002-2003 icelenses
-ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.1,color='slateblue')
+ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.01,color='slateblue')
 
 #Plot all the 2002-2003 icelenses
-ax1.scatter(lon_icelens, lat_icelens,s=0.1,color='blue')
+ax1.scatter(lon_icelens, lat_icelens,s=0.01,color='blue')
+
+#Correct zoom
+ax1.set_xlim(-650000,900000)
+ax1.set_ylim(-3360000,-650000)
+plt.show()
+
+#Save the figure
+fig_name=[]
+fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
+plt.savefig(fig_name,dpi=500)
