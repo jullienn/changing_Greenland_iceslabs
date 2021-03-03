@@ -616,10 +616,10 @@ ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1]
 ax1.set_xlim(-380100,106800)
 ax1.set_ylim(-2810000,-2215200)
 
-#Save the figure
-fig_name=[]
-fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-plt.savefig(fig_name,dpi=500)
+##Save the figure
+#fig_name=[]
+#fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
+#plt.savefig(fig_name,dpi=500)
 
 #Plot the whole GrIS 2002-2003 radar tracks
 #Prepare plot
@@ -650,7 +650,7 @@ ax1.set_xlim(-650000,900000)
 ax1.set_ylim(-3360000,-650000)
 plt.show()
 
-#Save the figure
-fig_name=[]
-fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
-plt.savefig(fig_name,dpi=500)
+##Save the figure
+#fig_name=[]
+#fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
+#plt.savefig(fig_name,dpi=500)
