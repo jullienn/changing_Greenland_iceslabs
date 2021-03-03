@@ -133,11 +133,11 @@ if __name__ == '__main__':
     #perc_2p5_97p5 perc_5_95
     technique='perc_2p5_97p5'
     #perc_2p5_97p5
-    identification='TRUE'
+    identification='FALSE'
     build_coord_2002_3_file='FALSE'
-    build_coord_2002_3_icelens_file='FALSE'
+    build_coord_2002_3_icelens_file='TRUE'
     
-    file_to_investigate='may09_03_30_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
+    #file_to_investigate='may09_03_30_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
     
     if (identification == 'FALSE'):
         #Read the excel file:
@@ -554,10 +554,10 @@ if __name__ == '__main__':
                     metadata_coord_lens[folder_year][folder_day]={k: {} for k in list(onlyfiles)}
                 
                 for indiv_file in onlyfiles:
-                    if (not(indiv_file == file_to_investigate)):
-                        continue
-                    else:
-                        print('working on file:',indiv_file)
+                    #if (not(indiv_file == file_to_investigate)):
+                    #    continue
+                    #else:
+                    #    print('working on file:',indiv_file)
                     
                     #If indiv_file is the quality file, continue
                     if (indiv_file[0:7]==('quality')):
@@ -827,14 +827,17 @@ if __name__ == '__main__':
                                     
                                     #Define the color in which to display the ice lens
                                     if (trafic_light_invid_color[0:3]=='gre'):
-                                        color_to_display='green'
+                                        color_to_display='#238b45'
                                         color_code=1
                                     elif (trafic_light_invid_color[0:3]=='ora'):
-                                        color_to_display='orange'
+                                        color_to_display='#fd8d3c'
                                         color_code=0
                                     elif (trafic_light_invid_color[0:3]=='red'):
-                                        color_to_display='red'
+                                        color_to_display='#fed976'
                                         color_code=-1
+                                    elif (trafic_light_invid_color[0:3]=='pur'):
+                                        color_to_display='purple'
+                                        color_code=2
                                     else:
                                         print('The color is not known!')
                                     
@@ -908,7 +911,7 @@ if __name__ == '__main__':
                                 #pdb.set_trace()
                                 ##Create the figure name
                                 fig_name=[]
-                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/final_new_ice_lenses_identification_'+indiv_file+'.png'
+                                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/ice_lenses_identification_'+indiv_file+'.png'
                                 
                                 #Save the figure
                                 plt.savefig(fig_name,dpi=500)
