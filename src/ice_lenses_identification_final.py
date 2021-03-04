@@ -133,11 +133,11 @@ if __name__ == '__main__':
     #perc_2p5_97p5 perc_5_95
     technique='perc_2p5_97p5'
     #perc_2p5_97p5
-    identification='TRUE'
+    identification='FALSE'
     build_coord_2002_3_file='FALSE'
-    build_coord_2002_3_icelens_file='FALSE'
+    build_coord_2002_3_icelens_file='TRUE'
     
-    file_to_investigate='may14_03_1_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
+    #file_to_investigate='may15_03_9_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
     
     if (identification == 'FALSE'):
         #Read the excel file:
@@ -554,10 +554,10 @@ if __name__ == '__main__':
                     metadata_coord_lens[folder_year][folder_day]={k: {} for k in list(onlyfiles)}
                 
                 for indiv_file in onlyfiles:
-                    if (not(indiv_file == file_to_investigate)):
-                        continue
-                    else:
-                        print('working on file:',indiv_file)
+                    #if (not(indiv_file == file_to_investigate)):
+                    #    continue
+                    #else:
+                    #    print('working on file:',indiv_file)
                     
                     #If indiv_file is the quality file, continue
                     if (indiv_file[0:7]==('quality')):
