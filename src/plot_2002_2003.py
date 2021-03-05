@@ -503,8 +503,16 @@ lat_all=[]
 lon_all=[]
 elev_all=[]
 
+elevation_dictionnary = {k: {} for k in list(['2002','2003'])}
+
 for year in list(all_2002_3_flightlines.keys()):
+    
+    elevation_dictionnary[year]={k: {} for k in list(all_2002_3_flightlines[year].keys())}
+    
     for days in list(all_2002_3_flightlines[year].keys()):
+        
+        elevation_dictionnary[year][days]={k: {} for k in list(all_2002_3_flightlines[year][days].keys())}
+        
         for indiv_file in list(all_2002_3_flightlines[year][days].keys()):
             if (indiv_file[0:7]=='quality'):
                 continue
@@ -525,6 +533,7 @@ for year in list(all_2002_3_flightlines.keys()):
                 latlon_tuple=[]
                 latlon_tuple=list(zip(lon_elev,lat_elev))
                 
+                elev_indiv_file=[]
                 for indiv_coord in latlon_tuple:
                     if (np.isnan(indiv_coord[0]) or np.isnan(indiv_coord[1])):
                         elev_all=np.append(elev_all,np.nan)
@@ -538,8 +547,12 @@ for year in list(all_2002_3_flightlines.keys()):
                         elif (indiv_coord[0]>0):
                             # if x positive
                             col = index_lon_zero+int((indiv_coord[0]-0) / pixelWidth)
-                        #Calculate elevation
+                        #Read the elevation
                         elev_all=np.append(elev_all,data_dem[row][col])
+                        elev_indiv_file=np.append(elev_indiv_file,data_dem[row][col])
+                
+                #Store data into the dictionnary
+                elevation_dictionnary[year][days][indiv_file]=elev_indiv_file
 pdb.set_trace()
 ################# Load 2002-2003 flightlines coordinates ################
 
