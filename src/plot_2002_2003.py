@@ -724,4 +724,3 @@ for point in test_tuple:
     print(row,col, data[row][col])
     #Not the correct elevation, investigate why!!
 
-    
