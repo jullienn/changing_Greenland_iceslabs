@@ -501,7 +501,7 @@ index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
 
 lat_all=[]
 lon_all=[]
-elev_all=[]
+#elev_all=[]
 
 elevation_dictionnary = {k: {} for k in list(['2002','2003'])}
 
@@ -536,7 +536,8 @@ for year in list(all_2002_3_flightlines.keys()):
                 elev_indiv_file=[]
                 for indiv_coord in latlon_tuple:
                     if (np.isnan(indiv_coord[0]) or np.isnan(indiv_coord[1])):
-                        elev_all=np.append(elev_all,np.nan)
+                        #elev_all=np.append(elev_all,np.nan)
+                        elev_indiv_file=np.append(elev_indiv_file,np.nan)
                     else:
                         #The origin is top left corner!!
                         #y will always be negative
@@ -548,7 +549,7 @@ for year in list(all_2002_3_flightlines.keys()):
                             # if x positive
                             col = index_lon_zero+int((indiv_coord[0]-0) / pixelWidth)
                         #Read the elevation
-                        elev_all=np.append(elev_all,data_dem[row][col])
+                        #elev_all=np.append(elev_all,data_dem[row][col])
                         elev_indiv_file=np.append(elev_indiv_file,data_dem[row][col])
                 
                 #Store data into the dictionnary
