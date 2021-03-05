@@ -470,8 +470,38 @@ all_2002_3_flightlines = pickle.load(f_flightlines)
 f_flightlines.close()
 ################# Load 2002-2003 flightlines coordinates ################
 
+############################ Load DEM information ############################
+#Extract elevation from DEM to associated with coordinates. This piece of code
+#is from https://gis.stackexchange.com/questions/221292/retrieve-pixel-value-with-geographic-coordinate-as-input-with-gdal
+driver = gdal.GetDriverByName('GTiff')
+filename_raster = "C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif" #path to raster
+
+dataset_dem = gdal.Open(filename_raster)
+band = dataset_dem.GetRasterBand(1)
+
+cols = dataset_dem.RasterXSize
+rows = dataset_dem.RasterYSize
+
+transform_elev = dataset_dem.GetGeoTransform()
+
+xOrigin = transform_elev[0]
+yOrigin = transform_elev[3]
+pixelWidth = transform_elev[1]
+pixelHeight = -transform_elev[5]
+
+data_dem = band.ReadAsArray(0, 0, cols, rows)
+
+#Define ther zero for longitude:
+#Where lon==0 is in may09_03_15:
+    #lon[886]=23.53372773084396 and lon[887]=-40.08804568537925
+    #lat[886]=-3120053.856912824, lat[887]=-3120048.666364133
+avg_lon_zero=(23.53372773084396+-40.08804568537925)/2
+index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
+############################ Load DEM information ############################
+
 lat_all=[]
 lon_all=[]
+elev_all=[]
 
 for year in list(all_2002_3_flightlines.keys()):
     for days in list(all_2002_3_flightlines[year].keys()):
@@ -479,9 +509,38 @@ for year in list(all_2002_3_flightlines.keys()):
             if (indiv_file[0:7]=='quality'):
                 continue
             else:
+                print(indiv_file)
                 lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
                 lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
-
+                #Extract the elevation:
+                lat_elev=[]
+                lon_elev=[]
+                if (days=='jun04'):
+                    lat_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][0])
+                    lon_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][1])
+                else:
+                    lat_elev=all_2002_3_flightlines[year][days][indiv_file][0]
+                    lon_elev=all_2002_3_flightlines[year][days][indiv_file][1]
+                
+                latlon_tuple=[]
+                latlon_tuple=list(zip(lon_elev,lat_elev))
+                
+                for indiv_coord in latlon_tuple:
+                    if (np.isnan(indiv_coord[0]) or np.isnan(indiv_coord[1])):
+                        elev_all=np.append(elev_all,np.nan)
+                    else:
+                        #The origin is top left corner!!
+                        #y will always be negative
+                        row = int((yOrigin - indiv_coord[1] ) / pixelHeight)
+                        if (indiv_coord[0]<0):
+                            # if x negative
+                            col = index_lon_zero-int((-indiv_coord[0]-0) / pixelWidth)
+                        elif (indiv_coord[0]>0):
+                            # if x positive
+                            col = index_lon_zero+int((indiv_coord[0]-0) / pixelWidth)
+                        #Calculate elevation
+                        elev_all=np.append(elev_all,data_dem[row][col])
+pdb.set_trace()
 ################# Load 2002-2003 flightlines coordinates ################
 
 ################### Load 2002-2003 ice lenses location ##################
@@ -527,7 +586,6 @@ lat_3413_MacFerrin=points[1]
 ################### Load 2010-2014 ice slabs location ##################
 
 ################################### Plot ##################################
-
 #Prepare plot
 fig = plt.figure(figsize=(19,10))
 fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
@@ -661,66 +719,3 @@ plt.show()
 #fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
 #plt.savefig(fig_name,dpi=500)
-
-
-
-#Extract elevation from DEM to associated with coordinates. This piece of code
-#is from https://gis.stackexchange.com/questions/221292/retrieve-pixel-value-with-geographic-coordinate-as-input-with-gdal
-
-driver = gdal.GetDriverByName('GTiff')
-filename_raster = "C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif" #path to raster
-
-dataset = gdal.Open(filename_raster)
-band = dataset.GetRasterBand(1)
-
-cols = dataset.RasterXSize
-rows = dataset.RasterYSize
-
-transform = dataset.GetGeoTransform()
-
-xOrigin = transform[0]
-yOrigin = transform[3]
-pixelWidth = transform[1]
-pixelHeight = -transform[5]
-
-data = band.ReadAsArray(0, 0, cols, rows)
-
-#points_list = [ (355278.165927, 4473095.13829), (355978.319525, 4472871.11636) ] #list of X,Y coordinates
-pdb.set_trace()
-
-#if not june04:
-#lat_test=all_2002_3_flightlines['2003']['may12']['may12_03_36_aggregated'][0]
-#lon_test=all_2002_3_flightlines['2003']['may12']['may12_03_36_aggregated'][1]
-
-#else:
-lat_test=np.transpose(all_2002_3_flightlines['2002']['jun04']['jun04_02proc_4.mat'][0])
-lon_test=np.transpose(all_2002_3_flightlines['2002']['jun04']['jun04_02proc_4.mat'][1])
-
-test_tuple=list(zip(lon_test,lat_test))
-
-#Where lon==0 is in may09_03_15:
-    #lon[886]=23.53372773084396 and lon[887]=-40.08804568537925
-    #lat[886]=-3120053.856912824, lat[887]=-3120048.666364133
-avg_lon_zero=(23.53372773084396+-40.08804568537925)/2
-index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
-
-test_elev=[]
-
-pdb.set_trace()
-for point in test_tuple:
-    #pdb.set_trace()
-    #The origin is top left corner!!
-    #y will always be negative
-    row = int((yOrigin - point[1] ) / pixelHeight)
-    if (point[0]<0):
-        # if x negative
-        col = index_lon_zero-int((-point[0]-0) / pixelWidth)
-    elif (point[0]>0):
-        # if x positive
-        col = index_lon_zero+int((point[0]-0) / pixelWidth)
-    #pdb.set_trace()
-    #Calculate elevation
-    test_elev=np.append(test_elev,data[row][col])
-    print(row,col, data[row][col])
-    #Not the correct elevation, investigate why!!
-
