@@ -229,7 +229,7 @@ def discrete_cmap(N, base_cmap=None):
 ##############################################################################
 
 
-def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light):
+def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
     #pdb.set_trace()
     
     #Define the uppermost and lowermost limits
@@ -424,13 +424,22 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
             #Display ice lens
             ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.5)
     
+    #Load the elevation profile
+    elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
+    pdb.set_trace()
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
+        #plot the reversed elevation profile
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector))
     
-    if (indiv_file in list(list_reverse_mat)):
+    elif (indiv_file in list(list_reverse_mat)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
-    
+        #plot the the reversed elevation profile
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector))
+    else:
+        #plot the elevation profile
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector)
     return
 
 #Import packages
@@ -605,11 +614,13 @@ fig = plt.figure(figsize=(19,10))
 fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
 gs = gridspec.GridSpec(10, 20)
 gs.update(wspace=0.1)
+gs.update(wspace=0.001)
 ax1 = plt.subplot(gs[0:10, 10:20])
-ax2 = plt.subplot(gs[1:3, 0:10])
-ax3 = plt.subplot(gs[3:5, 0:10])
-ax4 = plt.subplot(gs[5:7, 0:10])
-ax5 = plt.subplot(gs[7:9, 0:10])
+ax2 = plt.subplot(gs[0:2, 0:10])
+ax3 = plt.subplot(gs[2:4, 0:10])
+ax4 = plt.subplot(gs[4:6, 0:10])
+ax5 = plt.subplot(gs[6:8, 0:10])
+ax6 = plt.subplot(gs[8:10, 0:10])
 
 #Display elevation
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm,alpha=0.5)
@@ -651,7 +662,7 @@ folder_day='may11'
 indiv_file='may11_03_1_aggregated' #From down to up: OK!
 ax_nb=2
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
+plot_radar_slice(ax1,ax2,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
 #pdb.set_trace()
 #Plot date 2
@@ -660,7 +671,7 @@ folder_day='jun04'
 indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
 ax_nb=3
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
+plot_radar_slice(ax1,ax3,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
 #Plot date 3
 folder_year='2003'
@@ -668,7 +679,7 @@ folder_day='may12'
 indiv_file='may12_03_36_aggregated' #From up to down: need reversing! Already fone, OK!
 ax_nb=4
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
+plot_radar_slice(ax1,ax4,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
 #pdb.set_trace()
 #Plot date 4
@@ -677,7 +688,7 @@ folder_day='may11'
 indiv_file='may11_03_29_aggregated' #High elevation, no need: OK!
 ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light)
+plot_radar_slice(ax1,ax5,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
 #Plot all the 2002-2003 icelenses according to their confidence color 
 #1. Red
@@ -693,6 +704,11 @@ ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2]
 ax1.set_xlim(-380100,106800)
 ax1.set_ylim(-2810000,-2215200)
 
+#Custom elevation plot
+ax6.set_ylabel('Elevation [m]')
+ax6.set_xticks([])
+ax6.grid()
+ax6.xlim(0,1000)
 ##Save the figure
 #fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
