@@ -416,6 +416,8 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
                 color_to_display='#fd8d3c'
             elif (trafic_light_indiv_color[0:3]=='red'):
                 color_to_display='#fed976'
+            elif (trafic_light_indiv_color[0:3]=='pur'):
+                color_to_display='purple'
             else:
                 print('The color is not known!')
             
@@ -446,6 +448,7 @@ import numpy as np
 from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import scipy.io
+from osgeo import gdal
 
 technique='perc_2p5_97p5'
 making_down_to_up='FALSE'
@@ -611,6 +614,8 @@ ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-
 ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fd8d3c', edgecolors='none')
 #3. Green
 ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
+#Purple
+ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
 
 #Zoom on SW Greenland
 ax1.set_xlim(-380100,106800)
@@ -644,6 +649,8 @@ ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-
 ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fd8d3c', edgecolors='none')
 #3. Green
 ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
+#Purple
+ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
 
 #Correct zoom
 ax1.set_xlim(-650000,900000)
@@ -654,3 +661,67 @@ plt.show()
 #fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
 #plt.savefig(fig_name,dpi=500)
+
+
+
+#Extract elevation from DEM to associated with coordinates. This piece of code
+#is from https://gis.stackexchange.com/questions/221292/retrieve-pixel-value-with-geographic-coordinate-as-input-with-gdal
+
+driver = gdal.GetDriverByName('GTiff')
+filename_raster = "C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif" #path to raster
+
+dataset = gdal.Open(filename_raster)
+band = dataset.GetRasterBand(1)
+
+cols = dataset.RasterXSize
+rows = dataset.RasterYSize
+
+transform = dataset.GetGeoTransform()
+
+xOrigin = transform[0]
+yOrigin = transform[3]
+pixelWidth = transform[1]
+pixelHeight = -transform[5]
+
+data = band.ReadAsArray(0, 0, cols, rows)
+
+#points_list = [ (355278.165927, 4473095.13829), (355978.319525, 4472871.11636) ] #list of X,Y coordinates
+pdb.set_trace()
+
+#if not june04:
+#lat_test=all_2002_3_flightlines['2003']['may12']['may12_03_36_aggregated'][0]
+#lon_test=all_2002_3_flightlines['2003']['may12']['may12_03_36_aggregated'][1]
+
+#else:
+lat_test=np.transpose(all_2002_3_flightlines['2002']['jun04']['jun04_02proc_4.mat'][0])
+lon_test=np.transpose(all_2002_3_flightlines['2002']['jun04']['jun04_02proc_4.mat'][1])
+
+test_tuple=list(zip(lon_test,lat_test))
+
+#Where lon==0 is in may09_03_15:
+    #lon[886]=23.53372773084396 and lon[887]=-40.08804568537925
+    #lat[886]=-3120053.856912824, lat[887]=-3120048.666364133
+avg_lon_zero=(23.53372773084396+-40.08804568537925)/2
+index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
+
+test_elev=[]
+
+pdb.set_trace()
+for point in test_tuple:
+    #pdb.set_trace()
+    #The origin is top left corner!!
+    #y will always be negative
+    row = int((yOrigin - point[1] ) / pixelHeight)
+    if (point[0]<0):
+        # if x negative
+        col = index_lon_zero-int((-point[0]-0) / pixelWidth)
+    elif (point[0]>0):
+        # if x positive
+        col = index_lon_zero+int((point[0]-0) / pixelWidth)
+    #pdb.set_trace()
+    #Calculate elevation
+    test_elev=np.append(test_elev,data[row][col])
+    print(row,col, data[row][col])
+    #Not the correct elevation, investigate why!!
+
+    
