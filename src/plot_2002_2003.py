@@ -230,7 +230,6 @@ def discrete_cmap(N, base_cmap=None):
 
 
 def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
-    #pdb.set_trace()
     
     #Define the uppermost and lowermost limits
     meters_cutoff_above=0
@@ -313,7 +312,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
                 suggested_pixel=int(date_pix.partition(" ")[2])
                 #If it has found its suggested pixel, leave the loop
                 continue
-    #pdb.set_trace()
+
     surface_indices=kernel_function(radar_echo, suggested_pixel)
     
     #Get our slice (30 meters as currently set)
@@ -363,32 +362,53 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     ax_plot.set_aspect('equal') # X scale matches Y scale
     #ax_plot.set_xlabel('Horizontal distance')
     
-    #remove xtick
-    ax_plot.set_xticks([])
-    
     #Colorbar custom
     cb2.set_clim(perc_lower_end,perc_upper_end)
     #cbar2=fig.colorbar(cb2, ax=[ax_plot], location='left')
     #cbar2.set_label('Signal strength')
     
+    #Set the y ticks
     ax_plot.set_yticks(ticks_yplot) 
     ax_plot.set_yticklabels(np.round(depths[ticks_yplot]))
     
+    #Set the x ticks
+    #remove xtick
+    #ax_plot.set_xticks([])
+    
+    #Distance from start of the trace
     if (ax_nb==2):
         ax_plot.set_title('Ablation zone',fontsize=10)
         ax_plot.set_ylabel('Depth [m]')
+        
+        #Display the correspondance between radar slice and radar location on the map
+        ax_plot.text(0,99,'a',color='black',fontsize=20)
+        #Display on the map the letter corresponding to the radar slice
+        ax_map.text(np.nanmedian(lon_3413)-10000,np.nanmedian(lat_3413),'a',color='black',fontsize=15)
+    
     elif (ax_nb==3):
         ax_plot.set_title('Percolation zone - ice lenses',fontsize=10)
-        #Remove ytick label
-        #ax_plot.set_yticklabels([])
+        
+        #Display the correspondance between radar slice and radar location on the map
+        ax_plot.text(1000,99,'b',color='black',fontsize=20)
+        #Display on the map the letter corresponding to the radar slice
+        ax_map.text(np.nanmedian(lon_3413)-5000,np.nanmedian(lat_3413)+5000,'b',color='black',fontsize=15)
+    
     elif (ax_nb==4):
         ax_plot.set_title('Percolation zone - ice slabs',fontsize=10)
-        #Remove ytick label
-        #ax_plot.set_yticklabels([])
+        
+        #Display the correspondance between radar slice and radar location on the map
+        ax_plot.text(1000,99,'c',color='black',fontsize=20)
+        #Display on the map the letter corresponding to the radar slice
+        ax_map.text(np.nanmedian(lon_3413),np.nanmedian(lat_3413)+4000,'c',color='black',fontsize=15)
+    
     elif (ax_nb==5):
         ax_plot.set_title('Dry snow zone',fontsize=10)
-        #Remove ytick label
-        #ax_plot.set_yticklabels([])
+        
+        #Display the correspondance between radar slice and radar location on the map
+        ax_plot.text(0,99,'d',color='black',fontsize=20)
+        #Display on the map the letter corresponding to the radar slice
+        ax_map.text(np.nanmedian(lon_3413)-11000,np.nanmedian(lat_3413),'d',color='black',fontsize=15)
+    
     
     #Display the ice lenses identification:
     #pdb.set_trace()
@@ -426,7 +446,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
-    pdb.set_trace()
+    #pdb.set_trace()
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
@@ -440,6 +460,10 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     else:
         #plot the elevation profile
         ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector)
+    
+    #Display start and end elevation
+    #ax_plot.text(0,5,str(elev_to_plot),color='white')
+
     return
 
 #Import packages
@@ -469,6 +493,8 @@ elevDem=grid.dem[:-1,:-1]
 #Scale the colormap
 divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 ########################## Load GrIS elevation ##########################
+
+pdb.set_trace()
 
 ################# Load 2002-2003 flightlines coordinates ################
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
@@ -563,8 +589,10 @@ for year in list(all_2002_3_flightlines.keys()):
                 
                 #Store data into the dictionnary
                 elevation_dictionnary[year][days][indiv_file]=elev_indiv_file
-pdb.set_trace()
+                
 ################# Load 2002-2003 flightlines coordinates ################
+
+pdb.set_trace()
 
 ################### Load 2002-2003 ice lenses location ##################
 #Open the file and read it
@@ -592,6 +620,7 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
 ################### Load 2002-2003 ice lenses location ##################
 
+pdb.set_trace()
 ################### Load 2010-2014 ice slabs location ##################
 #Load the data
 filename_MacFerrin= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/MacFerrin_etal2019_iceslabs.xlsx'
@@ -622,8 +651,10 @@ ax4 = plt.subplot(gs[4:6, 0:10])
 ax5 = plt.subplot(gs[6:8, 0:10])
 ax6 = plt.subplot(gs[8:10, 0:10])
 
+pdb.set_trace()
+
 #Display elevation
-cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm,alpha=0.5)
+cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 #cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
 #ax1.grid()
 ax1.set_title('Ice lenses and slabs location',fontsize=5)
@@ -708,7 +739,7 @@ ax1.set_ylim(-2810000,-2215200)
 ax6.set_ylabel('Elevation [m]')
 ax6.set_xticks([])
 ax6.grid()
-ax6.xlim(0,1000)
+ax6.set_xlim(0,1000)
 ##Save the figure
 #fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
