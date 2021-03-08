@@ -382,36 +382,39 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
         ax_plot.set_ylabel('Depth [m]')
         ax_plot.set_xlabel('Distance [km]')
         
+        letter_elev='a'
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(0,99,'a',color='black',fontsize=20)
+        ax_plot.text(0,99,letter_elev,color='black',fontsize=20)
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413)-10000,np.nanmedian(lat_3413),'a',color='black',fontsize=15)
     
     elif (ax_nb==3):
         ax_plot.set_title('Percolation zone - ice lenses',fontsize=10)
         
+        letter_elev='b'
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(1000,99,'b',color='black',fontsize=20)
+        ax_plot.text(1000,99,letter_elev,color='black',fontsize=20)
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413)-5000,np.nanmedian(lat_3413)+5000,'b',color='black',fontsize=15)
     
     elif (ax_nb==4):
         ax_plot.set_title('Percolation zone - ice slabs',fontsize=10)
         
+        letter_elev='c'
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(1000,99,'c',color='black',fontsize=20)
+        ax_plot.text(1000,99,letter_elev,color='black',fontsize=20)
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413),np.nanmedian(lat_3413)+4000,'c',color='black',fontsize=15)
     
     elif (ax_nb==5):
         ax_plot.set_title('Dry snow zone',fontsize=10)
         
+        letter_elev='d'
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(1000,99,'d',color='black',fontsize=20)
+        ax_plot.text(1000,99,letter_elev,color='black',fontsize=20)
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413)-11000,np.nanmedian(lat_3413),'d',color='black',fontsize=15)
         
-    
     #Display the ice lenses identification:
     #pdb.set_trace()
 
@@ -464,19 +467,19 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     if (indiv_file in list(list_reverse_agg)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
         #plot the reversed elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector))
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector),color='black')
         #Reverse the distances vector:
         distances=np.flipud(distances)
         
     elif (indiv_file in list(list_reverse_mat)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
         #plot the the reversed elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector))
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector),color='black')
         #Reverse the distances vector:
         distances=np.flipud(distances)
     else:
         #plot the elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector)
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector,color='black')
     
     #Generate the pick for horizontal distance display
     ticks_xplot=np.arange(0,distances.shape[0]+1,100)
@@ -487,6 +490,20 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     #Display the distances from the origin as being the x label
     ax_plot.set_xticklabels(np.round(distances[ticks_xplot]))
     
+    #Define the elevation to plot the letter
+    if (ax_nb==2):
+        #Display which elevation line correspond to which trace
+        ax_elevation.text(950,elevation_vector[950]-150,letter_elev)
+    elif (ax_nb==3):
+        #Display which elevation line correspond to which trace
+        ax_elevation.text(950,elevation_vector[50]-150,letter_elev)
+    elif (ax_nb==4):
+        #Display which elevation line correspond to which trace
+        ax_elevation.text(950,elevation_vector[50]-150,letter_elev)
+    elif (ax_nb==5):
+        #Display which elevation line correspond to which trace
+        ax_elevation.text(950,elevation_vector[50]-150,letter_elev)
+
     return
 
 def compute_distances(eastings,northings):
@@ -769,12 +786,12 @@ ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2]
 ax1.set_xlim(-380100,106800)
 ax1.set_ylim(-2810000,-2215200)
 
-pdb.set_trace()
 #Custom ylabel
 ax6.set_ylim(950,2600)
 start_ytick_elev, end_ytick_elev = ax6.get_ylim()
 ax6.yaxis.set_ticks(np.arange(start_ytick_elev, end_ytick_elev, 250))
 ax6.set_ylabel('Elevation [m]')
+
 #Custom xlabel
 ticks_xplot_elev=np.arange(0,1001,100)
 ticks_xplot_elev[-1]=999
@@ -782,6 +799,8 @@ ax6.set_xticks(ticks_xplot_elev)
 ax6.set_xticklabels([])
 ax6.set_xlim(0,1000)
 ax6.grid()
+
+
 
 ##Save the figure
 #fig_name=[]
