@@ -285,7 +285,8 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     #Define the dates that need reversed display
     list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
                        'may13_03_29_aggregated','may30_02_51_aggregated',
-                       'may24_02_25_aggregated','may15_03_37_aggregated']
+                       'may24_02_25_aggregated','may15_03_37_aggregated',
+                       'may11_03_29_aggregated']
         
     list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
     
@@ -379,6 +380,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     if (ax_nb==2):
         ax_plot.set_title('Ablation zone',fontsize=10)
         ax_plot.set_ylabel('Depth [m]')
+        ax_plot.set_xlabel('Distance [km]')
         
         #Display the correspondance between radar slice and radar location on the map
         ax_plot.text(0,99,'a',color='black',fontsize=20)
@@ -405,10 +407,10 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
         ax_plot.set_title('Dry snow zone',fontsize=10)
         
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(0,99,'d',color='black',fontsize=20)
+        ax_plot.text(1000,99,'d',color='black',fontsize=20)
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413)-11000,np.nanmedian(lat_3413),'d',color='black',fontsize=15)
-    
+        
     
     #Display the ice lenses identification:
     #pdb.set_trace()
@@ -446,25 +448,59 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
-    #pdb.set_trace()
+    
+    #Transpose if june 04
+    if (folder_day=='jun04'):
+        lat_3413=np.transpose(lat_3413)
+        lon_3413=np.transpose(lon_3413)
+    
+    #Calculate the distances (in m)
+    distances=compute_distances(lon_3413,lat_3413)
+    
+    #Convert distances from m to km
+    distances=distances/1000
+        
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
         #plot the reversed elevation profile
         ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector))
-    
+        #Reverse the distances vector:
+        distances=np.flipud(distances)
+        
     elif (indiv_file in list(list_reverse_mat)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
         #plot the the reversed elevation profile
         ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector))
+        #Reverse the distances vector:
+        distances=np.flipud(distances)
     else:
         #plot the elevation profile
         ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector)
     
-    #Display start and end elevation
-    #ax_plot.text(0,5,str(elev_to_plot),color='white')
-
+    #Generate the pick for horizontal distance display
+    ticks_xplot=np.arange(0,distances.shape[0]+1,100)
+    #Plot also the last index
+    ticks_xplot[-1]=distances.shape[0]-1
+    #Set x ticks
+    ax_plot.set_xticks(ticks_xplot) 
+    #Display the distances from the origin as being the x label
+    ax_plot.set_xticklabels(np.round(distances[ticks_xplot]))
+    
     return
+
+def compute_distances(eastings,northings):
+    #This part of code is from MacFerrin et al., 2019
+    '''Compute the distance (in m here, not km as written originally) of the traces in the file.'''
+    # C = sqrt(A^2  + B^2)
+    distances = np.power(np.power((eastings[1:] - eastings[:-1]),2) + np.power((northings[1:] - northings[:-1]),2), 0.5)
+    #Calculate the cumsum of the distances
+    cumsum_distances=np.nancumsum(distances)
+    #Seeting the first value of the cumsum to be zero as it is the origin
+    return_cumsum_distances=np.zeros(eastings.shape[0])
+    return_cumsum_distances[1:eastings.shape[0]]=cumsum_distances
+    
+    return return_cumsum_distances
 
 #Import packages
 import rasterio
@@ -651,8 +687,6 @@ ax4 = plt.subplot(gs[4:6, 0:10])
 ax5 = plt.subplot(gs[6:8, 0:10])
 ax6 = plt.subplot(gs[8:10, 0:10])
 
-pdb.set_trace()
-
 #Display elevation
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 #cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -686,7 +720,7 @@ trafic_light=pd.read_excel(filename_icelenses, sheet_name=None,header=1)
 #Specify the general path name
 path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 
-#pdb.set_trace()
+pdb.set_trace()
 #Plot date 1
 folder_year='2003'
 folder_day='may11'
@@ -735,11 +769,20 @@ ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2]
 ax1.set_xlim(-380100,106800)
 ax1.set_ylim(-2810000,-2215200)
 
-#Custom elevation plot
+pdb.set_trace()
+#Custom ylabel
+ax6.set_ylim(950,2600)
+start_ytick_elev, end_ytick_elev = ax6.get_ylim()
+ax6.yaxis.set_ticks(np.arange(start_ytick_elev, end_ytick_elev, 250))
 ax6.set_ylabel('Elevation [m]')
-ax6.set_xticks([])
-ax6.grid()
+#Custom xlabel
+ticks_xplot_elev=np.arange(0,1001,100)
+ticks_xplot_elev[-1]=999
+ax6.set_xticks(ticks_xplot_elev)
+ax6.set_xticklabels([])
 ax6.set_xlim(0,1000)
+ax6.grid()
+
 ##Save the figure
 #fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
