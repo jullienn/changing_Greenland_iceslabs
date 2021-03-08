@@ -547,8 +547,6 @@ elevDem=grid.dem[:-1,:-1]
 divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 ########################## Load GrIS elevation ##########################
 
-pdb.set_trace()
-
 ################# Load 2002-2003 flightlines coordinates ################
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
 
@@ -645,8 +643,6 @@ for year in list(all_2002_3_flightlines.keys()):
                 
 ################# Load 2002-2003 flightlines coordinates ################
 
-pdb.set_trace()
-
 ################### Load 2002-2003 ice lenses location ##################
 #Open the file and read it
 f_icelens_flightlines = open(path_data+'/metadata_coord_icelens_2002_2003_26022020', "rb")
@@ -673,7 +669,6 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
 ################### Load 2002-2003 ice lenses location ##################
 
-pdb.set_trace()
 ################### Load 2010-2014 ice slabs location ##################
 #Load the data
 filename_MacFerrin= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/MacFerrin_etal2019_iceslabs.xlsx'
@@ -737,7 +732,6 @@ trafic_light=pd.read_excel(filename_icelenses, sheet_name=None,header=1)
 #Specify the general path name
 path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 
-pdb.set_trace()
 #Plot date 1
 folder_year='2003'
 folder_day='may11'
@@ -800,17 +794,18 @@ ax6.set_xticklabels([])
 ax6.set_xlim(0,1000)
 ax6.grid()
 
+#Save the figure
+fig_name=[]
+fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
+plt.savefig(fig_name,dpi=1000)
 
 
-##Save the figure
-#fig_name=[]
-#fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-#plt.savefig(fig_name,dpi=500)
+
 
 #Plot the whole GrIS 2002-2003 radar tracks
 #Prepare plot
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('2002-2003 radar overview')
+fig.suptitle('2002-2003 ice lensing overview')
 
 #Display elevation
 cb=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm,alpha=0.5)
@@ -818,20 +813,20 @@ cbar=fig.colorbar(cb, ax=[ax1], location='left')
 cbar.set_label('Elevation [m]')#, fontsize=5)
 
 #Plot all the 2010-2014 icelenses
-ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=1,facecolors='cornflowerblue', edgecolors='none')
+ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.1,facecolors='cornflowerblue', edgecolors='none')
 
 #Plot all the 2002-2003 flightlines
-ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
+ax1.scatter(lon_all, lat_all,s=0.1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
 
 #Plot all the 2002-2003 icelenses according to their condifence color
 #1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#fed976', edgecolors='none')
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=0.1,facecolors='#fed976', edgecolors='none')
 #2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fd8d3c', edgecolors='none')
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=0.1,facecolors='#fd8d3c', edgecolors='none')
 #3. Green
-ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
+ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=0.1,facecolors='#238b45', edgecolors='none')
 #Purple
-ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
+ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=0.1,facecolors='purple', edgecolors='none')
 
 #Correct zoom
 ax1.set_xlim(-650000,900000)
@@ -839,6 +834,6 @@ ax1.set_ylim(-3360000,-650000)
 plt.show()
 
 ##Save the figure
-#fig_name=[]
-#fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
-#plt.savefig(fig_name,dpi=500)
+fig_name=[]
+fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
+plt.savefig(fig_name,dpi=1000)
