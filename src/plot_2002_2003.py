@@ -838,53 +838,71 @@ plt.show()
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
 #plt.savefig(fig_name,dpi=1000)
 
+pdb.set_trace()
+#Create the dictionary to save ice lens information
+icelens_information={k: {} for k in list(xls_icelenses.keys())}
 
 #Depth of ice lenses: use the variable 'xsl_icelenses'
 for indiv_file in list(xls_icelenses.keys()):
     print(indiv_file)
-
+    
     df_temp=xls_icelenses[indiv_file]
     df_colnames = list(df_temp.keys())
     
-    #Create the vector
-    vert_vect=np.zeros(1000)
+    #Get the storage dataframe ready
+    x_empty=np.zeros(1000)
+    x_empty[:]=np.nan
     
-    #Store that into a dataframe!
-    df_icelenses_information=pd.DataFrame({'x':vert_vect,
-                                           'y':vert_vect})
-    pdb.set_trace()
+    df_icelenses_information=pd.DataFrame({'x':x_empty,
+                                           'y':x_empty})
+    
+    #Empty gathering vectors
+    x_all=[]
+    y_all=[]
+    
     for i in range (0,int(len(df_colnames)),2):
         #Load x and y
         x_vect=df_temp[df_colnames[i]]
         y_vect=df_temp[df_colnames[i+1]]
         
-        #Identify the min and max along the horizontal distance
+        #Floor the horizontal pixels
+        x_floored=[]
         x_floored=np.floor(x_vect)
         
-        #Find the index of unique horizontal pixel
-        x_floored_unique, idx = np.unique(x_floored, return_index=True)
+        #Append x and y to gather vectors
+        x_all=np.append(x_all,x_floored)
+        y_all=np.append(y_all,y_vect)
+    
+    #Remove the nans
+    x_all=x_all[~np.isnan(x_all)]
+    y_all=y_all[~np.isnan(y_all)]
+    
+    #Find the index of unique horizontal pixel
+    x_all_unique, idx = np.unique(x_all, return_index=True)
+    
+    #Set the x_all_unique as integer
+    x_all_unique=x_all_unique.astype(int)
+    
+    #We can have several minimums for one horizontal pixel
+    for i in range (0,len(x_all_unique),1):
         
-        #We can have several minimums for one horizontal pixel
-        for i in range (x_floored_unique[0],x_floored_unique[-1],1):
-            #Find all the index having the same horizontal pixel value
-            index_element_search=np.where(x_floored == x_floored_unique[i])[0]
-            
-            #Select all the correponding vertical pixel values and keep only the deepest one
-            vert_pix=y_vect[index_element_search]
-            #Save the deepest pixel value, recover its index
-            deepest=np.nanmax(vert_pix)
-            index_deepest=np.where(vert_pix==deepest)[0]
-            #store the information in the dataframe
-            
-            
+        #Find all the index having the same horizontal pixel value
+        index_element_search=np.where(x_all == x_all_unique[i])[0]
         
-        #Take the corresponding vertical pixel with its horizontal index
-        unique_x=x_floored[np.sort(idx)]
-        vertical_position=y_vect[np.sort(idx)]
+        #Select all the correponding vertical pixel values, keep the deepest one
+        deepest=np.nanmax(y_all[index_element_search])
         
-        for i in range(unique_x[0],unique_x[-1],1):
-            #Store the corresponding in a 1000 vector
-            if (df_icelenses_information['y'][i] > np.nanmax(vertical_position[i])):
-                df_icelenses_information['y'][i] = vertical_position[i]
+        #store the information in the dataframe
+        df_icelenses_information['x'][x_all_unique[i]]=x_all_unique[i]
+        df_icelenses_information['y'][x_all_unique[i]]=deepest
         
-        
+    #Save the dataframe into a dictionnary
+    icelens_information[indiv_file]=df_icelenses_information
+
+
+
+
+
+
+
+
