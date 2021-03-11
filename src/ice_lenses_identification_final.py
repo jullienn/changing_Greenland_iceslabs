@@ -137,7 +137,7 @@ if __name__ == '__main__':
     build_coord_2002_3_file='FALSE'
     build_coord_2002_3_icelens_file='TRUE'
     
-    #file_to_investigate='may15_03_9_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
+    #file_to_investigate='may15_03_4_aggregated' #jun04_02proc_53.mat, may12_03_36, may11_03_20, jun04_02proc_52, jun04_02proc_4
     
     if (identification == 'FALSE'):
         #Read the excel file:
@@ -717,7 +717,7 @@ if __name__ == '__main__':
                         #I.d. Select the radar slice
                         #Define the uppermost and lowermost limits
                         meters_cutoff_above=0
-                        meters_cutoff_below=30
+                        meters_cutoff_below=40
                         
                         #Redefine the 'surface_indices' variable: the surface have just been picked
                         #for the depth correction, so now we want to pick from the top down to
@@ -830,10 +830,10 @@ if __name__ == '__main__':
                                         color_to_display='#238b45'
                                         color_code=1
                                     elif (trafic_light_invid_color[0:3]=='ora'):
-                                        color_to_display='#fd8d3c'
+                                        color_to_display='#fed976'
                                         color_code=0
                                     elif (trafic_light_invid_color[0:3]=='red'):
-                                        color_to_display='#fed976'
+                                        color_to_display='#c9662c'
                                         color_code=-1
                                     elif (trafic_light_invid_color[0:3]=='pur'):
                                         color_to_display='purple'

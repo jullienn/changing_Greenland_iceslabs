@@ -438,9 +438,9 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
             if (trafic_light_indiv_color[0:3]=='gre'):
                 color_to_display='#00441b'
             elif (trafic_light_indiv_color[0:3]=='ora'):
-                color_to_display='#fd8d3c'
-            elif (trafic_light_indiv_color[0:3]=='red'):
                 color_to_display='#fed976'
+            elif (trafic_light_indiv_color[0:3]=='red'):
+                color_to_display='#c9662c'
             elif (trafic_light_indiv_color[0:3]=='pur'):
                 color_to_display='purple'
             else:
@@ -768,9 +768,9 @@ plot_radar_slice(ax1,ax5,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day
 
 #Plot all the 2002-2003 icelenses according to their confidence color 
 #1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#fed976', edgecolors='none')
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#c9662c', edgecolors='none')
 #2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fd8d3c', edgecolors='none')
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fed976', edgecolors='none')
 #3. Green
 ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
 #Purple
@@ -820,9 +820,9 @@ ax1.scatter(lon_all, lat_all,s=0.1,facecolors='lightgrey', edgecolors='none',alp
 
 #Plot all the 2002-2003 icelenses according to their condifence color
 #1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=0.1,facecolors='#fed976', edgecolors='none')
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=0.1,facecolors='#c9662c', edgecolors='none')
 #2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=0.1,facecolors='#fd8d3c', edgecolors='none')
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=0.1,facecolors='#fed976', edgecolors='none')
 #3. Green
 ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=0.1,facecolors='#238b45', edgecolors='none')
 #Purple
@@ -869,9 +869,13 @@ for indiv_file in list(xls_icelenses.keys()):
         x_floored=[]
         x_floored=np.floor(x_vect)
         
+        #Floor the vertical pixels
+        y_floored=[]
+        y_floored=np.floor(y_vect)
+        
         #Append x and y to gather vectors
         x_all=np.append(x_all,x_floored)
-        y_all=np.append(y_all,y_vect)
+        y_all=np.append(y_all,y_floored)
     
     #Remove the nans
     x_all=x_all[~np.isnan(x_all)]
@@ -896,12 +900,108 @@ for indiv_file in list(xls_icelenses.keys()):
         df_icelenses_information['x'][x_all_unique[i]]=x_all_unique[i]
         df_icelenses_information['y'][x_all_unique[i]]=deepest
         
+        #Fix the issue with isolated points
+        #Define a deepermost point (e,g, 20m as MacFerrin et al., 2019)
+        
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
 
 
+#Display some traces to see if the job was done correctly
+#Prepare plot
+fig = plt.figure(figsize=(19,10))
+fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
+gs = gridspec.GridSpec(10, 20)
+gs.update(wspace=0.1)
+gs.update(wspace=0.001)
+ax1 = plt.subplot(gs[0:10, 10:20])
+ax2 = plt.subplot(gs[0:2, 0:10])
+ax3 = plt.subplot(gs[2:4, 0:10])
+ax4 = plt.subplot(gs[4:6, 0:10])
+ax5 = plt.subplot(gs[6:8, 0:10])
+ax6 = plt.subplot(gs[8:10, 0:10])
 
+#Display elevation
+cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+#cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+#ax1.grid()
+ax1.set_title('Ice lenses and slabs location',fontsize=5)
 
+#Plot all the 2010-2014 icelenses
+ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=1,facecolors='cornflowerblue', edgecolors='none')
+#ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,color='red',marker='o',alpha=0.2)
+
+#Plot all the 2002-2003 flightlines
+ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
+################################### Plot ##################################
+
+#Plot date 1
+folder_year='2003'
+folder_day='may11'
+indiv_file='may11_03_1_aggregated' #From down to up: OK!
+ax_nb=2
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax1,ax2,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+
+#pdb.set_trace()
+#Plot date 2
+folder_year='2002'
+folder_day='jun04'
+indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
+ax_nb=3
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax1,ax3,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+#Dislay the deepest ice lenses
+deepest_icelenses=icelens_information[indiv_file]
+ax3.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['y']),color='red')
+
+#Plot date 3
+folder_year='2003'
+folder_day='may12'
+indiv_file='may12_03_36_aggregated' #From up to down: need reversing! Already fone, OK!
+ax_nb=4
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax1,ax4,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+#Dislay the deepest ice lenses
+deepest_icelenses=icelens_information[indiv_file]
+ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['y']),color='red')
+
+#pdb.set_trace()
+#Plot date 4
+folder_year='2003'
+folder_day='may11'
+indiv_file='may11_03_29_aggregated' #High elevation, no need: OK!
+ax_nb=5
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax1,ax5,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+
+#Plot all the 2002-2003 icelenses according to their confidence color 
+#1. Red
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#c9662c', edgecolors='none')
+#2. Orange
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fed976', edgecolors='none')
+#3. Green
+ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
+#Purple
+ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
+
+#Zoom on SW Greenland
+ax1.set_xlim(-380100,106800)
+ax1.set_ylim(-2810000,-2215200)
+
+#Custom ylabel
+ax6.set_ylim(950,2600)
+start_ytick_elev, end_ytick_elev = ax6.get_ylim()
+ax6.yaxis.set_ticks(np.arange(start_ytick_elev, end_ytick_elev, 250))
+ax6.set_ylabel('Elevation [m]')
+
+#Custom xlabel
+ticks_xplot_elev=np.arange(0,1001,100)
+ticks_xplot_elev[-1]=999
+ax6.set_xticks(ticks_xplot_elev)
+ax6.set_xticklabels([])
+ax6.set_xlim(0,1000)
+ax6.grid()
 
 
 
