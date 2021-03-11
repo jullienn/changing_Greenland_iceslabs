@@ -859,7 +859,7 @@ icelens_information={k: {} for k in list(xls_icelenses.keys())}
 #Depth of ice lenses: use the variable 'xsl_icelenses'
 for indiv_file in list(xls_icelenses.keys()):
     print(indiv_file)
-    
+    #pdb.set_trace()
     ####################################################################
     ###    Load the data of interest to retrieve the depth vector    ###
     
@@ -956,6 +956,11 @@ for indiv_file in list(xls_icelenses.keys()):
         
         #Keep the deepest one
         deepest_pixel_index=np.nanmax(y_index)
+        
+        #If nan, continue and do not store anything
+        if np.isnan(deepest_pixel_index):
+            print('Identified ice lens all below 20m deep, continue')
+            continue
         
         #Retrieve the corresponding deepest depth
         deepest_depth=depths[deepest_pixel_index.astype(int)]
