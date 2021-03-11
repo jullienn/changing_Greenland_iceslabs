@@ -717,7 +717,7 @@ if __name__ == '__main__':
                         #I.d. Select the radar slice
                         #Define the uppermost and lowermost limits
                         meters_cutoff_above=0
-                        meters_cutoff_below=40
+                        meters_cutoff_below=30
                         
                         #Redefine the 'surface_indices' variable: the surface have just been picked
                         #for the depth correction, so now we want to pick from the top down to
