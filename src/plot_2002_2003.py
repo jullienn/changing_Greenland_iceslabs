@@ -943,7 +943,7 @@ for indiv_file in list(xls_icelenses.keys()):
     
     #We can have several minimums for one horizontal pixel
     for i in range (0,len(x_all_unique),1):
-        pdb.set_trace()
+        #pdb.set_trace()
         
         #Find all the index having the same horizontal pixel value
         index_element_search=np.where(x_all == x_all_unique[i])[0]
@@ -1031,7 +1031,7 @@ path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax3,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 #Dislay the deepest ice lenses
 deepest_icelenses=icelens_information[indiv_file]
-ax3.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth']),color='red')
+ax3.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red')
 
 #Plot date 3
 folder_year='2003'
@@ -1042,7 +1042,7 @@ path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax4,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 #Dislay the deepest ice lenses
 deepest_icelenses=icelens_information[indiv_file]
-ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth']),color='red')
+ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red')
 
 #pdb.set_trace()
 #Plot date 4
