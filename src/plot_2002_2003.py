@@ -839,6 +839,23 @@ plt.show()
 #plt.savefig(fig_name,dpi=1000)
 
 pdb.set_trace()
+#######################################################################
+###                 Identification of deepest ice lenses            ###
+#######################################################################
+
+#Time calculation
+dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
+t0 = 0; # Unknown so set to zero
+#Compute the speed (Modified Robin speed):
+# self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+
+Nt = radar_echo.shape[0]
+Time = t0 + dt*np.arange(1,Nt+1)
+#b. Calculate the depth:
+#self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+depths = v * Time / 2.0
+    
 #Create the dictionary to save ice lens information
 icelens_information={k: {} for k in list(xls_icelenses.keys())}
 
@@ -1004,5 +1021,8 @@ ax6.set_xlim(0,1000)
 ax6.grid()
 
 
+#######################################################################
+###                 Identification of deepest ice lenses            ###
+#######################################################################
 
 
