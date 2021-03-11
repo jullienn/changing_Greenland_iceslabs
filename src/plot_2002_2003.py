@@ -842,20 +842,17 @@ pdb.set_trace()
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
-
-#Time calculation
+             
+#Time calculation variables
 dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
 t0 = 0; # Unknown so set to zero
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-Nt = radar_echo.shape[0]
-Time = t0 + dt*np.arange(1,Nt+1)
-#b. Calculate the depth:
-#self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-depths = v * Time / 2.0
-    
+#Path radar data:
+path_radar_data= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
+
 #Create the dictionary to save ice lens information
 icelens_information={k: {} for k in list(xls_icelenses.keys())}
 
@@ -863,6 +860,45 @@ icelens_information={k: {} for k in list(xls_icelenses.keys())}
 for indiv_file in list(xls_icelenses.keys()):
     print(indiv_file)
     
+    ####################################################################
+    ###    Load the data of interest to retrieve the depth vector    ###
+    
+    #Define the folder_year
+    if (indiv_file[6:8]=='02'):
+        folder_year='2002'
+    elif (indiv_file[6:8]=='03'):
+        folder_year='2003'
+    else:
+        print('Problem in data!')
+    
+    path_radar_load=path_radar_data+'/'+folder_year+'/'+indiv_file[0:5]
+
+    if (indiv_file[0:5]=='jun04'):
+        fdata= scipy.io.loadmat(path_radar_load+'/'+indiv_file)
+        #Select radar echogram
+        radar_echo=fdata['data']
+    else:
+        #Open the file and read it
+        f_agg = open(path_radar_load+'/'+indiv_file, "rb")
+        data = pickle.load(f_agg)
+        f_agg.close()
+        
+        #Select radar echogram
+        radar_echo=data['radar_echogram']
+
+    #Compute the vertical resolution
+    Nt = radar_echo.shape[0]
+    Time = t0 + dt*np.arange(1,Nt+1)
+    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+    depths = v * Time / 2.0 
+    
+    ###    Load the data of interest to retrieve the depth vector    ###
+    ####################################################################
+    
+    #Identify the index corresponding to the deepest depth (i.e. 20m)
+    deepest_index=np.where(depths>20)[0][0]
+    
+    #Load ice lenses identifications
     df_temp=xls_icelenses[indiv_file]
     df_colnames = list(df_temp.keys())
     
@@ -871,7 +907,8 @@ for indiv_file in list(xls_icelenses.keys()):
     x_empty[:]=np.nan
     
     df_icelenses_information=pd.DataFrame({'x':x_empty,
-                                           'y':x_empty})
+                                           'deepest_depth_index':x_empty,
+                                           'deepest_depth':x_empty})
     
     #Empty gathering vectors
     x_all=[]
@@ -906,23 +943,47 @@ for indiv_file in list(xls_icelenses.keys()):
     
     #We can have several minimums for one horizontal pixel
     for i in range (0,len(x_all_unique),1):
+        pdb.set_trace()
         
         #Find all the index having the same horizontal pixel value
         index_element_search=np.where(x_all == x_all_unique[i])[0]
         
-        #Select all the correponding vertical pixel values, keep the deepest one
-        deepest=np.nanmax(y_all[index_element_search])
+        #Select all the correponding vertical pixel values
+        y_index=y_all[index_element_search]
         
+        #Filter out all the index larger than the deepest index (where depth>20m)
+        y_index[y_index>deepest_index]=np.nan
+        
+        #Keep the deepest one
+        deepest_pixel_index=np.nanmax(y_index)
+        
+        #Retrieve the corresponding deepest depth
+        deepest_depth=depths[deepest_pixel_index.astype(int)]
+        
+        ########################## old method ###########################
+        ##Retreive the depth. What is stored in y_all are the y coordinates, which
+        ##correspond to the index!
+        #depths_retrieval=depths[y_all[index_element_search].astype(int)]
+        #
+        ##Remove the depths deeper than 20m
+        #depths_retrieval[depths_retrieval>20]=np.nan
+        #
+        ##Retrieve the deepest depth between 0 and 20m deep:
+        #deepest_depth=np.nanmax(depths_retrieval)
+        ########################## old method ###########################
+
         #store the information in the dataframe
         df_icelenses_information['x'][x_all_unique[i]]=x_all_unique[i]
-        df_icelenses_information['y'][x_all_unique[i]]=deepest
+        df_icelenses_information['deepest_depth_index'][x_all_unique[i]]=deepest_pixel_index
+        df_icelenses_information['deepest_depth'][x_all_unique[i]]=deepest_depth
         
         #Fix the issue with isolated points
-        #Define a deepermost point (e,g, 20m as MacFerrin et al., 2019)
+
         
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
 
+pdb.set_trace()
 
 #Display some traces to see if the job was done correctly
 #Prepare plot
@@ -970,7 +1031,7 @@ path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax3,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 #Dislay the deepest ice lenses
 deepest_icelenses=icelens_information[indiv_file]
-ax3.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['y']),color='red')
+ax3.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth']),color='red')
 
 #Plot date 3
 folder_year='2003'
@@ -981,7 +1042,7 @@ path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax4,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 #Dislay the deepest ice lenses
 deepest_icelenses=icelens_information[indiv_file]
-ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['y']),color='red')
+ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth']),color='red')
 
 #pdb.set_trace()
 #Plot date 4
