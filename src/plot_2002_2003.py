@@ -838,7 +838,6 @@ plt.show()
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
 #plt.savefig(fig_name,dpi=1000)
 
-pdb.set_trace()
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
@@ -954,6 +953,16 @@ for indiv_file in list(xls_icelenses.keys()):
         #For y_index > deepest index, store the deepest index (correpond to 20m depth)
         y_index[y_index>deepest_index]=deepest_index
         
+        #Filter out the isolated index
+        #pdb.set_trace()
+        
+        for j in range(1,len(y_index)-1,1):
+            #Single jump in the middle of a lens
+            if ((y_index[j]>(y_index[j-1]+5)) and (y_index[j]>(y_index[j+1]+5))):
+                #The jumped index is 
+                y_index[j]=(y_index[j-1]+y_index[j+1])/2
+                print('Correct index')
+                
         #Keep the deepest one
         deepest_pixel_index=np.nanmax(y_index)
         
@@ -1027,7 +1036,7 @@ path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax2,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 #Dislay the deepest ice lenses
 deepest_icelenses=icelens_information[indiv_file]
-ax2.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red')
+ax2.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
 
 #pdb.set_trace()
 #Plot date 2
@@ -1039,7 +1048,7 @@ path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax3,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 #Dislay the deepest ice lenses
 deepest_icelenses=icelens_information[indiv_file]
-ax3.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red')
+ax3.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
 
 #Plot date 3
 folder_year='2003'
@@ -1050,7 +1059,7 @@ path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax4,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 #Dislay the deepest ice lenses
 deepest_icelenses=icelens_information[indiv_file]
-ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red')
+ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
 
 #pdb.set_trace()
 #Plot date 4
@@ -1062,7 +1071,7 @@ path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax5,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 #Dislay the deepest ice lenses
 deepest_icelenses=icelens_information[indiv_file]
-ax5.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red')
+ax5.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
 
 #Plot all the 2002-2003 icelenses according to their confidence color 
 #1. Red
