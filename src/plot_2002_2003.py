@@ -982,15 +982,28 @@ for indiv_file in list(xls_icelenses.keys()):
         df_icelenses_information['deepest_depth'][x_all_unique[i]]=deepest_depth
     
     pdb.set_trace()
-    #Filter out the isolated index
-    #pdb.set_trace()
-    
-    for j in range(1,len(y_index)-1,1):
-        #Single jump in the middle of a lens
-        if ((y_index[j]>(y_index[j-1]+5)) and (y_index[j]>(y_index[j+1]+5))):
-            #The jumped index is 
-            y_index[j]=(y_index[j-1]+y_index[j+1])/2 
     #Moving window averaging
+    
+    for j in range(4,len(df_icelenses_information['deepest_depth_index'])-5,1):
+        if (np.isnan(df_icelenses_information['deepest_depth_index'][j])):
+            continue
+        
+        #Define the moving window as considering -4 and +4 around it, without considering j
+        moving_window_temp=df_icelenses_information['deepest_depth_index'][j-4:j+5]
+        #Get rid of the dependance with df_icelenses_information
+        moving_window=np.asarray(list(moving_window_temp))
+        #Removing the jth element of interest
+        moving_window[4]=np.nan
+        moving_average=np.nanmean(moving_window)
+        moving_std=np.nanstd(moving_window)
+        
+        pixel_studied=df_icelenses_information['deepest_depth_index'][j]
+
+        if ((pixel_studied>(moving_average+2*moving_std)) or (pixel_studied<(moving_average-2*moving_std))):
+            #The jumped index is recalculated as a function of is neighboors
+            df_icelenses_information['deepest_depth_index'][j]=moving_average
+        
+
     
     
     #Save the dataframe into a dictionnary
