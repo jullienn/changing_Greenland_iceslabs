@@ -841,8 +841,6 @@ plt.show()
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
-
-pdb.set_trace()
          
 #Time calculation variables
 dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
@@ -1000,6 +998,8 @@ for indiv_file in list(xls_icelenses.keys()):
             #Let's first try to not bother about it
             continue
         
+        #pdb.set_trace()
+        #1. Depth index
         #Get rid of the dependance with df_icelenses_information
         moving_window=np.asarray(list(moving_window_temp))
         #Removing the jth element of interest
@@ -1007,13 +1007,20 @@ for indiv_file in list(xls_icelenses.keys()):
         moving_average=np.nanmean(moving_window)        
         moving_std=np.nanstd(moving_window)
         
+        #2. Depth
+        #Get rid of the dependance with df_icelenses_information
+        window_depth=np.asarray(list(df_icelenses_information['deepest_depth'][j-4:j+5]))
+        #Removing the jth element of interest
+        window_depth[4]=np.nan
+        moving_average_depth=np.nanmean(window_depth)
+        
         pixel_studied=df_icelenses_information['deepest_depth_index'][j]
 
         if ((pixel_studied>(moving_average+2*moving_std)) or (pixel_studied<(moving_average-2*moving_std))):
             #The jumped index is recalculated as a function of is neighboors
             #pdb.set_trace()
             df_icelenses_information['deepest_depth_index'][j]=np.round(moving_average).astype(int)
-            #df_icelenses_information['deepest_depth'][j]=np.round(np.nanmean(np.asarray(list(df_icelenses_information['deepest_depth_index'][j-4:j+5]))))
+            df_icelenses_information['deepest_depth'][j]=moving_average_depth
     
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
