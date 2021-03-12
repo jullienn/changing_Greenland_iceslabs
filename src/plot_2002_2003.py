@@ -953,16 +953,6 @@ for indiv_file in list(xls_icelenses.keys()):
         #For y_index > deepest index, store the deepest index (correpond to 20m depth)
         y_index[y_index>deepest_index]=deepest_index
         
-        #Filter out the isolated index
-        #pdb.set_trace()
-        
-        for j in range(1,len(y_index)-1,1):
-            #Single jump in the middle of a lens
-            if ((y_index[j]>(y_index[j-1]+5)) and (y_index[j]>(y_index[j+1]+5))):
-                #The jumped index is 
-                y_index[j]=(y_index[j-1]+y_index[j+1])/2
-                print('Correct index')
-                
         #Keep the deepest one
         deepest_pixel_index=np.nanmax(y_index)
         
@@ -990,10 +980,19 @@ for indiv_file in list(xls_icelenses.keys()):
         df_icelenses_information['x'][x_all_unique[i]]=x_all_unique[i]
         df_icelenses_information['deepest_depth_index'][x_all_unique[i]]=deepest_pixel_index
         df_icelenses_information['deepest_depth'][x_all_unique[i]]=deepest_depth
-        
-        #Fix the issue with isolated points
-
-        
+    
+    pdb.set_trace()
+    #Filter out the isolated index
+    #pdb.set_trace()
+    
+    for j in range(1,len(y_index)-1,1):
+        #Single jump in the middle of a lens
+        if ((y_index[j]>(y_index[j-1]+5)) and (y_index[j]>(y_index[j+1]+5))):
+            #The jumped index is 
+            y_index[j]=(y_index[j-1]+y_index[j+1])/2 
+    #Moving window averaging
+    
+    
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
 
