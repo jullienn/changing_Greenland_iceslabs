@@ -984,7 +984,6 @@ for indiv_file in list(xls_icelenses.keys()):
         df_icelenses_information['deepest_depth'][x_all_unique[i]]=deepest_depth
     
     #pdb.set_trace()
-    
     #Moving window averaging
     for j in range(4,len(df_icelenses_information['deepest_depth_index'])-5,1):
         if (np.isnan(df_icelenses_information['deepest_depth_index'][j])):
