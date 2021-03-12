@@ -1003,8 +1003,6 @@ for indiv_file in list(xls_icelenses.keys()):
             #The jumped index is recalculated as a function of is neighboors
             df_icelenses_information['deepest_depth_index'][j]=moving_average
         
-
-    
     
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
