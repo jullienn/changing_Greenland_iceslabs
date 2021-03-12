@@ -841,7 +841,9 @@ plt.show()
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
-             
+
+pdb.set_trace()
+         
 #Time calculation variables
 dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
 t0 = 0; # Unknown so set to zero
@@ -994,8 +996,10 @@ for indiv_file in list(xls_icelenses.keys()):
         #if (indiv_file=='jun04_02proc_4.mat'):
         #    pdb.set_trace()
         
-        if (np.sum(np.isnan(np.asarray(list(moving_window_temp))).astype(int))>7):
-            pdb.set_trace()
+        if (np.sum(np.isnan(np.asarray(list(moving_window_temp))).astype(int))==8):
+            #Pixel of interest is surrounded by NaNs.
+            #Let's first try to not bother about it
+            continue
         
         #Get rid of the dependance with df_icelenses_information
         moving_window=np.asarray(list(moving_window_temp))
@@ -1011,7 +1015,6 @@ for indiv_file in list(xls_icelenses.keys()):
             #pdb.set_trace()
             df_icelenses_information['deepest_depth_index'][j]=np.round(moving_average).astype(int)
             #df_icelenses_information['deepest_depth'][j]=np.round(np.nanmean(np.asarray(list(df_icelenses_information['deepest_depth_index'][j-4:j+5]))))
-
     
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
