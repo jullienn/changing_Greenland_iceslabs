@@ -951,8 +951,8 @@ for indiv_file in list(xls_icelenses.keys()):
         #Select all the correponding vertical pixel values
         y_index=y_all[index_element_search]
         
-        #Filter out all the index larger than the deepest index (where depth>20m)
-        y_index[y_index>deepest_index]=np.nan
+        #For y_index > deepest index, store the deepest index (correpond to 20m depth)
+        y_index[y_index>deepest_index]=deepest_index
         
         #Keep the deepest one
         deepest_pixel_index=np.nanmax(y_index)
@@ -1021,10 +1021,13 @@ ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha
 #Plot date 1
 folder_year='2003'
 folder_day='may11'
-indiv_file='may11_03_1_aggregated' #From down to up: OK!
+indiv_file='may11_03_12_aggregated' #From down to up: OK!
 ax_nb=2
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax2,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+#Dislay the deepest ice lenses
+deepest_icelenses=icelens_information[indiv_file]
+ax2.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red')
 
 #pdb.set_trace()
 #Plot date 2
@@ -1052,11 +1055,14 @@ ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['dee
 #pdb.set_trace()
 #Plot date 4
 folder_year='2003'
-folder_day='may11'
-indiv_file='may11_03_29_aggregated' #High elevation, no need: OK!
+folder_day='may09'
+indiv_file='may09_03_1_aggregated' #High elevation, no need: OK!
 ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax5,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+#Dislay the deepest ice lenses
+deepest_icelenses=icelens_information[indiv_file]
+ax5.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red')
 
 #Plot all the 2002-2003 icelenses according to their confidence color 
 #1. Red
