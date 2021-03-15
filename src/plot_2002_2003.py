@@ -1164,6 +1164,12 @@ for indiv_file in list(xls_icelenses.keys()):
     df_temp=xls_icelenses[indiv_file]
     df_colnames = list(df_temp.keys())
     
+    pdb.set_trace()
+    
+    #Load trafic light information
+    df_trafic_light=trafic_light[indiv_file]
+    df_colnames_trafic_light = list(df_trafic_light.keys())
+    
     #Get the storage dataframe ready
     x_empty=np.zeros(1000)
     x_empty[:]=np.nan
@@ -1175,11 +1181,15 @@ for indiv_file in list(xls_icelenses.keys()):
     #Empty gathering vectors
     x_all=[]
     y_all=[]
+    x_color=[]
     
     for i in range (0,int(len(df_colnames)),2):
         #Load x and y
         x_vect=df_temp[df_colnames[i]]
         y_vect=df_temp[df_colnames[i+1]]
+        
+        #Load trafic light color
+        trafic_light_invid_color=df_colnames_trafic_light[i]
         
         #Floor the horizontal pixels
         x_floored=[]
@@ -1189,13 +1199,29 @@ for indiv_file in list(xls_icelenses.keys()):
         y_floored=[]
         y_floored=np.floor(y_vect)
         
+        #Define the color code in which to display the ice lens
+        if (trafic_light_invid_color[0:3]=='gre'):
+            color_code=1
+        elif (trafic_light_invid_color[0:3]=='ora'):
+            color_code=0
+        elif (trafic_light_invid_color[0:3]=='red'):
+            color_code=-1
+        elif (trafic_light_invid_color[0:3]=='pur'):
+            color_code=2
+        else:
+            print('The color is not known!')       
+        
         #Append x and y to gather vectors
         x_all=np.append(x_all,x_floored)
         y_all=np.append(y_all,y_floored)
+        
+        #Append the color codes
+        x_color=np.append(x_color,np.ones(x_floored.shape[0])*color_code)
     
     #Remove the nans
     x_all=x_all[~np.isnan(x_all)]
     y_all=y_all[~np.isnan(y_all)]
+    x_color=x_color[~np.isnan(x_color)]
     
     #Find the index of unique horizontal pixel
     x_all_unique, idx = np.unique(x_all, return_index=True)
@@ -1205,7 +1231,7 @@ for indiv_file in list(xls_icelenses.keys()):
     
     #We can have several minimums for one horizontal pixel
     for i in range (0,len(x_all_unique),1):
-        #pdb.set_trace()
+        pdb.set_trace()
         
         #Find all the index having the same horizontal pixel value
         index_element_search=np.where(x_all == x_all_unique[i])[0]
