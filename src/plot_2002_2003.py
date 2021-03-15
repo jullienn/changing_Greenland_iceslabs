@@ -573,6 +573,11 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     lon_3413=points[0]
     lat_3413=points[1]
     
+    #Transpose coordinates if june 04
+    if (folder_day=='jun04'):
+        lat_3413=np.transpose(lat_3413)
+        lon_3413=np.transpose(lon_3413)
+    
     #pdb.set_trace()
     #Define the dates that need reversed display
     list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
@@ -584,6 +589,21 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
+    
+    #Load deepest ice lenses information
+    deepest_icelenses=icelens_information[indiv_file]
+    #Retrieve the index where deepest data are present
+    index_deepest_data_present=~(np.isnan(np.asarray(deepest_icelenses['x'])))
+    #Display the depth of the deepest ice lens in the map
+    ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],s=5, edgecolors='none')
+    
+    pdb.set_trace()
+    #Display the start of the track
+    ax_map.scatter(lon_3413[0],lat_3413[0],c='m',s=5, edgecolors='none')
+    
+    #Zoom on the trace on the map plot
+    ax_map.set_xlim(np.median(lon_3413)-75000, np.median(lon_3413)+75000)
+    ax_map.set_ylim(np.median(lat_3413)-75000, np.median(lat_3413)+75000)
     
     #1. Compute the vertical resolution
     #a. Time computation according to John Paden's email.
@@ -710,11 +730,6 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
     
-    #Transpose if june 04
-    if (folder_day=='jun04'):
-        lat_3413=np.transpose(lat_3413)
-        lon_3413=np.transpose(lon_3413)
-    
     #Calculate the distances (in m)
     distances=compute_distances(lon_3413,lat_3413)
     
@@ -748,27 +763,6 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Display the distances from the origin as being the x label
     ax_plot.set_xticklabels(np.round(distances[ticks_xplot]))
     
-    pdb.set_trace()
-    
-    #Load deepest ice lenses information
-    deepest_icelenses=icelens_information[indiv_file]
-    #Retrieve the index where deepest data are present
-    index_deepest_data_present=~(np.isnan(np.asarray(deepest_icelenses['x'])))
-    #Display the depth of the deepest ice lens in the map
-    ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],s=5, edgecolors='none')
-    
-    #Zoom on the trace on the map plot
-    
-    if (folder_day=='jun04'):
-        ax_map.set_xlim(np.median(lon_3413)-75000, np.median(lon_3413)+75000)
-        ax_map.set_ylim(np.median(lat_3413)-75000, np.median(lat_3413)+75000)
-    else:
-        ax_map.set_xlim(np.median(lon_3413)-75000, np.median(lon_3413)+75000)
-        ax_map.set_ylim(np.median(lat_3413)-75000, np.median(lat_3413)+75000)
-    
-    #Dislay the deepest ice lenses
-    #ax_map.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
-
     pdb.set_trace()
     return
 
