@@ -519,6 +519,259 @@ def compute_distances(eastings,northings):
     
     return return_cumsum_distances
 
+
+
+def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information):
+    
+    #Define the uppermost and lowermost limits
+    meters_cutoff_above=0
+    meters_cutoff_below=30
+    
+    dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
+    t0 = 0; # Unknown so set to zero
+    #Compute the speed (Modified Robin speed):
+    # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+    v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+    
+    if (folder_day=='jun04'):
+        #Open the file and read it
+        fdata= scipy.io.loadmat(path_radar_slice)
+        #Select radar echogram, lat and lon
+        radar_echo=fdata['data']
+        lat=fdata['latitude']
+        lon=fdata['longitude']
+    else:
+        #Open the file and read it
+        f_agg = open(path_radar_slice, "rb")
+        radar_data = pickle.load(f_agg)
+        f_agg.close()
+                                                
+        #Select radar echogram, lat and lon
+        radar_echo=radar_data['radar_echogram']
+        
+        latlontime=radar_data['latlontime']
+        lat=latlontime['lat_gps']
+        lon=latlontime['lon_gps']
+        
+        #Remove zeros in lat/lon
+        lat.replace(0, np.nan, inplace=True)
+        lon.replace(0, np.nan, inplace=True)
+    
+    pdb.set_trace()
+    #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
+    lon=-lon
+                        
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.array(lon),np.array(lat))
+    
+    #Reset the lat_3413 and lon_3413 to empty vectors.
+    lon_3413=[]
+    lat_3413=[]
+    
+    lon_3413=points[0]
+    lat_3413=points[1]
+    
+    #pdb.set_trace()
+    #Define the dates that need reversed display
+    list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
+                       'may13_03_29_aggregated','may30_02_51_aggregated',
+                       'may24_02_25_aggregated','may15_03_37_aggregated',
+                       'may11_03_29_aggregated']
+        
+    list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
+    
+    #Display on the map where is this track
+    ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
+    
+    #1. Compute the vertical resolution
+    #a. Time computation according to John Paden's email.
+    Nt = radar_echo.shape[0]
+    Time = t0 + dt*np.arange(1,Nt+1)
+    #b. Calculate the depth:
+    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+    depths = v * Time / 2.0
+    
+    # Load the suggested pixel for the specific date
+    for date_pix in lines:
+        if (folder_day=='jun04'):
+            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                suggested_pixel=int(date_pix.partition(" ")[2])
+                #If it has found its suggested pixel, leave the loop
+                continue   
+        else:
+            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                suggested_pixel=int(date_pix.partition(" ")[2])
+                #If it has found its suggested pixel, leave the loop
+                continue
+
+    surface_indices=kernel_function(radar_echo, suggested_pixel)
+    
+    #Get our slice (30 meters as currently set)
+    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
+                                                                    depths,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=meters_cutoff_above,
+                                                                    meters_cutoff_below=meters_cutoff_below)
+    
+    #The range have already been computed, plot the data:
+    if (technique=='perc_25_75'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.08318485583215623
+            perc_upper_end=0.09414986209628376
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.08488332785270308
+            perc_upper_end=0.09654050592743407
+    elif (technique=='perc_5_95'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.2870889087496134
+            perc_upper_end=0.3138722799744009
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.31927843730229416
+            perc_upper_end=0.3682849426401127
+    elif (technique=='perc_05_995'):
+        if (folder_year=='2002'):
+            perc_lower_end=-2.1488917418616134
+            perc_upper_end=2.650167679823621
+        elif (folder_year=='2003'):
+            perc_lower_end=-1.661495950494564
+            perc_upper_end=1.9431298622848088
+    elif (technique=='perc_2p5_97p5'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.5709792307554173
+            perc_upper_end=0.7082634842114803
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.6061610403154447
+            perc_upper_end=0.7572821079440079      
+    
+    #Generate the pick for vertical distance display
+    ticks_yplot=np.arange(0,radar_slice.shape[0],20)
+    
+    #Plot the radar slice
+    cb2=ax_plot.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    ax_plot.set_ylim(0,radar_slice.shape[0])
+    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
+    ax_plot.set_aspect('equal') # X scale matches Y scale
+    #ax_plot.set_xlabel('Horizontal distance')
+    
+    #Colorbar custom
+    cb2.set_clim(perc_lower_end,perc_upper_end)
+    #cbar2=fig.colorbar(cb2, ax=[ax_plot], location='left')
+    #cbar2.set_label('Signal strength')
+    
+    #Set the y ticks
+    ax_plot.set_yticks(ticks_yplot) 
+    ax_plot.set_yticklabels(np.round(depths[ticks_yplot]))
+    
+    #Set the x ticks
+    #remove xtick
+    #ax_plot.set_xticks([])
+    
+    #Distance from start of the trace
+    ax_plot.set_title('Radar slice',fontsize=10)
+    ax_plot.set_ylabel('Depth [m]')
+    ax_plot.set_xlabel('Distance [km]')
+    
+    #Display the ice lenses identification:
+    pdb.set_trace()
+
+    if (indiv_file in list(xls_icelenses.keys())):
+        print(indiv_file+' hold ice lens!')
+        #This file have ice lenses in it: read the data:
+        df_temp=xls_icelenses[indiv_file]
+        df_colnames = list(df_temp.keys())
+        x_loc=[]
+        
+        #Trafic light information
+        df_trafic_light=trafic_light[indiv_file]
+        df_colnames_trafic_light = list(df_trafic_light.keys())
+        
+        for i in range (0,int(len(df_colnames)),2):
+            x_vect=df_temp[df_colnames[i]]
+            y_vect=df_temp[df_colnames[i+1]]
+            #Load trafic light color
+            trafic_light_indiv_color=df_colnames_trafic_light[i]
+            #Define the color in which to display the ice lens
+            if (trafic_light_indiv_color[0:3]=='gre'):
+                color_to_display='#00441b'
+            elif (trafic_light_indiv_color[0:3]=='ora'):
+                color_to_display='#fed976'
+            elif (trafic_light_indiv_color[0:3]=='red'):
+                color_to_display='#c9662c'
+            elif (trafic_light_indiv_color[0:3]=='pur'):
+                color_to_display='purple'
+            else:
+                print('The color is not known!')
+            
+            #Display ice lens
+            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.5)
+    
+    #Load the elevation profile
+    elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
+    
+    #Transpose if june 04
+    if (folder_day=='jun04'):
+        lat_3413=np.transpose(lat_3413)
+        lon_3413=np.transpose(lon_3413)
+    
+    #Calculate the distances (in m)
+    distances=compute_distances(lon_3413,lat_3413)
+    
+    #Convert distances from m to km
+    distances=distances/1000
+        
+    #Order the radar track from down to up if needed      
+    if (indiv_file in list(list_reverse_agg)):
+        ax_plot.set_xlim(radar_slice.shape[1],0)
+        #plot the reversed elevation profile
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector),color='black')
+        #Reverse the distances vector:
+        distances=np.flipud(distances)
+        
+    elif (indiv_file in list(list_reverse_mat)):
+        ax_plot.set_xlim(radar_slice.shape[1],0)
+        #plot the the reversed elevation profile
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector),color='black')
+        #Reverse the distances vector:
+        distances=np.flipud(distances)
+    else:
+        #plot the elevation profile
+        ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector,color='black')
+    
+    #Generate the pick for horizontal distance display
+    ticks_xplot=np.arange(0,distances.shape[0]+1,100)
+    #Plot also the last index
+    ticks_xplot[-1]=distances.shape[0]-1
+    #Set x ticks
+    ax_plot.set_xticks(ticks_xplot) 
+    #Display the distances from the origin as being the x label
+    ax_plot.set_xticklabels(np.round(distances[ticks_xplot]))
+    
+    pdb.set_trace()
+    
+    #Load deepest ice lenses information
+    deepest_icelenses=icelens_information[indiv_file]
+    #Retrieve the index where deepest data are present
+    index_deepest_data_present=~(np.isnan(np.asarray(deepest_icelenses['x'])))
+    #Display the depth of the deepest ice lens in the map
+    ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],s=5, edgecolors='none')
+    
+    #Zoom on the trace on the map plot
+    
+    if (folder_day=='jun04'):
+        ax_map.set_xlim(np.median(lon_3413)-75000, np.median(lon_3413)+75000)
+        ax_map.set_ylim(np.median(lat_3413)-75000, np.median(lat_3413)+75000)
+    else:
+        ax_map.set_xlim(np.median(lon_3413)-75000, np.median(lon_3413)+75000)
+        ax_map.set_ylim(np.median(lat_3413)-75000, np.median(lat_3413)+75000)
+    
+    #Dislay the deepest ice lenses
+    #ax_map.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
+
+    pdb.set_trace()
+    return
+
 #Import packages
 import rasterio
 from rasterio.plot import show
@@ -1027,24 +1280,21 @@ for indiv_file in list(xls_icelenses.keys()):
 
 pdb.set_trace()
 
-#Display some traces to see if the job was done correctly
+
+#Display all the traces with the corresponding depth on the map
+
 #Prepare plot
 fig = plt.figure(figsize=(19,10))
 fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
 gs = gridspec.GridSpec(10, 20)
 gs.update(wspace=0.1)
 gs.update(wspace=0.001)
-ax1 = plt.subplot(gs[0:10, 10:20])
-ax2 = plt.subplot(gs[0:2, 0:10])
-ax3 = plt.subplot(gs[2:4, 0:10])
-ax4 = plt.subplot(gs[4:6, 0:10])
-ax5 = plt.subplot(gs[6:8, 0:10])
-ax6 = plt.subplot(gs[8:10, 0:10])
+ax1 = plt.subplot(gs[0:6, 0:10])
+ax2 = plt.subplot(gs[0:6, 10:20])
+ax3 = plt.subplot(gs[6:10, 0:20])
 
 #Display elevation
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
-#cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-#ax1.grid()
 ax1.set_title('Ice lenses and slabs location',fontsize=5)
 
 #Plot all the 2010-2014 icelenses
@@ -1055,17 +1305,24 @@ ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=1,facecolors='cornflowerblu
 ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
 ################################### Plot ##################################
 
-#Plot date 1
-folder_year='2003'
-folder_day='may11'
-indiv_file='may11_03_12_aggregated' #From down to up: OK!
-ax_nb=2
-path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax2,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
-#Dislay the deepest ice lenses
-deepest_icelenses=icelens_information[indiv_file]
-ax2.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
-
+#Plot all the dates:
+for year in list(icelens_2002_3_flightlines.keys()):
+    for days in list(icelens_2002_3_flightlines[year].keys()):
+        for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
+            print(indiv_file)
+            if (indiv_file[0:7]=='quality'):
+                print('Quality file, continue')
+                continue
+            elif (not(bool(icelens_2002_3_flightlines[year][days][indiv_file]))):
+                print('No ice lens, continue')
+                continue
+            else:
+                print('Plot the deppest ice lenses')
+                path_radar_slice=path_radar_data+'/'+year+'/'+days+'/'+indiv_file
+                pdb.set_trace()
+                plot_radar_slice_with_thickness(ax1,ax2,ax3,path_radar_slice,lines,year,days,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information)
+                
+                
 #pdb.set_trace()
 #Plot date 2
 folder_year='2002'
