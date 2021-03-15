@@ -589,12 +589,17 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
     
+    pdb.set_trace()
+    
     #Load deepest ice lenses information
     deepest_icelenses=icelens_information[indiv_file]
     #Retrieve the index where deepest data are present
     index_deepest_data_present=~(np.isnan(np.asarray(deepest_icelenses['x'])))
     #Display the depth of the deepest ice lens in the map
-    ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],s=5, edgecolors='none')
+    cb_depth=ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],cmap=discrete_cmap(10,'Blues'),s=5, edgecolors='none')
+    cbar_depth=fig.colorbar(cb_depth, ax=[ax_map], location='right')
+    cbar_depth.set_label('Ice lens maximum depth')
+    cb_depth.set_clim(0,20)
     
     #Display the start of the track
     ax_map.scatter(lon_3413[0],lat_3413[0],c='m',s=5, edgecolors='none')
