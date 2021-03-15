@@ -1164,7 +1164,7 @@ for indiv_file in list(xls_icelenses.keys()):
     df_temp=xls_icelenses[indiv_file]
     df_colnames = list(df_temp.keys())
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     #Load trafic light information
     df_trafic_light=trafic_light[indiv_file]
@@ -1220,7 +1220,7 @@ for indiv_file in list(xls_icelenses.keys()):
         x_color=np.append(x_color,np.ones(x_floored.shape[0])*color_code)
     
     #Remove the nans
-    pdb.set_trace()
+    #pdb.set_trace()
     x_color=x_color[~np.isnan(x_all)]
     x_all=x_all[~np.isnan(x_all)]
     y_all=y_all[~np.isnan(y_all)]
@@ -1233,7 +1233,7 @@ for indiv_file in list(xls_icelenses.keys()):
     
     #We can have several minimums for one horizontal pixel
     for i in range (0,len(x_all_unique),1):
-        pdb.set_trace()
+        #pdb.set_trace()
         
         #Find all the index having the same horizontal pixel value
         index_element_search=np.where(x_all == x_all_unique[i])[0]
@@ -1311,6 +1311,13 @@ for indiv_file in list(xls_icelenses.keys()):
         window_depth[4]=np.nan
         moving_average_depth=np.nanmean(window_depth)
         
+        #3. Color code
+        #Get rid of the dependance with df_icelenses_information
+        window_color=np.asarray(list(df_icelenses_information['deepest_depth_color'][j-4:j+5]))
+        #Removing the jth element of interest
+        window_color[4]=np.nan
+        moving_average_color=np.round(np.nanmean(window_color))
+        
         pixel_studied=df_icelenses_information['deepest_depth_index'][j]
 
         if ((pixel_studied>(moving_average+2*moving_std)) or (pixel_studied<(moving_average-2*moving_std))):
@@ -1318,10 +1325,11 @@ for indiv_file in list(xls_icelenses.keys()):
             #pdb.set_trace()
             df_icelenses_information['deepest_depth_index'][j]=np.round(moving_average).astype(int)
             df_icelenses_information['deepest_depth'][j]=moving_average_depth
-    
+            df_icelenses_information['deepest_depth_color'][j]=moving_average_color
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
 
+pdb.set_trace()
 #Display all the traces with the corresponding depth on the map
 #Prepare plot
 fig = plt.figure(figsize=(19,10))
