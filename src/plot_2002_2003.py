@@ -735,6 +735,9 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
     
+    #Plot the elevation profile
+    ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector,color='black')
+    
     #Calculate the distances (in m)
     distances=compute_distances(lon_3413,lat_3413)
     
@@ -743,21 +746,22 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
         
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
+        #Reverse xlim in radar slice plot
         ax_plot.set_xlim(radar_slice.shape[1],0)
-        #plot the reversed elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector),color='black')
+        #Reverse xlim in elevation plot
+        ax_elevation.set_xlim(radar_slice.shape[1],0)
         #Reverse the distances vector:
         distances=np.flipud(distances)
         
     elif (indiv_file in list(list_reverse_mat)):
+        #Reverse xlim in radar slice plot
         ax_plot.set_xlim(radar_slice.shape[1],0)
-        #plot the the reversed elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector),color='black')
+        #Reverse xlim in elevation plot
+        ax_elevation.set_xlim(radar_slice.shape[1],0)
         #Reverse the distances vector:
         distances=np.flipud(distances)
     else:
-        #plot the elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector,color='black')
+        ax_elevation.set_xlim(0,radar_slice.shape[1])
     
     #Generate the pick for horizontal distance display
     ticks_xplot=np.arange(0,distances.shape[0]+1,100)
