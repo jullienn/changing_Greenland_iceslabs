@@ -605,6 +605,7 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     ax_map.set_xlim(np.median(lon_3413)-75000, np.median(lon_3413)+75000)
     ax_map.set_ylim(np.median(lat_3413)-75000, np.median(lat_3413)+75000)
     
+    
     #1. Compute the vertical resolution
     #a. Time computation according to John Paden's email.
     Nt = radar_echo.shape[0]
