@@ -557,7 +557,6 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
         lat.replace(0, np.nan, inplace=True)
         lon.replace(0, np.nan, inplace=True)
     
-    pdb.set_trace()
     #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
     lon=-lon
                         
@@ -597,7 +596,6 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Display the depth of the deepest ice lens in the map
     ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],s=5, edgecolors='none')
     
-    pdb.set_trace()
     #Display the start of the track
     ax_map.scatter(lon_3413[0],lat_3413[0],c='m',s=5, edgecolors='none')
     
@@ -763,6 +761,17 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     ax_plot.set_xticks(ticks_xplot) 
     #Display the distances from the origin as being the x label
     ax_plot.set_xticklabels(np.round(distances[ticks_xplot]))
+    
+    #Change xticks for elevation display
+    #Set xlim
+    ax_elevation.set_xlim(0,radar_slice.shape[1])
+    #Set x ticks
+    ax_elevation.set_xticks(ticks_xplot) 
+    #Display the distances from the origin as being the x label
+    ax_elevation.set_xticklabels(np.round(distances[ticks_xplot]))
+    #Display the x and ylabel
+    ax_elevation.set_xlabel('Distance [km]')
+    ax_elevation.set_ylabel('Elevation [m]')
     
     pdb.set_trace()
     return
@@ -1273,11 +1282,7 @@ for indiv_file in list(xls_icelenses.keys()):
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
 
-pdb.set_trace()
-
-
 #Display all the traces with the corresponding depth on the map
-
 #Prepare plot
 fig = plt.figure(figsize=(19,10))
 fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
