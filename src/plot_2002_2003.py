@@ -1176,7 +1176,8 @@ for indiv_file in list(xls_icelenses.keys()):
     
     df_icelenses_information=pd.DataFrame({'x':x_empty,
                                            'deepest_depth_index':x_empty,
-                                           'deepest_depth':x_empty})
+                                           'deepest_depth':x_empty,
+                                           'deepest_depth_color':x_empty})
     
     #Empty gathering vectors
     x_all=[]
@@ -1219,9 +1220,10 @@ for indiv_file in list(xls_icelenses.keys()):
         x_color=np.append(x_color,np.ones(x_floored.shape[0])*color_code)
     
     #Remove the nans
+    pdb.set_trace()
+    x_color=x_color[~np.isnan(x_all)]
     x_all=x_all[~np.isnan(x_all)]
     y_all=y_all[~np.isnan(y_all)]
-    x_color=x_color[~np.isnan(x_color)]
     
     #Find the index of unique horizontal pixel
     x_all_unique, idx = np.unique(x_all, return_index=True)
@@ -1238,12 +1240,17 @@ for indiv_file in list(xls_icelenses.keys()):
         
         #Select all the correponding vertical pixel values
         y_index=y_all[index_element_search]
+        #Select all the corresponding xcolor
+        x_color_index=x_color[index_element_search]
         
         #For y_index > deepest index, store the deepest index (correpond to 20m depth)
         y_index[y_index>deepest_index]=deepest_index
         
         #Keep the deepest one
         deepest_pixel_index=np.nanmax(y_index)
+        #The corresponding location is given by y_index.argmax()
+        #Associate the deepest pixel with its color code
+        x_color_value=x_color_index[y_index.argmax()]
         
         #If nan, continue and do not store anything
         if np.isnan(deepest_pixel_index):
@@ -1269,7 +1276,8 @@ for indiv_file in list(xls_icelenses.keys()):
         df_icelenses_information['x'][x_all_unique[i]]=x_all_unique[i]
         df_icelenses_information['deepest_depth_index'][x_all_unique[i]]=deepest_pixel_index
         df_icelenses_information['deepest_depth'][x_all_unique[i]]=deepest_depth
-    
+        df_icelenses_information['deepest_depth_color'][x_all_unique[i]]=x_color_value
+
     #pdb.set_trace()
     #Moving window averaging
     for j in range(4,len(df_icelenses_information['deepest_depth_index'])-5,1):
