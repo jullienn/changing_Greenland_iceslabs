@@ -1297,6 +1297,8 @@ ax3 = plt.subplot(gs[6:10, 0:20])
 #Display elevation
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 ax1.set_title('Ice lenses and slabs location',fontsize=5)
+cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+cbar1.set_label('Elevation [m]')
 
 #Plot all the 2010-2014 icelenses
 ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=1,facecolors='cornflowerblue', edgecolors='none')
