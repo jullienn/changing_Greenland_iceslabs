@@ -735,8 +735,20 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
     
+    #Store the color code
+    color_code_all=np.asarray(deepest_icelenses['deepest_depth_color'])
+    #Create the vector for color code display
+    elevation_color=np.zeros(elevation_vector.shape[0])
+    #Fill in the elevation_color vector with NaNs
+    elevation_color[elevation_color==0]=np.nan
+    #Fill in the elevation_color vector with the color code vector
+    elevation_color[~np.isnan(color_code_all)]=elevation_vector[~np.isnan(color_code_all)]
+        
     #Plot the elevation profile
     ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector,color='black')
+    #Plot the elevation profile with the color code were ice lenses
+    ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_color,color='red')
+
     
     #Calculate the distances (in m)
     distances=compute_distances(lon_3413,lat_3413)
