@@ -603,7 +603,6 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     ax_map.set_xlim(np.median(lon_3413)-75000, np.median(lon_3413)+75000)
     ax_map.set_ylim(np.median(lat_3413)-75000, np.median(lat_3413)+75000)
     
-    
     #1. Compute the vertical resolution
     #a. Time computation according to John Paden's email.
     Nt = radar_echo.shape[0]
@@ -723,9 +722,11 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
             else:
                 print('The color is not known!')
             
-            #Display ice lens
+            #Display ice lens color on radar slice
             ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.5)
-    
+            #Display ice lens color on elevation plot
+            
+            
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
     
@@ -1318,8 +1319,10 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 continue
             else:
                 print('Plot the deppest ice lenses')
+                #Define the path of radar data
                 path_radar_slice=path_radar_data+'/'+year+'/'+days+'/'+indiv_file
                 pdb.set_trace()
+                #Plot the results
                 plot_radar_slice_with_thickness(ax1,ax2,ax3,path_radar_slice,lines,year,days,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information)
                 
                 
