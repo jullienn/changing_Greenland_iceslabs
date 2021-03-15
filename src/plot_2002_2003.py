@@ -523,6 +523,10 @@ def compute_distances(eastings,northings):
 
 def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information):
     
+    #Define color code for trafic light plotting in elevation plot
+    cmap_elevation = ListedColormap(['#c9662c', '#fed976', '#238b45', 'purple'])
+    norm_elevation = BoundaryNorm([-1.5, -0.5, 0.5, 1.5, 2.5], cmap_elevation.N)
+    
     #Define the uppermost and lowermost limits
     meters_cutoff_above=0
     meters_cutoff_below=30
@@ -589,7 +593,7 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     #Load deepest ice lenses information
     deepest_icelenses=icelens_information[indiv_file]
@@ -697,7 +701,7 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     ax_plot.set_xlabel('Distance [km]')
     
     #Display the ice lenses identification:
-    pdb.set_trace()
+    #pdb.set_trace()
 
     if (indiv_file in list(xls_icelenses.keys())):
         print(indiv_file+' hold ice lens!')
@@ -730,8 +734,8 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
             #Display ice lens color on radar slice
             ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.5)
             #Display ice lens color on elevation plot
-            
-            
+    
+    
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
     
@@ -743,13 +747,15 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     elevation_color[elevation_color==0]=np.nan
     #Fill in the elevation_color vector with the color code vector
     elevation_color[~np.isnan(color_code_all)]=elevation_vector[~np.isnan(color_code_all)]
-        
+    
     #Plot the elevation profile
     ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector,color='black')
     #Plot the elevation profile with the color code were ice lenses
-    ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_color,color='red')
+    #ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_color,cmap=cmap_elevation,norm=norm_elevation)
 
-    
+    ax_elevation.scatter(np.arange(0,len(elevation_vector)),elevation_color,c=color_code_all,cmap=cmap_elevation,norm=norm_elevation)
+    pdb.set_trace()
+
     #Calculate the distances (in m)
     distances=compute_distances(lon_3413,lat_3413)
     
@@ -814,6 +820,8 @@ from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import scipy.io
 from osgeo import gdal
+
+from matplotlib.colors import ListedColormap, BoundaryNorm
 
 technique='perc_2p5_97p5'
 making_down_to_up='FALSE'
