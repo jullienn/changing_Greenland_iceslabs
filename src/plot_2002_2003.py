@@ -593,6 +593,8 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
     
+    pdb.set_trace()
+    
     #Load deepest ice lenses information
     deepest_icelenses=icelens_information[indiv_file]
     #Retrieve the index where deepest data are present
@@ -1086,9 +1088,7 @@ ax6.grid()
 #fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
 #plt.savefig(fig_name,dpi=1000)
-
-
-
+print('Done with SW Greenland plot')
 
 #Plot the whole GrIS 2002-2003 radar tracks
 #Prepare plot
@@ -1126,6 +1126,8 @@ plt.show()
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
 #plt.savefig(fig_name,dpi=1000)
 
+print('Done with whole GrIS plot')
+pdb.set_trace()
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
@@ -1146,7 +1148,7 @@ icelens_information={k: {} for k in list(xls_icelenses.keys())}
 #Depth of ice lenses: use the variable 'xsl_icelenses'
 for indiv_file in list(xls_icelenses.keys()):
     print(indiv_file)
-    #pdb.set_trace()
+    
     ####################################################################
     ###    Load the data of interest to retrieve the depth vector    ###
     
@@ -1196,7 +1198,7 @@ for indiv_file in list(xls_icelenses.keys()):
     df_colnames_trafic_light = list(df_trafic_light.keys())
     
     #Get the storage dataframe ready
-    x_empty=np.zeros(1000)
+    x_empty=np.zeros(radar_echo.shape[1])
     x_empty[:]=np.nan
     
     df_icelenses_information=pd.DataFrame({'x':x_empty,
@@ -1302,8 +1304,7 @@ for indiv_file in list(xls_icelenses.keys()):
         df_icelenses_information['deepest_depth_index'][x_all_unique[i]]=deepest_pixel_index
         df_icelenses_information['deepest_depth'][x_all_unique[i]]=deepest_depth
         df_icelenses_information['deepest_depth_color'][x_all_unique[i]]=x_color_value
-
-    #pdb.set_trace()
+    
     #Moving window averaging
     for j in range(4,len(df_icelenses_information['deepest_depth_index'])-5,1):
         if (np.isnan(df_icelenses_information['deepest_depth_index'][j])):
@@ -1356,7 +1357,7 @@ for indiv_file in list(xls_icelenses.keys()):
 
 #Display all the traces with the corresponding depth on the map
 ################################### Plot ##################################
-
+print('Save indiv files with deepest ice lenses identification')
 #Plot all the dates:
 for year in list(icelens_2002_3_flightlines.keys()):
     for days in list(icelens_2002_3_flightlines[year].keys()):
@@ -1396,6 +1397,11 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 #Plot all the 2002-2003 flightlines
                 ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
                 
+                if (not(indiv_file == 'may09_03_42_aggregated')):
+                    plt.close()
+                    continue
+                pdb.set_trace()
+    
                 #Plot the individual results
                 plot_radar_slice_with_thickness(ax1,ax2,ax3,path_radar_slice,lines,year,days,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information)
                 #pdb.set_trace()
@@ -1405,6 +1411,7 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/deepest_lenses'+indiv_file+'.png'
                 plt.savefig(fig_name,dpi=1000)
                 plt.close()
+                print('Done with deepest',indiv_file)
                 
 pdb.set_trace()
 #Plot date 2
