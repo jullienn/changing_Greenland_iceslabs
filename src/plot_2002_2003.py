@@ -583,12 +583,14 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     
     #pdb.set_trace()
     #Define the dates that need reversed display
-    list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
-                       'may13_03_29_aggregated','may30_02_51_aggregated',
-                       'may24_02_25_aggregated','may15_03_37_aggregated',
-                       'may11_03_29_aggregated']
+    list_reverse_agg=[]
+    list_reverse_mat=[]
+    #list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
+    #                   'may13_03_29_aggregated','may30_02_51_aggregated',
+    #                   'may24_02_25_aggregated','may15_03_37_aggregated',
+    #                   'may11_03_29_aggregated']
         
-    list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
+    #list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
     
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
@@ -600,7 +602,7 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Retrieve the index where deepest data are present
     index_deepest_data_present=~(np.isnan(np.asarray(deepest_icelenses['x'])))
     #Display the depth of the deepest ice lens in the map
-    cb_depth=ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],cmap=discrete_cmap(10,'Blues'),s=5, edgecolors='none')
+    cb_depth=ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],cmap=discrete_cmap(10,'summer'),s=5, edgecolors='none')
     cbar_depth=fig.colorbar(cb_depth, ax=[ax_map], location='right')
     cbar_depth.set_label('Ice lens maximum depth [m]')
     cb_depth.set_clim(0,20)
@@ -756,9 +758,9 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Plot the elevation profile with the color code were ice lenses
     #ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_color,cmap=cmap_elevation,norm=norm_elevation)
 
-    ax_elevation.scatter(np.arange(0,len(elevation_vector)),elevation_color,c=color_code_all,cmap=cmap_elevation,norm=norm_elevation,s=3)
+    ax_elevation.scatter(np.arange(0,len(elevation_vector)),elevation_color,c=color_code_all,cmap=cmap_elevation,norm=norm_elevation,s=10)
     ax_elevation.set_title('Trace elevation profile')
-    pdb.set_trace()
+    #pdb.set_trace()
 
     #Calculate the distances (in m)
     distances=compute_distances(lon_3413,lat_3413)
@@ -782,8 +784,6 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
         ax_elevation.set_xlim(radar_slice.shape[1],0)
         #Reverse the distances vector:
         distances=np.flipud(distances)
-    else:
-        ax_elevation.set_xlim(0,radar_slice.shape[1])
     
     #Generate the pick for horizontal distance display
     ticks_xplot=np.arange(0,distances.shape[0]+1,100)
@@ -829,7 +829,7 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 
 technique='perc_2p5_97p5'
 making_down_to_up='FALSE'
-plt.rcParams.update({'font.size': 10})
+plt.rcParams.update({'font.size': 7})
 ########################## Load GrIS elevation ##########################
 #Open the DEM
 grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -1358,8 +1358,6 @@ for indiv_file in list(xls_icelenses.keys()):
     #Save the dataframe into a dictionnary
     icelens_information[indiv_file]=df_icelenses_information
 
-pdb.set_trace()
-
 #Display all the traces with the corresponding depth on the map
 ################################### Plot ##################################
 
@@ -1404,14 +1402,14 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 
                 #Plot the individual results
                 plot_radar_slice_with_thickness(ax1,ax2,ax3,path_radar_slice,lines,year,days,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information)
-                pdb.set_trace()
+                #pdb.set_trace()
                 
                 #Save the figure
                 fig_name=[]
                 fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/deepest_lenses'+indiv_file+'.png'
                 plt.savefig(fig_name,dpi=1000)
                 
-#pdb.set_trace()
+pdb.set_trace()
 #Plot date 2
 folder_year='2002'
 folder_day='jun04'
