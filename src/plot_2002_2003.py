@@ -593,9 +593,6 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
     
-    if (indiv_file=='may09_03_1_aggregated'):
-        pdb.set_trace()
-    
     #Load deepest ice lenses information
     deepest_icelenses=icelens_information[indiv_file]
     #Retrieve the index where deepest data are present
@@ -1407,6 +1404,7 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 fig_name=[]
                 fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/deepest_lenses'+indiv_file+'.png'
                 plt.savefig(fig_name,dpi=1000)
+                plt.close()
                 
 pdb.set_trace()
 #Plot date 2
