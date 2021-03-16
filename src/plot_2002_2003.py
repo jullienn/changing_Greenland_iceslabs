@@ -1413,4 +1413,3 @@ for year in list(icelens_2002_3_flightlines.keys()):
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
 
-
