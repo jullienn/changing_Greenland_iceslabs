@@ -593,14 +593,15 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
     
-    #pdb.set_trace()
+    if (indiv_file=='may09_03_1_aggregated'):
+        pdb.set_trace()
     
     #Load deepest ice lenses information
     deepest_icelenses=icelens_information[indiv_file]
     #Retrieve the index where deepest data are present
     index_deepest_data_present=~(np.isnan(np.asarray(deepest_icelenses['x'])))
     #Display the depth of the deepest ice lens in the map
-    cb_depth=ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],cmap=discrete_cmap(10,'summer'),s=5, edgecolors='none')
+    cb_depth=ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],cmap=discrete_cmap(10,'RdYlGn_r'),s=5, edgecolors='none')
     cbar_depth=fig.colorbar(cb_depth, ax=[ax_map], location='right')
     cbar_depth.set_label('Ice lens maximum depth [m]')
     cb_depth.set_clim(0,20)
@@ -609,8 +610,8 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     ax_map.scatter(lon_3413[0],lat_3413[0],c='m',s=5, edgecolors='none')
     
     #Zoom on the trace on the map plot
-    ax_map.set_xlim(np.median(lon_3413)-75000, np.median(lon_3413)+75000)
-    ax_map.set_ylim(np.median(lat_3413)-75000, np.median(lat_3413)+75000)
+    ax_map.set_xlim(np.nanmedian(lon_3413)-75000, np.nanmedian(lon_3413)+75000)
+    ax_map.set_ylim(np.nanmedian(lat_3413)-75000, np.nanmedian(lat_3413)+75000)
     
     #1. Compute the vertical resolution
     #a. Time computation according to John Paden's email.
