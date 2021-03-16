@@ -519,8 +519,6 @@ def compute_distances(eastings,northings):
     
     return return_cumsum_distances
 
-
-
 def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information):
     
     #Define color code for trafic light plotting in elevation plot
