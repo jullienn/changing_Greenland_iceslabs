@@ -593,7 +593,7 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #Display on the map where is this track
     ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     #Load deepest ice lenses information
     deepest_icelenses=icelens_information[indiv_file]
@@ -1127,7 +1127,7 @@ plt.show()
 #plt.savefig(fig_name,dpi=1000)
 
 print('Done with whole GrIS plot')
-pdb.set_trace()
+#pdb.set_trace()
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
@@ -1397,10 +1397,6 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 #Plot all the 2002-2003 flightlines
                 ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
                 
-                if (not(indiv_file == 'may09_03_42_aggregated')):
-                    plt.close()
-                    continue
-                pdb.set_trace()
     
                 #Plot the individual results
                 plot_radar_slice_with_thickness(ax1,ax2,ax3,path_radar_slice,lines,year,days,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information)
@@ -1413,70 +1409,6 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 plt.close()
                 print('Done with deepest',indiv_file)
                 
-pdb.set_trace()
-#Plot date 2
-folder_year='2002'
-folder_day='jun04'
-indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
-ax_nb=3
-path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax3,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
-#Dislay the deepest ice lenses
-deepest_icelenses=icelens_information[indiv_file]
-ax3.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
-
-#Plot date 3
-folder_year='2003'
-folder_day='may12'
-indiv_file='may12_03_36_aggregated' #From up to down: need reversing! Already fone, OK!
-ax_nb=4
-path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax4,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
-#Dislay the deepest ice lenses
-deepest_icelenses=icelens_information[indiv_file]
-ax4.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
-
-#pdb.set_trace()
-#Plot date 4
-folder_year='2003'
-folder_day='may09'
-indiv_file='may09_03_1_aggregated' #High elevation, no need: OK!
-ax_nb=5
-path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax5,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
-#Dislay the deepest ice lenses
-deepest_icelenses=icelens_information[indiv_file]
-ax5.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
-
-#Plot all the 2002-2003 icelenses according to their confidence color 
-#1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#c9662c', edgecolors='none')
-#2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fed976', edgecolors='none')
-#3. Green
-ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
-#Purple
-ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
-
-#Zoom on SW Greenland
-ax1.set_xlim(-380100,106800)
-ax1.set_ylim(-2810000,-2215200)
-
-#Custom ylabel
-ax6.set_ylim(950,2600)
-start_ytick_elev, end_ytick_elev = ax6.get_ylim()
-ax6.yaxis.set_ticks(np.arange(start_ytick_elev, end_ytick_elev, 250))
-ax6.set_ylabel('Elevation [m]')
-
-#Custom xlabel
-ticks_xplot_elev=np.arange(0,1001,100)
-ticks_xplot_elev[-1]=999
-ax6.set_xticks(ticks_xplot_elev)
-ax6.set_xticklabels([])
-ax6.set_xlim(0,1000)
-ax6.grid()
-
-
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################

@@ -140,7 +140,6 @@ if (year_to_download=='2010_2014'):
     #folders I want to download
     list_download=['2010_Greenland_P3','2011_Greenland_P3','2012_Greenland_P3',
                    '2013_Greenland_P3','2014_Greenland_P3']
-    pdb.set_trace()
     
     for folder_year in folders_years:
         pdb.set_trace()
@@ -186,7 +185,7 @@ if (year_to_download=='2010_2014'):
                 # Print out and download the files
                 if (download_images=='TRUE'):
                     for file in files:
-                        if (os.path.isfile('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file)):
+                        if (os.path.isfile('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/' + folder_year + '/' + folder + '/' + file)):
                             #If the file have already been downloaded, continue
                             print(file+' have already been downloaded. Continue ...')
                             continue
@@ -197,6 +196,7 @@ if (year_to_download=='2010_2014'):
                 if (download_mat=='TRUE'):
                     #!!!!! FOR 2012, download the Data_img, and rename them as Data_
                     if (folder_year=='2012_Greenland_P3'):
+                        print('This is 2012')
                         #Download Data_img data
                     else:
                         for file in files:
