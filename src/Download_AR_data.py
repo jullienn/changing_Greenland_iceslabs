@@ -93,8 +93,8 @@ if (year_to_download=='2010_2014'):
     from datetime import datetime
     
     #Set data we want to download
-    download_images='TRUE'
-    download_mat='FALSE'
+    download_images='FALSE'
+    download_mat='TRUE'
     
     #Load the data we have to download
     f = open('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/2010_2014_data_download.txt','r')
@@ -180,7 +180,7 @@ if (year_to_download=='2010_2014'):
                 folder_year_name=path + folder_year + '/images/'
             
             if(download_mat=='TRUE'):
-                folder_year_name=path + folder_year + '/CSARP_standard/'
+                folder_year_name=path + folder_year + '/CSARP_qlook/'
             
             #Go to folder CSARP_standard
             ftp.cwd(folder_year_name)
@@ -215,7 +215,6 @@ if (year_to_download=='2010_2014'):
                     path_to_save='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + 'images/'
                     
                     for file in files:
-                        
                         if (not(file[0:15] in list(all_data_to_download))):
                             #Not a data to download
                             continue
@@ -225,35 +224,54 @@ if (year_to_download=='2010_2014'):
                                 print(file+' have already been downloaded. Continue ...')
                                 continue
                             #Download images
-                            print("Downloading..." + file)
+                            print("Downloading... " + file)
                             ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
                         
                 if (download_mat=='TRUE'):
                     #Define the path to save for mat file saving
                     path_to_save='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + 'CSARP_qlook/' + folder + '/'
                     
-                    ##Create the directory to store the data if does not exist yet
-                    #if (not os.path.exists()):
-                        
-                    #!!!!! FOR 2012, download the Data_img, and rename them as Data_
+                    #Create the directory to store the data if does not exist yet
+                    #this is from: https://thispointer.com/how-to-create-a-directory
+                    #-in-python/#:~:text=Python%27s%20OS%20module%20provides%20an%20
+                    #another%20function%20to%20create%20a%20directories%20i.e.&text=.
+                    #makedirs(path)-,os.,mkdir%20%2Dp%20command%20in%20linux.
+                    if (not os.path.exists(path_to_save)):
+                        os.mkdir(path_to_save)
+                        print('Created the directory'+path_to_save)
+                    
+                    pdb.set_trace()
                     if (folder_year=='2012_Greenland_P3'):
-                        print('This is 2012')
                         #Download Data_img data
-                    else:
                         for file in files:
-                            if (file[0:9]=='Data_2017'):
-                                if (os.path.isfile('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file)):
+                            if (not(file[12:27] in list(all_data_to_download))):
+                                #Not a data to download
+                                continue
+                            else:
+                                pdb.set_trace()
+                                if (os.path.isfile(path_to_save + file)):
                                     #If the file have already been downloaded, continue
                                     print(file+' have already been downloaded. Continue ...')
                                     continue
-                                #Grab only the files starting by 'Data_2017...'
-                                print("Downloading..." + file)
-                                ftp.retrbinary("RETR " + file ,open('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file, 'wb').write)
-                            else:
-                                print('This is a file Data_img ...')
-                                #This is data starting by 'Data_img...', we do not want that
+                                #Download .mat files
+                                print("Downloading... " + file)
+                                ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                                
+                    else:
+                        for file in files:
+                            if (not(file[5:20] in list(all_data_to_download))):
+                                #Not a data to download
                                 continue
-                
+                            else:
+                                pdb.set_trace()
+                                if (os.path.isfile(path_to_save + file)):
+                                    #If the file have already been downloaded, continue
+                                    print(file+' have already been downloaded. Continue ...')
+                                    continue
+                                #Download .mat files
+                                print("Downloading... " + file)
+                                ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                                
         else:
             print('Not 2010-11-12-13-14, continue')
             continue
