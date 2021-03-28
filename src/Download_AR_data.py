@@ -110,6 +110,7 @@ if (year_to_download=='2010_2014'):
     yearmonthdaynb_dict = {k: {} for k in list(lines)}
     
     i=0
+    all_data_to_download=[]
     for indiv_trace in lines:
         #Create the pd dataframe
         df_yearmonthdaynb['complete_date'][i]=indiv_trace
@@ -144,8 +145,10 @@ if (year_to_download=='2010_2014'):
                 trace_nb_indiv_str='0'+str(trace_nb_indiv)
             else:
                 trace_nb_indiv_str=str(trace_nb_indiv)
-            
+            #Store str trace nb                        
             vect_str=np.append(vect_str,trace_nb_indiv_str)
+            #Store the complete filenumber
+            all_data_to_download=np.append(all_data_to_download,indiv_trace[0:11]+'_'+trace_nb_indiv_str)
         
         #Store this vector into the yearmonthdaynb_dict dictionnary
         yearmonthdaynb_dict[indiv_trace]['vector_traces_nb']=vect_str
