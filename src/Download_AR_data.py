@@ -101,20 +101,26 @@ if (year_to_download=='2010_2014'):
     lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
     f.close()
     
+    pdb.set_trace()
     #Extract the folder year month day nb
-    x_empty=[None]*len(lines)
+        
+    #Create the dictionnary
+    yearmonthdaynb_dict = {k: {} for k in list(lines)}
     
-    df_yearmonthdaynb=pd.DataFrame({'complete_date':x_empty,
-                                    'YMDnb':x_empty,
-                                    'traces_nb':x_empty})
-    
-    for i in range (0,len(lines)):
-        df_yearmonthdaynb['complete_date'][i]=lines[i]
-        df_yearmonthdaynb['YMDnb'][i]=lines[i][0:11]
-        df_yearmonthdaynb['traces_nb'][i]=lines[i][12:19]
+    pdb.set_trace()
+    for indiv_trace in lines:
+        #Create nested dictionaries
+        yearmonthdaynb_dict[indiv_trace]= {k: {} for k in list(['complete_date',
+                                                               'YMDnb',
+                                                               'traces_nb',
+                                                               'vector_traces_nb'])}
+        #Fill in the dictionnary
+        yearmonthdaynb_dict[indiv_trace]['complete_date']=indiv_trace
+        yearmonthdaynb_dict[indiv_trace]['YMDnb']=indiv_trace[0:11]
+        yearmonthdaynb_dict[indiv_trace]['traces_nb']=indiv_trace[12:19]
         
         #List all the individual trace nb
-        traces_nb=lines[i][12:19]
+        traces_nb=indiv_trace[12:19]
         begin_trace_nb=int(traces_nb[0:3])
         end_trace_nb=int(traces_nb[4:7])
         
@@ -122,7 +128,7 @@ if (year_to_download=='2010_2014'):
         vect_traces_nb=np.arange(begin_trace_nb,end_trace_nb+1,1)
         
         #Store this vector into the df_yearmonthdaynb dataframe
-        pdb.set_trace()
+        yearmonthdaynb_dict[indiv_trace]['vector_traces_nb']=vect_traces_nb
     
     pdb.set_trace()
     start = datetime.now()
