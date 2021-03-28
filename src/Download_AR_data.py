@@ -102,11 +102,21 @@ if (year_to_download=='2010_2014'):
     f.close()
     
     #Extract the folder year month day nb
-        
+    df_yearmonthdaynb=pd.DataFrame({'complete_date':[None]*len(lines),
+                                    'YMDnb':[None]*len(lines),
+                                    'traces_nb':[None]*len(lines)})
+    
     #Create the dictionnary
     yearmonthdaynb_dict = {k: {} for k in list(lines)}
     
+    i=0
     for indiv_trace in lines:
+        #Create the pd dataframe
+        df_yearmonthdaynb['complete_date'][i]=indiv_trace
+        df_yearmonthdaynb['YMDnb'][i]=indiv_trace[0:11]
+        df_yearmonthdaynb['traces_nb'][i]=indiv_trace[12:19]
+        i=i+1
+        
         #Create nested dictionaries
         yearmonthdaynb_dict[indiv_trace]= {k: {} for k in list(['complete_date',
                                                                'YMDnb',
@@ -140,7 +150,6 @@ if (year_to_download=='2010_2014'):
         #Store this vector into the yearmonthdaynb_dict dictionnary
         yearmonthdaynb_dict[indiv_trace]['vector_traces_nb']=vect_str
     
-    pdb.set_trace()
     start = datetime.now()
     ftp = FTP('data.cresis.ku.edu')
     ftp.login()
