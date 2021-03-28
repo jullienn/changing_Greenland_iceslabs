@@ -92,6 +92,7 @@ if (year_to_download=='2010_2014'):
     from ftplib import FTP
     from datetime import datetime
     
+    print('Initialisation ...')
     #Set data we want to download
     download_images='FALSE'
     download_mat='TRUE'
@@ -153,6 +154,8 @@ if (year_to_download=='2010_2014'):
         #Store this vector into the yearmonthdaynb_dict dictionnary
         yearmonthdaynb_dict[indiv_trace]['vector_traces_nb']=vect_str
     
+    print('Logging on the cresis website ...')
+    
     start = datetime.now()
     ftp = FTP('data.cresis.ku.edu')
     ftp.login()
@@ -168,19 +171,22 @@ if (year_to_download=='2010_2014'):
     list_download=['2010_Greenland_P3','2011_Greenland_P3','2012_Greenland_P3',
                    '2013_Greenland_P3','2014_Greenland_P3']
     
+    print('Starting to download ...')
     for folder_year in folders_years:
         pdb.set_trace()
         if (folder_year in list(list_download)):
-            print('Downloading ' + folder_year)
+            print('    Downloading ' + folder_year)
             
             #Go to folder year
             folder_year_name=[]
             
             if (download_images=='TRUE'):
                 folder_year_name=path + folder_year + '/images/'
-            
+                print('    Downloading the images ...')
+                
             if(download_mat=='TRUE'):
                 folder_year_name=path + folder_year + '/CSARP_qlook/'
+                print('    Downloading the .mat files ...')
             
             #Go to folder CSARP_standard
             ftp.cwd(folder_year_name)
@@ -194,14 +200,13 @@ if (year_to_download=='2010_2014'):
             #Loop over the folders, and download the data used by MacFerrin et al., 2019 in this folder
             for folder in folders:
                 if (not(folder in list(df_yearmonthdaynb['YMDnb']))):
-                    print(folder+' does not hold data to download, continue')
                     continue
                 
-                print(folder+' holds data to download')
+                print('        '+folder+' holds data to download')
                 folder_name=[]
                 folder_name=folder_year_name + folder + '/'
                 ftp.cwd(folder_name)
-                print("Now in folder " + folder_name)
+                #print("Now in folder " + folder_name)
             
                 # Get all Files in this folder
                 files=[]
@@ -221,10 +226,10 @@ if (year_to_download=='2010_2014'):
                         else:
                             if (os.path.isfile(path_to_save + file)):
                                 #If the file have already been downloaded, continue
-                                print(file+' have already been downloaded. Continue ...')
+                                print('                '+file+' have already been downloaded. Continue ...')
                                 continue
                             #Download images
-                            print("Downloading... " + file)
+                            print("                Downloading... " + file)
                             ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
                         
                 if (download_mat=='TRUE'):
@@ -238,7 +243,7 @@ if (year_to_download=='2010_2014'):
                     #makedirs(path)-,os.,mkdir%20%2Dp%20command%20in%20linux.
                     if (not os.path.exists(path_to_save)):
                         os.mkdir(path_to_save)
-                        print('Created the directory'+path_to_save)
+                        print('            Created the directory'+path_to_save)
                     
                     pdb.set_trace()
                     if (folder_year=='2012_Greenland_P3'):
@@ -251,10 +256,10 @@ if (year_to_download=='2010_2014'):
                                 pdb.set_trace()
                                 if (os.path.isfile(path_to_save + file)):
                                     #If the file have already been downloaded, continue
-                                    print(file+' have already been downloaded. Continue ...')
+                                    print('                '+file+' have already been downloaded. Continue ...')
                                     continue
                                 #Download .mat files
-                                print("Downloading... " + file)
+                                print("                Downloading... " + file)
                                 ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
                                 
                     else:
@@ -266,10 +271,10 @@ if (year_to_download=='2010_2014'):
                                 pdb.set_trace()
                                 if (os.path.isfile(path_to_save + file)):
                                     #If the file have already been downloaded, continue
-                                    print(file+' have already been downloaded. Continue ...')
+                                    print('                '+file+' have already been downloaded. Continue ...')
                                     continue
                                 #Download .mat files
-                                print("Downloading... " + file)
+                                print("                Downloading... " + file)
                                 ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
                                 
         else:
