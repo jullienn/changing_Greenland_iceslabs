@@ -101,13 +101,11 @@ if (year_to_download=='2010_2014'):
     lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
     f.close()
     
-    pdb.set_trace()
     #Extract the folder year month day nb
         
     #Create the dictionnary
     yearmonthdaynb_dict = {k: {} for k in list(lines)}
     
-    pdb.set_trace()
     for indiv_trace in lines:
         #Create nested dictionaries
         yearmonthdaynb_dict[indiv_trace]= {k: {} for k in list(['complete_date',
@@ -127,8 +125,20 @@ if (year_to_download=='2010_2014'):
         #Create a vector from begin_trace_nb to end_trace_nb
         vect_traces_nb=np.arange(begin_trace_nb,end_trace_nb+1,1)
         
-        #Store this vector into the df_yearmonthdaynb dataframe
-        yearmonthdaynb_dict[indiv_trace]['vector_traces_nb']=vect_traces_nb
+        #Create the right suffixe for imediate check later on
+        vect_str=[]
+        for trace_nb_indiv in list(vect_traces_nb):
+            if (trace_nb_indiv<10):
+                trace_nb_indiv_str='00'+str(trace_nb_indiv)
+            elif ((trace_nb_indiv>=10) and (trace_nb_indiv<100)):
+                trace_nb_indiv_str='0'+str(trace_nb_indiv)
+            else:
+                trace_nb_indiv_str=str(trace_nb_indiv)
+            
+            vect_str=np.append(vect_str,trace_nb_indiv_str)
+        
+        #Store this vector into the yearmonthdaynb_dict dictionnary
+        yearmonthdaynb_dict[indiv_trace]['vector_traces_nb']=vect_str
     
     pdb.set_trace()
     start = datetime.now()
