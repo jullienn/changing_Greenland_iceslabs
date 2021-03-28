@@ -112,6 +112,17 @@ if (year_to_download=='2010_2014'):
         df_yearmonthdaynb['complete_date'][i]=lines[i]
         df_yearmonthdaynb['YMDnb'][i]=lines[i][0:11]
         df_yearmonthdaynb['traces_nb'][i]=lines[i][12:19]
+        
+        #List all the individual trace nb
+        traces_nb=lines[i][12:19]
+        begin_trace_nb=int(traces_nb[0:3])
+        end_trace_nb=int(traces_nb[4:7])
+        
+        #Create a vector from begin_trace_nb to end_trace_nb
+        vect_traces_nb=np.arange(begin_trace_nb,end_trace_nb+1,1)
+        
+        #Store this vector into the df_yearmonthdaynb dataframe
+        pdb.set_trace()
     
     pdb.set_trace()
     start = datetime.now()
@@ -176,6 +187,16 @@ if (year_to_download=='2010_2014'):
                     path_to_save='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + 'images/'
                     
                     for file in files:
+                        pdb.set_trace()
+                        
+                        file[12:15]
+                        
+                        #Here download only traces in df_yearmonthdaynb
+                        if (not(folder in list(df_yearmonthdaynb['YMDnb']))):
+                            print(folder+' does not hold data to download, continue')
+                            continue
+                
+                
                         if (os.path.isfile(path_to_save + file)):
                             #If the file have already been downloaded, continue
                             print(file+' have already been downloaded. Continue ...')
