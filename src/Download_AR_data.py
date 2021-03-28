@@ -85,23 +85,10 @@ if (year_to_download=='old'):
 ############################ Download old AR data #############################
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ########################## Download 2010-2014 AR data #########################
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 if (year_to_download=='2010_2014'):
+    pdb.set_trace()
     from ftplib import FTP
     from datetime import datetime
     
@@ -110,7 +97,7 @@ if (year_to_download=='2010_2014'):
     download_mat='FALSE'
     
     #Load the data we have to download
-    f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/2010_2014_data_download.txt','r')
+    f = open('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/2010_2014_data_download.txt','r')
     lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
     f.close()
     
@@ -126,6 +113,7 @@ if (year_to_download=='2010_2014'):
         df_yearmonthdaynb['YMDnb'][i]=lines[i][0:11]
         df_yearmonthdaynb['traces_nb'][i]=lines[i][12:19]
     
+    pdb.set_trace()
     start = datetime.now()
     ftp = FTP('data.cresis.ku.edu')
     ftp.login()
@@ -185,13 +173,13 @@ if (year_to_download=='2010_2014'):
                 # Print out and download the files
                 if (download_images=='TRUE'):
                     for file in files:
-                        if (os.path.isfile('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/' + folder_year + '/' + folder + '/' + file)):
+                        if (os.path.isfile('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + folder + '/' + file)):
                             #If the file have already been downloaded, continue
                             print(file+' have already been downloaded. Continue ...')
                             continue
                         #Grab only the files starting by 'Data_2017...'
                         print("Downloading..." + file)
-                        ftp.retrbinary("RETR " + file ,open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file, 'wb').write)
+                        ftp.retrbinary("RETR " + file ,open('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file, 'wb').write)
                     
                 if (download_mat=='TRUE'):
                     #!!!!! FOR 2012, download the Data_img, and rename them as Data_
@@ -201,13 +189,13 @@ if (year_to_download=='2010_2014'):
                     else:
                         for file in files:
                             if (file[0:9]=='Data_2017'):
-                                if (os.path.isfile('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file)):
+                                if (os.path.isfile('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file)):
                                     #If the file have already been downloaded, continue
                                     print(file+' have already been downloaded. Continue ...')
                                     continue
                                 #Grab only the files starting by 'Data_2017...'
                                 print("Downloading..." + file)
-                                ftp.retrbinary("RETR " + file ,open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file, 'wb').write)
+                                ftp.retrbinary("RETR " + file ,open('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file, 'wb').write)
                             else:
                                 print('This is a file Data_img ...')
                                 #This is data starting by 'Data_img...', we do not want that
@@ -223,24 +211,6 @@ if (year_to_download=='2010_2014'):
     print('All files downloaded for ' + str(diff.seconds) + 's')
 
 ########################## Download 2010-2014 AR data #########################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ############################# Download 2017 AR data #############################
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
