@@ -172,16 +172,25 @@ if (year_to_download=='2010_2014'):
                 
                 # Print out and download the files
                 if (download_images=='TRUE'):
+                    #Define the path to save for image saving
+                    path_to_save='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + 'images/'
+                    
                     for file in files:
-                        if (os.path.isfile('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + folder + '/' + file)):
+                        if (os.path.isfile(path_to_save + file)):
                             #If the file have already been downloaded, continue
                             print(file+' have already been downloaded. Continue ...')
                             continue
-                        #Grab only the files starting by 'Data_2017...'
+                        #Download images
                         print("Downloading..." + file)
-                        ftp.retrbinary("RETR " + file ,open('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data' + folder_year + folder + "/" + file, 'wb').write)
+                        ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
                     
                 if (download_mat=='TRUE'):
+                    #Define the path to save for mat file saving
+                    path_to_save='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + 'CSARP_qlook/' + folder + '/'
+                    
+                    ##Create the directory to store the data if does not exist yet
+                    #if (not os.path.exists()):
+                        
                     #!!!!! FOR 2012, download the Data_img, and rename them as Data_
                     if (folder_year=='2012_Greenland_P3'):
                         print('This is 2012')
