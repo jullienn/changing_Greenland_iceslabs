@@ -94,8 +94,8 @@ if (year_to_download=='2010_2014'):
     
     print('Initialisation ...')
     #Set data we want to download
-    download_images='FALSE'
-    download_mat='TRUE'
+    download_images='TRUE'
+    download_mat='FALSE'
     
     #Load the data we have to download
     f = open('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/2010_2014_data_download.txt','r')
@@ -173,6 +173,9 @@ if (year_to_download=='2010_2014'):
     
     print('Starting to download ...')
     for folder_year in folders_years:
+        
+        if (not(folder_year=='2012_Greenland_P3')):
+            continue
         pdb.set_trace()
         if (folder_year in list(list_download)):
             print('    Downloading ' + folder_year)
@@ -233,7 +236,7 @@ if (year_to_download=='2010_2014'):
                             ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
                             
                             #Display some information about progress
-                            perc_display=np.where(all_data_to_download==file[5:20])[0][0]/len(all_data_to_download)*100
+                            perc_display=np.where(all_data_to_download==file[0:15])[0][0]/len(all_data_to_download)*100
                             print(str(perc_display)+' % done')
                 
                 if (download_mat=='TRUE'):
@@ -267,7 +270,7 @@ if (year_to_download=='2010_2014'):
                                 ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
                                 
                                 #Display some information about progress
-                                perc_display=np.where(all_data_to_download==file[5:20])[0][0]/len(all_data_to_download)*100
+                                perc_display=np.where(all_data_to_download==file[12:27])[0][0]/len(all_data_to_download)*100
                                 print(str(perc_display)+' % done')
                     
                     else:
