@@ -215,24 +215,19 @@ if (year_to_download=='2010_2014'):
                     path_to_save='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + 'images/'
                     
                     for file in files:
-                        pdb.set_trace()
                         
-                        file[12:15]
+                        if (not(file[0:15] in list(all_data_to_download))):
+                            #Not a data to download
+                            continue
+                        else:
+                            if (os.path.isfile(path_to_save + file)):
+                                #If the file have already been downloaded, continue
+                                print(file+' have already been downloaded. Continue ...')
+                                continue
+                            #Download images
+                            print("Downloading..." + file)
+                            ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
                         
-                        #Here download only traces in df_yearmonthdaynb
-                        if (not(folder in list(df_yearmonthdaynb['YMDnb']))):
-                            print(folder+' does not hold data to download, continue')
-                            continue
-                
-                
-                        if (os.path.isfile(path_to_save + file)):
-                            #If the file have already been downloaded, continue
-                            print(file+' have already been downloaded. Continue ...')
-                            continue
-                        #Download images
-                        print("Downloading..." + file)
-                        ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
-                    
                 if (download_mat=='TRUE'):
                     #Define the path to save for mat file saving
                     path_to_save='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/' + folder_year + '/' + 'CSARP_qlook/' + folder + '/'
