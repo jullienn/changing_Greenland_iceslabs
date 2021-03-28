@@ -234,7 +234,7 @@ if (year_to_download=='2010_2014'):
                             
                             #Display some information about progress
                             perc_display=np.where(all_data_to_download==file[5:20])[0][0]/len(all_data_to_download)*100
-                            print(perc_display+' % done')
+                            print(str(perc_display)+' % done')
                 
                 if (download_mat=='TRUE'):
                     #Define the path to save for mat file saving
@@ -268,7 +268,7 @@ if (year_to_download=='2010_2014'):
                                 
                                 #Display some information about progress
                                 perc_display=np.where(all_data_to_download==file[5:20])[0][0]/len(all_data_to_download)*100
-                                print(perc_display+' % done')
+                                print(str(perc_display)+' % done')
                     
                     else:
                         for file in files:
@@ -284,9 +284,10 @@ if (year_to_download=='2010_2014'):
                                 #Download .mat files
                                 print("                Downloading... " + file)
                                 ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                                
                                 #Display some information about progress
                                 perc_display=np.where(all_data_to_download==file[5:20])[0][0]/len(all_data_to_download)*100
-                                print(perc_display+' % done')
+                                print(str(perc_display)+' % done')
         
         else:
             print('Not 2010-11-12-13-14, continue')
