@@ -94,8 +94,8 @@ if (year_to_download=='2010_2014'):
     
     print('Initialisation ...')
     #Set data we want to download
-    download_images='TRUE'
-    download_mat='FALSE'
+    download_images='FALSE'
+    download_mat='TRUE'
     
     #Load the data we have to download
     f = open('C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/2010_2014_data_download.txt','r')
@@ -196,7 +196,6 @@ if (year_to_download=='2010_2014'):
             folders = ftp.nlst()
             #Go to the folder
             
-            pdb.set_trace()
             #Loop over the folders, and download the data used by MacFerrin et al., 2019 in this folder
             for folder in folders:
                 if (not(folder in list(df_yearmonthdaynb['YMDnb']))):
