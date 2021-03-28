@@ -88,7 +88,7 @@ if (year_to_download=='old'):
 ########################## Download 2010-2014 AR data #########################
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 if (year_to_download=='2010_2014'):
-    pdb.set_trace()
+    
     from ftplib import FTP
     from datetime import datetime
     
@@ -174,9 +174,6 @@ if (year_to_download=='2010_2014'):
     print('Starting to download ...')
     for folder_year in folders_years:
         
-        if (not(folder_year=='2012_Greenland_P3')):
-            continue
-        pdb.set_trace()
         if (folder_year in list(list_download)):
             print('    Downloading ' + folder_year)
             
@@ -215,8 +212,6 @@ if (year_to_download=='2010_2014'):
                 files=[]
                 files = ftp.nlst()
                 
-                pdb.set_trace()
-                
                 # Print out and download the files
                 if (download_images=='TRUE'):
                     #Define the path to save for image saving
@@ -252,7 +247,6 @@ if (year_to_download=='2010_2014'):
                         os.mkdir(path_to_save)
                         print('            Created the directory'+path_to_save)
                     
-                    pdb.set_trace()
                     if (folder_year=='2012_Greenland_P3'):
                         #Download Data_img data
                         for file in files:
@@ -260,7 +254,7 @@ if (year_to_download=='2010_2014'):
                                 #Not a data to download
                                 continue
                             else:
-                                pdb.set_trace()
+                                
                                 if (os.path.isfile(path_to_save + file)):
                                     #If the file have already been downloaded, continue
                                     print('                '+file+' have already been downloaded. Continue ...')
@@ -279,7 +273,7 @@ if (year_to_download=='2010_2014'):
                                 #Not a data to download
                                 continue
                             else:
-                                pdb.set_trace()
+                                
                                 if (os.path.isfile(path_to_save + file)):
                                     #If the file have already been downloaded, continue
                                     print('                '+file+' have already been downloaded. Continue ...')
