@@ -73,11 +73,47 @@ for indiv_trace in list(all_data):
     
     #Load the pixels exclusions
     line_of_interest=lakes_and_other_exclusions_20102014[loc]
-    pdb.set_trace()
+    
     if (len(line_of_interest)==19):
         print('No exclusion for '+indiv_trace)
     else:
+        #Several scenarios:
+        #1. -222 : means that all the pixel from the begining until 222 are excluded
+        #2. 234-287 : means that all the pixels between 234 and 287 are excluded
+        #3. 567- : meand that all the pixels from 567 until the end of the trace are excluded.
+        
+        #Know whether the pixel is included or not in the exclusion
+        
         pdb.set_trace()
+        print('lala')
+        
+        for i in range(0,len(line_of_interest.split())-1):
+            #-1 because the first one is the date
+            #if len(line_of_interest.partition(" "))>= 2, then there is a least one exclusion to consider
+            #i+1
+            
+            exclusion_to_consider=line_of_interest.split()[i+1]
+            pdb.set_trace()
+            if (exclusion_to_consider[0]=="-"):
+                #Scenario 1
+                begin_pixel=0
+                end_pixel=int(exclusion_to_consider.partition("-")[2])
+            elif (exclusion_to_consider[-1]=="-"):
+                #Scenario 3
+                begin_pixel=int(exclusion_to_consider.partition("-")[0])
+                end_pixel=len(lon_append)
+            elif (exclusion_to_consider.partition("-")[1]=='-'):
+                #Scenario 2
+                begin_pixel=int(exclusion_to_consider.partition("-")[0])
+                end_pixel=int(exclusion_to_consider.partition("-")[2])
+            
+            else:
+                print('Problem in identifying the exclusion')
+    
+    
+    
+    
+    
     
     #Update loc index
     loc=loc+1
