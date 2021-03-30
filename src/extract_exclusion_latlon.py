@@ -121,8 +121,8 @@ for indiv_trace in list(all_data):
             index_exclusion=np.append(index_exclusion,vect_begin_end).astype(int)
         
         #Extract the corresponding lon/lat exclusion
-        lat_exclusion=lat_append[0,index_exclusion]
-        lon_exclusion=lon_append[0,index_exclusion]
+        lat_exclusion=lat_append[index_exclusion]
+        lon_exclusion=lon_append[index_exclusion]
         
         #Create the room where to store lat and lon exclusion
         exclusion_dict[indiv_trace]= {k: {} for k in list(['lat_exclusion',
