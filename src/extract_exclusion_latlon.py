@@ -104,7 +104,8 @@ for indiv_trace in list(all_data):
             elif (exclusion_to_consider[-1]=="-"):
                 #Scenario 3
                 begin_pixel=int(exclusion_to_consider.partition("-")[0])
-                end_pixel=len(lon_append)
+                end_pixel=len(lon_append)-1
+                #-1 otherwise it want to access the len(lon_append)+1
             elif (exclusion_to_consider.partition("-")[1]=='-'):
                 #Scenario 2
                 begin_pixel=int(exclusion_to_consider.partition("-")[0])
@@ -131,8 +132,9 @@ for indiv_trace in list(all_data):
         #Save the lat/lon with the corresponding date in a dictionnary
         exclusion_dict[indiv_trace]['lat_exclusion']=lat_exclusion
         exclusion_dict[indiv_trace]['lon_exclusion']=lon_exclusion
-        pdb.set_trace()
         print('Done with '+indiv_trace)
+        
+        #I checket, it works!
         
     #Update loc index
     loc=loc+1
