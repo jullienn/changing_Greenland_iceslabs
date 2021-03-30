@@ -88,9 +88,6 @@ for indiv_trace in list(all_data):
         
         #Know whether the pixel is included or not in the exclusion
         
-        pdb.set_trace()
-        print('lala')
-        
         index_exclusion=[]
         
         for i in range(0,len(line_of_interest.split())-1):
@@ -114,8 +111,7 @@ for indiv_trace in list(all_data):
                 end_pixel=int(exclusion_to_consider.partition("-")[2])
             else:
                 print('Problem in identifying the exclusion')
-            pdb.set_trace()
-            print('lala')
+            
             #I check, OK the above works!!
             
             #Create a vector from begin_pixel to end_pixel
@@ -124,10 +120,9 @@ for indiv_trace in list(all_data):
             #Append all the indexes of exclusion
             index_exclusion=np.append(index_exclusion,vect_begin_end).astype(int)
         
-        pdb.set_trace()
         #Extract the corresponding lon/lat exclusion
-        lat_exclusion=lat[0,index_exclusion]
-        lon_exclusion=lon[0,index_exclusion]
+        lat_exclusion=lat_append[0,index_exclusion]
+        lon_exclusion=lon_append[0,index_exclusion]
         
         #Create the room where to store lat and lon exclusion
         exclusion_dict[indiv_trace]= {k: {} for k in list(['lat_exclusion',
@@ -136,7 +131,9 @@ for indiv_trace in list(all_data):
         #Save the lat/lon with the corresponding date in a dictionnary
         exclusion_dict[indiv_trace]['lat_exclusion']=lat_exclusion
         exclusion_dict[indiv_trace]['lon_exclusion']=lon_exclusion
-    
+        pdb.set_trace()
+        print('Done with '+indiv_trace)
+        
     #Update loc index
     loc=loc+1
     
