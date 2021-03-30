@@ -87,13 +87,15 @@ for indiv_trace in list(all_data):
         pdb.set_trace()
         print('lala')
         
+        index_exclusion=[]
+        
         for i in range(0,len(line_of_interest.split())-1):
             #-1 because the first one is the date
             #if len(line_of_interest.partition(" "))>= 2, then there is a least one exclusion to consider
             #i+1
             
             exclusion_to_consider=line_of_interest.split()[i+1]
-            pdb.set_trace()
+            #pdb.set_trace()
             if (exclusion_to_consider[0]=="-"):
                 #Scenario 1
                 begin_pixel=0
@@ -106,11 +108,25 @@ for indiv_trace in list(all_data):
                 #Scenario 2
                 begin_pixel=int(exclusion_to_consider.partition("-")[0])
                 end_pixel=int(exclusion_to_consider.partition("-")[2])
-            
             else:
                 print('Problem in identifying the exclusion')
-    
-    
+            pdb.set_trace()
+            print('lala')
+            #I check, OK the above works!!
+            
+            #Create a vector from begin_pixel to end_pixel
+            vect_begin_end=np.arange(begin_pixel,end_pixel+1,1)
+            
+            #Append all the indexes of exclusion
+            index_exclusion=np.append(index_exclusion,vect_begin_end).astype(int)
+        
+        pdb.set_trace()
+        #Extract the corresponding lon/lat exclusion
+        lat_exclusion=lat[0,index_exclusion]
+        lon_exclusion=lon[0,index_exclusion]
+        
+        #Save the lat/lon with the corresponding date in a dictionnary
+            
     
     
     
