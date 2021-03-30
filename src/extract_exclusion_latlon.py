@@ -33,6 +33,10 @@ for indiv_file in list(lakes_and_other_exclusions):
 
 #3. Loop over the dates of the exclusion file
 loc=0
+
+#Create the dictionnary that will store the lat/lon exclusions for any track.
+exclusion_dict = {k: {} for k in list(all_data)}
+ 
 for indiv_trace in list(all_data):
     print('Track being read: '+indiv_trace)
     # ---------------- This is from 'Download_AR_data.py' ------------------- #
@@ -125,11 +129,13 @@ for indiv_trace in list(all_data):
         lat_exclusion=lat[0,index_exclusion]
         lon_exclusion=lon[0,index_exclusion]
         
+        #Create the room where to store lat and lon exclusion
+        exclusion_dict[indiv_trace]= {k: {} for k in list(['lat_exclusion',
+                                                           'lon_exclusion'])}
+        
         #Save the lat/lon with the corresponding date in a dictionnary
-            
-    
-    
-    
+        exclusion_dict[indiv_trace]['lat_exclusion']=lat_exclusion
+        exclusion_dict[indiv_trace]['lon_exclusion']=lon_exclusion
     
     #Update loc index
     loc=loc+1
