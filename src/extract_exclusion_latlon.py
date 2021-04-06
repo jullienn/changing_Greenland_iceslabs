@@ -134,7 +134,7 @@ for indiv_trace in list(all_data):
         exclusion_dict[indiv_trace]['lon_exclusion']=lon_exclusion
         print('Done with '+indiv_trace)
         
-        #I checket, it works!
+        #I checked, it works!
         
     #Update loc index
     loc=loc+1
