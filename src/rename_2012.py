@@ -15,7 +15,7 @@ import pdb
 pdb.set_trace()
 
 #Define the working environment
-path= 'C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data'
+path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 os.chdir(path) # relative path: scripts dir is under Lab
 
 # Read the years of data
