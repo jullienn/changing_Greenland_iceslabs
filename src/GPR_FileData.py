@@ -129,7 +129,7 @@ GPR_DETRENDED_PICKLEFILES = [logvariance_to_detrended_filename(f) for f in RESAM
 # IceBridge Data Folder
 #ICEBRIDGE_DATA_FOLDER = r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_processing\iceslabs_MacFerrin\data'
 ICEBRIDGE_DATA_FOLDER = r'C:\Users\jullienn\Documents\working_environment\iceslabs_MacFerrin\data'
-ICEBRIDGE_DATA_H5FILE = os.path.join(ICEBRIDGE_DATA_FOLDER, "test_IceBridgeDB.h5")
+ICEBRIDGE_DATA_H5FILE = os.path.join(ICEBRIDGE_DATA_FOLDER, "IceBridgeDB_2010_2014.h5")
 ICEBRIDGE_EXPORT_FOLDER = os.path.join(ICEBRIDGE_DATA_FOLDER, "exported")
 
 
