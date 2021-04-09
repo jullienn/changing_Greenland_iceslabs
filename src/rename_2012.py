@@ -43,12 +43,16 @@ for folder_year in folder_years:
             onlyfiles = [f for f in listdir(folder_day_name) if isfile(join(folder_day_name, f))]
             #pdb.set_trace()
             
+            #Make the path name suitable for data rename
+            folder_day_name_path=folder_day_name+'/'
+            
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
                 pdb.set_trace()
                 
                 #Rename the files
-                os.rename(os.path.join(path, indiv_file), os.path.join(path,indiv_file[0:5]+indiv_file[12:31]))
+                os.rename(os.path.join(folder_day_name_path, indiv_file), os.path.join(folder_day_name_path,indiv_file[0:5]+indiv_file[12:31]))
+                print('File',indiv_file[0:5]+indiv_file[12:31],' was renamed')
     else:
         print('Not desired folder, continue')
         continue
