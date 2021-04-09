@@ -12,7 +12,7 @@ from os import listdir
 from os.path import isfile, join
 import pdb
 
-pdb.set_trace()
+#pdb.set_trace()
 
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
@@ -48,7 +48,7 @@ for folder_year in folder_years:
             
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-                pdb.set_trace()
+                #pdb.set_trace()
                 
                 #Rename the files
                 os.rename(os.path.join(folder_day_name_path, indiv_file), os.path.join(folder_day_name_path,indiv_file[0:5]+indiv_file[12:31]))
