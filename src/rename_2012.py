@@ -45,10 +45,10 @@ for folder_year in folder_years:
             
             for indiv_file in onlyfiles:
                 print('Treating file',indiv_file)
-                #pdb.set_trace()
+                pdb.set_trace()
                 
                 #Rename the files
-                #os.rename(os.path.join(path, file), os.path.join(path,file[0:5]+file[12:31]))
+                os.rename(os.path.join(path, indiv_file), os.path.join(path,indiv_file[0:5]+indiv_file[12:31]))
     else:
         print('Not desired folder, continue')
         continue
