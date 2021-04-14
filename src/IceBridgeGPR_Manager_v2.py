@@ -1472,7 +1472,7 @@ class IceBridgeGPR_Track_v2():
         else:
             self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         
-        if (self.NAME[0:4] in list(['2011','2014']):
+        if (self.NAME[0:4] in list(['2011','2014'])):
             if (depth_check[10]>1):
                 #depth_check[10] so that I am sure that the whole vector is largely positive and
                 #not the first as can be for some date were the proccessing is working
@@ -2592,7 +2592,7 @@ class IceBridgeGPR_Track_v2():
 
             # Save to object
             self.TRACES_depth_corrected = traces_norm_inflated
-            pdb.set_trace()
+            #pdb.set_trace()
             ######################################
             ## Export corrected image
             ######################################
@@ -2733,7 +2733,7 @@ class IceBridgeGPR_Track_v2():
 
     def _export_to_8bit_array(self, array):
         print('-------------------- ENTERING _export_to_8bit_array --------------------')
-        pdb.set_trace()
+        #pdb.set_trace()
         '''In order to export a function to a PNG image, use this funciton to
         export to an 8 bit unsigned integer array of scaled values.'''
 
@@ -2779,7 +2779,7 @@ class IceBridgeGPR_Track_v2():
 
     def export_image(self, array, image_label=""):
         print('-------------------- ENTERING export_image --------------------')
-        pdb.set_trace()
+        #pdb.set_trace()
 
         '''Create an black-and-white output image of this track.'''
         export_integers = self._export_to_8bit_array(array)
