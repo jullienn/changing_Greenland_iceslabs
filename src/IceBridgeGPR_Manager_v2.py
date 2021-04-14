@@ -2592,7 +2592,7 @@ class IceBridgeGPR_Track_v2():
 
             # Save to object
             self.TRACES_depth_corrected = traces_norm_inflated
-            #pdb.set_trace()
+            pdb.set_trace()
             ######################################
             ## Export corrected image
             ######################################
@@ -2625,7 +2625,7 @@ class IceBridgeGPR_Track_v2():
         ######################################################################
         ######################### Jusque là on est bon! ######################
         ######################################################################
-        pdb.set_trace()
+        #pdb.set_trace()
         
         # We identified the minimum signal-cutoff and continuity-threshold values for each algorithm.  They
         # gave very close results.  Produce one image from each Algorithm and we will evaluate which one worked best on all the datasets.
@@ -2733,7 +2733,7 @@ class IceBridgeGPR_Track_v2():
 
     def _export_to_8bit_array(self, array):
         print('-------------------- ENTERING _export_to_8bit_array --------------------')
-        #pdb.set_trace()
+        pdb.set_trace()
         '''In order to export a function to a PNG image, use this funciton to
         export to an 8 bit unsigned integer array of scaled values.'''
 
@@ -2779,7 +2779,7 @@ class IceBridgeGPR_Track_v2():
 
     def export_image(self, array, image_label=""):
         print('-------------------- ENTERING export_image --------------------')
-        #pdb.set_trace()
+        pdb.set_trace()
 
         '''Create an black-and-white output image of this track.'''
         export_integers = self._export_to_8bit_array(array)
