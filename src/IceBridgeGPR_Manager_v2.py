@@ -1460,7 +1460,6 @@ class IceBridgeGPR_Track_v2():
         ### This piece of code was added on February 3rd, 2021 at 18h20    ###
         ### self.NAME[0:4]=='2014' added on Feb 15th 2021 at 10h00                           ###
         ######################################################################
-        #pdb.set_trace()
         
         depth_check=self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         
@@ -1472,7 +1471,7 @@ class IceBridgeGPR_Track_v2():
         else:
             self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         
-        if (self.NAME[0:4] in list(['2011','2014'])):
+        if (self.NAME[0:4] in list(['2011','2012','2014'])):
             if (depth_check[10]>1):
                 #depth_check[10] so that I am sure that the whole vector is largely positive and
                 #not the first as can be for some date were the proccessing is working
