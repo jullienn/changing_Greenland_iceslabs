@@ -10,6 +10,7 @@ import pdb
 import pandas as pd
 import numpy as np
 import scipy.io
+import h5py
 
 #Define the path where the data are stored
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
@@ -66,10 +67,22 @@ for indiv_trace in list(all_data):
         #Define folders where to load the data
         folder_data=path_data+indiv_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+indiv_trace[0:11]
         #Load files of that trace
-        fdata=scipy.io.loadmat(folder_data+'/Data_'+indiv_trace[0:11]+'_'+trace_nb_indiv_str+'.mat')
-        #Load lat and lon
-        lat=fdata['Latitude']
-        lon=fdata['Longitude']
+        
+        #if from 2010-2013
+        if (indiv_trace[0:4] in list (['2010','2011','2012','2013'])):
+            fdata=scipy.io.loadmat(folder_data+'/Data_'+indiv_trace[0:11]+'_'+trace_nb_indiv_str+'.mat')
+            #Load lat and lon
+            lat=fdata['Latitude']
+            lon=fdata['Longitude']
+        
+        elif (indiv_trace[0:4] in list (['2014'])):
+            #if 2014 data
+            with h5py.File(folder_data+'/Data_'+indiv_trace[0:11]+'_'+trace_nb_indiv_str+'.mat', 'r') as f:
+                #pdb.set_trace()
+                f.keys()
+                #Load lat and lon
+                lat=f['Latitude'][:].transpose() #2017 data should be transposed
+                lon=f['Longitude'][:].transpose() #2017 data should be transposed
         
         #Append the data to each other for pixel identification
         lat_append=np.append(lat_append,lat)
@@ -84,7 +97,7 @@ for indiv_trace in list(all_data):
         #Several scenarios:
         #1. -222 : means that all the pixel from the begining until 222 are excluded
         #2. 234-287 : means that all the pixels between 234 and 287 are excluded
-        #3. 567- : meand that all the pixels from 567 until the end of the trace are excluded.
+        #3. 567- : means that all the pixels from 567 until the end of the trace are excluded.
         
         #Know whether the pixel is included or not in the exclusion
         
