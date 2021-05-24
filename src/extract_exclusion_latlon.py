@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import scipy.io
 import h5py
+import pickle
 
 #Define the path where the data are stored
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
@@ -157,3 +158,11 @@ for indiv_trace in list(all_data):
     loc=loc+1
 
 #5. Save the associated lat/lon (save the vector of all the lat and lon in between)
+
+# --- This piece of code is inspired from retreive_latlon_2002_2003_AR.py ---#
+#Save the dictionary into a picke file
+filename_tosave=path_data+'Exclusion_folder/exclusiondic_2010_2014'
+outfile= open(filename_tosave, "wb" )
+pickle.dump(exclusion_dict,outfile)
+outfile.close()
+# --- This piece of code is inspired from retreive_latlon_2002_2003_AR.py ---#
