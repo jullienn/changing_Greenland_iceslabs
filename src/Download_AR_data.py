@@ -301,6 +301,12 @@ if (year_to_download=='2010_2014'):
 if (year_to_download=='2017'):
     pdb.set_trace()
     
+    #Define the folder to not download
+    to_not_download=['20170329_02','20170330_01','20170330_02','20170330_03','20170330_05',
+                 '20170403_04','20170403_06','20170406_01','20170406_02','20170407_01',
+                 '20170407_02','20170407_04','20170426_01','20170426_02','20170428_01',
+                 '20170506_02','20170510_01']
+    
     from ftplib import FTP
     from datetime import datetime
     
@@ -348,6 +354,11 @@ if (year_to_download=='2017'):
             
             #Loop over the folders, and download all the data in this folder
             for folder in folders:
+                
+                if folder in list(to_not_download):
+                    #Not Greenland, do not bother download it
+                    continue
+                
                 folder_name=[]
                 folder_name=folder_year_name + folder + '/'
                 ftp.cwd(folder_name)
