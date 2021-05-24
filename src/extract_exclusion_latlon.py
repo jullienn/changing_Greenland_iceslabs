@@ -55,6 +55,8 @@ for indiv_trace in list(all_data):
     lat_append=[]
     lon_append=[]
     
+    #3. In this loop, open individual files
+
     for trace_nb_indiv in list(vect_traces_nb):
         if (trace_nb_indiv<10):
             trace_nb_indiv_str='00'+str(trace_nb_indiv)
@@ -103,6 +105,8 @@ for indiv_trace in list(all_data):
         
         index_exclusion=[]
         
+        #4. In this loop, retreive the associated lat/lon and store them in a dictionnary
+         
         for i in range(0,len(line_of_interest.split())-1):
             #-1 because the first one is the date
             #if len(line_of_interest.partition(" "))>= 2, then there is a least one exclusion to consider
@@ -151,8 +155,5 @@ for indiv_trace in list(all_data):
         
     #Update loc index
     loc=loc+1
-    
-        
-#3. In this loop, open individual files and store retreive the associated lat/lon
 
-#4. Save the associated lat/lon (save the vector of all the lat and lon in between)
+#5. Save the associated lat/lon (save the vector of all the lat and lon in between)
