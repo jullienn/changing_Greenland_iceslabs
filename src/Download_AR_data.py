@@ -299,7 +299,7 @@ if (year_to_download=='2010_2014'):
 ############################# Download 2017 AR data #############################
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 if (year_to_download=='2017'):
-    pdb.set_trace()
+    #pdb.set_trace()
     
     #Define the folder to not download
     to_not_download=['20170329_02','20170330_01','20170330_02','20170330_03','20170330_05',
@@ -326,11 +326,11 @@ if (year_to_download=='2017'):
     folders_years = ftp.nlst()
     
     #Set the path where to save data
-    path_to_save='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+    path_save='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
     
     for folder_year in folders_years:
         if (folder_year == '2017_Greenland_P3'):
-            pdb.set_trace()
+            #pdb.set_trace()
             
             print('Downloading 2017 data')
             
@@ -339,11 +339,11 @@ if (year_to_download=='2017'):
             
             if (download_images=='TRUE'):
                 folder_year_name=path + folder_year + '/images/'
-                path_to_save=path_to_save + folder_year + '/images/'
+                path_save=path_save + folder_year + '/images/'
             
             if(download_mat=='TRUE'):
                 folder_year_name=path + folder_year + '/CSARP_standard/'
-                path_to_save=path_to_save + folder_year + '/CSARP_qlook/'
+                path_save=path_save + folder_year + '/CSARP_qlook/'
             
             #Go to folder to download
             ftp.cwd(folder_year_name)
@@ -359,6 +359,10 @@ if (year_to_download=='2017'):
                     #Not Greenland, do not bother download it
                     continue
                 
+                if (folder == '20170322_04'):
+                    print('Folder 20170322_04 does not exist for .mat files, continue')
+                    continue
+                                
                 folder_name=[]
                 folder_name=folder_year_name + folder + '/'
                 ftp.cwd(folder_name)
@@ -366,11 +370,14 @@ if (year_to_download=='2017'):
                 
                 #Update the folder name to store .mat file data
                 if(download_mat=='TRUE'):
-                    path_to_save=path_to_save + folder + '/'
+                    path_to_save=path_save + folder + '/'
                     
                     #If the folder does not exist, create it
                     if not(os.path.isdir(path_to_save)):
                         os.mkdir(path_to_save)
+                
+                if (download_images=='TRUE'):
+                    path_to_save=path_save
                 
                 # Get all Files in the folder in the cresis data repository
                 files=[]
