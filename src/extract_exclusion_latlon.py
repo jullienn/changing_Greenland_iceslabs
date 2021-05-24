@@ -12,9 +12,9 @@ import numpy as np
 import scipy.io
 
 #Define the path where the data are stored
-path_data='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/'
+path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 #1. Open exclusion file
-path_exclusion_folder='C:/Users/jullienn/Documents/working_environement/iceslabs_MacFerrin/data/Exclusion_folder/txt/'
+path_exclusion_folder='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/txt/'
 
 f = open(path_exclusion_folder+'LAKES_AND_OTHER_EXCLUSIONS.txt','r')
 lakes_and_other_exclusions = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
