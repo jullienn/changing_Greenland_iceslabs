@@ -9,10 +9,10 @@ Created on Mon May 24 14:58:51 2021
 # in order to process only data where iceslabs can be expected.
 # To do so, the coordinates of any track is checked whether it belongs to
 # the shapefile 'IceBridgeArea_Shape' from MacFerrin et al., 2019. If yes,
-# then we keep we associated track number. If not, it is checked it the
-# associated track number does indeed not contain ice slabs. If positive,
-# then the track can be deleted
-
+# then we keep we associated track number. Once this process is done, I should
+# carefully check the first and last tracks of any continuous trace contained
+# within this shape to make sure I do not miss ice slabs below and above this
+# area. Then I can delete the remaining tracks.
 
 ##############################################################################
 ############### Define function for discrete colorbar display ###############
@@ -42,13 +42,10 @@ import numpy as np
 import os
 import h5py
 from shapely.geometry import Point, Polygon
-
 from os import listdir
 import os.path
 from os.path import isfile, join
-
 import pdb
-
 import shapefile as shp  # Requires the pyshp package
 import matplotlib.pyplot as plt
 from pyproj import Transformer
@@ -106,7 +103,6 @@ cb=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),n
 ### ---------------------------- Display the DEM ------------------------- ###
 
 ### ------------------------- Display the shapefile ---------------------- ###
-
 IceBridgeArea_Shape.plot(ax=ax1)
 plt.show()
 ### ------------------------- Display the shapefile ---------------------- ###
@@ -190,8 +186,6 @@ for folder in folders_track:
             ##Yes, it does work!
             #ax1.scatter(lon_3413[0,i],lat_3413[0,i],c='r',s=0.1)
             #plt.show()
-            
-            #nb 5 <=> id=6 is TRUE. It works!
 
 print('End of processing')
 
