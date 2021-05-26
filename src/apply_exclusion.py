@@ -140,11 +140,15 @@ IceBridgeArea_Shape.plot(ax=ax1)
 ### ---------------------------- Plot exclusion -------------------------- ###
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 
-col_legend=[]
-label_legend=[]
+#Create an empty dictionnary for appending all the data of a specific year together
+yearly_exclusion = {k: {} for k in list(['2010','2011','2012','2013','2014'])}
+
+for indiv_year in yearly_exclusion.keys():
+    yearly_exclusion[indiv_year]={k: [] for k in list(['lat_append','lon_append'])}
 
 #Visualize the exclusion
 for exclusion_indiv in exclusion_dict.keys():
+    
     if (exclusion_dict[exclusion_indiv]=={}):
         #No exclusion, continue
         print(exclusion_indiv,' is empty, continue')
@@ -170,6 +174,18 @@ for exclusion_indiv in exclusion_dict.keys():
         
         #Plot lat/lon exclusion
         ax1.scatter(lon_3413_excl,lat_3413_excl,c=color_code,s=0.3)
+        
+        #Take all the data of that year that have already been appended
+        lat_append=yearly_exclusion[exclusion_indiv[0:4]]['lat_append']
+        lon_append=yearly_exclusion[exclusion_indiv[0:4]]['lon_append']
+        
+        #Append all the data together as a function of the year
+        lat_append=np.append(lat_append,lat_3413_excl)
+        lon_append=np.append(lon_append,lon_3413_excl)
+        
+        #Fill in the yearly_exclusion dictionnary
+        yearly_exclusion[exclusion_indiv[0:4]]['lat_append']=lat_append
+        yearly_exclusion[exclusion_indiv[0:4]]['lon_append']=lon_append       
 
 #Legend preparation
 patch2010 = mpatches.Patch(color='#fef0d9', label='2010')
