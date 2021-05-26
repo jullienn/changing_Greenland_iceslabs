@@ -187,6 +187,7 @@ for folder in folders_track:
             #ax1.scatter(lon_3413[0,i],lat_3413[0,i],c='r',s=0.1)
             #plt.show()
 
+#Display the resulted kept data to check?
 print('End of processing')
 
 
