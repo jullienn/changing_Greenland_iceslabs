@@ -122,10 +122,6 @@ plt.show()
 path_2017='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/2017_Greenland_P3/CSARP_qlook'
 os.chdir(path_2017)
 
-#Prepare the list where the filenames where data is within the iceslabs shapefile
-#interest will be saved
-data_intersect=[]
-
 # Read the folders of data
 folders_track = [ f.name for f in os.scandir(path_2017) if f.is_dir() ]
 
@@ -133,6 +129,18 @@ pdb.set_trace()
 
 for folder in folders_track:
     pdb.set_trace()
+    
+    #Generate a new figure for each date
+    fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    fig.suptitle('Iceslabs area overview')
+    cb=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm,alpha=0.5)
+    IceBridgeArea_Shape.plot(ax=ax1)
+    plt.show()
+    
+    #Prepare the list where the filenames where data is within the iceslabs shapefile
+    #interest will be saved
+    data_intersect=[]
+
     #Update the path to get into the folder of interest
     path_2017_indiv_track=path_2017+'/'+folder
     # Read the files of this specific day
@@ -158,6 +166,8 @@ for folder in folders_track:
         lat_3413=points[1]
         
         ax1.scatter(lon_3413,lat_3413,c='gray',s=0.1)
+        #Display the start of the trace
+        ax1.scatter(lon_3413[0,0],lat_3413[0,0],c='red',s=0.1)
         #ax1.set_xlim(-533400,-532400)
         #ax1.set_ylim(-1335350,-1335450)
         plt.show()
