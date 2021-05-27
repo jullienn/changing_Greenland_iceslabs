@@ -179,9 +179,9 @@ for exclusion_indiv in exclusion_dict.keys():
         lat_append=yearly_exclusion[exclusion_indiv[0:4]]['lat_append']
         lon_append=yearly_exclusion[exclusion_indiv[0:4]]['lon_append']
         
-        #Append all the data together as a function of the year
-        lat_append=np.append(lat_append,lat_3413_excl)
-        lon_append=np.append(lon_append,lon_3413_excl)
+        #Append all the data together as a function of the year. Take the lat/lon as WGS_84, not EPSG_3413!
+        lat_append=np.append(lat_append,exclusion_dict[exclusion_indiv]['lat_exclusion'])
+        lon_append=np.append(lon_append,exclusion_dict[exclusion_indiv]['lon_exclusion'])
         
         #Fill in the yearly_exclusion dictionnary
         yearly_exclusion[exclusion_indiv[0:4]]['lat_append']=lat_append
@@ -238,8 +238,10 @@ for indiv_file in onlyfiles:
     
     #1. Calculate the distance between the point of interest and the exclusion lat/lon
     for i in range(0,lat.size):
-        single_lat=lat[i]
-        single_lon=lon[i]
+        single_lat=lat[0,i]
+        single_lon=lon[0,i]
+        
+        pdb.set_trace()
         
         #Calculate the great circle distance between ith
         #and jth element. This haversine function does not take into
