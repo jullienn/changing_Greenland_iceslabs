@@ -127,7 +127,14 @@ folders_track = [ f.name for f in os.scandir(path_2017) if f.is_dir() ]
 
 pdb.set_trace()
 
+#Folder that have already been considered
+folder_done=['20170322_01','20170322_02','20170322_03',
+             '20170327_04','20170328_01','20170329_01']
+
 for folder in folders_track:
+    if folder in list(folder_done):
+        print(folder,' have already been processes, continue')
+        continue
     pdb.set_trace()
     
     #Generate a new figure for each date
