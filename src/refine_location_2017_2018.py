@@ -129,7 +129,10 @@ data_intersect=[]
 # Read the folders of data
 folders_track = [ f.name for f in os.scandir(path_2017) if f.is_dir() ]
 
+pdb.set_trace()
+
 for folder in folders_track:
+    pdb.set_trace()
     #Update the path to get into the folder of interest
     path_2017_indiv_track=path_2017+'/'+folder
     # Read the files of this specific day
@@ -154,10 +157,10 @@ for folder in folders_track:
         lon_3413=points[0]
         lat_3413=points[1]
         
-        #ax1.scatter(lon_3413,lat_3413,c='k',s=0.1)
+        ax1.scatter(lon_3413,lat_3413,c='gray',s=0.1)
         #ax1.set_xlim(-533400,-532400)
         #ax1.set_ylim(-1335350,-1335450)
-        #plt.show()
+        plt.show()
         ### --------------------------- Plot lat/lon ----------------------------- ###
         
         #Loop over any data point to check whether it belongs to the ice slabs
@@ -180,12 +183,13 @@ for folder in folders_track:
                 data_intersect=np.append(data_intersect,indiv_file[5:20])
                 
                 print('Trace is within ice slabs area, break')
+                ax1.scatter(lon_3413,lat_3413,c='lime',s=0.1)
                 break
-            
-            ##Display the point of interest for checking if this technique works.
-            ##Yes, it does work!
-            #ax1.scatter(lon_3413[0,i],lat_3413[0,i],c='r',s=0.1)
-            #plt.show()
+    plt.show()
+    ##Display the point of interest for checking if this technique works.
+    ##Yes, it does work!
+    #ax1.scatter(lon_3413[0,i],lat_3413[0,i],c='r',s=0.1)
+    #plt.show()
 
 #Display the resulted kept data to check?
 print('End of processing')
