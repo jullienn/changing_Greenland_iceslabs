@@ -210,6 +210,7 @@ folder_day='20170422_01'
 onlyfiles=list(['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat'])
 
 for indiv_file in onlyfiles:
+    print('Treating file: ',indiv_file)
     #Update path
     pdb.set_trace()
     path_2017_indiv=path_2017_data+'/'+folder_day
@@ -238,17 +239,31 @@ for indiv_file in onlyfiles:
     
     #1. Calculate the distance between the point of interest and the exclusion lat/lon
     for i in range(0,lat.size):
+        
+        print(str(np.round(i/lat.size*100,2)),' %')
+        
         single_lat=lat[0,i]
         single_lon=lon[0,i]
         
-        pdb.set_trace()
-        
-        #Calculate the great circle distance between ith
-        #and jth element. This haversine function does not take into
-        # account the variation of the earth radius as a function of the
-        #latitude. How to use: haversine(lon1, lat1, lon2, lat2)
-        dist_pt=[]
-        dist_pt=haversine(single_lon, single_lat, df_agg['lon'][j], df_agg['lat'][j])
+        #Let's hierarchize: start whether there are data in 2014, if not 2013 and so on down to 2010
+        for year_excl in yearly_exclusion.keys():
+            #print('    Treating year: ',year_excl)
+            year_excl_treated=yearly_exclusion[year_excl]
+            
+            #Loop over the yearly exclusion coordinates
+            for j in range(0,year_excl_treated['lat_append'].size):
+                #Calculate the great circle distance between ith
+                #and jth element. This haversine function does not take into
+                # account the variation of the earth radius as a function of the
+                #latitude. How to use: haversine(lon1, lat1, lon2, lat2)
+                dist_pt=[]
+                dist_pt=haversine(single_lon, single_lat, year_excl_treated['lon_append'][j], year_excl_treated['lat_append'][j])
+                
+                if (dist_pt > 0.05):
+                    #Distance below 50m, continue
+                    continue
+                else:
+                    pdb.set_trace()
 
 #Calculation if pixel is done    
 #2. If the distance if less than 50m away (to modify?), then take the closest point
