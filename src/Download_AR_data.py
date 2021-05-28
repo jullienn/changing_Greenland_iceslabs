@@ -418,3 +418,120 @@ if (year_to_download=='2017'):
     print('All files downloaded for ' + str(diff.seconds) + 's')
 
 ############################# Download 2017 AR data #############################
+
+
+############################# Download 2018 AR data #############################
+#Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
+if (year_to_download=='2018'):
+    #pdb.set_trace()
+    
+    #Define the folder to not download
+    to_not_download=['20180315_01','20180315_02','20180315_03','20180315_04']
+    
+    from ftplib import FTP
+    from datetime import datetime
+    
+    #Set data we want to download
+    download_images='FALSE'
+    download_mat='TRUE'
+    
+    start = datetime.now()
+    ftp = FTP('data.cresis.ku.edu')
+    ftp.login()
+    
+    #path='/data/accum/old_format/2003/'
+    path='/data/accum/'
+    ftp.cwd(path)
+    
+    # Get folders_years name
+    folders_years = ftp.nlst()
+    
+    #Set the path where to save data
+    path_save='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+    
+    for folder_year in folders_years:
+        if (folder_year == '2018_Greenland_P3'):
+            #pdb.set_trace()
+            
+            print('Downloading 2018 data')
+            
+            #Go to folder year
+            folder_year_name=[]
+            
+            if (download_images=='TRUE'):
+                folder_year_name=path + folder_year + '/images/'
+                path_save=path_save + folder_year + '/images/'
+            
+            if(download_mat=='TRUE'):
+                folder_year_name=path + folder_year + '/CSARP_qlook/'
+                path_save=path_save + folder_year + '/CSARP_qlook/'
+            
+            #Go to folder to download
+            ftp.cwd(folder_year_name)
+            
+            # For this particular year, get folders name
+            folders=[]
+            folders = ftp.nlst()
+            
+            #Loop over the folders, and download all the data in this folder
+            for folder in folders:
+                
+                if folder in list(to_not_download):
+                    #Not Greenland, do not bother download it
+                    continue
+                
+                folder_name=[]
+                folder_name=folder_year_name + folder + '/'
+                ftp.cwd(folder_name)
+                print("Now in folder ..." + folder_name)
+                
+                #Update the folder name to store .mat file data
+                if(download_mat=='TRUE'):
+                    path_to_save=path_save + folder + '/'
+                    
+                    #If the folder does not exist, create it
+                    if not(os.path.isdir(path_to_save)):
+                        os.mkdir(path_to_save)
+                
+                if (download_images=='TRUE'):
+                    path_to_save=path_save
+                
+                # Get all Files in the folder in the cresis data repository
+                files=[]
+                files = ftp.nlst()
+                
+                # Print out and download the files
+                if (download_images=='TRUE'):
+                    for file in files:
+                        if (os.path.isfile(path_to_save + file)):
+                            #If the file have already been downloaded, continue
+                            print(file+' have already been downloaded. Continue ...')
+                            continue
+                        
+                        print("Downloading..." + file)
+                        ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                    
+                if (download_mat=='TRUE'):
+                    for file in files:
+                        if (file[0:9]=='Data_2018'):
+                            if (os.path.isfile(path_to_save + file)):
+                                #If the file have already been downloaded, continue
+                                print(file+' have already been downloaded. Continue ...')
+                                continue
+                            #Grab only the files starting by 'Data_2017...'
+                            print("Downloading..." + file)
+                            ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                        else:
+                            print('This is a file Data_img ...')
+                            #This is data starting by 'Data_img...', we do not want that
+                            continue
+                
+        else:
+            print('This is not 2018, continue')
+            
+    ftp.close()
+    end = datetime.now()
+    diff = end - start
+    print('All files downloaded for ' + str(diff.seconds) + 's')
+
+############################# Download 2018 AR data #############################

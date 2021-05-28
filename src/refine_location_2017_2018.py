@@ -129,7 +129,8 @@ pdb.set_trace()
 
 #Folder that have already been considered
 folder_done=['20170322_01','20170322_02','20170322_03',
-             '20170327_04','20170328_01','20170329_01']
+             '20170327_04','20170328_01','20170329_01',
+             '20170331_01','20170410_01']
 
 for folder in folders_track:
     if folder in list(folder_done):
