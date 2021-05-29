@@ -19,7 +19,7 @@ import os.path
 import os
 import csv
 
-year_to_download='2017'#'2010_2014'
+year_to_download='2018'#'2010_2014'
 
 ############################ Download old AR data #############################
 if (year_to_download=='old'):
@@ -432,8 +432,8 @@ if (year_to_download=='2018'):
     from datetime import datetime
     
     #Set data we want to download
-    download_images='FALSE'
-    download_mat='TRUE'
+    download_images='TRUE'
+    download_mat='FALSE'
     
     start = datetime.now()
     ftp = FTP('data.cresis.ku.edu')
