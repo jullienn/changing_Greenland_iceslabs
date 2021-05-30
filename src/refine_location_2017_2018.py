@@ -50,6 +50,8 @@ import shapefile as shp  # Requires the pyshp package
 import matplotlib.pyplot as plt
 from pyproj import Transformer
 
+year_to_refine='2018'
+
 #1. Load shapefile
 ### --------------------------- Load shapefile --------------------------- ###
 #from https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python
@@ -118,19 +120,29 @@ plt.show()
 #plt.show()
 ### --------------------------- Plot shapefile --------------------------- ###
 
-#4. Load individual 2017 data
-path_2017='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/2017_Greenland_P3/CSARP_qlook'
-os.chdir(path_2017)
+#4. Load individual yealry data
+if (year_to_refine=='2017'):
+    path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/2017_Greenland_P3/CSARP_qlook'
+    os.chdir(path_data)
+    
+    #Folder that have already been considered
+    folder_done=['20170322_01','20170322_02','20170322_03',
+                 '20170327_04','20170328_01','20170329_01',
+                 '20170331_01','20170410_01']
+    
+elif (year_to_refine=='2018'):
+    path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/2018_Greenland_P3/CSARP_qlook'
+    os.chdir(path_data)
+    
+    #Folder that have already been considered
+    folder_done=[]
 
 # Read the folders of data
-folders_track = [ f.name for f in os.scandir(path_2017) if f.is_dir() ]
+folders_track = [ f.name for f in os.scandir(path_data) if f.is_dir() ]
 
 pdb.set_trace()
 
-#Folder that have already been considered
-folder_done=['20170322_01','20170322_02','20170322_03',
-             '20170327_04','20170328_01','20170329_01',
-             '20170331_01','20170410_01']
+
 
 for folder in folders_track:
     if folder in list(folder_done):
@@ -150,15 +162,15 @@ for folder in folders_track:
     data_intersect=[]
 
     #Update the path to get into the folder of interest
-    path_2017_indiv_track=path_2017+'/'+folder
+    path_data_indiv_track=path_data+'/'+folder
     # Read the files of this specific day
-    onlyfiles = [f for f in listdir(path_2017_indiv_track) if isfile(join(path_2017_indiv_track, f))]
+    onlyfiles = [f for f in listdir(path_data_indiv_track) if isfile(join(path_data_indiv_track, f))]
     
     #Loop over any file
     for indiv_file in onlyfiles:
         print(indiv_file)
         #Open the file of interest
-        with h5py.File(path_2017_indiv_track+'/'+indiv_file, 'r') as f:
+        with h5py.File(path_data_indiv_track+'/'+indiv_file, 'r') as f:
             f.keys()
             #Load lat and lon
             lat=f['Latitude'][:].transpose() #2017 data should be transposed
