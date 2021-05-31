@@ -135,7 +135,10 @@ elif (year_to_refine=='2018'):
     os.chdir(path_data)
     
     #Folder that have already been considered
-    folder_done=[]
+    folder_done=['20180404_02', '20180405_01', '20180418_01', '20180419_01',
+                 '20180419_02','20180421_01','20180422_01','20180423_01',
+                 '20180425_01','20180426_01','20180426_02','20180426_03',
+                 '20180427_01','20180429_01','20180430_01','20180501_01']
 
 # Read the folders of data
 folders_track = [ f.name for f in os.scandir(path_data) if f.is_dir() ]
