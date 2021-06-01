@@ -66,13 +66,13 @@ def onclick(event):
 ################### Define function for ice lenses logging ###################
 ##############################################################################
 
-#Open, read and close the file of dates that require surface pick improvement for 2002/2003
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/dates_for_surf_pick_start.txt','r')
-dates_surf = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
-f.close()
+##Open, read and close the file of dates that require surface pick improvement for 2002/2003
+#f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/dates_for_surf_pick_start.txt','r')
+#dates_surf = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+#f.close()
 
 #Open, read and close the file of dates that require surface pick improvement for 2017
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/dates_for_surf_pick_2017.txt','r')
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/dates_for_surf_pick_2017.txt','r')
 dates_surf_2017 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
@@ -246,7 +246,7 @@ for folder_year in folder_years:
                         fig=pyplot.figure(figsize=(48,40))
                         
                         #Change label font
-                        pyplot.rcParams.update({'font.size': 20})
+                        pyplot.rcParams.update({'font.size': 10})
                         color_map=pyplot.pcolor(np.log10(radar_echo[:,0:100]),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                         pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
                         #pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
