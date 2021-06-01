@@ -34,7 +34,7 @@ import pdb
 # Stand-in variables for directories.
 #BASEDIR = r'C:\Users\mmacferrin\Desktop'
 BASEDIR = r'C:\Users\jullienn\Documents\working_environment\iceslabs_MacFerrin\data'
-DB_FILE = os.path.join(BASEDIR, 'IceBridgeDB_2010_2014.h5')
+DB_FILE = os.path.join(BASEDIR, 'IceBridgeDB_2010_2018.h5')
 #CC_LINE_SHAPEFILE = r'F:\Research\DATA\Camp Century, Greenland\CC_Icebridge_shapefile'
 
 class IceBridgeFlightLineDescriptor(T.IsDescription):
