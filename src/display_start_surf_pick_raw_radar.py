@@ -44,7 +44,7 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 raw_radar_echograms='TRUE'
 
 #Choose the year I want to diplay
-year_display='2017'
+year_display='2018'
 
 ##############################################################################
 ############################## Define variables ##############################
@@ -74,6 +74,10 @@ def onclick(event):
 #Open, read and close the file of dates that require surface pick improvement for 2017
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/dates_for_surf_pick_2017.txt','r')
 dates_surf_2017 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+f.close()
+
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/dates_for_surf_pick_2018.txt','r')
+dates_surf_2018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
 #Define the working environment
@@ -264,6 +268,73 @@ for folder_year in folder_years:
                         
                         continue
 
+    if(year_display=='2018'):
+        if (folder_year=='2018_Greenland_P3'):
+            print('Treating the year',folder_year)
+            #pdb.set_trace()
+            
+            #Go into the yearly folders 
+            folder_year_name=path+'/'+folder_year+'/CSARP_qlook'
+            os.chdir(folder_year_name)
+    
+            # Read the days of this specific year
+            folder_days = [ f.name for f in os.scandir(folder_year_name) if f.is_dir() ]
+            
+            for folder_day in folder_days:
+                            
+                print('Now in year',folder_year,'day',folder_day)
+                
+                #Go into the daily folders 
+                folder_day_name=folder_year_name+'/'+folder_day
+                os.chdir(folder_day_name)
+                
+                # Read the files of this specific day
+                onlyfiles = [f for f in listdir(folder_day_name) if isfile(join(folder_day_name, f))]
+                #pdb.set_trace()
+                for indiv_file in onlyfiles:
+                    print('Treating file',indiv_file)
+                    
+                    #If files does not belong to 'dates_surf_2017', we do not need
+                    #to know the start surf pick, continue
+                    #pdb.set_trace()
+                    if (not(indiv_file.replace(".mat","") in dates_surf_2018)):
+                        print('No need to improve start surf pick of',indiv_file)
+                        continue
+                    
+                    #Open the file and read it
+                    with h5py.File(folder_day_name+'/'+indiv_file, 'r') as f:
+                        f.keys()
+                        #Select radar echogram
+                        radar_echo=f['Data'][:].transpose() #2017 data should be transposed
+                    
+                    #If raw_radar_echograms is set to 'TRUE', then plot the raw
+                    #radar echogram of that date and save it
+                    if (raw_radar_echograms=='TRUE'):
+                        
+                        #Generate the pick for vertical distance display
+                        ticks_yplot=np.arange(0,radar_echo.shape[0],200)
+                        
+                        #Plot the raw radar echogram
+                        fig=pyplot.figure(figsize=(48,40))
+                        
+                        #Change label font
+                        pyplot.rcParams.update({'font.size': 10})
+                        color_map=pyplot.pcolor(np.log10(radar_echo[:,0:100]),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                        pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
+                        #pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
+                        pyplot.ylabel('Depth [pixel]')
+                        pyplot.xlabel('Horizontal distance')
+                        pyplot.title('Log10(raw radar echogram), first 100 horizontal pixels: '+indiv_file.replace(".mat",""))
+                        cbar=pyplot.colorbar()
+                        cbar.set_label('Signal strength')
+                        
+                        fig.canvas.mpl_connect('button_press_event', onclick)
+                        pyplot.show()
+    
+                        pdb.set_trace()
+                        
+                        
+                        continue
         else:
             print('Folder',folder_year,', continue ...')
             continue
