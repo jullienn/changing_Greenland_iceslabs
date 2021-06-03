@@ -1450,8 +1450,6 @@ class IceBridgeGPR_Track_v2():
         if self.SAMPLE_TIMES is None:
             self.get_trace_array()
         
-        if (self.NAME[0:19]=='20170329_01_001_001'):
-            pdb.set_trace()
         #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         
         ######################################################################
