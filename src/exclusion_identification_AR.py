@@ -40,6 +40,7 @@ dates_surf_2018 = [line.strip() for line in f.readlines() if len(line.strip()) >
 f.close()
 
 for indiv_file in list(dates_surf_2018):
+    print(indiv_file)
     #Open only the roll_corrected files of interest
     filename=indiv_file+'_ROLLCORRECT__BEFORE.png'
     
