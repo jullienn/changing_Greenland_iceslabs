@@ -1449,7 +1449,9 @@ class IceBridgeGPR_Track_v2():
 
         if self.SAMPLE_TIMES is None:
             self.get_trace_array()
-        #pdb.set_trace()
+        
+        if (self.NAME[0:19]=='20170329_01_001_001'):
+            pdb.set_trace()
         #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         
         ######################################################################
@@ -1471,7 +1473,7 @@ class IceBridgeGPR_Track_v2():
         else:
             self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
         
-        if (self.NAME[0:4] in list(['2011','2012','2014'])):
+        if (self.NAME[0:4] in list(['2011','2012','2014','2017'])):
             if (depth_check[10]>1):
                 #depth_check[10] so that I am sure that the whole vector is largely positive and
                 #not the first as can be for some date were the proccessing is working
