@@ -33,9 +33,10 @@ def onclick(event):
 
 
 #Define the working environment
-path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/'
+#path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/'
+path= 'C:/Users/jullienn/Desktop/roll_corr/'
 
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/data_2018_toberun.txt','r')
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/data_2017_toberun.txt','r')
 dates_surf_2018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 

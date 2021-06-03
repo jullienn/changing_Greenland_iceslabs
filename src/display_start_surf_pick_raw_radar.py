@@ -44,7 +44,7 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 raw_radar_echograms='TRUE'
 
 #Choose the year I want to diplay
-year_display='2018'
+year_display='2017'
 
 ##############################################################################
 ############################## Define variables ##############################
@@ -231,6 +231,9 @@ for folder_year in folder_years:
                     #pdb.set_trace()
                     if (not(indiv_file.replace(".mat","") in dates_surf_2017)):
                         print('No need to improve start surf pick of',indiv_file)
+                        continue
+                    
+                    if (not(indiv_file.replace(".mat","")=='Data_20170322_01_010')):
                         continue
                     
                     #Open the file and read it
