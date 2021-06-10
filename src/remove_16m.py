@@ -127,16 +127,21 @@ for indiv_file in list(dates_surf_2018):
                 start_pix=i
                 #pdb.set_trace()
     
-    #Remove the nan from the exclusion_suite
-    list_exclusion_suite=list(exclusion_suite)
-    list_exclusion_suite=list_exclusion_suite[1:] #remove the first one which is a nan
-    
-    f_exclusions.write(indiv_file+' ')
-    #Store the exclusions for each date
-    for indiv_excl in list_exclusion_suite:
-        f_exclusions.write(indiv_excl+' ')
-    
-    f_exclusions.write('\n')
+    if (len(str(exclusion_suite))==3):
+        #No exclusion for this date
+        f_exclusions.write(indiv_file+'\n')
+    else:
+        #Exclusion for this date
+        #Remove the nan from the exclusion_suite
+        list_exclusion_suite=list(exclusion_suite)
+        list_exclusion_suite=list_exclusion_suite[1:] #remove the first one which is a nan
+        
+        f_exclusions.write(indiv_file+' ')
+        #Store the exclusions for each date
+        for indiv_excl in list_exclusion_suite:
+            f_exclusions.write(indiv_excl+' ')
+        
+        f_exclusions.write('\n')
 
 #Close the exclusion_16m file
 f_exclusions.close()
