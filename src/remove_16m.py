@@ -146,4 +146,3 @@ for indiv_file in list(dates_surf_2018):
 #Close the exclusion_16m file
 f_exclusions.close()
 
-    
