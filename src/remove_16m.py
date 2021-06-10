@@ -24,7 +24,7 @@ f.close()
 
 #create a file text storing the indiv_file name and the exclusions
 path_exclusionfile_store='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/exclusion_16m_2017_2018/'
-f_exclusions = open(path_exclusionfile_store+'exclusion_16m.txt', "w")
+f_exclusions = open(path_exclusionfile_store+'exclusion_16m_2017.txt', "w")
 
 for indiv_file in list(dates_surf_2018):
     print(indiv_file)
@@ -126,8 +126,7 @@ for indiv_file in list(dates_surf_2018):
                 #Suite not being identified, this is a new one => define the start pixel
                 start_pix=i
                 #pdb.set_trace()
-            
-    pdb.set_trace()
+    
     #Remove the nan from the exclusion_suite
     list_exclusion_suite=list(exclusion_suite)
     list_exclusion_suite=list_exclusion_suite[1:] #remove the first one which is a nan
@@ -138,7 +137,7 @@ for indiv_file in list(dates_surf_2018):
         f_exclusions.write(indiv_excl+' ')
     
     f_exclusions.write('\n')
-    pdb.set_trace()
+
 #Close the exclusion_16m file
 f_exclusions.close()
 
