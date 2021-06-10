@@ -84,3 +84,61 @@ for indiv_file in list(dates_surf_2018):
     plt.show()
     pdb.set_trace()
     
+    #Compute the exclusions limits
+    
+    #itialize the start and end pixel
+    start_pix=np.nan
+    end_pix=np.nan
+    #initalize the suite of exclusion pixels
+    exclusion_suite=np.nan
+    
+    for i in range(0,exclusion_vect.size):
+        print(i)
+        if (np.isnan(exclusion_vect[i])):
+            #pixel of interest is nan. Several possibilities
+            #1. Exclusion suite have been defined, we are at the end, i.e.
+            #start pixel is not nan but end pixel is
+            if (not(np.isnan(start_pix)) and np.isnan(end_pix)):
+                #pdb.set_trace()
+                #identify end pixel
+                end_pix=i-1
+                #if the start pix and end pix are identical, do not store and continue
+                if (start_pix==end_pix):
+                    #reset start and end pixels to nan
+                    start_pix=np.nan
+                    end_pix=np.nan
+                    continue
+                
+                #store the exclusion suite just generated
+                exclusion_suite=np.append(exclusion_suite,[str(start_pix)+'-'+str(end_pix)])
+                #reset start and end pixels to nan
+                start_pix=np.nan
+                end_pix=np.nan
+            else:
+                #2. No exclusion suite have been identifies yet
+                continue
+        else:
+            #pixel of interest not a nan, suite to save
+            if not(np.isnan(start_pix)):
+                #A suite is currently being identified
+                if (i==(exclusion_vect.size-1)):
+                    #it means the last pixel is also and exclusion but the process have missed it
+                    #identify end pixel
+                    end_pix=i
+                    
+                    #store the last exclusion suite
+                    exclusion_suite=np.append(exclusion_suite,[str(start_pix)+'-'+str(end_pix)])
+                    
+                    #reset start and end pixels to nan
+                    start_pix=np.nan
+                    end_pix=np.nan
+                else:
+                    #we aleary are in a suite and this is not the end, continue
+                    continue
+            else:
+                #Suite not being identified, this is a new one => define the start pixel
+                start_pix=i
+                #pdb.set_trace()
+            
+    pdb.set_trace()
+    
