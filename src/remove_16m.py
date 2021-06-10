@@ -15,23 +15,6 @@ from os.path import isfile, join
 import os
 import pdb
 
-##############################################################################
-################### Define function for ice lenses logging ###################
-##############################################################################
-#This function if adapted from https://stackoverflow.com/questions/37363755/python-mouse-click-coordinates-as-simply-as-possible
-def onclick(event):
-    #This functions print and save the x and y coordinates in pixels!
-    print(event.xdata, event.ydata)
-    #Fill in the file to log on the information
-    #filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
-    #f_log = open(filename_flog, "a")
-    #f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
-    #f_log.close() #Close the quality assessment file when we’re done!
-##############################################################################
-################### Define function for ice lenses logging ###################
-##############################################################################
-
-
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/refine_exclusion/'
 
@@ -40,7 +23,7 @@ dates_surf_2018 = [line.strip() for line in f.readlines() if len(line.strip()) >
 f.close()
 
 #create a file text storing the indiv_file name and the exclusions
-path_exclusionfile_store='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
+path_exclusionfile_store='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/exclusion_16m_2017_2018/'
 f_exclusions = open(path_exclusionfile_store+'exclusion_16m.txt', "w")
 
 for indiv_file in list(dates_surf_2018):
@@ -80,11 +63,14 @@ for indiv_file in list(dates_surf_2018):
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     fig.suptitle(indiv_file)
     ax1.imshow(arr_file_to_show, cmap='gray', vmin=0, vmax=255)
-    fig.canvas.mpl_connect('button_press_event', onclick)
     
     #Show the exclusion
-    ax1.plot(exclusion_vect,np.ones(arr_file_to_show_boolean.shape[1]))
-    plt.show()
+    ax1.plot(exclusion_vect,np.ones(arr_file_to_show_boolean.shape[1]),color='red')
+                
+    #Save the figure
+    fig_name=[]
+    plt.savefig(path_exclusionfile_store+'exclusion_'+indiv_file,dpi=1000)
+    plt.close()
     
     #Compute the exclusions limits
     
@@ -144,7 +130,7 @@ for indiv_file in list(dates_surf_2018):
     pdb.set_trace()
     #Remove the nan from the exclusion_suite
     list_exclusion_suite=list(exclusion_suite)
-    list_exclusion_suite=list_exclusion_suite[1:]
+    list_exclusion_suite=list_exclusion_suite[1:] #remove the first one which is a nan
     
     f_exclusions.write(indiv_file+' ')
     #Store the exclusions for each date
