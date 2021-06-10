@@ -18,13 +18,13 @@ import pdb
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/refine_exclusion/'
 
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/data_2017_toberun.txt','r')
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/data_2018_toberun.txt','r')
 dates_surf_2018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
 #create a file text storing the indiv_file name and the exclusions
 path_exclusionfile_store='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/exclusion_16m_2017_2018/'
-f_exclusions = open(path_exclusionfile_store+'exclusion_16m_2017.txt', "w")
+f_exclusions = open(path_exclusionfile_store+'exclusion_16m_2018.txt', "w")
 
 for indiv_file in list(dates_surf_2018):
     print(indiv_file)
