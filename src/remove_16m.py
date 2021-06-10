@@ -39,6 +39,10 @@ f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/dat
 dates_surf_2018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
+#create a file text storing the indiv_file name and the exclusions
+path_exclusionfile_store='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
+f_exclusions = open(path_exclusionfile_store+'exclusion_16m.txt', "w")
+
 for indiv_file in list(dates_surf_2018):
     print(indiv_file)
     #Open only the _orig_CUTOFF_-0.45_THRESHOLD_000 files of interest
@@ -79,10 +83,8 @@ for indiv_file in list(dates_surf_2018):
     fig.canvas.mpl_connect('button_press_event', onclick)
     
     #Show the exclusion
-    ax1.plot(exclusion_vect,np.ones(arr_file_to_show_boolean.shape[1]))   
-    
+    ax1.plot(exclusion_vect,np.ones(arr_file_to_show_boolean.shape[1]))
     plt.show()
-    pdb.set_trace()
     
     #Compute the exclusions limits
     
@@ -93,7 +95,6 @@ for indiv_file in list(dates_surf_2018):
     exclusion_suite=np.nan
     
     for i in range(0,exclusion_vect.size):
-        print(i)
         if (np.isnan(exclusion_vect[i])):
             #pixel of interest is nan. Several possibilities
             #1. Exclusion suite have been defined, we are at the end, i.e.
@@ -141,4 +142,18 @@ for indiv_file in list(dates_surf_2018):
                 #pdb.set_trace()
             
     pdb.set_trace()
+    #Remove the nan from the exclusion_suite
+    list_exclusion_suite=list(exclusion_suite)
+    list_exclusion_suite=list_exclusion_suite[1:]
+    
+    f_exclusions.write(indiv_file+' ')
+    #Store the exclusions for each date
+    for indiv_excl in list_exclusion_suite:
+        f_exclusions.write(indiv_excl+' ')
+    
+    f_exclusions.write('\n')
+    pdb.set_trace()
+#Close the exclusion_16m file
+f_exclusions.close()
+
     
