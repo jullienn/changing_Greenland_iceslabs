@@ -126,57 +126,57 @@ for indiv_file in list(dates_surf_2018):
                 #Suite not being identified, this is a new one => define the start pixel
                 start_pix=i
                 #pdb.set_trace()
-    
-    #initalize the suite of exclusion pixels storing list
-    exclusion_suite_tostore=np.nan
-    
-    #If exclusions suites are closer than 100 pixels to each other, gather them together        
-    for i in range (1,len(exclusion_suite)):
-        #Retreive and partition the exclusion suite of interest
-        indiv_exclusion_suite=exclusion_suite[i].partition('-')
+
+    if not(len(str(exclusion_suite))==3):
+        #If exclusion for this date, do the aggregation of exclusion pixels
+        #initalize the suite of exclusion pixels storing list
+        exclusion_suite_tostore=np.nan
         
-        if (i==1):
-            #this is the initialisation phase
-            #Initialize the start and end pixel for comparison
-            start_old=indiv_exclusion_suite[0]
-            end_old=indiv_exclusion_suite[-1]
-        
-            #Initialize the start and end pixel for storing
-            start_storing=indiv_exclusion_suite[0]
-            end_storing=indiv_exclusion_suite[-1]
+        #If exclusions suites are closer than 100 pixels to each other, gather them together        
+        for i in range (1,len(exclusion_suite)):
+            #Retreive and partition the exclusion suite of interest
+            indiv_exclusion_suite=exclusion_suite[i].partition('-')
             
-            continue
-        
-        #Retreive the start and end pixel of the exclusion suite of interest
-        start_ofinterest=indiv_exclusion_suite[0]
-        end_ofinterest=indiv_exclusion_suite[-1]
-        
-        #If the start pixel of interest is larger than end_old+100, save the exclusion_suite of interest
-        if (int(start_ofinterest)>=(int(end_old)+100)):
-            #This is an exclusion suite to save: save it and define the new exclusion gathered suite
-            exclusion_suite_tostore=np.append(exclusion_suite_tostore,[str(start_storing)+'-'+str(end_storing)])
+            if (i==1):
+                #this is the initialisation phase
+                #Initialize the start and end pixel for comparison
+                start_old=indiv_exclusion_suite[0]
+                end_old=indiv_exclusion_suite[-1]
+            
+                #Initialize the start and end pixel for storing
+                start_storing=indiv_exclusion_suite[0]
+                end_storing=indiv_exclusion_suite[-1]
                 
-            #Initialize the start and end pixel for comparison
-            start_old=indiv_exclusion_suite[0]
-            end_old=indiv_exclusion_suite[-1]
-        
-            #Initialize the start and end pixel for storing
-            start_storing=indiv_exclusion_suite[0]
-            end_storing=indiv_exclusion_suite[-1]
+                continue
             
-        #If the start pixel of interest is smaller than end_old+100, then gather the exclusion_suite of interest
-        elif (int(start_ofinterest)<(int(end_old)+100)):
-            start_old=indiv_exclusion_suite[0]
-            end_old=indiv_exclusion_suite[-1]
+            #Retreive the start and end pixel of the exclusion suite of interest
+            start_ofinterest=indiv_exclusion_suite[0]
+            end_ofinterest=indiv_exclusion_suite[-1]
             
-            #Update the end pixel for storing
-            end_storing=indiv_exclusion_suite[-1]
-            
-            print(start_storing,'-',end_storing)
-            
-            #If we reach the last exclusion suite of the list, save
-            if (i==(len(exclusion_suite)-1)):
+            #If the start pixel of interest is larger than end_old+100, save the exclusion_suite of interest
+            if (int(start_ofinterest)>=(int(end_old)+100)):
+                #This is an exclusion suite to save: save it and define the new exclusion gathered suite
                 exclusion_suite_tostore=np.append(exclusion_suite_tostore,[str(start_storing)+'-'+str(end_storing)])
+                    
+                #Initialize the start and end pixel for comparison
+                start_old=indiv_exclusion_suite[0]
+                end_old=indiv_exclusion_suite[-1]
+            
+                #Initialize the start and end pixel for storing
+                start_storing=indiv_exclusion_suite[0]
+                end_storing=indiv_exclusion_suite[-1]
+                
+            #If the start pixel of interest is smaller than end_old+100, then gather the exclusion_suite of interest
+            elif (int(start_ofinterest)<(int(end_old)+100)):
+                start_old=indiv_exclusion_suite[0]
+                end_old=indiv_exclusion_suite[-1]
+                
+                #Update the end pixel for storing
+                end_storing=indiv_exclusion_suite[-1]
+                                
+                #If we reach the last exclusion suite of the list, save
+                if (i==(len(exclusion_suite)-1)):
+                    exclusion_suite_tostore=np.append(exclusion_suite_tostore,[str(start_storing)+'-'+str(end_storing)])
     
     if (len(str(exclusion_suite))==3):
         #No exclusion for this date
