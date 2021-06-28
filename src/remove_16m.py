@@ -178,9 +178,9 @@ for indiv_file in list(dates_surf_2018):
                 if (i==(len(exclusion_suite)-1)):
                     exclusion_suite_tostore=np.append(exclusion_suite_tostore,[str(start_storing)+'-'+str(end_storing)])
                     
-            elif (len(exclusion_suite)==2):
-                #There is only one exclusion suite, it cannot go through the process to save it directly
-                exclusion_suite_tostore=np.append(exclusion_suite_tostore,[str(start_storing)+'-'+str(end_storing)])
+        if (len(exclusion_suite)==2):
+            #There is only one exclusion suite, it cannot go through the process to save it directly
+            exclusion_suite_tostore=np.append(exclusion_suite_tostore,[str(start_storing)+'-'+str(end_storing)])
 
     if (len(str(exclusion_suite))==3):
         #No exclusion for this date
