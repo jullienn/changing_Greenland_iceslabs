@@ -127,8 +127,6 @@ for indiv_file in list(dates_surf_2018):
                 start_pix=i
                 #pdb.set_trace()
     
-    pdb.set_trace()
-    
     #initalize the suite of exclusion pixels storing list
     exclusion_suite_tostore=np.nan
     
@@ -180,14 +178,13 @@ for indiv_file in list(dates_surf_2018):
             if (i==(len(exclusion_suite)-1)):
                 exclusion_suite_tostore=np.append(exclusion_suite_tostore,[str(start_storing)+'-'+str(end_storing)])
     
-    pdb.set_trace()
     if (len(str(exclusion_suite))==3):
         #No exclusion for this date
         f_exclusions.write(indiv_file+'\n')
     else:
         #Exclusion for this date
         #Remove the nan from the exclusion_suite
-        list_exclusion_suite=list(exclusion_suite)
+        list_exclusion_suite=list(exclusion_suite_tostore)
         list_exclusion_suite=list_exclusion_suite[1:] #remove the first one which is a nan
         
         f_exclusions.write(indiv_file+' ')
