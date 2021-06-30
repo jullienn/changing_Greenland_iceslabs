@@ -42,7 +42,9 @@ f.close()
 for indiv_file in list(dates_surf_2018):
     print(indiv_file)
     #Open only the roll_corrected files of interest
-    filename=indiv_file+'_XDEPTHCORRECT_AFTER.png'
+    #filename=indiv_file+'_XDEPTHCORRECT_AFTER.png'
+    
+    filename=indiv_file+'_0m_30m_BESTFIT_V1.png'
     
     #Open and plot image
     ROLLCORRECT__BEFORE = Image.open(path+filename).convert("L")
