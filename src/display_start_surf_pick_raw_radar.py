@@ -304,7 +304,7 @@ for folder_year in folder_years:
                     #    print('No need to improve start surf pick of',indiv_file)
                     #    continue
                     
-                    if (not(indiv_file.replace(".mat","")=='Data_20180404_02_004')):
+                    if (not(indiv_file.replace(".mat","")=='Data_20180423_01_094')):
                         continue
                     
                     #Open the file and read it
