@@ -233,7 +233,7 @@ for folder_year in folder_years:
                     #    print('No need to improve start surf pick of',indiv_file)
                     #    continue
                     
-                    if (not(indiv_file.replace(".mat","")=='Data_20170327_04_024')):
+                    if (not(indiv_file.replace(".mat","")=='Data_20170331_01_109')):
                         continue
                     
                     #Open the file and read it
@@ -245,7 +245,7 @@ for folder_year in folder_years:
                     #If raw_radar_echograms is set to 'TRUE', then plot the raw
                     #radar echogram of that date and save it
                     if (raw_radar_echograms=='TRUE'):
-                        
+                        pdb.set_trace()
                         #Generate the pick for vertical distance display
                         ticks_yplot=np.arange(0,radar_echo.shape[0],200)
                         
