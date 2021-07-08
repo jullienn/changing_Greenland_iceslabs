@@ -44,7 +44,7 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 raw_radar_echograms='TRUE'
 
 #Choose the year I want to diplay
-year_display='2018'
+year_display='2017'
 
 ##############################################################################
 ############################## Define variables ##############################
@@ -233,7 +233,7 @@ for folder_year in folder_years:
                     #    print('No need to improve start surf pick of',indiv_file)
                     #    continue
                     
-                    if (not(indiv_file.replace(".mat","")=='Data_20180404_02_004')):
+                    if (not(indiv_file.replace(".mat","")=='Data_20170327_04_024')):
                         continue
                     
                     #Open the file and read it
@@ -254,7 +254,7 @@ for folder_year in folder_years:
                         
                         #Change label font
                         pyplot.rcParams.update({'font.size': 10})
-                        color_map=pyplot.pcolor(np.log10(radar_echo[:,0:100]),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+                        color_map=pyplot.pcolor(np.log10(radar_echo[500:2000,:]),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                         pyplot.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
                         #pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
                         pyplot.ylabel('Depth [pixel]')
