@@ -44,7 +44,7 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 raw_radar_echograms='TRUE'
 
 #Choose the year I want to diplay
-year_display='2017'
+year_display='2018'
 
 ##############################################################################
 ############################## Define variables ##############################
@@ -304,14 +304,31 @@ for folder_year in folder_years:
                     #    print('No need to improve start surf pick of',indiv_file)
                     #    continue
                     
-                    if (not(indiv_file.replace(".mat","")=='Data_20180423_01_094')):
+                    if (not(indiv_file.replace(".mat","")=='Data_20180405_01_161')):
                         continue
                     
                     #Open the file and read it
                     with h5py.File(folder_day_name+'/'+indiv_file, 'r') as f:
+                        
                         f.keys()
                         #Select radar echogram
                         radar_echo=f['Data'][:].transpose() #2017 data should be transposed
+                        
+                        ### Begin investigation roll and pitch of aircraft
+                        roll=f['Roll'][:]
+                        heading=f['Heading'][:]
+                        
+                        fig, (ax1, ax2) = pyplot.subplots(2, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+                        fig.suptitle('Investigation roll')
+                        ax1.plot(np.arange(0,roll.size),roll)
+                        ax1.set_title('Roll')
+                        ax2.plot(np.arange(0,heading.size),heading)
+                        ax2.set_title('Heading')
+                        pyplot.show()
+                        
+                        pdb.set_trace()
+                        
+                        ### End investigation roll and pitch of aircraft
                     
                     #If raw_radar_echograms is set to 'TRUE', then plot the raw
                     #radar echogram of that date and save it
