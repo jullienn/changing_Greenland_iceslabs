@@ -31,7 +31,6 @@ def onclick(event):
 ################### Define function for ice lenses logging ###################
 ##############################################################################
 
-
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/'
 
