@@ -16,13 +16,6 @@ plot_boolean_SG1_cut045_th000='FALSE'
 plot_boolean_SG1_cut045_th350='FALSE'
 plot_depth_corrected='TRUE'
 plot_years_overlay='FALSE'
-#Load raw data:
-path='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-
-if (plot_depth_corrected=='TRUE'):
-    path_data_toplot='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Depth_Corrected_Picklefiles/'
-else:
-    path_data_toplot='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Boolean Array Picklefiles/'
 
 path_mask='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Boolean Array Picklefiles/'
 
@@ -49,7 +42,13 @@ investigation_year={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat',
                     2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
                     2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat']}
 
+#Define the general path as a function of the year
+path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
+if (plot_depth_corrected=='TRUE'):
+    path_data_toplot=path_data+'exported/Depth_Corrected_Picklefiles/'
+else:
+    path_data_toplot=path_data+'exported/Boolean Array Picklefiles/'
 
 dataframe={}
 
@@ -111,7 +110,7 @@ for single_year in investigation_year.keys():
         print(indiv_file_load)
         
         #Create the path
-        path_raw_data=path+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
+        path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
         
         #Load data
         if (single_year==2014):
