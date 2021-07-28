@@ -18,11 +18,13 @@ import pdb
 #Year being processes
 year_proc='2017'
 
-#Decide on the maximum distance betwee two exclusions pixels
-pixel_sep=100
+#Decide on the maximum distance between two exclusions pixels
+pixel_sep=80
+#I choose 80 because this is very roughly equivalent to 1km for a few traces.
+#Note that this value did not for one test trace (1km was 45 pixels for example)
 
 #Define the working environment
-path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/refine_exclusion/'
+path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/'
 
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/data_'+year_proc+'_toberun.txt','r')
 dates_surf = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
