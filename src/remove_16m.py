@@ -18,18 +18,21 @@ import pdb
 #Year being processes
 year_proc='2017'
 
+#Decide on the maximum distance betwee two exclusions pixels
+pixel_sep=100
+
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/exported/refine_exclusion/'
 
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/data_'+year_proc+'_toberun.txt','r')
-dates_surf_2018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+dates_surf = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
 #create a file text storing the indiv_file name and the exclusions
 path_exclusionfile_store='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/exclusion_16m_2017_2018/'
 f_exclusions = open(path_exclusionfile_store+'exclusion_16m_'+year_proc+'.txt', "w")
 
-for indiv_file in list(dates_surf_2018):
+for indiv_file in list(dates_surf):
     print(indiv_file)
     #Open only the _orig_CUTOFF_-0.45_THRESHOLD_000 files of interest
     filename=indiv_file+'_orig_CUTOFF_-0.45_THRESHOLD_000.png'
@@ -135,7 +138,7 @@ for indiv_file in list(dates_surf_2018):
         #initalize the suite of exclusion pixels storing list
         exclusion_suite_tostore=np.nan
         
-        #If exclusions suites are closer than 100 pixels to each other, gather them together        
+        #If exclusions suites are closer than x pixels to each other (x defined by pixel_sep), gather them together        
         for i in range (1,len(exclusion_suite)):
             #Retreive and partition the exclusion suite of interest
             indiv_exclusion_suite=exclusion_suite[i].partition('-')
@@ -156,8 +159,8 @@ for indiv_file in list(dates_surf_2018):
             start_ofinterest=indiv_exclusion_suite[0]
             end_ofinterest=indiv_exclusion_suite[-1]
             
-            #If the start pixel of interest is larger than end_old+100, save the exclusion_suite of interest
-            if (int(start_ofinterest)>=(int(end_old)+100)):
+            #If the start pixel of interest is larger than end_old+pixel_sep, save the exclusion_suite of interest
+            if (int(start_ofinterest)>=(int(end_old)+pixel_sep)):
                 #This is an exclusion suite to save: save it and define the new exclusion gathered suite
                 exclusion_suite_tostore=np.append(exclusion_suite_tostore,[str(start_storing)+'-'+str(end_storing)])
                     
@@ -169,8 +172,8 @@ for indiv_file in list(dates_surf_2018):
                 start_storing=indiv_exclusion_suite[0]
                 end_storing=indiv_exclusion_suite[-1]
                 
-            #If the start pixel of interest is smaller than end_old+100, then gather the exclusion_suite of interest
-            elif (int(start_ofinterest)<(int(end_old)+100)):
+            #If the start pixel of interest is smaller than end_old+pixel_sep, then gather the exclusion_suite of interest
+            elif (int(start_ofinterest)<(int(end_old)+pixel_sep)):
                 start_old=indiv_exclusion_suite[0]
                 end_old=indiv_exclusion_suite[-1]
                 
