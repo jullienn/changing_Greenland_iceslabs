@@ -489,10 +489,7 @@ pdb.set_trace()
 #pdb.set_trace()
     
     
-    
-#Work with the booelan and loop over the year and add every year
-#on top of each opther, then plot the intensity
-    
+
     
     
         
