@@ -17,8 +17,6 @@ plot_boolean_SG1_cut045_th350='FALSE'
 plot_depth_corrected='TRUE'
 plot_years_overlay='FALSE'
 
-path_mask='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Boolean Array Picklefiles/'
-
 #Define the years and data to investigate:
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
                     2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
@@ -45,6 +43,9 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
 
 #Define the general path as a function of the year
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+
+#Define the path for masks
+path_mask=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
 
 if (plot_depth_corrected=='TRUE'):
     path_data_toplot=path_data+'exported/temp_for_overlap/Depth_Corrected_Picklefiles/'
