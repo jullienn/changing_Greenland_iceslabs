@@ -36,8 +36,8 @@ f_exclusions = open(path_exclusionfile_store+'exclusion_16m_'+year_proc+'.txt', 
 
 for indiv_file in list(dates_surf):
     print(indiv_file)
-    #Open only the _orig_CUTOFF_-0.45_THRESHOLD_000 files of interest
-    filename=indiv_file+'_orig_CUTOFF_-0.45_THRESHOLD_000.png'
+    #Open only the _SG1_CUTOFF_-0.45_THRESHOLD_350 files of interest
+    filename=indiv_file+'_SG1_CUTOFF_-0.45_THRESHOLD_350.png'
     
     #Open image
     file_to_show = Image.open(path+filename).convert("L")

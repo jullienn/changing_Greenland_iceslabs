@@ -20,12 +20,13 @@ plot_years_overlay='FALSE'
 path_mask='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/pickles_after_processing/Boolean Array Picklefiles/'
 
 #Define the years and data to investigate:
-#investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
-#                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
-#                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
-#                    2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
-#                    2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
-#                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat']}
+investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
+                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
+                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
+                    2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
+                    2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
+                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat'],
+                    2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 
 #investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
 #                    2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
@@ -35,27 +36,27 @@ path_mask='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/20
 #                    2017:['Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat']}
 
 
-investigation_year={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
-                    2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
-                    2012:'empty',
-                    2013:'empty',
-                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
-                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat']}
+#investigation_year={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
+#                    2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
+#                    2012:'empty',
+#                    2013:'empty',
+#                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
+#                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat']}
 
 #Define the general path as a function of the year
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
 if (plot_depth_corrected=='TRUE'):
-    path_data_toplot=path_data+'exported/Depth_Corrected_Picklefiles/'
+    path_data_toplot=path_data+'exported/temp_for_overlap/Depth_Corrected_Picklefiles/'
 else:
-    path_data_toplot=path_data+'exported/Boolean Array Picklefiles/'
+    path_data_toplot=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
 
 dataframe={}
 
 for single_year in investigation_year.keys():
     print(single_year)
     
-    #pdb.set_trace()
+    pdb.set_trace()
     
     #If no data, continue
     if (investigation_year[single_year]=='empty'):
@@ -113,13 +114,7 @@ for single_year in investigation_year.keys():
         path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
         
         #Load data
-        if (single_year==2014):
-            
-            fdata_filename = h5py.File(path_raw_data+indiv_file_load)
-            lat_filename=fdata_filename['Latitude'][:,:]
-            lon_filename=fdata_filename['Longitude'][:,:]
-            
-        elif (single_year==2017):
+        if (single_year>=2014):
             
             fdata_filename = h5py.File(path_raw_data+indiv_file_load)
             lat_filename=fdata_filename['Latitude'][:,:]
@@ -254,15 +249,16 @@ for single_year in investigation_year.keys():
         
         cbar1=fig.colorbar(cb1, ax=[ax1], location='right',shrink=0.12,aspect=10,pad=0.01)
         cbar1.set_label('Signal strength')
-        
-        #pdb.set_trace()
 
-        #Create the figure name
-        fig_name=[]
-        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
-    
-        #Save the figure
-        pyplot.savefig(fig_name,dpi=2000)
+        ##Create the figure name
+        #fig_name=[]
+        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
+        
+        pyplot.show()
+        pdb.set_trace()
+        
+        ##Save the figure
+        #pyplot.savefig(fig_name,dpi=2000)
         pyplot.clf()
     
     else:
@@ -293,19 +289,20 @@ for single_year in investigation_year.keys():
         
         cbar1=fig.colorbar(cb1, ax=[ax1], location='right',shrink=0.12,aspect=10,pad=0.01)
         cbar1.set_label('Signal strength')
+            
+        pyplot.show()
         
-        #pdb.set_trace()
-        
-        #Create the figure name
-        fig_name=[]
-        fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
+        ##Create the figure name
+        #fig_name=[]
+        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
     
-        #Save the figure
-        pyplot.savefig(fig_name,dpi=2000)
-        pyplot.clf()
+        ##Save the figure
+        #pyplot.savefig(fig_name,dpi=2000)
+        #pyplot.clf()
         
+        pdb.set_trace()
 
-          
+
 
 pdb.set_trace()
 
