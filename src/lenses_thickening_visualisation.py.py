@@ -11,9 +11,11 @@ import pdb
 import h5py
 from matplotlib import pyplot
 
+##############################################################################
+###                     Define what we want to show                        ###
+##############################################################################
 plot_boolean= 'plot_boolean_SG1_cut045_th350' # can be 'plot_boolean_orig_cut045_th000',
-              #'plot_boolean_SG1_cut045_th000', 'plot_boolean_SG1_cut045_th350'
-              
+              #'plot_boolean_SG1_cut045_th000', 'plot_boolean_SG1_cut045_th350'     
 plot_years_overlay='FALSE'
 plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
@@ -42,18 +44,29 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
 #                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
 #                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat']}
 
+##############################################################################
+###                     Define what we want to show                        ###
+##############################################################################
+
+##############################################################################
+###                               Define paths                             ###
+##############################################################################
 #Define the general path as a function of the year
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-
 #Define the path for masks
 path_mask=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
-
 #Define path for depth corrected
 path_depth_corrected=path_data+'exported/temp_for_overlap/Depth_Corrected_Picklefiles/'
-
 #Define the path for boolean
 path_boolean=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
+##############################################################################
+###                               Define paths                             ###
+##############################################################################
 
+
+##############################################################################
+###                          Load and organise data                        ###
+##############################################################################
 dataframe={}
 
 for single_year in investigation_year.keys():
@@ -154,8 +167,14 @@ for single_year in investigation_year.keys():
                                  'boolean':boolean_file,
                                  'mask':data_mask}
     
-
+##############################################################################
+###                          Load and organise data                        ###
+##############################################################################
 pdb.set_trace()
+
+##############################################################################
+###                                 Plot data                              ###
+##############################################################################
 #Plot the results:
 #1. Create a plot with the minimum and maximum extent of the traces for all year
 #2. Overlay (x% transparent the boolean traces on top of each other)    
@@ -354,6 +373,9 @@ for single_year in investigation_year.keys():
         
         pdb.set_trace()
 
+##############################################################################
+###                                 Plot data                              ###
+##############################################################################
 
 
 pdb.set_trace()
