@@ -13,9 +13,10 @@ from matplotlib import pyplot
 
 plot_boolean_orig_cut045_th000='FALSE'
 plot_boolean_SG1_cut045_th000='FALSE'
-plot_boolean_SG1_cut045_th350='FALSE'
-plot_depth_corrected='TRUE'
+plot_boolean_SG1_cut045_th350='TRUE'
 plot_years_overlay='FALSE'
+plot_depth_corrected_single='FALSE'
+plot_depth_corrected_subplot='TRUE'
 
 #Define the years and data to investigate:
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
@@ -23,7 +24,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
                     2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
-                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat'],
+                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 
 #investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
@@ -47,18 +48,17 @@ path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/da
 #Define the path for masks
 path_mask=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
 
-if (plot_depth_corrected=='TRUE'):
-    path_data_toplot=path_data+'exported/temp_for_overlap/Depth_Corrected_Picklefiles/'
-else:
-    path_data_toplot=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
+#Define path for depth corrected
+path_depth_corrected=path_data+'exported/temp_for_overlap/Depth_Corrected_Picklefiles/'
+
+#Define the path for boolean
+path_boolean=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
 
 dataframe={}
 
 for single_year in investigation_year.keys():
     print(single_year)
-    
-    pdb.set_trace()
-    
+        
     #If no data, continue
     if (investigation_year[single_year]=='empty'):
         print('No data for year '+str(single_year)+', continue')
@@ -71,32 +71,36 @@ for single_year in investigation_year.keys():
     
     #pdb.set_trace()
     
-    #Define file names
-    if (plot_depth_corrected=='TRUE'):
-        file_data_toplot=date_track+'_DEPTH_CORRECTED.pickle'
+    #Define filename
+    filename=date_track+'_DEPTH_CORRECTED.pickle'
     
+    #Define boolean filename
     if (plot_boolean_orig_cut045_th000=='TRUE'):
-        file_data_toplot=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.pickle'
+        filename_boolean=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.pickle'
         
     if (plot_boolean_SG1_cut045_th000=='TRUE'):
-        file_data_toplot=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
+        filename_boolean=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
         
     if (plot_boolean_SG1_cut045_th350=='TRUE'):
-        file_data_toplot=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.pickle'
+        filename_boolean=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.pickle'
     
-    f_data_toplot = open(path_data_toplot+file_data_toplot, "rb")
-    radar = pickle.load(f_data_toplot)
-    f_data_toplot.close()
+    #Open the depth corrected file
+    f_depth_corrected = open(path_depth_corrected+filename, "rb")
+    radar = pickle.load(f_depth_corrected)
+    f_depth_corrected.close()
     
-    #mask file
-    file_mask=date_track+'_mask.pickle'
-    
-    f_mask = open(path_mask+file_mask, "rb")
+    #Open mask file
+    f_mask = open(path_mask+date_track+'_mask.pickle', "rb")
     data_mask = pickle.load(f_mask)
     f_mask.close()
     
+    #Open boolean file
+    f_boolean = open(path_boolean+filename_boolean, "rb")
+    boolean_file = pickle.load(f_boolean)
+    f_boolean.close()
+    
     #Create the title for the figures
-    file_for_title=file_data_toplot
+    file_for_title=filename
     file_for_title=file_for_title.partition("_")[2]
     file_for_title=file_for_title.partition("_")[2]
     file_for_title=file_for_title.partition("_")[2]
@@ -104,7 +108,6 @@ for single_year in investigation_year.keys():
     file_for_title=file_for_title.partition(".pickle")[0]
     
     ###2. Load the latitude and longitude
-    
     lat_appended=[]
     lon_appended=[]
     
@@ -148,6 +151,7 @@ for single_year in investigation_year.keys():
     dataframe[str(single_year)]={'lat_appended':lat_appended,
                                  'lon_appended':lon_appended,
                                  'radar':radar,
+                                 'boolean':boolean_file,
                                  'mask':data_mask}
     
     
@@ -182,7 +186,7 @@ for single_year in investigation_year.keys():
         max_lon=max_lon_temp
         #print('Max is:'+str(max_lon))
 
-#pdb.set_trace()
+pdb.set_trace()
 
 if (plot_years_overlay=='TRUE'):
     #Create an empty radar slice to plot data over it
@@ -200,19 +204,21 @@ if (plot_years_overlay=='TRUE'):
     #pyplot.title('Raw radar echogram: '+indiv_file.replace("_aggregated",""))
     cbar=pyplot.colorbar()
     cbar.set_label('Signal strength')
-    
-    single_year=2010
-    color_map=pyplot.pcolor(dataframe[str(single_year)]['radar'],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-    single_year=2011
-    color_map=pyplot.pcolor(dataframe[str(single_year)]['radar'],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-    single_year=2012
-    color_map=pyplot.pcolor(dataframe[str(single_year)]['radar'],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-    single_year=2013
-    color_map=pyplot.pcolor(dataframe[str(single_year)]['radar'],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-    single_year=2014
-    color_map=pyplot.pcolor(dataframe[str(single_year)]['radar'],cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
 
+
+#Prepare the plot for all years display
+if (plot_depth_corrected_subplot=='TRUE'):
+    pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
+    pyplot.rcParams['xtick.major.width']=0.1
+    pyplot.rcParams['ytick.major.width']=0.1
+    
+    pyplot.figure(figsize=(40,20))
+    pyplot.rcParams.update({'font.size': 2})
+    fig1, (ax1s,ax2s,ax3s,ax4s,ax5s,ax6s,ax7s) = pyplot.subplots(7, 1)
+        
 for single_year in investigation_year.keys():
+    
+    print(str(single_year))
     
     #If no data, continue
     if (investigation_year[single_year]=='empty'):
@@ -223,7 +229,7 @@ for single_year in investigation_year.keys():
     end_date_track=investigation_year[single_year][-1]
     date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
     
-    if (plot_depth_corrected=='TRUE'):
+    if (plot_depth_corrected_single=='TRUE'):
         pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
         pyplot.rcParams['xtick.major.width']=0.1
         pyplot.rcParams['ytick.major.width']=0.1
@@ -256,12 +262,56 @@ for single_year in investigation_year.keys():
         #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
         
         pyplot.show()
-        pdb.set_trace()
         
         ##Save the figure
         #pyplot.savefig(fig_name,dpi=2000)
-        pyplot.clf()
-    
+        #pyplot.clf()
+
+    if (plot_depth_corrected_subplot=='TRUE'):
+        if (single_year==2010):
+            ax_plotting=ax1s
+        elif (single_year==2011):
+            ax_plotting=ax2s
+        elif (single_year==2012):
+            ax_plotting=ax3s
+        elif (single_year==2013):
+            ax_plotting=ax4s
+        elif (single_year==2014):
+            ax_plotting=ax5s
+        elif (single_year==2017):
+            ax_plotting=ax6s
+        elif (single_year==2018):
+            ax_plotting=ax7s
+        else:
+            print('Year not existing')
+            
+        #fig.suptitle(str(plot_name1))
+        X=dataframe[str(single_year)]['lon_appended']
+        Y=np.arange(0,100,100/dataframe[str(single_year)]['radar'].shape[0])
+        C=dataframe[str(single_year)]['radar'].astype(float)
+                
+        cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+        ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
+        ax_plotting.set_aspect(0.0025) # X scale matches Y scale
+        ax_plotting.set_title(str(single_year)+' '+file_for_title)
+        ax_plotting.set_ylabel('Depth [m]')
+        ax_plotting.set_xlabel('Longitude [°]')
+        ax_plotting.set_xlim(min_lon,max_lon)
+        ax_plotting.set_ylim(30,0)
+        
+        cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
+        cbar.set_label('Signal strength')
+
+        ##Create the figure name
+        #fig_name=[]
+        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
+        
+        pyplot.show()
+        
+        ##Save the figure
+        #pyplot.savefig(fig_name,dpi=2000)
+        #pyplot.clf()
+        
     else:
         
         pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
@@ -355,7 +405,8 @@ pdb.set_trace()
     
     
     
-    
+#Work with the booelan and loop over the year and add every year
+#on top of each opther, then plot the intensity
     
     
     
