@@ -16,7 +16,7 @@ import os
 import pdb
 
 #Year being processes
-year_proc='2017'
+year_proc='2018'
 
 #Decide on the maximum distance between two exclusions pixels
 pixel_sep=80
