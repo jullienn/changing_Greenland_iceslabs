@@ -11,9 +11,9 @@ import pdb
 import h5py
 from matplotlib import pyplot
 
-plot_boolean_orig_cut045_th000='FALSE'
-plot_boolean_SG1_cut045_th000='FALSE'
-plot_boolean_SG1_cut045_th350='TRUE'
+plot_boolean= 'plot_boolean_SG1_cut045_th350' # can be 'plot_boolean_orig_cut045_th000',
+              #'plot_boolean_SG1_cut045_th000', 'plot_boolean_SG1_cut045_th350'
+              
 plot_years_overlay='FALSE'
 plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
@@ -71,36 +71,36 @@ for single_year in investigation_year.keys():
     
     #pdb.set_trace()
     
-    #Define filename
-    filename=date_track+'_DEPTH_CORRECTED.pickle'
-    
+    #Define filename depth corrected data
+    filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
+              
     #Define boolean filename
-    if (plot_boolean_orig_cut045_th000=='TRUE'):
+    if (plot_boolean=='plot_boolean_orig_cut045_th000'):
         filename_boolean=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.pickle'
         
-    if (plot_boolean_SG1_cut045_th000=='TRUE'):
+    if (plot_boolean=='plot_boolean_SG1_cut045_th000'):
         filename_boolean=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
         
-    if (plot_boolean_SG1_cut045_th350=='TRUE'):
+    if (plot_boolean=='plot_boolean_SG1_cut045_th350'):
         filename_boolean=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.pickle'
     
     #Open the depth corrected file
-    f_depth_corrected = open(path_depth_corrected+filename, "rb")
+    f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
     radar = pickle.load(f_depth_corrected)
     f_depth_corrected.close()
-    
-    #Open mask file
-    f_mask = open(path_mask+date_track+'_mask.pickle', "rb")
-    data_mask = pickle.load(f_mask)
-    f_mask.close()
     
     #Open boolean file
     f_boolean = open(path_boolean+filename_boolean, "rb")
     boolean_file = pickle.load(f_boolean)
     f_boolean.close()
     
+    #Open mask file
+    f_mask = open(path_mask+date_track+'_mask.pickle', "rb")
+    data_mask = pickle.load(f_mask)
+    f_mask.close()
+    
     #Create the title for the figures
-    file_for_title=filename
+    file_for_title=filename_depth_corrected
     file_for_title=file_for_title.partition("_")[2]
     file_for_title=file_for_title.partition("_")[2]
     file_for_title=file_for_title.partition("_")[2]
@@ -154,7 +154,8 @@ for single_year in investigation_year.keys():
                                  'boolean':boolean_file,
                                  'mask':data_mask}
     
-    
+
+pdb.set_trace()
 #Plot the results:
 #1. Create a plot with the minimum and maximum extent of the traces for all year
 #2. Overlay (x% transparent the boolean traces on top of each other)    
