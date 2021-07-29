@@ -19,6 +19,7 @@ plot_boolean= 'plot_boolean_SG1_cut045_th350' # can be 'plot_boolean_orig_cut045
 plot_years_overlay='FALSE'
 plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
+plot_boolean_subplot='TRUE'
 
 #Define the years and data to investigate:
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
@@ -170,15 +171,15 @@ for single_year in investigation_year.keys():
 ##############################################################################
 ###                          Load and organise data                        ###
 ##############################################################################
-pdb.set_trace()
 
-##############################################################################
-###                                 Plot data                              ###
-##############################################################################
 #Plot the results:
 #1. Create a plot with the minimum and maximum extent of the traces for all year
 #2. Overlay (x% transparent the boolean traces on top of each other)    
-    
+   
+##############################################################################
+###                 Identifiy the lower and upper bound                    ###
+##############################################################################
+ 
 #Find the min and max longitudes present in dataframe:
 min_lon=0
 max_lon=-180
@@ -206,6 +207,14 @@ for single_year in investigation_year.keys():
         max_lon=max_lon_temp
         #print('Max is:'+str(max_lon))
 
+##############################################################################
+###                 Identifiy the lower and upper bound                    ###
+##############################################################################
+
+##############################################################################
+###                                 Plot data                              ###
+##############################################################################
+ 
 pdb.set_trace()
 
 if (plot_years_overlay=='TRUE'):
@@ -235,6 +244,15 @@ if (plot_depth_corrected_subplot=='TRUE'):
     pyplot.figure(figsize=(40,20))
     pyplot.rcParams.update({'font.size': 2})
     fig1, (ax1s,ax2s,ax3s,ax4s,ax5s,ax6s,ax7s) = pyplot.subplots(7, 1)
+    
+if (plot_boolean_subplot=='TRUE'):
+    pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
+    pyplot.rcParams['xtick.major.width']=0.1
+    pyplot.rcParams['ytick.major.width']=0.1
+    
+    pyplot.figure(figsize=(40,20))
+    pyplot.rcParams.update({'font.size': 2})
+    fig2, (ax1b,ax2b,ax3b,ax4b,ax5b,ax6b,ax7b) = pyplot.subplots(7, 1)
         
 for single_year in investigation_year.keys():
     
@@ -266,7 +284,7 @@ for single_year in investigation_year.keys():
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax1.set_aspect(0.0025) # X scale matches Y scale
-        ax1.set_title(date_track+' '+file_for_title)
+        ax1.set_title(date_track+' Depth corrected')
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')
         #pdb.set_trace()
@@ -279,7 +297,7 @@ for single_year in investigation_year.keys():
 
         ##Create the figure name
         #fig_name=[]
-        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
+        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_depthcorrected.png'
         
         pyplot.show()
         
@@ -313,7 +331,7 @@ for single_year in investigation_year.keys():
         cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax_plotting.set_aspect(0.0025) # X scale matches Y scale
-        ax_plotting.set_title(str(single_year)+' '+file_for_title)
+        ax_plotting.set_title(str(single_year)+' Depth corrected')
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]')
         ax_plotting.set_xlim(min_lon,max_lon)
@@ -324,14 +342,58 @@ for single_year in investigation_year.keys():
 
         ##Create the figure name
         #fig_name=[]
-        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+file_for_title+'.png'
+        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_depth_corrected.png'
         
         pyplot.show()
         
         ##Save the figure
         #pyplot.savefig(fig_name,dpi=2000)
         #pyplot.clf()
+
+    if (plot_boolean_subplot=='TRUE'):
+        if (single_year==2010):
+            ax_plotting=ax1b
+        elif (single_year==2011):
+            ax_plotting=ax2b
+        elif (single_year==2012):
+            ax_plotting=ax3b
+        elif (single_year==2013):
+            ax_plotting=ax4b
+        elif (single_year==2014):
+            ax_plotting=ax5b
+        elif (single_year==2017):
+            ax_plotting=ax6b
+        elif (single_year==2018):
+            ax_plotting=ax7b
+        else:
+            print('Year not existing')
+            
+        #fig.suptitle(str(plot_name1))
+        X=dataframe[str(single_year)]['lon_appended']
+        Y=np.arange(0,100,100/dataframe[str(single_year)]['boolean'].shape[0])
+        C=dataframe[str(single_year)]['boolean'].astype(float)
         
+        cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+        ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
+        ax_plotting.set_aspect(0.0025) # X scale matches Y scale
+        ax_plotting.set_title(str(single_year)+' '+plot_boolean)
+        ax_plotting.set_ylabel('Depth [m]')
+        ax_plotting.set_xlabel('Longitude [°]')
+        ax_plotting.set_xlim(min_lon,max_lon)
+        ax_plotting.set_ylim(30,0)
+        
+        cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
+        cbar.set_label('Signal strength')
+        
+        ##Create the figure name
+        #fig_name=[]
+        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+plot_boolean+'.png'
+        
+        pyplot.show()
+        
+        ##Save the figure
+        #pyplot.savefig(fig_name,dpi=2000)
+        #pyplot.clf()        
     else:
         
         pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
@@ -351,7 +413,7 @@ for single_year in investigation_year.keys():
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,alpha=0.1,edgecolor='none')#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax1.set_aspect(0.0025) # X scale matches Y scale
-        ax1.set_title(date_track+' '+file_for_title)
+        ax1.set_title(date_track+' '+plot_boolean)
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')        
         #ax1.set_xlim(-47.9,-46.8)
