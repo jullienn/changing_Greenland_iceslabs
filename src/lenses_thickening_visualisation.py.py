@@ -4,6 +4,34 @@ Created on Thu Feb  4 16:07:33 2021
 
 @author: JullienN
 """
+
+def compute_distances(lon,lat):
+    
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.array(lon),np.array(lat))
+    
+    #Reset the lat_3413 and lon_3413 to empty vectors.
+    lon_3413=[]
+    lat_3413=[]
+    
+    lon_3413=points[0]
+    lat_3413=points[1]
+
+
+    #This part of code is from MacFerrin et al., 2019
+    '''Compute the distance (in m here, not km as written originally) of the traces in the file.'''
+    # C = sqrt(A^2  + B^2)
+    distances = np.power(np.power((lon_3413[1:] - lon_3413[:-1]),2) + np.power((lat_3413[1:] - lat_3413[:-1]),2), 0.5)
+    #Calculate the cumsum of the distances
+    cumsum_distances=np.nancumsum(distances)
+    #Seeting the first value of the cumsum to be zero as it is the origin
+    return_cumsum_distances=np.zeros(lon_3413.shape[0])
+    return_cumsum_distances[1:lon_3413.shape[0]]=cumsum_distances
+    
+    return return_cumsum_distances
+
 import pickle
 import scipy.io
 import numpy as np
@@ -11,6 +39,7 @@ import pdb
 import h5py
 from matplotlib import pyplot
 from PIL import Image
+from pyproj import Transformer
 
 ##############################################################################
 ###                     Define what we want to show                        ###
@@ -331,7 +360,7 @@ if (plot_depth_corrected_subplot=='TRUE'):
     pyplot.rcParams['ytick.major.width']=0.1
     
     pyplot.figure(figsize=(40,20))
-    pyplot.rcParams.update({'font.size': 2})
+    pyplot.rcParams.update({'font.size': 5})
     fig1, (ax1s,ax2s,ax3s,ax4s,ax5s,ax6s,ax7s) = pyplot.subplots(7, 1)
     
 if (plot_boolean_subplot=='TRUE'):
@@ -365,6 +394,12 @@ for single_year in investigation_year.keys():
     end_date_track=investigation_year[single_year][-1]
     date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
     
+    #Calculate distances (in m)
+    distances=compute_distances(dataframe[str(single_year)]['lon_appended'],dataframe[str(single_year)]['lat_appended'])
+    
+    #Convert distances from m to km
+    distances=distances/1000
+    
     if (plot_depth_corrected_single=='TRUE'):
         pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
         pyplot.rcParams['xtick.major.width']=0.1
@@ -381,12 +416,11 @@ for single_year in investigation_year.keys():
         
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
-        ax1.set_aspect(0.0025) # X scale matches Y scale
+        #ax1.set_aspect(0.0025) # X scale matches Y scale
         ax1.set_title(date_track+' Depth corrected')
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')
         #pdb.set_trace()
-        #ax1.set_xlim(-47.9,-46.8)
         ax1.set_xlim(min_lon,max_lon)
         ax1.set_ylim(dataframe[str(single_year)]['boolean'].shape[0],0)
         
@@ -437,9 +471,12 @@ for single_year in investigation_year.keys():
         ax_plotting.set_aspect(0.001) # X scale matches Y scale
         ax_plotting.set_title(str(single_year)+' Depth corrected')
         ax_plotting.set_ylabel('Depth [m]')
-        ax_plotting.set_xlabel('Longitude [°]')
+        ax_plotting.set_xlabel('Longitude [°]]')
         ax_plotting.set_xlim(min_lon,max_lon)
         ax_plotting.set_ylim(30,0)
+        
+        #ax_plotting.set_xticks(distances)
+        #ax_plotting.set_xticklabels(distances)
         
         cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
         cbar.set_label('Signal strength')
