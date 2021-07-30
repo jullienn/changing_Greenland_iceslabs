@@ -47,13 +47,80 @@ plot_images_subplot='TRUE'
 #                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
 #                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat']}
 
-investigation_year={2010:'empty',
-                    2011:'empty',
-                    2012:['Data_20120423_01_137.mat','Data_20120423_01_138.mat'],
-                    2013:['Data_20130409_01_010.mat','Data_20130409_01_011.mat','Data_20130409_01_012.mat'],
-                    2014:'empty',
-                    2017:'empty',
-                    2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
+#This one is collocated with FS1, 2, 3.
+#investigation_year={2010:'empty',
+#                    2011:'empty',
+#                    2012:['Data_20120423_01_137.mat','Data_20120423_01_138.mat'],
+#                    2013:['Data_20130409_01_010.mat','Data_20130409_01_011.mat','Data_20130409_01_012.mat'],
+#                    2014:'empty',
+#                    2017:'empty',
+#                    2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
+
+#investigation_year={2010:'empty',
+#                    2011:'empty',
+#                    2012:['Data_20120423_01_006.mat','Data_20120423_01_007.mat'],
+#                    2013:'empty',
+#                    2014:'empty',
+#                    2017:['Data_20170505_02_008.mat','Data_20170505_02_009.mat','Data_20170505_02_010.mat'],
+#                    2018:'empty'}
+
+#investigation_year={2010:'empty',
+#                    2011:'empty',
+#                    2012:['Data_20120423_01_137.mat','Data_20120423_01_138.mat'],
+#                    2013:['Data_20130409_01_010.mat','Data_20130409_01_011.mat','Data_20130409_01_012.mat'],
+#                    2014:'empty',
+#                    2017:'empty',
+#                    2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
+
+#investigation_year={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+#                    2011:'empty',
+#                    2012:'empty',
+#                    2013:'empty',
+#                    2014:'empty',
+#                    2017:'empty',
+#                    2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+
+#investigation_year={2010:'empty',
+#                    2011:'empty',
+#                    2012:'empty',
+#                    2013:['Data_20130405_01_011.mat','Data_20130405_01_012.mat','Data_20130405_01_013.mat'],
+#                    2014:['Data_20140424_03_046.mat','Data_20140424_03_047.mat','Data_20140424_03_048.mat'],
+#                    2017:['Data_20170422_01_007.mat','Data_20170422_01_008.mat','Data_20170422_01_009.mat'],
+#                    2018:'empty'}
+
+#investigation_year={2010:'empty',
+#                    2011:['Data_20110407_01_009.mat','Data_20110407_01_010.mat','Data_20110407_01_011.mat','Data_20110407_01_012.mat','Data_20110407_01_013.mat'],
+#                    2012:'empty',
+#                    2013:'empty',
+#                    2014:'empty',
+#                    2017:['Data_20170510_02_151.mat','Data_20170510_02_152.mat','Data_20170510_02_153.mat','Data_20170510_02_154.mat','Data_20170510_02_155.mat','Data_20170510_02_156.mat'],
+#                    2018:'empty'}
+
+#investigation_year={2010:['Data_20100514_02_035.mat','Data_20100514_02_036.mat','Data_20100514_02_037.mat','Data_20100514_02_038.mat','Data_20100514_02_039.mat',],
+#                    2011:['Data_20110406_01_144.mat','Data_20110406_01_145.mat','Data_20110406_01_146.mat',],
+#                    2012:['Data_20120413_01_006.mat','Data_20120413_01_007.mat','Data_20120413_01_008.mat','Data_20120413_01_009.mat','Data_20120413_01_010.mat','Data_20120413_01_011.mat','Data_20120413_01_012.mat'],
+#                    2013:['Data_20130404_01_139.mat','Data_20130404_01_140.mat','Data_20130404_01_141.mat','Data_20130404_01_142.mat','Data_20130404_01_143.mat','Data_20130404_01_144.mat','Data_20130404_01_145.mat'],
+#                    2014:['Data_20140409_10_057.mat','Data_20140409_10_058.mat','Data_20140409_10_059.mat','Data_20140409_10_060.mat','Data_20140409_10_061.mat','Data_20140409_10_062.mat','Data_20140409_10_063.mat','Data_20140409_10_064.mat','Data_20140409_10_065.mat','Data_20140409_10_066.mat'],
+#                    2017:['Data_20170429_01_148.mat','Data_20170429_01_149.mat','Data_20170429_01_150.mat','Data_20170429_01_151.mat','Data_20170429_01_152.mat','Data_20170429_01_153.mat','Data_20170429_01_154.mat'],
+#                    2018:'empty'}
+
+investigation_year={2010:['Data_20100514_02_001.mat','Data_20100514_02_002.mat','Data_20100514_02_003.mat'],
+                    2011:['Data_20110406_01_108.mat','Data_20110406_01_109.mat','Data_20110406_01_110.mat','Data_20110406_01_111.mat','Data_20110406_01_112.mat'],
+                    2012:['Data_20120429_01_016.mat','Data_20120429_01_017.mat','Data_20120429_01_018.mat','Data_20120429_01_019.mat','Data_20120429_01_020.mat'],
+                    2013:['Data_20130404_01_103.mat','Data_20130404_01_104.mat','Data_20130404_01_105.mat','Data_20130404_01_106.mat','Data_20130404_01_107.mat'],
+                    2014:['Data_20140409_10_022.mat','Data_20140409_10_023.mat','Data_20140409_10_024.mat','Data_20140409_10_025.mat'],
+                    2017:['Data_20170429_01_112.mat','Data_20170429_01_113.mat','Data_20170429_01_114.mat','Data_20170429_01_115.mat','Data_20170429_01_116.mat','Data_20170429_01_117.mat'],
+                    2018:['Data_20180430_01_103.mat','Data_20180430_01_104.mat','Data_20180430_01_105.mat','Data_20180430_01_106.mat','Data_20180430_01_107.mat','Data_20180430_01_108.mat',]}
+
+
+
+
+
+
+
+
+
+
 ##############################################################################
 ###                     Define what we want to show                        ###
 ##############################################################################
@@ -367,7 +434,7 @@ for single_year in investigation_year.keys():
                 
         cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
-        ax_plotting.set_aspect(0.0025) # X scale matches Y scale
+        ax_plotting.set_aspect(0.001) # X scale matches Y scale
         ax_plotting.set_title(str(single_year)+' Depth corrected')
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]')
@@ -418,7 +485,7 @@ for single_year in investigation_year.keys():
         
         cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray_r'))#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
-        ax_plotting.set_aspect(0.0025) # X scale matches Y scale
+        ax_plotting.set_aspect(0.001) # X scale matches Y scale
         ax_plotting.set_title(str(single_year)+' '+plot_boolean)
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]')
@@ -472,7 +539,7 @@ for single_year in investigation_year.keys():
         
         cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
-        ax_plotting.set_aspect(0.0025) # X scale matches Y scale
+        ax_plotting.set_aspect(0.001) # X scale matches Y scale
         ax_plotting.set_title(str(single_year)+' '+plot_boolean)
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]')
