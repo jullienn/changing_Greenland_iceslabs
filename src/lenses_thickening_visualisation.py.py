@@ -10,6 +10,7 @@ import numpy as np
 import pdb
 import h5py
 from matplotlib import pyplot
+from PIL import Image
 
 ##############################################################################
 ###                     Define what we want to show                        ###
@@ -20,15 +21,16 @@ plot_years_overlay='FALSE'
 plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
 plot_boolean_subplot='TRUE'
+plot_images_subplot='TRUE'
 
 #Define the years and data to investigate:
-investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
-                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
-                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
-                    2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
-                    2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
-                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
-                    2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
+#investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
+#                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
+#                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
+#                    2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
+#                    2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
+#                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
+#                    2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 
 #investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
 #                    2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
@@ -45,6 +47,13 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
 #                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
 #                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat']}
 
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:['Data_20120423_01_137.mat','Data_20120423_01_138.mat'],
+                    2013:['Data_20130409_01_010.mat','Data_20130409_01_011.mat','Data_20130409_01_012.mat'],
+                    2014:'empty',
+                    2017:'empty',
+                    2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 ##############################################################################
 ###                     Define what we want to show                        ###
 ##############################################################################
@@ -60,6 +69,9 @@ path_mask=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
 path_depth_corrected=path_data+'exported/temp_for_overlap/Depth_Corrected_Picklefiles/'
 #Define the path for boolean
 path_boolean=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
+#Define the path for boolean images
+path_boolean_images=path_data+'exported/temp_for_overlap/'
+
 ##############################################################################
 ###                               Define paths                             ###
 ##############################################################################
@@ -88,15 +100,18 @@ for single_year in investigation_year.keys():
     #Define filename depth corrected data
     filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
               
-    #Define boolean filename
+    #Define boolean filename and boolean image filename
     if (plot_boolean=='plot_boolean_orig_cut045_th000'):
         filename_boolean=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.pickle'
+        filename_boolean_image=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.png'
         
     if (plot_boolean=='plot_boolean_SG1_cut045_th000'):
         filename_boolean=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
+        filename_boolean_image=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.png'
         
     if (plot_boolean=='plot_boolean_SG1_cut045_th350'):
         filename_boolean=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.pickle'
+        filename_boolean_image=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.png'
     
     #Open the depth corrected file
     f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
@@ -107,6 +122,10 @@ for single_year in investigation_year.keys():
     f_boolean = open(path_boolean+filename_boolean, "rb")
     boolean_file = pickle.load(f_boolean)
     f_boolean.close()
+    
+    #Open boolean image
+    boolean_image = Image.open(path_boolean_images+filename_boolean_image).convert("L")
+    arr_boolean_image = np.asarray(boolean_image)
     
     #Open mask file
     f_mask = open(path_mask+date_track+'_mask.pickle', "rb")
@@ -159,6 +178,8 @@ for single_year in investigation_year.keys():
         lat_appended=np.flipud(lat_appended)
         lon_appended=np.flipud(lon_appended)
         radar=np.fliplr(radar)
+        boolean_file=np.fliplr(boolean_file)
+        arr_boolean_image=np.fliplr(arr_boolean_image)
         data_mask=np.flipud(data_mask)
     
     #Store reunited lat/lon, slice output and mask in a dictionnary:
@@ -166,6 +187,7 @@ for single_year in investigation_year.keys():
                                  'lon_appended':lon_appended,
                                  'radar':radar,
                                  'boolean':boolean_file,
+                                 'boolean_image':arr_boolean_image,
                                  'mask':data_mask}
     
 ##############################################################################
@@ -215,7 +237,7 @@ for single_year in investigation_year.keys():
 ###                                 Plot data                              ###
 ##############################################################################
  
-pdb.set_trace()
+
 
 if (plot_years_overlay=='TRUE'):
     #Create an empty radar slice to plot data over it
@@ -251,8 +273,17 @@ if (plot_boolean_subplot=='TRUE'):
     pyplot.rcParams['ytick.major.width']=0.1
     
     pyplot.figure(figsize=(40,20))
-    pyplot.rcParams.update({'font.size': 2})
+    pyplot.rcParams.update({'font.size': 5})
     fig2, (ax1b,ax2b,ax3b,ax4b,ax5b,ax6b,ax7b) = pyplot.subplots(7, 1)
+    
+if (plot_images_subplot=='TRUE'):
+    pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
+    pyplot.rcParams['xtick.major.width']=0.1
+    pyplot.rcParams['ytick.major.width']=0.1
+    
+    pyplot.figure(figsize=(40,20))
+    pyplot.rcParams.update({'font.size': 5})
+    fig3, (ax1i,ax2i,ax3i,ax4i,ax5i,ax6i,ax7i) = pyplot.subplots(7, 1)
         
 for single_year in investigation_year.keys():
     
@@ -280,7 +311,7 @@ for single_year in investigation_year.keys():
         X=dataframe[str(single_year)]['lon_appended']
         Y=np.arange(0,100,100/dataframe[str(single_year)]['radar'].shape[0])
         C=dataframe[str(single_year)]['radar'].astype(float)
-                
+        
         cb1=ax1.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
         ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax1.set_aspect(0.0025) # X scale matches Y scale
@@ -290,7 +321,7 @@ for single_year in investigation_year.keys():
         #pdb.set_trace()
         #ax1.set_xlim(-47.9,-46.8)
         ax1.set_xlim(min_lon,max_lon)
-        ax1.set_ylim(30,0)
+        ax1.set_ylim(dataframe[str(single_year)]['boolean'].shape[0],0)
         
         cbar1=fig.colorbar(cb1, ax=[ax1], location='right',shrink=0.12,aspect=10,pad=0.01)
         cbar1.set_label('Signal strength')
@@ -306,6 +337,12 @@ for single_year in investigation_year.keys():
         #pyplot.clf()
 
     if (plot_depth_corrected_subplot=='TRUE'):
+        
+        #If no data, continue
+        if (investigation_year[single_year]=='empty'):
+            print('No data for year '+str(single_year)+', continue')
+            continue
+    
         if (single_year==2010):
             ax_plotting=ax1s
         elif (single_year==2011):
@@ -351,6 +388,12 @@ for single_year in investigation_year.keys():
         #pyplot.clf()
 
     if (plot_boolean_subplot=='TRUE'):
+        
+        #If no data, continue
+        if (investigation_year[single_year]=='empty'):
+            print('No data for year '+str(single_year)+', continue')
+            continue
+        
         if (single_year==2010):
             ax_plotting=ax1b
         elif (single_year==2011):
@@ -370,17 +413,17 @@ for single_year in investigation_year.keys():
             
         #fig.suptitle(str(plot_name1))
         X=dataframe[str(single_year)]['lon_appended']
-        Y=np.arange(0,100,100/dataframe[str(single_year)]['boolean'].shape[0])
+        Y=np.arange(0,20,20/dataframe[str(single_year)]['boolean'].shape[0])
         C=dataframe[str(single_year)]['boolean'].astype(float)
         
-        cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+        cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray_r'))#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
         ax_plotting.set_aspect(0.0025) # X scale matches Y scale
         ax_plotting.set_title(str(single_year)+' '+plot_boolean)
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]')
         ax_plotting.set_xlim(min_lon,max_lon)
-        ax_plotting.set_ylim(30,0)
+        ax_plotting.set_ylim(20,0)
         
         cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
         cbar.set_label('Signal strength')
@@ -394,6 +437,61 @@ for single_year in investigation_year.keys():
         ##Save the figure
         #pyplot.savefig(fig_name,dpi=2000)
         #pyplot.clf()        
+
+    if (plot_images_subplot=='TRUE'):
+        
+        #If no data, continue
+        if (investigation_year[single_year]=='empty'):
+            print('No data for year '+str(single_year)+', continue')
+            continue
+        
+        if (single_year==2010):
+            ax_plotting=ax1i
+        elif (single_year==2011):
+            ax_plotting=ax2i
+        elif (single_year==2012):
+            ax_plotting=ax3i
+        elif (single_year==2013):
+            ax_plotting=ax4i
+        elif (single_year==2014):
+            ax_plotting=ax5i
+        elif (single_year==2017):
+            ax_plotting=ax6i
+        elif (single_year==2018):
+            ax_plotting=ax7i
+        else:
+            print('Year not existing')
+        
+        
+        #Prepare the plot
+        #ax_plotting.set_xticks(ticks=np.linspace(min_lon,max_lon,dataframe[str(single_year)]['boolean'].shape[1]))
+
+        X=dataframe[str(single_year)]['lon_appended']
+        Y=np.arange(0,20,20/dataframe[str(single_year)]['boolean'].shape[0])
+        C=dataframe[str(single_year)]['boolean_image'].astype(float)
+        
+        cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+        ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
+        ax_plotting.set_aspect(0.0025) # X scale matches Y scale
+        ax_plotting.set_title(str(single_year)+' '+plot_boolean)
+        ax_plotting.set_ylabel('Depth [m]')
+        ax_plotting.set_xlabel('Longitude [°]')
+        ax_plotting.set_xlim(min_lon,max_lon)
+        ax_plotting.set_ylim(20,0)
+        
+        cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
+        cbar.set_label('Signal strength')
+        
+        ##Create the figure name
+        #fig_name=[]
+        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+plot_boolean+'.png'
+        
+        pyplot.show()
+        ##Save the figure
+        #pyplot.savefig(fig_name,dpi=2000)
+        #pyplot.clf()    
+
+
     else:
         
         pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
