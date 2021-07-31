@@ -2053,7 +2053,7 @@ class IceBridgeGPR_Track_v2():
             if (self.NAME[0:4]=='2018'):
                 roll = numpy.array(self._subset_array(self._return_aircraft_roll(), trace_masks))
                 #Make roll positive while keeping the periodicity
-                roll=roll+numpy.abs(numpy.min(roll))
+                roll=roll+2*numpy.abs(numpy.min(roll))
                 curvature = None       
             else:
                 roll = numpy.abs(self._subset_array(self._return_aircraft_roll(), trace_masks))

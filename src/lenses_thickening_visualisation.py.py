@@ -5,6 +5,25 @@ Created on Thu Feb  4 16:07:33 2021
 @author: JullienN
 """
 
+##############################################################################
+############### Define function for discrete colorbar display ###############
+##############################################################################
+def discrete_cmap(N, base_cmap=None):
+    """Create an N-bin discrete colormap from the specified input map"""
+    #This piece of code is from: https://gist.github.com/jakevdp/91077b0cae40f8f8244a
+    # Note that if base_cmap is a string or None, you can simply do
+    #    return plt.cm.get_cmap(base_cmap, N)
+    # The following works for string, None, or a colormap instance:
+    
+    base = plt.cm.get_cmap(base_cmap)
+    color_list = base(np.linspace(0, 1, N))
+    cmap_name = base.name + str(N)
+    return base.from_list(cmap_name, color_list, N)
+##############################################################################
+############### Define function for discrete colorbar display ###############
+##############################################################################
+
+
 def compute_distances(lon,lat):
     
     #Transform the coordinated from WGS84 to EPSG:3413
@@ -40,6 +59,7 @@ import h5py
 from matplotlib import pyplot
 from PIL import Image
 from pyproj import Transformer
+import xarray as xr
 
 ##############################################################################
 ###                     Define what we want to show                        ###
@@ -53,24 +73,27 @@ plot_boolean_subplot='TRUE'
 plot_images_subplot='FALSE'
 
 #Define the years and data to investigate:
-    
+ 
+
+#Less good candidate for ice slabs filling!!
+investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
+                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
+                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
+                    2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
+                    2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
+                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
+                    2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 '''
-#investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
-#                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
-#                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
-#                    2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
-#                    2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
-#                    2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
-#                    2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
+#Very good candidate for ice slabs filling!!
+investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
+                    2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
+                    2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
+                    2013:'empty',
+                    2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat'],
+                    2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat']}
 
-#investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
-#                    2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
-#                    2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
-#                    2013:'empty',
-#                    2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat'],
-#                    2017:['Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat']}
-
-
+'''
+'''
 #investigation_year={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
 #                    2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
 #                    2012:'empty',
@@ -172,7 +195,6 @@ investigation_year={2010:'empty',
 
 
 
-'''
 
 investigation_year={2010:['Data_20100514_02_009.mat','Data_20100514_02_010.mat'],
                     2011:'empty',
@@ -182,7 +204,7 @@ investigation_year={2010:['Data_20100514_02_009.mat','Data_20100514_02_010.mat']
                     2017:['Data_20170429_01_122.mat','Data_20170429_01_123.mat','Data_20170429_01_124.mat','Data_20170429_01_125.mat','Data_20170429_01_126.mat','Data_20170429_01_127.mat','Data_20170429_01_128.mat','Data_20170429_01_129.mat'],
                     2018:'empty'}
 
-
+'''
 
 
 
@@ -679,6 +701,144 @@ for single_year in investigation_year.keys():
 ###                                 Plot data                              ###
 ##############################################################################
 
+import matplotlib.pyplot as plt
+import rasterio as rio
+import geopandas as gpd
+##########################################################################
+###                          Load excess melt data   	               ###
+##########################################################################
+#This is from the code excess_melt.py
+#Define path
+path='C:/Users/jullienn/Documents/working_environment/excess_melt/'
+
+#Load the data
+data_path = path+'excess_melt_mbyear.nc'
+DS = xr.open_dataset(data_path)
+
+#Extract coordinates
+lat_M_e=DS.x.data
+lon_M_e=DS.y.data
+
+#Load melt data
+melt_data= DS.M_e
+
+##########################################################################
+###                          Load excess melt data   	               ###
+##########################################################################
+
+##########################################################################
+###                      Load Greenland DEM and contours               ###
+##########################################################################
+#This is from the code excess_melt.py
+dem_filename = 'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
+contours_filename = 'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_contours_100m_v3.0.shp'
+
+with rio.open(dem_filename) as fh:
+    dem = fh.read()
+    print(fh)
+    dem_bounds = fh.bounds
+    dem_crs = fh.crs
+contours = gpd.read_file(contours_filename)
+# Make sure that the coordinate reference system matches the image
+contours = contours.to_crs(dem_crs)
+
+##########################################################################
+###                      Load Greenland DEM and contours               ###
+##########################################################################
+
+
+##########################################################################
+###                          Plot excess melt data   	               ###
+##########################################################################
+#This is from the code excess_melt.py
+
+#Plot the excess melt with ice bridge track on top.
+#Note: I will have to work with excess melt differences: typically if I show 2012: I will have to do 2011-2010.
+generate_raw_excess_melt='FALSE'
+
+if (generate_raw_excess_melt=='TRUE'):
+    #Generate and save the raw annual excess melt figures
+    for year in list(np.arange(1990,2020)):
+        
+        #Define the year
+        wanted_year=str(year)
+        
+        #Select the data associated with the wanted year
+        melt_year = melt_data.sel(time=wanted_year)
+        melt_year_np = melt_year.values
+        
+        melt_year_plot=np.asarray(melt_year_np)
+        melt_year_plot=melt_year_plot[0,0,:,:,0]
+        
+        #Plot dem and contours elevation
+        plt.rcParams.update({'font.size': 20})
+        plt.figure(figsize=(48,40))
+        ax = plt.subplot(111)
+        dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
+        plt.imshow(np.squeeze(np.flipud(melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(5,'hot_r'))
+        
+        plt.colorbar(label='Excess melt [mm w.e./year]')
+        plt.clim(0,1000)
+        ax.grid()
+        #contours.plot(ax=ax, edgecolor='black')
+        plt.title('Excess melt plot, year: '+wanted_year)
+        plt.show()
+
+##########################################################################
+###                          Plot excess melt data   	               ###
+##########################################################################
+
+pdb.set_trace()
+
+for year in list(dataframe.keys()):
+    #Transform the coordinates from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.array(dataframe[str(year)]['lon_appended']),np.array(dataframe[str(year)]['lat_appended']))
+    
+    #Reset the lat_3413 and lon_3413 to empty vectors.
+    lon_3413=[]
+    lat_3413=[]
+    
+    lon_3413=points[0]
+    lat_3413=points[1]
+    
+    #Select the data associated with the reference year
+    melt_year_ref = melt_data.sel(time='2009')
+    melt_year_np_ref = melt_year_ref.values
+    
+    melt_year_plot_ref=np.asarray(melt_year_np_ref)
+    melt_year_plot_ref=melt_year_plot_ref[0,0,:,:,0]
+    
+    #Select the data associated with the wanted year -1
+    melt_year = melt_data.sel(time=str(int(year)-1))
+    melt_year_np = melt_year.values
+    
+    melt_year_plot=np.asarray(melt_year_np)
+    melt_year_plot=melt_year_plot[0,0,:,:,0]
+    
+    #Calculate the difference between the two years
+    diff_melt_year_plot = melt_year_plot-melt_year_plot_ref
+    
+    #Plot dem bounds and excess melt
+    plt.rcParams.update({'font.size': 20})
+    plt.figure(figsize=(48,40))
+    ax = plt.subplot(111)
+    dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
+    plt.imshow(np.squeeze(np.flipud(diff_melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(11,'RdBu_r'))
+    
+    #Plot ice bridge trace over excess melt
+    plt.plot(lon_3413,lat_3413,marker='o', markersize=1, zorder=45, color='blue')
+    #Zoom over the trace
+    plt.xlim(lon_3413[int(np.round(lat_3413.size/2))]-500000,lon_3413[int(np.round(lat_3413.size/2))]+500000)
+    plt.ylim(lat_3413[int(np.round(lat_3413.size/2))]-300000,lat_3413[int(np.round(lat_3413.size/2))]+300000)
+                    
+    plt.colorbar(label='Excess melt difference[mm w.e./year]')
+    plt.clim(-500,500)
+    ax.grid()
+    #contours.plot(ax=ax, edgecolor='black')
+    plt.title('Trace year: '+str(year)+'. Excess melt: '+str(int(year)-1)+'-2009')
+    plt.show()
 
 pdb.set_trace()
 
