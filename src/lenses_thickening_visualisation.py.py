@@ -50,9 +50,11 @@ plot_years_overlay='FALSE'
 plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
 plot_boolean_subplot='TRUE'
-plot_images_subplot='TRUE'
+plot_images_subplot='FALSE'
 
 #Define the years and data to investigate:
+    
+'''
 #investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
 #                    2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
 #                    2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
@@ -141,8 +143,44 @@ investigation_year={2010:['Data_20100514_02_001.mat','Data_20100514_02_002.mat',
                     2017:['Data_20170429_01_112.mat','Data_20170429_01_113.mat','Data_20170429_01_114.mat','Data_20170429_01_115.mat','Data_20170429_01_116.mat','Data_20170429_01_117.mat'],
                     2018:['Data_20180430_01_103.mat','Data_20180430_01_104.mat','Data_20180430_01_105.mat','Data_20180430_01_106.mat','Data_20180430_01_107.mat','Data_20180430_01_108.mat',]}
 
+investigation_year={2010:'empty',
+                    2011:['Data_20110422_02_001.mat','Data_20110422_02_002.mat','Data_20110422_02_003.mat','Data_20110422_02_004.mat','Data_20110422_02_005.mat','Data_20110422_02_006.mat'],
+                    2012:'empty',
+                    2013:['Data_20130406_01_078.mat','Data_20130406_01_079.mat','Data_20130406_01_080.mat','Data_20130406_01_081.mat','Data_20130406_01_082.mat','Data_20130406_01_083.mat','Data_20130406_01_084.mat','Data_20130406_01_085.mat','Data_20130406_01_086.mat'],
+                    2014:'empty',
+                    2017:['Data_20170501_02_077.mat','Data_20170501_02_078.mat','Data_20170501_02_079.mat','Data_20170501_02_080.mat','Data_20170501_02_081.mat','Data_20170501_02_082.mat','Data_20170501_02_083.mat','Data_20170501_02_084.mat','Data_20170501_02_085.mat','Data_20170501_02_086.mat','Data_20170501_02_087.mat'],
+                    2018:'empty'}
 
 
+investigation_year={2010:['Data_20100514_02_035.mat','Data_20100514_02_036.mat','Data_20100514_02_037.mat','Data_20100514_02_038.mat','Data_20100514_02_039.mat'],
+                    2011:'empty',
+                    2012:'empty',
+                    2013:['Data_20130404_01_139.mat','Data_20130404_01_140.mat','Data_20130404_01_141.mat','Data_20130404_01_142.mat','Data_20130404_01_143.mat','Data_20130404_01_144.mat','Data_20130404_01_145.mat'],
+                    2014:['Data_20140409_10_057.mat','Data_20140409_10_058.mat','Data_20140409_10_059.mat','Data_20140409_10_060.mat','Data_20140409_10_061.mat','Data_20140409_10_062.mat','Data_20140409_10_063.mat','Data_20140409_10_064.mat','Data_20140409_10_065.mat','Data_20140409_10_066.mat'],
+                    2017:['Data_20170429_01_148.mat','Data_20170429_01_149.mat','Data_20170429_01_150.mat','Data_20170429_01_151.mat','Data_20170429_01_152.mat','Data_20170429_01_153.mat','Data_20170429_01_154.mat'],
+                    2018:['Data_20180430_01_139.mat','Data_20180430_01_140.mat','Data_20180430_01_141.mat','Data_20180430_01_142.mat','Data_20180430_01_143.mat','Data_20180430_01_144.mat','Data_20180430_01_145.mat']}
+
+
+
+investigation_year={2010:'empty',
+                    2011:['Data_20110422_02_070.mat','Data_20110422_02_071.mat','Data_20110422_02_072.mat','Data_20110422_02_073.mat','Data_20110422_02_074.mat','Data_20110422_02_075.mat','Data_20110422_02_076.mat'],
+                    2012:['Data_20120429_01_016.mat','Data_20120429_01_017.mat','Data_20120429_01_018.mat','Data_20120429_01_019.mat','Data_20120429_01_020.mat'],
+                    2013:['Data_20130406_01_146.mat','Data_20130406_01_147.mat','Data_20130406_01_148.mat','Data_20130406_01_149.mat','Data_20130406_01_150.mat','Data_20130406_01_151.mat','Data_20130406_01_152.mat'],
+                    2014:'empty',
+                    2017:['Data_20170501_02_006.mat','Data_20170501_02_007.mat','Data_20170501_02_008.mat','Data_20170501_02_009.mat','Data_20170501_02_010.mat','Data_20170501_02_011.mat','Data_20170501_02_012.mat','Data_20170501_02_013.mat','Data_20170501_02_014.mat','Data_20170501_02_015.mat','Data_20170501_02_016.mat'],
+                    2018:'empty'}
+
+
+
+'''
+
+investigation_year={2010:['Data_20100514_02_009.mat','Data_20100514_02_010.mat'],
+                    2011:'empty',
+                    2012:'empty',
+                    2013:['Data_20130404_01_113.mat','Data_20130404_01_114.mat','Data_20130404_01_115.mat','Data_20130404_01_116.mat','Data_20130404_01_117.mat','Data_20130404_01_118.mat','Data_20130404_01_119.mat'],
+                    2014:['Data_20140409_10_033.mat'],
+                    2017:['Data_20170429_01_122.mat','Data_20170429_01_123.mat','Data_20170429_01_124.mat','Data_20170429_01_125.mat','Data_20170429_01_126.mat','Data_20170429_01_127.mat','Data_20170429_01_128.mat','Data_20170429_01_129.mat'],
+                    2018:'empty'}
 
 
 
@@ -595,7 +633,7 @@ for single_year in investigation_year.keys():
         #pyplot.savefig(fig_name,dpi=2000)
         #pyplot.clf()    
 
-
+'''
     else:
         
         pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
@@ -636,7 +674,7 @@ for single_year in investigation_year.keys():
         #pyplot.clf()
         
         pdb.set_trace()
-
+'''
 ##############################################################################
 ###                                 Plot data                              ###
 ##############################################################################
