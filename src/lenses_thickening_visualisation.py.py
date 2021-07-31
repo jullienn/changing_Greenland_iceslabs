@@ -71,6 +71,8 @@ plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
 plot_boolean_subplot='TRUE'
 plot_images_subplot='FALSE'
+yearly_comparison='FALSE'
+cumulative_comparison='TRUE'
 
 #Define the years and data to investigate:
  
@@ -788,8 +790,8 @@ if (generate_raw_excess_melt=='TRUE'):
 ###                          Plot excess melt data   	               ###
 ##########################################################################
 
-pdb.set_trace()
-
+cum_excess=np.zeros((446,240))
+    
 for year in list(dataframe.keys()):
     #Transform the coordinates from WGS84 to EPSG:3413
     #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
@@ -810,22 +812,38 @@ for year in list(dataframe.keys()):
     melt_year_plot_ref=np.asarray(melt_year_np_ref)
     melt_year_plot_ref=melt_year_plot_ref[0,0,:,:,0]
     
-    #Select the data associated with the wanted year -1
-    melt_year = melt_data.sel(time=str(int(year)-1))
-    melt_year_np = melt_year.values
+    if (yearly_comparison=='TRUE'):
+        #Select the data associated with the wanted year -1
+        melt_year = melt_data.sel(time=str(int(year)-1))
+        melt_year_np = melt_year.values
+        
+        melt_year_plot=np.asarray(melt_year_np)
+        melt_year_plot=melt_year_plot[0,0,:,:,0]
+        
+        #Calculate the difference between the two years
+        diff_melt_year_plot = melt_year_plot-melt_year_plot_ref
     
-    melt_year_plot=np.asarray(melt_year_np)
-    melt_year_plot=melt_year_plot[0,0,:,:,0]
-    
-    #Calculate the difference between the two years
-    diff_melt_year_plot = melt_year_plot-melt_year_plot_ref
+    if (cumulative_comparison=='TRUE'):
+        for indiv_year in range(2009,int(year)):
+            #Select the data associated with the wanted year
+            melt_year = melt_data.sel(time=str(indiv_year))
+            melt_year_np = melt_year.values
+            
+            melt_year_plot=np.asarray(melt_year_np)
+            melt_year_plot=melt_year_plot[0,0,:,:,0]
+            
+            #Calculate the cumulative difference between the year of interest and the reference years
+            cum_excess=cum_excess+melt_year_plot-melt_year_plot_ref
+        
+        #Store in the right variable for plotting
+        diff_melt_year_plot=cum_excess
     
     #Plot dem bounds and excess melt
-    plt.rcParams.update({'font.size': 20})
+    plt.rcParams.update({'font.size': 10})
     plt.figure(figsize=(48,40))
     ax = plt.subplot(111)
     dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
-    plt.imshow(np.squeeze(np.flipud(diff_melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(11,'RdBu_r'))
+    plt.imshow(np.squeeze(np.flipud(diff_melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(17,'RdBu_r'))
     
     #Plot ice bridge trace over excess melt
     plt.plot(lon_3413,lat_3413,marker='o', markersize=1, zorder=45, color='blue')
@@ -833,11 +851,11 @@ for year in list(dataframe.keys()):
     plt.xlim(lon_3413[int(np.round(lat_3413.size/2))]-500000,lon_3413[int(np.round(lat_3413.size/2))]+500000)
     plt.ylim(lat_3413[int(np.round(lat_3413.size/2))]-300000,lat_3413[int(np.round(lat_3413.size/2))]+300000)
                     
-    plt.colorbar(label='Excess melt difference[mm w.e./year]')
-    plt.clim(-500,500)
+    plt.colorbar(label='Cumulative excess melt difference[mm w.e./year]')
+    plt.clim(-1500,1500)
     ax.grid()
     #contours.plot(ax=ax, edgecolor='black')
-    plt.title('Trace year: '+str(year)+'. Excess melt: '+str(int(year)-1)+'-2009')
+    plt.title('Trace year: '+str(year)+'. Cumulative: 2009-'+str(int(year)-1)+' -x.2009')
     plt.show()
 
 pdb.set_trace()
