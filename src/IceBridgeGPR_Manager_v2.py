@@ -2048,16 +2048,9 @@ class IceBridgeGPR_Track_v2():
             curvature_expanded[-1] = numpy.nan
 
             curvature = self._subset_array(curvature_expanded, trace_masks)
-        else:
-            #If 2018, then correct for positive roll. Else, usual correction (=abs(roll))
-            if (self.NAME[0:4]=='2018'):
-                roll = numpy.array(self._subset_array(self._return_aircraft_roll(), trace_masks))
-                #Make roll positive while keeping the periodicity
-                roll=roll+2*numpy.abs(numpy.min(roll))
-                curvature = None       
-            else:
-                roll = numpy.abs(self._subset_array(self._return_aircraft_roll(), trace_masks))
-                curvature = None
+        else:     
+            roll = numpy.abs(self._subset_array(self._return_aircraft_roll(), trace_masks))
+            curvature = None
 
         ##############################
         # 3) Compute parabolic function to correct IceBridge data... test whether it's significant?
