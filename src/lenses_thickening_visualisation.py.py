@@ -757,7 +757,7 @@ contours = contours.to_crs(dem_crs)
 
 #Plot the excess melt with ice bridge track on top.
 #Note: I will have to work with excess melt differences: typically if I show 2012: I will have to do 2011-2010.
-generate_raw_excess_melt='FALSE'
+generate_raw_excess_melt='TRUE'
 
 if (generate_raw_excess_melt=='TRUE'):
     #Generate and save the raw annual excess melt figures
@@ -781,16 +781,20 @@ if (generate_raw_excess_melt=='TRUE'):
         plt.imshow(np.squeeze(np.flipud(melt_year_plot)), extent=dem_extent,cmap=discrete_cmap(5,'hot_r'))
         
         plt.colorbar(label='Excess melt [mm w.e./year]')
-        plt.clim(0,1000)
+        plt.clim(0,1500)
         ax.grid()
         #contours.plot(ax=ax, edgecolor='black')
         plt.title('Excess melt plot, year: '+wanted_year)
         plt.show()
 
 ##########################################################################
-###                          Plot excess melt data   	               ###
+###                          Plot excess melt data   	              ###
 ##########################################################################
 
+
+##########################################################################
+###                Plot difference excess melt data   	              ###
+##########################################################################
 cum_excess=np.zeros((446,240))
     
 for year in list(dataframe.keys()):
@@ -966,7 +970,7 @@ for year in list(dataframe.keys()):
     plt.ylim(lat_3413[int(np.round(lat_3413.size/2))]-300000,lat_3413[int(np.round(lat_3413.size/2))]+300000)
                     
     plt.colorbar(label='Cumulative excess melt difference[mm w.e./year]')
-    plt.clim(-2500,2500)
+    plt.clim(-1500,1500)
     ax.grid()
     #contours.plot(ax=ax, edgecolor='black')
     #plt.title('Trace year: '+str(year)+'. Cumulative: 2009-'+str(int(year)-1)+' -x.2009')
@@ -974,6 +978,10 @@ for year in list(dataframe.keys()):
     plt.show()
 
 pdb.set_trace()
+
+##########################################################################
+###                Plot difference excess melt data   	              ###
+##########################################################################
 
 #Replace the FALSE by NaN, then plot different colors? or semi transparent?
 
