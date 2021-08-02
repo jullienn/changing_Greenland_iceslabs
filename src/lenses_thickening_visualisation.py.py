@@ -853,10 +853,10 @@ for year in list(dataframe.keys()):
                 cum_excess=cum_excess+temp_diff
         
             #Store in the right variable for plotting
-            diff_melt_year_plot=cum_excess 
+            diff_melt_year_plot=cum_excess/3 #Divide it by 3 because sum of 3 years
             
             #Create title for plot
-            title_to_plot='Year: '+year+', Excess melt: abs(2014-2009)+abs(2015-2009)+abs(2016-2009)'
+            title_to_plot='Year: '+year+', Excess melt: (abs(2014-2009)+abs(2015-2009)+abs(2016-2009))/3'
         else:
             print('Year input is not known')
             break
@@ -928,7 +928,8 @@ for year in list(dataframe.keys()):
                 cum_excess=cum_excess+temp_diff
         
             #Store in the right variable for plotting
-            diff_melt_year_plot=cum_excess 
+            pdb.set_trace()
+            diff_melt_year_plot=cum_excess
             
             #Create title for plot
             title_to_plot='Year: '+year+', Excess melt: abs(2014-2013)+abs(2015-2014)+abs(2016-2015)'
