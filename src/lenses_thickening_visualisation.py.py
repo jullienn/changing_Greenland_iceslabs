@@ -71,8 +71,9 @@ plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
 plot_boolean_subplot='TRUE'
 plot_images_subplot='FALSE'
-yearly_comparison='FALSE'
-cumulative_comparison='TRUE'
+yearly_comparison_indiv='FALSE'
+yearly_comparison_ref='TRUE'
+cumulative_comparison='FALSE'
 
 #Define the years and data to investigate:
  
@@ -534,7 +535,7 @@ for single_year in investigation_year.keys():
         ax_plotting.set_title(str(single_year)+' Depth corrected')
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]]')
-        ax_plotting.set_xlim(min_lon,max_lon)
+        ax_plotting.set_xlim(-48,-46.6)
         ax_plotting.set_ylim(30,0)
         
         #ax_plotting.set_xticks(distances)
@@ -812,17 +813,129 @@ for year in list(dataframe.keys()):
     melt_year_plot_ref=np.asarray(melt_year_np_ref)
     melt_year_plot_ref=melt_year_plot_ref[0,0,:,:,0]
     
-    if (yearly_comparison=='TRUE'):
-        #Select the data associated with the wanted year -1
-        melt_year = melt_data.sel(time=str(int(year)-1))
-        melt_year_np = melt_year.values
+    if (yearly_comparison_ref=='TRUE'):
+            
+        if (str(year) in list(['2010','2011','2012','2013','2014','2018'])):
+            #Select the data associated with the wanted year -1
+            melt_year = melt_data.sel(time=str(int(year)-1))
+            melt_year_np = melt_year.values
+            
+            melt_year_plot=np.asarray(melt_year_np)
+            melt_year_plot=melt_year_plot[0,0,:,:,0]
+            
+            #Calculate the difference between the melt year of interest compared to the reference year
+            diff_melt_year_plot = melt_year_plot-melt_year_plot_ref
+            
+            #Create title for plot
+            title_to_plot='Year: '+year+', Excess melt: '+str(int(year)-1)+'-2009'
+            
+        elif (year == str(2017)):
+            
+            for indiv_year in range(2014,2017):
+                print(indiv_year)
+                #Select the data associated with the wanted year
+                melt_year = melt_data.sel(time=str(indiv_year))
+                melt_year_np = melt_year.values
+                
+                melt_year_plot=np.asarray(melt_year_np)
+                melt_year_plot=melt_year_plot[0,0,:,:,0]
+                
+                #Calculate the difference between the melt year of interest compared to the reference year
+                temp_diff=melt_year_plot-melt_year_plot_ref
+                
+                #As we are only interested in positive difference of excess melt,
+                #set to zero where temp_diff<0
+                
+                x_loc,y_loc=np.where(temp_diff<0)
+                temp_diff[x_loc,y_loc]=0
+                
+                #Calculate the cumulative difference between the year of interest and the reference years
+                cum_excess=cum_excess+temp_diff
         
-        melt_year_plot=np.asarray(melt_year_np)
-        melt_year_plot=melt_year_plot[0,0,:,:,0]
-        
-        #Calculate the difference between the two years
-        diff_melt_year_plot = melt_year_plot-melt_year_plot_ref
+            #Store in the right variable for plotting
+            diff_melt_year_plot=cum_excess 
+            
+            #Create title for plot
+            title_to_plot='Year: '+year+', Excess melt: abs(2014-2009)+abs(2015-2009)+abs(2016-2009)'
+        else:
+            print('Year input is not known')
+            break
     
+    if (yearly_comparison_indiv=='TRUE'):
+        if (year==str(2010)):
+            #Select the data associated with the wanted year -1
+            melt_year = melt_data.sel(time=str(int(year)-1))
+            melt_year_np = melt_year.values
+            
+            melt_year_plot=np.asarray(melt_year_np)
+            melt_year_plot=melt_year_plot[0,0,:,:,0]
+            
+            #Calculate the difference between the two years
+            diff_melt_year_plot = melt_year_plot-melt_year_plot_ref
+            
+            #Create title for plot
+            title_to_plot='Year: '+year+', Excess melt: 2009-2009'
+            
+        elif (str(year) in list(['2011','2012','2013','2014','2018'])):
+            #Select the data associated with the wanted year -1
+            melt_year = melt_data.sel(time=str(int(year)-1))
+            melt_year_np = melt_year.values
+            
+            melt_year_plot=np.asarray(melt_year_np)
+            melt_year_plot=melt_year_plot[0,0,:,:,0]
+            
+            #Select the data associated with the wanted year -2
+            melt_year_minus = melt_data.sel(time=str(int(year)-2))
+            melt_year_minus_np = melt_year_minus.values
+            
+            melt_year_plot_minus=np.asarray(melt_year_minus_np)
+            melt_year_plot_minus=melt_year_plot_minus[0,0,:,:,0]
+            
+            #Calculate the difference between the two years
+            diff_melt_year_plot = melt_year_plot-melt_year_plot_minus
+            
+            #Create title for plot
+            title_to_plot='Year: '+year+', Excess melt: '+str(int(year)-1)+'-'+str(int(year)-2)
+            
+        elif (year == str(2017)):
+            
+            for indiv_year in range(2014,2017):
+                print(indiv_year)
+                #Select the data associated with the wanted year
+                melt_year = melt_data.sel(time=str(indiv_year))
+                melt_year_np = melt_year.values
+                
+                melt_year_plot=np.asarray(melt_year_np)
+                melt_year_plot=melt_year_plot[0,0,:,:,0]
+                
+                #Select the data associated with the previous year
+                melt_year_minus = melt_data.sel(time=str((indiv_year-1)))
+                melt_year_minus_np = melt_year_minus.values
+                
+                melt_year_plot_minus=np.asarray(melt_year_minus_np)
+                melt_year_plot_minus=melt_year_plot_minus[0,0,:,:,0]
+                
+                #Calculate the difference between the melt year of interest compared to the reference year
+                temp_diff=melt_year_plot-melt_year_plot_minus
+                
+                #As we are only interested in positive difference of excess melt,
+                #set to zero where temp_diff<0
+                
+                x_loc,y_loc=np.where(temp_diff<0)
+                temp_diff[x_loc,y_loc]=0
+                
+                #Calculate the cumulative difference between the year of interest and the reference years
+                cum_excess=cum_excess+temp_diff
+        
+            #Store in the right variable for plotting
+            diff_melt_year_plot=cum_excess 
+            
+            #Create title for plot
+            title_to_plot='Year: '+year+', Excess melt: abs(2014-2013)+abs(2015-2014)+abs(2016-2015)'
+        else:
+            print('Year input is not known')
+            break
+            
     if (cumulative_comparison=='TRUE'):
         for indiv_year in range(2009,int(year)):
             #Select the data associated with the wanted year
@@ -852,10 +965,11 @@ for year in list(dataframe.keys()):
     plt.ylim(lat_3413[int(np.round(lat_3413.size/2))]-300000,lat_3413[int(np.round(lat_3413.size/2))]+300000)
                     
     plt.colorbar(label='Cumulative excess melt difference[mm w.e./year]')
-    plt.clim(-1500,1500)
+    plt.clim(-2500,2500)
     ax.grid()
     #contours.plot(ax=ax, edgecolor='black')
-    plt.title('Trace year: '+str(year)+'. Cumulative: 2009-'+str(int(year)-1)+' -x.2009')
+    #plt.title('Trace year: '+str(year)+'. Cumulative: 2009-'+str(int(year)-1)+' -x.2009')
+    plt.title(title_to_plot)
     plt.show()
 
 pdb.set_trace()
