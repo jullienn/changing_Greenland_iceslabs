@@ -71,9 +71,9 @@ plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
 plot_boolean_subplot='TRUE'
 plot_images_subplot='FALSE'
-yearly_comparison_indiv='TRUE'
+yearly_comparison_indiv='FALSE'
 yearly_comparison_ref='FALSE'
-cumulative_comparison='FALSE'
+cumulative_comparison='TRUE'
 
 #Define the years and data to investigate:
  
@@ -932,10 +932,10 @@ for year in list(dataframe.keys()):
                 cum_excess=cum_excess+temp_diff
         
             #Store in the right variable for plotting
-            diff_melt_year_plot=cum_excess
+            diff_melt_year_plot=cum_excess/3
             
             #Create title for plot
-            title_to_plot='Year: '+year+', Excess melt: abs(2014-2013)+abs(2015-2014)+abs(2016-2015)'
+            title_to_plot='Year: '+year+', Excess melt: (abs(2014-2013)+abs(2015-2014)+abs(2016-2015))/3'
         else:
             print('Year input is not known')
             break
@@ -954,6 +954,10 @@ for year in list(dataframe.keys()):
         
         #Store in the right variable for plotting
         diff_melt_year_plot=cum_excess
+        
+        #Create title for plot
+        title_to_plot='Year: '+year+', Cumulative excess melt difference: 2009 to '+year+' - x.2009'
+        
     
     #Plot dem bounds and excess melt
     plt.rcParams.update({'font.size': 10})
