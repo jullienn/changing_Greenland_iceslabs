@@ -72,8 +72,8 @@ plot_depth_corrected_subplot='TRUE'
 plot_boolean_subplot='TRUE'
 plot_images_subplot='FALSE'
 yearly_comparison_indiv='FALSE'
-yearly_comparison_ref='FALSE'
-cumulative_comparison='TRUE'
+yearly_comparison_ref='TRUE'
+cumulative_comparison='FALSE'
 
 #Define the years and data to investigate:
  
@@ -484,7 +484,7 @@ for single_year in investigation_year.keys():
         ax1.set_ylabel('Depth [m]')
         ax1.set_xlabel('Longitude [°]')
         #pdb.set_trace()
-        ax1.set_xlim(min_lon,max_lon)
+        ax1.set_xlim(-48,-46.7)
         ax1.set_ylim(dataframe[str(single_year)]['boolean'].shape[0],0)
         
         cbar1=fig.colorbar(cb1, ax=[ax1], location='right',shrink=0.12,aspect=10,pad=0.01)
@@ -535,8 +535,8 @@ for single_year in investigation_year.keys():
         ax_plotting.set_title(str(single_year)+' Depth corrected')
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]]')
-        ax_plotting.set_xlim(-48,-46.6)
-        ax_plotting.set_ylim(30,0)
+        ax_plotting.set_xlim(-48,-46.7)
+        ax_plotting.set_ylim(20,0)
         
         #ax_plotting.set_xticks(distances)
         #ax_plotting.set_xticklabels(distances)
@@ -589,7 +589,7 @@ for single_year in investigation_year.keys():
         ax_plotting.set_title(str(single_year)+' '+plot_boolean)
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]')
-        ax_plotting.set_xlim(min_lon,max_lon)
+        ax_plotting.set_xlim(-48,-46.7)
         ax_plotting.set_ylim(20,0)
         
         cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
