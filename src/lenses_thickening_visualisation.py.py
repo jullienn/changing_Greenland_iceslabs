@@ -71,8 +71,8 @@ plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE'
 plot_boolean_subplot='TRUE'
 plot_images_subplot='FALSE'
-yearly_comparison_indiv='FALSE'
-yearly_comparison_ref='TRUE'
+yearly_comparison_indiv='TRUE'
+yearly_comparison_ref='FALSE'
 cumulative_comparison='FALSE'
 
 #Define the years and data to investigate:
@@ -757,7 +757,7 @@ contours = contours.to_crs(dem_crs)
 
 #Plot the excess melt with ice bridge track on top.
 #Note: I will have to work with excess melt differences: typically if I show 2012: I will have to do 2011-2010.
-generate_raw_excess_melt='TRUE'
+generate_raw_excess_melt='FALSE'
 
 if (generate_raw_excess_melt=='TRUE'):
     #Generate and save the raw annual excess melt figures
@@ -932,7 +932,6 @@ for year in list(dataframe.keys()):
                 cum_excess=cum_excess+temp_diff
         
             #Store in the right variable for plotting
-            pdb.set_trace()
             diff_melt_year_plot=cum_excess
             
             #Create title for plot
