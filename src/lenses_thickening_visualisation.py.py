@@ -980,69 +980,245 @@ for year in list(dataframe.keys()):
     plt.title(title_to_plot)
     plt.show()
 
-pdb.set_trace()
 
 ##########################################################################
 ###                Plot difference excess melt data   	              ###
 ##########################################################################
 
-#Replace the FALSE by NaN, then plot different colors? or semi transparent?
-
-single_year=2011
-X=dataframe[str(single_year)]['lon_appended']
-Y=np.arange(0,20,20/dataframe[str(single_year)]['radar'].shape[0])
-C=dataframe[str(single_year)]['radar'].astype(float)
-C[C==0]=np.nan
-color_map=pyplot.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'),alpha=0.1)#,norm=divnorm)
 pdb.set_trace()
+##########################################################################
+###                  Extract excess melt values   	                  ###
+##########################################################################
+#I did a test with a trace in 2014 and compared with 2013 excess melt on QGIS
+# and similar values are retreive. Not all because on WGIS only ice slabs are displayed
+#whereas in this code I use the full trace. This method can be used.
 
-single_year=2012
-X=dataframe[str(single_year)]['lon_appended']
-Y=np.arange(0,20,20/dataframe[str(single_year)]['radar'].shape[0])
-C=dataframe[str(single_year)]['radar'].astype(float)
-C[C==0]=np.nan
-color_map=pyplot.pcolor(X, Y, C,cmap=pyplot.get_cmap('summer'),alpha=0.1)#,norm=divnorm)
-pdb.set_trace()
+import xarray as xr
+import rioxarray
+import pandas as pd
+import geopandas as gpd
 
-single_year=2013
-X=dataframe[str(single_year)]['lon_appended']
-Y=np.arange(0,20,20/dataframe[str(single_year)]['radar'].shape[0])
-C=dataframe[str(single_year)]['radar'].astype(float)
-C[C==0]=np.nan
-color_map=pyplot.pcolor(X, Y, C,cmap=pyplot.get_cmap('autumn'),alpha=0.1)#,norm=divnorm)
-pdb.set_trace()
+#Create an excess melt dataframe
+excessmelt_dictionnary = {k: {} for k in dataframe.keys()}
 
-single_year=2014
-X=dataframe[str(single_year)]['lon_appended']
-Y=np.arange(0,20,20/dataframe[str(single_year)]['radar'].shape[0])
-C=dataframe[str(single_year)]['radar'].astype(float)
-C[C==0]=np.nan
-color_map=pyplot.pcolor(X, Y, C,cmap=pyplot.get_cmap('winter'),alpha=0.1)#,norm=divnorm)
+#Open the excess melt dataset
+em = xr.open_dataset(data_path)
 
-pyplot.show()
-pdb.set_trace()
+#Define the transformation to apply to lat/lon
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 
-##Create the figure name
-#fig_name=[]
-#fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/'+indiv_file+'.png'
-
-##Save the figure
-#pyplot.savefig(fig_name)
-#pyplot.clf()
-                    
-#pdb.set_trace()
+for indiv_year in dataframe.keys():
     
+    print('Treating ',indiv_year)
     
-
+    #Prepare the excess melt dictionnary
+    excessmelt_dictionnary[indiv_year] = {k: {} for k in range(2009,2018)}
     
+    #Transform the coord of the year under process into 3413
+    coord_3413=transformer.transform(np.array(dataframe[str(indiv_year)]['lon_appended']),np.array(dataframe[str(indiv_year)]['lat_appended']))
     
+    #Loop over the year from 2009 to 2017
+    for excess_melt_year in range(2009,2019):
+        print('excess melt year: ',excess_melt_year)
         
-#lat1.shape[1]+lat2.shape[1]+lat3.shape[1]= data.shape[1] => great news!
+        #Create the dataframe to store excess melt data
+        df=pd.DataFrame({'x':coord_3413[0],
+                         'y':coord_3413[1],
+                         'excess_melt':np.zeros(len(np.array(dataframe[str(indiv_year)]['lon_appended'])))})
+        
+        #Create the geopandas dataframe
+        oib = gpd.GeoDataFrame(df, 
+            geometry=gpd.points_from_xy(df.x, df.y), 
+            crs=3413)
+        
+        #Establish the link between melt data and geopandas dataframe
+        oib_as_mar = oib.to_crs(em.rio.crs)
+        
+        #Loop over the points and find the associated excess melt value
+        for ix, row in oib_as_mar.iterrows():
+            value = em.M_e.sel(x=row.geometry.x, y=row.geometry.y, method='nearest')
+            df['excess_melt'].iloc[ix]=np.squeeze(np.asarray(value.sel(time=str(excess_melt_year))))
+        
+        #Store the excess melt year in the corresponding dictionnary location
+        excessmelt_dictionnary[indiv_year][excess_melt_year]=df
 
-#To do:
-#    1. append data and lat/lon1 OK
-#    2. load data from 2010 to 2014 OK
-#    3. select as a function of lat/lon box OK
-#    4. plot the data OK
-#    5. compare! OK
-#    6. Decide whether I should work with depth corrected, or other post-precessed files that are available in 'Boolean Array Picklefiles' folder OK
+'''
+##################### Export melt netcdf dataset into raster ##################
+
+#from https://gis.stackexchange.com/questions/323317/converting-netcdf-dataset-array-to-geotiff-using-rasterio-python
+
+import rioxarray
+import rasterio
+
+
+
+rioxarray.open_rasterio(data_path,decode_times='true')
+                        
+                        
+#Define the year
+desired_year='2013'
+
+data_path = path+'excess_melt_mbyear.nc'
+DS = xr.open_dataset(data_path)
+
+#Make sure the crs is defined
+DS.rio.write_crs("epsg:3413", inplace=True)
+
+indiv_DS=DS["M_e"].sel(time=desired_year)[0,0,:,:,0]
+#indiv_DS.rio.crs
+bounds_DS=indiv_DS.rio.bounds()
+
+#Define the DS extent
+DS_extent = (bounds_DS[0], bounds_DS[2], bounds_DS[1], bounds_DS[3])
+
+fig, ax = plt.subplots()
+#rio.plot.show(indiv_DS,ax=ax,extent=,cmap='pink')
+gdf.plot(ax=ax)
+
+
+
+
+dem_extent = (dem_bounds[0], dem_bounds[2], dem_bounds[1], dem_bounds[3])
+
+import geopandas
+import matplotlib.pyplot as plt
+from shapely.geometry import Point
+from rasterio.plot import show
+
+
+
+#Export the desired melt year as a raster
+DS["M_e"].sel(time=desired_year)[0,0,:,:,0].rio.to_raster('C:/Users/jullienn/Documents/working_environment/excess_melt/excess_melt_raster'+desired_year+'.tif')
+##################### Export melt netcdf dataset into raster ##################
+
+##################### Link traces with excess melt data ######################
+#from https://geopandas.readthedocs.io/en/latest/gallery/geopandas_rasterio_sample.html
+
+
+
+#Transform the coordinates from WGS84 to EPSG:3413
+#Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+coord_3413=transformer.transform(np.array(dataframe[str(year)]['lon_appended']),np.array(dataframe[str(year)]['lat_appended']))
+
+# Create a geodataframe from coordinates of flight
+points=[]
+for i in range(0,len(lon_3413)):
+    points.append(Point(coord_3413[0][i],coord_3413[1][i]))
+gdf = geopandas.GeoDataFrame(np.arange(0,len(lon_3413)), geometry=points, crs="EPSG:3413")
+
+
+
+#src = rio.open('C:/Users/jullienn/Documents/working_environment/excess_melt/excess_melt_raster2013.tif')
+
+#Open the excell melt raster
+xds = rioxarray.open_rasterio('C:/Users/jullienn/Documents/working_environment/excess_melt/excess_melt_raster'+desired_year+'.tif')
+
+#Visualize the data over excess melt raster
+fig, ax = plt.subplots()
+rio.plot.show(xds,ax=ax, extent=dem_extent,origin='lower',cmap='pink')
+gdf.plot(ax=ax)
+
+# get value from grid
+value = xds.sel(x=lon_3413, y=lat_3413, method="nearest",origin='lower').values
+
+
+#Recover a list of x and y from Point coordinates
+coord_list = [(x,y) for x,y in zip(gdf['geometry'].x , gdf['geometry'].y)]
+
+#Carry out the sampling of the data and store the results in a new column called value. 
+gdf['value'] = [x for x in xds.sample(coord_list)]
+gdf.head()
+
+
+
+transformer = Transformer.from_crs("EPSG:4326", src.crs, always_xy=True)
+xx, yy = transformer.transform(np.array(dataframe[str(year)]['lon_appended']),np.array(dataframe[str(year)]['lat_appended']))
+
+# get value from grid
+value = list(src.sample([(xx, yy)]))[0]
+    
+    
+    
+##################### Link traces with excess melt data ######################
+
+
+
+
+pd.DataFrame(points, columns=['lon', 'lat'])
+
+
+
+
+
+year=2013
+
+melt_year = melt_data.sel(time=str(year))
+melt_year_np = melt_year.values
+
+melt_year_plot=np.asarray(melt_year_np)
+melt_year_plot=melt_year_plot[0,0,:,:,0]
+
+
+
+# Define lat-lon grid
+lon_grid, lat_grid = np.meshgrid(lon_M_e, lat_M_e)
+grid = pyresample.geometry.GridDefinition(lats=lat_grid, lons=lon_grid)
+
+# Define some sample points
+swath = pyresample.geometry.SwathDefinition(lons=lon_3413, lats=lat_3413)
+
+# Determine nearest (w.r.t. great circle distance) neighbour in the grid.
+_, _, index_array, distance_array = pyresample.kd_tree.get_neighbour_info(
+    source_geo_def=grid, target_geo_def=swath, radius_of_influence=50000,
+    neighbours=1)
+
+# get_neighbour_info() returns indices in the flattened lat/lon grid. Compute
+# the 2D grid indices:
+index_array_2d = np.unravel_index(index_array, grid.shape)
+
+print("Indices of nearest neighbours:", index_array_2d)
+print("Longitude of nearest neighbours:", lon_grid[index_array_2d])
+print("Latitude of nearest neighbours:", lat_grid[index_array_2d])
+print("Great Circle Distance:", distance_array)
+
+
+Tuturial from
+#https://stackoverflow.com/questions/40009528/find-indices-of-lat-lon-point-on-a-grid-using-python
+
+import pyresample
+
+# Define lat-lon grid
+lon = np.linspace(30, 40, 100)
+lat = np.linspace(10, 20, 100)
+lon_grid, lat_grid = np.meshgrid(lon, lat)
+grid = pyresample.geometry.GridDefinition(lats=lat_grid, lons=lon_grid)
+
+# Generate some random data on the grid
+data_grid = np.random.rand(lon_grid.shape[0], lon_grid.shape[1])
+
+# Define some sample points
+my_lons = np.array([34.5, 36.5, 38.5])
+my_lats = np.array([12.0, 14.0, 16.0])
+swath = pyresample.geometry.SwathDefinition(lons=my_lons, lats=my_lats)
+
+# Determine nearest (w.r.t. great circle distance) neighbour in the grid.
+_, _, index_array, distance_array = pyresample.kd_tree.get_neighbour_info(
+    source_geo_def=grid, target_geo_def=swath, radius_of_influence=5000000,
+    neighbours=1)
+
+# get_neighbour_info() returns indices in the flattened lat/lon grid. Compute
+# the 2D grid indices:
+index_array_2d = np.unravel_index(index_array, grid.shape)
+
+print("Indices of nearest neighbours:", index_array_2d)
+print("Longitude of nearest neighbours:", lon_grid[index_array_2d])
+print("Latitude of nearest neighbours:", lat_grid[index_array_2d])
+print("Great Circle Distance:", distance_array)
+
+##########################################################################
+###                  Extract excess melt values   	                  ###
+##########################################################################
+'''
+
+print('end')
