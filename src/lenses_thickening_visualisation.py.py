@@ -222,14 +222,16 @@ investigation_year={2010:['Data_20100514_02_009.mat','Data_20100514_02_010.mat']
 ##############################################################################
 #Define the general path as a function of the year
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+#Define the path of processed data
+path_outcomes='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/'
 #Define the path for masks
-path_mask=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
+path_mask=path_outcomes+'Boolean Array Picklefiles/'
 #Define path for depth corrected
-path_depth_corrected=path_data+'exported/temp_for_overlap/Depth_Corrected_Picklefiles/'
+path_depth_corrected=path_outcomes+'Depth_Corrected_Picklefiles/'
 #Define the path for boolean
-path_boolean=path_data+'exported/temp_for_overlap/Boolean Array Picklefiles/'
+path_boolean=path_outcomes+'Boolean Array Picklefiles/'
 #Define the path for boolean images
-path_boolean_images=path_data+'exported/temp_for_overlap/'
+path_boolean_images=path_outcomes
 
 ##############################################################################
 ###                               Define paths                             ###
