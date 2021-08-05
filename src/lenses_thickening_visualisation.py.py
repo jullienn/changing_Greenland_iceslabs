@@ -795,7 +795,7 @@ if (generate_raw_excess_melt=='TRUE'):
 
 
 ##########################################################################
-###                Plot difference excess melt data   	              ###
+###         Plot ice slabs and difference of excess melt               ###
 ##########################################################################
 cum_excess=np.zeros((446,240))
     
@@ -982,13 +982,12 @@ for year in list(dataframe.keys()):
     plt.title(title_to_plot)
     plt.show()
 
+##########################################################################
+###         Plot ice slabs and difference of excess melt               ###
+##########################################################################
 
 ##########################################################################
-###                Plot difference excess melt data   	              ###
-##########################################################################
-
-##########################################################################
-###                  Extract excess melt values   	                  ###
+###                  Extract excess melt values   	                   ###
 ##########################################################################
 #I did a test with a trace in 2014 and compared with 2013 excess melt on QGIS
 # and similar values are retreive. Not all because on WGIS only ice slabs are displayed
@@ -1043,9 +1042,14 @@ for indiv_year in dataframe.keys():
         #Store the excess melt year in the corresponding dictionnary location
         excessmelt_dictionnary[indiv_year][excess_melt_year]=df
 
+##########################################################################
+###                  Extract excess melt values   	                  ###
+##########################################################################
 pdb.set_trace()
-#Faire un plot lat VS excess melt difference pour l'année d'intéret
 
+##########################################################################
+###                  Plot excess melt difference   	                   ###
+##########################################################################
 #Create the plot
 plt.rcParams.update({'font.size': 10})
 plt.figure(figsize=(48,40))
@@ -1085,7 +1089,28 @@ for indiv_year in dataframe.keys():
 plt.legend()
 ax.grid()
 plt.show()
-#Add legend!!
+
+##########################################################################
+###                  Plot excess melt difference   	                   ###
+##########################################################################
+
+##########################################################################
+###                  Calculate cumulative ice slabs                    ###
+##########################################################################
+
+
+
+
+
+
+
+
+
+##########################################################################
+###                  Calculate cumulative ice slabs                    ###
+##########################################################################
+
+
        
 '''
 ##################### Export melt netcdf dataset into raster ##################
