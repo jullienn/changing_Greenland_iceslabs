@@ -987,7 +987,6 @@ for year in list(dataframe.keys()):
 ###                Plot difference excess melt data   	              ###
 ##########################################################################
 
-pdb.set_trace()
 ##########################################################################
 ###                  Extract excess melt values   	                  ###
 ##########################################################################
@@ -1044,6 +1043,50 @@ for indiv_year in dataframe.keys():
         #Store the excess melt year in the corresponding dictionnary location
         excessmelt_dictionnary[indiv_year][excess_melt_year]=df
 
+pdb.set_trace()
+#Faire un plot lat VS excess melt difference pour l'année d'intéret
+
+#Create the plot
+plt.rcParams.update({'font.size': 10})
+plt.figure(figsize=(48,40))
+ax = plt.subplot()
+plt.title('Excess melt difference')
+
+for indiv_year in dataframe.keys():
+    print('Treating ',indiv_year)
+    
+    if (indiv_year == '2017'):
+        for i in range(2014,2017):
+            #Open the excess melt reference year = 2009
+            ref_year=excessmelt_dictionnary[indiv_year][2009]['excess_melt']
+            
+            #Open the excess melt data of investigated year
+            investigation_year=excessmelt_dictionnary[indiv_year][i]['excess_melt']
+            
+            #Calculate the difference between the year of interest and the reference year
+            diff_excessmelt=investigation_year-ref_year
+            
+            #Plot the difference
+            plt.plot(excessmelt_dictionnary[indiv_year][2009]['x'],diff_excessmelt,label='excess melt %s - 2009' % i)
+    else:
+        #Open the excess melt reference year = 2009
+        ref_year=excessmelt_dictionnary[indiv_year][2009]['excess_melt']
+        
+        #Open the excess melt data of investigated year
+        investigation_year=excessmelt_dictionnary[indiv_year][int(indiv_year)-1]['excess_melt']
+        
+        #Calculate the difference between the year of interest and the reference year
+        diff_excessmelt=investigation_year-ref_year
+        
+        #Plot the difference
+        plt.plot(excessmelt_dictionnary[indiv_year][2009]['x'],diff_excessmelt,label='excess melt %s - 2009' % (int(indiv_year)-1))
+    
+
+plt.legend()
+ax.grid()
+plt.show()
+#Add legend!!
+       
 '''
 ##################### Export melt netcdf dataset into raster ##################
 
