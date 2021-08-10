@@ -241,6 +241,11 @@ path_boolean_images=path_outcomes
 ##############################################################################
 ###                          Load and organise data                        ###
 ##############################################################################
+
+#Compute the speed (Modified Robin speed):
+# self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+    
 dataframe={}
 
 for single_year in investigation_year.keys():
@@ -349,10 +354,27 @@ for single_year in investigation_year.keys():
     #########################################################################
     # From plot_2002_2003.py - BEGIN
     #########################################################################
-    #Compute the speed (Modified Robin speed):
-    # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
-    v= 299792458 / (1.0 + (0.734*0.873/1000.0))
-    depths = v * time_filename / 2.0
+    depth_check = v * time_filename / 2.0
+    
+    #If 2014, transpose the vector
+    if (str(single_year)>='2014'):
+        depth_check=np.transpose(depth_check)
+    
+    #Reset times to zero! This is from IceBridgeGPR_Manager_v2.py
+    if (depth_check[10]<0):
+        #depth_check[10] so that I am sure that the whole vector is negative and
+        #not the first as can be for some date were the proccessing is working
+        depth_check=depth_check+abs(depth_check[0])
+        depth = depth_check
+    else:
+        depth = depth_check
+    
+    if (str(single_year) in list(['2011','2012','2014','2017','2018'])):
+        if (depth_check[10]>1):
+            #depth_check[10] so that I am sure that the whole vector is largely positive and
+            #not the first as can be for some date were the proccessing is working
+            depth_check=depth_check-abs(depth_check[0])
+            depth = depth_check
     
     #########################################################################
     # From plot_2002_2003.py - END
@@ -361,7 +383,7 @@ for single_year in investigation_year.keys():
     #Store reunited lat/lon, slice output and mask in a dictionnary:
     dataframe[str(single_year)]={'lat_appended':lat_appended,
                                  'lon_appended':lon_appended,
-                                 'depth':depths,
+                                 'depth':depth,
                                  'radar':radar,
                                  'boolean':boolean_file,
                                  'boolean_image':arr_boolean_image,
