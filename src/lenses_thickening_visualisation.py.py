@@ -317,12 +317,14 @@ for single_year in investigation_year.keys():
             fdata_filename = h5py.File(path_raw_data+indiv_file_load)
             lat_filename=fdata_filename['Latitude'][:,:]
             lon_filename=fdata_filename['Longitude'][:,:]
+            time_filename=fdata_filename['Time'][:,:]
             
         else:
             fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
             lat_filename = fdata_filename['Latitude']
             lon_filename = fdata_filename['Longitude']
-        
+            time_filename = fdata_filename['Time']
+            
         #Append data
         lat_appended=np.append(lat_appended,lat_filename)
         lon_appended=np.append(lon_appended,lon_filename)
@@ -346,6 +348,7 @@ for single_year in investigation_year.keys():
     #Store reunited lat/lon, slice output and mask in a dictionnary:
     dataframe[str(single_year)]={'lat_appended':lat_appended,
                                  'lon_appended':lon_appended,
+                                 'time':time_filename,
                                  'radar':radar,
                                  'boolean':boolean_file,
                                  'boolean_image':arr_boolean_image,
