@@ -397,8 +397,6 @@ for single_year in investigation_year.keys():
 ##############################################################################
 ###                                 Plot data                              ###
 ##############################################################################
- 
-
 
 if (plot_years_overlay=='TRUE'):
     #Create an empty radar slice to plot data over it
@@ -537,7 +535,7 @@ for single_year in investigation_year.keys():
         ax_plotting.set_title(str(single_year)+' Depth corrected')
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]]')
-        ax_plotting.set_xlim(-48,-46.7)
+        ax_plotting.set_xlim(-47.8,-46.8)
         ax_plotting.set_ylim(20,0)
         
         #ax_plotting.set_xticks(distances)
@@ -591,7 +589,7 @@ for single_year in investigation_year.keys():
         ax_plotting.set_title(str(single_year)+' '+plot_boolean)
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Longitude [°]')
-        ax_plotting.set_xlim(-48,-46.7)
+        ax_plotting.set_xlim(-47.8,-46.8)
         ax_plotting.set_ylim(20,0)
         
         cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
@@ -795,7 +793,7 @@ if (generate_raw_excess_melt=='TRUE'):
 
 
 ##########################################################################
-###         Plot ice slabs and difference of excess melt               ###
+###               Plot difference of excess melt                       ###
 ##########################################################################
 cum_excess=np.zeros((446,240))
     
@@ -983,9 +981,9 @@ for year in list(dataframe.keys()):
     plt.show()
 
 ##########################################################################
-###         Plot ice slabs and difference of excess melt               ###
+###               Plot difference of excess melt                       ###
 ##########################################################################
-
+pdb.set_trace()
 ##########################################################################
 ###                  Extract excess melt values   	                   ###
 ##########################################################################
@@ -1097,17 +1095,166 @@ plt.show()
 ##########################################################################
 ###                  Calculate cumulative ice slabs                    ###
 ##########################################################################
+plt.rcParams.update({'font.size': 10})
+plt.figure(figsize=(48,40))
+ax = plt.subplot()
+plt.title('Cumulative boolean')
+
+for indiv_year in dataframe.keys():
+    print('Treating ',indiv_year)
+    
+    #Retreive the boolean matrix
+    boolean_matrix=dataframe[indiv_year]['boolean']
+    
+    #Plot the cumulative
+    X=dataframe[indiv_year]['lon_appended']
+    Y=np.arange(0,20,20/dataframe[indiv_year]['boolean'].shape[0])
+    C=dataframe[indiv_year]['boolean'].astype(float)
+    
+    cb=ax.pcolor(X, Y, C,cmap=pyplot.get_cmap('hot_r'))#,norm=divnorm)
+    ax.invert_yaxis() #Invert the y axis = avoid using flipud.
+    ax.set_aspect(0.001) # X scale matches Y scale
+    ax.set_title(indiv_year+' '+plot_boolean)
+    ax.set_ylabel('Depth [m]')
+    ax.set_xlabel('Longitude [°]')
+    ax.set_xlim(-47.8,-46.8)
+    ax.set_ylim(20,0)
+    
+    plt.show()
+    pdb.set_trace()
+      
+
+    cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
+    cbar.set_label('Signal strength')
 
 
 
+#Prepare the plot for all years display
+if (plot_depth_corrected_subplot=='TRUE'):
+    plt.rcParams['axes.linewidth'] = 0.1 #set the value globally
+    plt.rcParams['xtick.major.width']=0.1
+    plt.rcParams['ytick.major.width']=0.1
+    
+    plt.figure(figsize=(20,20))
+    plt.rcParams.update({'font.size': 5})
+    fig1, (ax1s,ax2s,ax3s,ax4s,ax5s,ax6s,ax7s) = plt.subplots(7, 1, constrained_layout=True)
+    
 
+for single_year in dataframe.keys():
+    
+    print(str(single_year))
 
+    if (plot_depth_corrected_subplot=='TRUE'):
+    
+        if (single_year=='2010'):
+            ax_plotting=ax1s
+        elif (single_year=='2011'):
+            ax_plotting=ax2s
+        elif (single_year=='2012'):
+            ax_plotting=ax3s
+        elif (single_year=='2013'):
+            ax_plotting=ax4s
+        elif (single_year=='2014'):
+            ax_plotting=ax5s
+        elif (single_year=='2017'):
+            ax_plotting=ax6s
+        elif (single_year=='2018'):
+            ax_plotting=ax7s
+        else:
+            print('Year not existing')
+            
+        #fig.suptitle(str(plot_name1))
+        X=dataframe[single_year]['lon_appended']
+        Y=np.arange(0,100,100/dataframe[single_year]['radar'].shape[0])
+        C=dataframe[single_year]['radar'].astype(float)
+                
+        cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
+        ax_plotting.set_aspect(0.001) # X scale matches Y scale
+        ax_plotting.set_title(single_year+' Depth corrected')
+        ax_plotting.set_ylabel('Depth [m]')
+        ax_plotting.set_xlabel('Longitude [°]]')
+        ax_plotting.set_xlim(-47.8,-46.8)
+        ax_plotting.set_ylim(20,0)
+        
+        #ax_plotting.set_xticks(distances)
+        #ax_plotting.set_xticklabels(distances)
+        
+        cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
+        cbar.set_label('Signal strength')
 
-
-
+        ##Create the figure name
+        #fig_name=[]
+        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_depth_corrected.png'
+        plt.subplots_adjust(wspace=0, hspace=0)
+        plt.show()
+        
+        ##Save the figure
+        #pyplot.savefig(fig_name,dpi=2000)
+        #pyplot.clf()
 
 ##########################################################################
 ###                  Calculate cumulative ice slabs                    ###
+##########################################################################
+
+##########################################################################
+###                  Open the spatial aggregated dataset               ###
+##########################################################################
+import pandas as pd
+#Read the spatial matched case study dataset
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files'
+casestudy_df = pd.read_csv(path+'/studycase_iceslabsfilling_01km.csv',delimiter=',')
+
+#Fix the reading issue with the comma to have int instead of str
+for i in np.unique(casestudy_df.index):
+    casestudy_df['lat'][i]=float(casestudy_df['lat'][i].replace(",","."))
+    casestudy_df['lon'][i]=float(casestudy_df['lon'][i].replace(",","."))
+    casestudy_df['alongtrack'][i]=float(casestudy_df['alongtrack'][i].replace(",","."))
+    casestudy_df['20m_ice_co'][i]=float(casestudy_df['20m_ice_co'][i].replace(",","."))
+    
+#Prepare the plot
+plt.rcParams.update({'font.size': 10})
+plt.figure()
+ax = plt.subplot()
+plt.title('Averaged ice content')
+
+#Loop over the years
+for trace in np.unique(casestudy_df['Track_name']):
+    print(trace)
+    #pdb.set_trace()
+    #Select only the year of interest
+    temp_df=casestudy_df[casestudy_df['Track_name']==trace]
+    
+    #Create empty vectors for appending data
+    lon_avg_append=[]
+    icecont_avg_append=[]
+    
+    #Loop over the the key and calculate the averaged ice content for each key
+    for key in np.unique(temp_df['key']):
+        temp_df_for_avg=temp_df[temp_df['key']==key]
+        lon_for_avg=temp_df_for_avg['lon'].iloc[0]
+        icecont_avg=np.mean(temp_df_for_avg['20m_ice_co'])
+        
+        #Append lat and average ice content to each other to create vectors
+        lon_avg_append=np.append(lon_avg_append,lon_for_avg)
+        icecont_avg_append=np.append(icecont_avg_append,icecont_avg)
+        
+    #pdb.set_trace()
+    #Delete the first index of lat_for_avg and icecont_avg because zeros
+    
+    #Plot the averaged ice content over the keys as a function of the latitude
+    ax.scatter(lon_avg_append,icecont_avg_append,label='year %s' % trace[0:4],s=3)
+
+ax.invert_yaxis()
+ax.set_xlim(-47.8,-46.8)
+plt.legend()
+plt.show()
+        
+ax.cmap('Blues')
+#calculate the slope
+
+##########################################################################
+###                  Open the spatial aggregated dataset               ###
 ##########################################################################
 
 
