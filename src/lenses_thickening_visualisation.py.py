@@ -345,10 +345,23 @@ for single_year in investigation_year.keys():
         arr_boolean_image=np.fliplr(arr_boolean_image)
         data_mask=np.flipud(data_mask)
     
+    #Calculate the depth from the time
+    #########################################################################
+    # From plot_2002_2003.py - BEGIN
+    #########################################################################
+    #Compute the speed (Modified Robin speed):
+    # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+    v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+    depths = v * time_filename / 2.0
+    
+    #########################################################################
+    # From plot_2002_2003.py - END
+    #########################################################################
+    
     #Store reunited lat/lon, slice output and mask in a dictionnary:
     dataframe[str(single_year)]={'lat_appended':lat_appended,
                                  'lon_appended':lon_appended,
-                                 'time':time_filename,
+                                 'depth':depths,
                                  'radar':radar,
                                  'boolean':boolean_file,
                                  'boolean_image':arr_boolean_image,
