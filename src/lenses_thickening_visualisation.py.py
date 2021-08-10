@@ -740,10 +740,14 @@ for single_year in investigation_year.keys():
 '''
 
 pdb.set_trace()
-
+'''
 ##########################################################################
 ###                  Calculate cumulative ice slabs                    ###
 ##########################################################################
+
+import scipy.ndimage
+import matplotlib.pyplot as plt
+
 plt.rcParams.update({'font.size': 10})
 plt.figure(figsize=(48,40))
 ax = plt.subplot()
@@ -754,6 +758,15 @@ for indiv_year in dataframe.keys():
     
     #Retreive the boolean matrix
     boolean_matrix=dataframe[indiv_year]['boolean']
+    
+    
+    pdb.set_trace()
+
+    #I think the solution will be to dramatically oversample
+    scipy.ndimage.zoom(boolean_matrix, 3, order=0)
+
+
+
     
     #Plot the cumulative
     X=dataframe[indiv_year]['lon_appended']
@@ -779,7 +792,7 @@ for indiv_year in dataframe.keys():
 ##########################################################################
 ###                  Calculate cumulative ice slabs                    ###
 ##########################################################################
-
+'''
 
 ##############################################################################
 ###                                 Plot data                              ###
