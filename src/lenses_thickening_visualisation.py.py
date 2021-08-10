@@ -700,6 +700,49 @@ for single_year in investigation_year.keys():
         
         pdb.set_trace()
 '''
+
+pdb.set_trace()
+
+##########################################################################
+###                  Calculate cumulative ice slabs                    ###
+##########################################################################
+plt.rcParams.update({'font.size': 10})
+plt.figure(figsize=(48,40))
+ax = plt.subplot()
+plt.title('Cumulative boolean')
+
+for indiv_year in dataframe.keys():
+    print('Treating ',indiv_year)
+    
+    #Retreive the boolean matrix
+    boolean_matrix=dataframe[indiv_year]['boolean']
+    
+    #Plot the cumulative
+    X=dataframe[indiv_year]['lon_appended']
+    Y=np.arange(0,20,20/dataframe[indiv_year]['boolean'].shape[0])
+    C=dataframe[indiv_year]['boolean'].astype(float)
+    
+    cb=ax.pcolor(X, Y, C,cmap=pyplot.get_cmap('hot_r'))#,norm=divnorm)
+    ax.invert_yaxis() #Invert the y axis = avoid using flipud.
+    ax.set_aspect(0.001) # X scale matches Y scale
+    ax.set_title(indiv_year+' '+plot_boolean)
+    ax.set_ylabel('Depth [m]')
+    ax.set_xlabel('Longitude [°]')
+    ax.set_xlim(-47.8,-46.8)
+    ax.set_ylim(20,0)
+    
+    plt.show()
+    pdb.set_trace()
+      
+
+    cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
+    cbar.set_label('Signal strength')
+
+##########################################################################
+###                  Calculate cumulative ice slabs                    ###
+##########################################################################
+
+
 ##############################################################################
 ###                                 Plot data                              ###
 ##############################################################################
@@ -1092,110 +1135,6 @@ plt.show()
 ###                  Plot excess melt difference   	                   ###
 ##########################################################################
 
-##########################################################################
-###                  Calculate cumulative ice slabs                    ###
-##########################################################################
-plt.rcParams.update({'font.size': 10})
-plt.figure(figsize=(48,40))
-ax = plt.subplot()
-plt.title('Cumulative boolean')
-
-for indiv_year in dataframe.keys():
-    print('Treating ',indiv_year)
-    
-    #Retreive the boolean matrix
-    boolean_matrix=dataframe[indiv_year]['boolean']
-    
-    #Plot the cumulative
-    X=dataframe[indiv_year]['lon_appended']
-    Y=np.arange(0,20,20/dataframe[indiv_year]['boolean'].shape[0])
-    C=dataframe[indiv_year]['boolean'].astype(float)
-    
-    cb=ax.pcolor(X, Y, C,cmap=pyplot.get_cmap('hot_r'))#,norm=divnorm)
-    ax.invert_yaxis() #Invert the y axis = avoid using flipud.
-    ax.set_aspect(0.001) # X scale matches Y scale
-    ax.set_title(indiv_year+' '+plot_boolean)
-    ax.set_ylabel('Depth [m]')
-    ax.set_xlabel('Longitude [°]')
-    ax.set_xlim(-47.8,-46.8)
-    ax.set_ylim(20,0)
-    
-    plt.show()
-    pdb.set_trace()
-      
-
-    cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
-    cbar.set_label('Signal strength')
-
-
-
-#Prepare the plot for all years display
-if (plot_depth_corrected_subplot=='TRUE'):
-    plt.rcParams['axes.linewidth'] = 0.1 #set the value globally
-    plt.rcParams['xtick.major.width']=0.1
-    plt.rcParams['ytick.major.width']=0.1
-    
-    plt.figure(figsize=(20,20))
-    plt.rcParams.update({'font.size': 5})
-    fig1, (ax1s,ax2s,ax3s,ax4s,ax5s,ax6s,ax7s) = plt.subplots(7, 1, constrained_layout=True)
-    
-
-for single_year in dataframe.keys():
-    
-    print(str(single_year))
-
-    if (plot_depth_corrected_subplot=='TRUE'):
-    
-        if (single_year=='2010'):
-            ax_plotting=ax1s
-        elif (single_year=='2011'):
-            ax_plotting=ax2s
-        elif (single_year=='2012'):
-            ax_plotting=ax3s
-        elif (single_year=='2013'):
-            ax_plotting=ax4s
-        elif (single_year=='2014'):
-            ax_plotting=ax5s
-        elif (single_year=='2017'):
-            ax_plotting=ax6s
-        elif (single_year=='2018'):
-            ax_plotting=ax7s
-        else:
-            print('Year not existing')
-            
-        #fig.suptitle(str(plot_name1))
-        X=dataframe[single_year]['lon_appended']
-        Y=np.arange(0,100,100/dataframe[single_year]['radar'].shape[0])
-        C=dataframe[single_year]['radar'].astype(float)
-                
-        cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray'))#,norm=divnorm)
-        ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
-        ax_plotting.set_aspect(0.001) # X scale matches Y scale
-        ax_plotting.set_title(single_year+' Depth corrected')
-        ax_plotting.set_ylabel('Depth [m]')
-        ax_plotting.set_xlabel('Longitude [°]]')
-        ax_plotting.set_xlim(-47.8,-46.8)
-        ax_plotting.set_ylim(20,0)
-        
-        #ax_plotting.set_xticks(distances)
-        #ax_plotting.set_xticklabels(distances)
-        
-        cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
-        cbar.set_label('Signal strength')
-
-        ##Create the figure name
-        #fig_name=[]
-        #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_depth_corrected.png'
-        plt.subplots_adjust(wspace=0, hspace=0)
-        plt.show()
-        
-        ##Save the figure
-        #pyplot.savefig(fig_name,dpi=2000)
-        #pyplot.clf()
-
-##########################################################################
-###                  Calculate cumulative ice slabs                    ###
-##########################################################################
 
 ##########################################################################
 ###                  Open the spatial aggregated dataset               ###
@@ -1249,8 +1188,7 @@ ax.invert_yaxis()
 ax.set_xlim(-47.8,-46.8)
 plt.legend()
 plt.show()
-        
-ax.cmap('Blues')
+
 #calculate the slope
 
 ##########################################################################
