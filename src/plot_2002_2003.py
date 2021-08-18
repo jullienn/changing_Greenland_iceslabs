@@ -830,7 +830,7 @@ making_down_to_up='FALSE'
 plt.rcParams.update({'font.size': 7})
 ########################## Load GrIS elevation ##########################
 #Open the DEM
-grid = Grid.from_raster("C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
+grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
 #Minnor slicing on borders to enhance colorbars
 elevDem=grid.dem[:-1,:-1]              
 #Scale the colormap
@@ -850,7 +850,7 @@ f_flightlines.close()
 #Extract elevation from DEM to associated with coordinates. This piece of code
 #is from https://gis.stackexchange.com/questions/221292/retrieve-pixel-value-with-geographic-coordinate-as-input-with-gdal
 driver = gdal.GetDriverByName('GTiff')
-filename_raster = "C:/Users/jullienn/Documents/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif" #path to raster
+filename_raster = "C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif" #path to raster
 
 dataset_dem = gdal.Open(filename_raster)
 band = dataset_dem.GetRasterBand(1)
@@ -961,7 +961,7 @@ for year in list(icelens_2002_3_flightlines.keys()):
 
 ################### Load 2010-2014 ice slabs location ##################
 #Load the data
-filename_MacFerrin= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/MacFerrin_etal2019_iceslabs.xlsx'
+filename_MacFerrin= 'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/MacFerrin_etal2019_iceslabs.xlsx'
 #Read MacFerrin data thanks to https://stackoverflow.com/questions/65254535/xlrd-biffh-xlrderror-excel-xlsx-file-not-supported
 df_MacFerrin = pd.read_excel(filename_MacFerrin,engine='openpyxl')
 
@@ -1020,7 +1020,7 @@ xls_icelenses = pd.read_excel(filename_icelenses, sheet_name=None,header=2)
 trafic_light=pd.read_excel(filename_icelenses, sheet_name=None,header=1)
 
 #Specify the general path name
-path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
+path_radar_data='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/iceslabs_MacFerrin/data'
 
 #Plot date 1
 folder_year='2003'
@@ -1402,14 +1402,23 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 plot_radar_slice_with_thickness(ax1,ax2,ax3,path_radar_slice,lines,year,days,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information)
                 #pdb.set_trace()
                 
-                #Save the figure
-                fig_name=[]
-                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/deepest_lenses'+indiv_file+'.png'
-                plt.savefig(fig_name,dpi=1000)
-                plt.close()
+                ##Save the figure
+                #fig_name=[]
+                #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/deepest_lenses'+indiv_file+'.png'
+                #plt.savefig(fig_name,dpi=1000)
+                #plt.close()
                 print('Done with deepest',indiv_file)
                 
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
+
+
+
+
+
+
+
+
+
 
