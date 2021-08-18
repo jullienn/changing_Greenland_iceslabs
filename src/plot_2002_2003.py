@@ -1140,7 +1140,7 @@ t0 = 0; # Unknown so set to zero
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 #Path radar data:
-path_radar_data= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
+path_radar_data= 'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/iceslabs_MacFerrin/data'
 
 #Create the dictionary to save ice lens information
 icelens_information={k: {} for k in list(xls_icelenses.keys())}
@@ -1406,18 +1406,52 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 #fig_name=[]
                 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/deepest_lenses'+indiv_file+'.png'
                 #plt.savefig(fig_name,dpi=1000)
-                #plt.close()
+                plt.close()
                 print('Done with deepest',indiv_file)
                 
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
+import geopandas as gpd  # Requires the pyshp package
 
+pdb.set_trace()
 
+#######################################################################
+### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
+#######################################################################
 
+### --------------------------- Load shapefile --------------------------- ###
+#from https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python
+path_IceBridgeArea_Shape='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/IceBridge Area Shapefiles/IceBridge Area Shapefiles/'
+IceBridgeArea_Shape=gpd.read_file(path_IceBridgeArea_Shape+'IceBridgeArea_Shape.shp')
+### --------------------------- Load shapefile --------------------------- ###
 
+#Display the shapefile
+fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('Iceslabs area overview')
+IceBridgeArea_Shape.plot(ax=ax1)
 
+#Plot all the 2002-2003 icelenses according to their condifence color
+#1. Red
+ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#c9662c', edgecolors='none')
+#2. Orange
+ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fed976', edgecolors='none')
+#3. Green
+ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
+#Purple
+ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
 
+#Correct zoom
+ax1.set_xlim(-650000,900000)
+ax1.set_ylim(-3360000,-650000)
+
+plt.show()
+
+# compare min and max of lat/lon of the track with respect to shapefile
+
+#######################################################################
+### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
+#######################################################################
 
 
 
