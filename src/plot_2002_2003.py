@@ -806,6 +806,26 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     #pdb.set_trace()
     return
 
+def calcul_elevation(lon,lat,data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero):
+    
+    if (np.isnan(lon) or np.isnan(lat)):
+        #elev_all=np.append(elev_all,np.nan)
+        elevation=np.nan
+    else:
+        #The origin is top left corner!!
+        #y will always be negative
+        row = int((yOrigin - lat ) / pixelHeight)
+        if (lon<0):
+            # if x negative
+            col = index_lon_zero-int((-lon-0) / pixelWidth)
+        elif (lon>0):
+            # if x positive
+            col = index_lon_zero+int((lon-0) / pixelWidth)
+        #Read the elevation
+        elevation=data_dem[row][col]
+    
+    return elevation
+
 #Import packages
 import rasterio
 from rasterio.plot import show
@@ -1461,16 +1481,19 @@ from shapely.geometry import Point, Polygon
 df_MacFerrin['lat_3413']=lat_3413_MacFerrin
 df_MacFerrin['lon_3413']=lon_3413_MacFerrin
 
-#Initialise the shapefile belonging column
+#Initialise the elevation and shapefile belonging column
 df_MacFerrin['key_shp']=np.nan
-    
+df_MacFerrin['elevation']=np.nan
+
 #1. Load regional shapefile I have created on QGIS
 path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
 
 NW_icecap_greenland_mask=gpd.read_file(path_regional_masks+'/NW_icecap_greenland_mask_3413.shp')
 NW_north_greenland_mask=gpd.read_file(path_regional_masks+'/NW_north_greenland_mask_3413.shp')
 NW_west_greenland_mask=gpd.read_file(path_regional_masks+'/NW_west_greenland_mask_3413.shp')
-SW_greenland_mask=gpd.read_file(path_regional_masks+'/SW_greenland_mask_3413.shp')
+SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_mask_3413.shp')
+SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
+SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
 
 #2. Do the intersection between the mask and 2010-2014 data and keep only the matching one
 
@@ -1485,8 +1508,10 @@ for i in range(0,lon_3413_MacFerrin.size):
     check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
     check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
     check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
-    check_SW_greenland=np.asarray(SW_greenland_mask.contains(single_point)).astype(int)
-    
+    check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
+    check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
+    check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
+
     #Associated the point of interest to its regional shapefile in data_iceslabs
     if (np.sum(check_NW_icecap_greenland)>0):
         df_MacFerrin['key_shp'][i]='NW_icecap'
@@ -1494,11 +1519,19 @@ for i in range(0,lon_3413_MacFerrin.size):
         df_MacFerrin['key_shp'][i]='NW_north'
     elif (np.sum(check_NW_west_greenland)>0):
         df_MacFerrin['key_shp'][i]='NW_west'
-    elif (np.sum(check_SW_greenland)>0):
-        df_MacFerrin['key_shp'][i]='SW'
+    elif (np.sum(check_SW_lower_greenland)>0):
+        df_MacFerrin['key_shp'][i]='SW_lower'
+    elif (np.sum(check_SW_middle_greenland)>0):
+        df_MacFerrin['key_shp'][i]='SW_middle'
+    elif (np.sum(check_SW_upper_greenland)>0):
+        df_MacFerrin['key_shp'][i]='SW_upper'
     else:
         df_MacFerrin['key_shp'][i]='Out'
     
+    #Calculate the corresponding elevation
+    df_MacFerrin['elevation'][i]=calcul_elevation(df_MacFerrin['lon_3413'][i],df_MacFerrin['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+
+    #Monitor the process
     print(i/lon_3413_MacFerrin.size*100,'%')
 
 #Display the keys
@@ -1514,20 +1547,100 @@ cbar1.set_label('Elevation [m]')
 NW_icecap_greenland_mask.plot(ax=ax1)
 NW_north_greenland_mask.plot(ax=ax1)
 NW_west_greenland_mask.plot(ax=ax1)
-SW_greenland_mask.plot(ax=ax1)
+SW_lower_greenland_mask.plot(ax=ax1)
+SW_middle_greenland_mask.plot(ax=ax1)
+SW_upper_greenland_mask.plot(ax=ax1)
 
 #Display the data as a function of their belonging keys
-ax.plot(data_iceslabs['lon_3413'][data_iceslabs['key_shp']=='SW'],data_iceslabs['lat_3413'][data_iceslabs['key_shp']=='SW'],facecolors='red')
-ax.plot(data_iceslabs['lon_3413'][data_iceslabs['key_shp']=='SW'],data_iceslabs['lat_3413'][data_iceslabs['key_shp']=='NW_icecap'],facecolors='blue')
-ax.plot(data_iceslabs['lon_3413'][data_iceslabs['key_shp']=='SW'],data_iceslabs['lat_3413'][data_iceslabs['key_shp']=='NW_west'],facecolors='yellow')
-ax.plot(data_iceslabs['lon_3413'][data_iceslabs['key_shp']=='SW'],data_iceslabs['lat_3413'][data_iceslabs['key_shp']=='NW_north'],facecolors='green')
+ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='NW_icecap'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='NW_icecap'],facecolors='orange')
+ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='NW_west'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='NW_west'],facecolors='blue')
+ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='NW_north'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='NW_north'],facecolors='purple')
+ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_lower'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_lower'],facecolors='red')
+ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_middle'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_middle'],facecolors='green')
+ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_upper'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_upper'],facecolors='k')
 
 #3. Do the intersection between the mask and 2002-2003 data
+#Only work with green slabs
+df_2002_2003=pd.DataFrame(lat_icelens[colorcode_icelens==1], columns =['lat_3413'])
+df_2002_2003['lon_3413']=lon_icelens[colorcode_icelens==1]
+#Initialise the shapefile belonging column
+df_2002_2003['key_shp']=np.nan
+df_2002_2003['elevation']=np.nan
 
-#4. Average the lower and upper limit of 2010-2014 ice slabs extent in each region
+#This part of code is from 'refine_location_2017_2018.py'
+#Loop over all data point to check whether it belongs to one of the four shapefile
+for i in range(0,len(df_2002_2003)):
+    #select the point i
+    single_point=Point(df_2002_2003['lon_3413'][i],df_2002_2003['lat_3413'][i])
+    
+    #Do the identification between the point i and the regional shapefiles
+    #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
+    check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
+    check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
+    check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
+    check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
+    check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
+    check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
 
-#5. Extract lower and upper limit of 2002-2003 ice slabs in each region, and average if several
-#6. Compare lower and upper limit difference in term of elevation and calculate an inland progression
+    #Associated the point of interest to its regional shapefile in data_iceslabs
+    if (np.sum(check_NW_icecap_greenland)>0):
+        df_2002_2003['key_shp'][i]='NW_icecap'
+    elif (np.sum(check_NW_north_greenland)>0):
+        df_2002_2003['key_shp'][i]='NW_north'
+    elif (np.sum(check_NW_west_greenland)>0):
+        df_2002_2003['key_shp'][i]='NW_west'
+    elif (np.sum(check_SW_lower_greenland)>0):
+        df_2002_2003['key_shp'][i]='SW_lower'
+    elif (np.sum(check_SW_middle_greenland)>0):
+        df_2002_2003['key_shp'][i]='SW_middle'
+    elif (np.sum(check_SW_upper_greenland)>0):
+        df_2002_2003['key_shp'][i]='SW_upper'
+    else:
+        df_2002_2003['key_shp'][i]='Out'
+    
+    #Calculate the corresponding elevation
+    df_2002_2003['elevation'][i]=calcul_elevation(df_2002_2003['lon_3413'][i],df_2002_2003['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+   
+    #Monitor the process
+    print(i/len(df_2002_2003)*100,'%')
+
+
+#Display the data as a function of their belonging keys
+ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='NW_icecap'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='NW_icecap'],facecolors='brown')
+ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='NW_west'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='NW_west'],facecolors='cyan')
+ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='NW_north'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='NW_north'],facecolors='pink')
+ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='SW_lower'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='SW_lower'],facecolors='yellow')
+ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='SW_middle'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='SW_middle'],facecolors='olive')
+ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='SW_upper'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='SW_upper'],facecolors='gray')
+
+plt.show()
+pdb.set_trace()
+
+#4. Calculation of the elevation
+
+
+                        
+
+
+
+
+
+#5. Average the lower and upper limit of 2010-2014 ice slabs extent in each region
+
+#Loop over the regions
+for region in list(df_2002_2003['key_shp'].unique()):
+    #take the lower and highest point where ice slabs have been identified in this
+    #region, no matter the year
+    df_temp=df_2002_2003[df_2002_2003['key_shp']==region]
+    min_elev=df_temp
+    
+
+                        
+    
+    lalal
+
+#6. Extract lower and upper limit of 2002-2003 ice slabs in each region, and average if several
+#7. Compare lower and upper limit difference in term of elevation and calculate an inland progression
 
 #######################################################################
 ### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
