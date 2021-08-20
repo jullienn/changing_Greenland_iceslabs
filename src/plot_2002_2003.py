@@ -1616,31 +1616,42 @@ ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='SW_upper'],df_200
 plt.show()
 pdb.set_trace()
 
-#4. Calculation of the elevation
-
-
-                        
-
-
-
-
-
-#5. Average the lower and upper limit of 2010-2014 ice slabs extent in each region
+#4. Select the absolute low and absolute high of 2002-2003 and 2010-2014
+#Create a dictionnary where to store relevant information
+dict_summary={k: {} for k in list(df_2002_2003['key_shp'].unique())}
 
 #Loop over the regions
 for region in list(df_2002_2003['key_shp'].unique()):
-    #take the lower and highest point where ice slabs have been identified in this
-    #region, no matter the year
-    df_temp=df_2002_2003[df_2002_2003['key_shp']==region]
-    min_elev=df_temp
     
-
-                        
+    #Continue building the dictionnary
+    dict_summary[region]={k: {} for k in list(['2002_2003','2010_2014'])}
     
-    lalal
-
-#6. Extract lower and upper limit of 2002-2003 ice slabs in each region, and average if several
-#7. Compare lower and upper limit difference in term of elevation and calculate an inland progression
+    #Loop over the 2 time periods
+    
+    for time_period in list(['2002_2003','2010_2014']):
+        dict_summary[region][time_period]={k: {} for k in list(['min_elev','max_elev'])}}
+        
+        #Take the lower and highest point where ice slabs have been
+        #identified in this region, no matter the year in this specific time
+        #period, and store relevant information
+        
+        if (time_period=='2002_2003'):
+            df_temp=df_2002_2003[df_2002_2003['key_shp']==region]
+        elif (time_period=='2010-2014'):
+            df_temp=df_MacFerrin[df_MacFerrin['key_shp']==region]
+        else:
+            print('Time period not known, break')
+            break
+        #I SHOULD TAKE THE AVERAGE, NOT THE ABSOLUTE!!!
+        
+        dict_summary[region][time_period]['min_elev']=np.min(df_temp['elevation'])
+        dict_summary[region][time_period]['max_elev']=np.max(df_temp['elevation'])
+    
+    
+    
+    
+#5. Extract lower and upper limit of 2002-2003 ice slabs in each region, and average if several
+#6. Compare lower and upper limit difference in term of elevation and calculate an inland progression
 
 #######################################################################
 ### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
