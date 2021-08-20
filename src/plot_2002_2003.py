@@ -1426,9 +1426,16 @@ path_IceBridgeArea_Shape='C:/Users/jullienn/switchdrive/Private/research/backup_
 IceBridgeArea_Shape=gpd.read_file(path_IceBridgeArea_Shape+'IceBridgeArea_Shape.shp')
 ### --------------------------- Load shapefile --------------------------- ###
 
-#Display the shapefile
+#Prepare plot
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs area overview')
+
+#Display DEM
+cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+cbar1.set_label('Elevation [m]')
+
+#Display the shapefile
 IceBridgeArea_Shape.plot(ax=ax1)
 
 #Plot all the 2002-2003 icelenses according to their condifence color
@@ -1438,8 +1445,8 @@ ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-
 ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fed976', edgecolors='none')
 #3. Green
 ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
-#Purple
-ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
+##Purple
+#ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
 
 #Correct zoom
 ax1.set_xlim(-650000,900000)
@@ -1448,6 +1455,79 @@ ax1.set_ylim(-3360000,-650000)
 plt.show()
 
 # compare min and max of lat/lon of the track with respect to shapefile
+from shapely.geometry import Point, Polygon
+
+#Store lat/lon 3413
+df_MacFerrin['lat_3413']=lat_3413_MacFerrin
+df_MacFerrin['lon_3413']=lon_3413_MacFerrin
+
+#Initialise the shapefile belonging column
+df_MacFerrin['key_shp']=np.nan
+    
+#1. Load regional shapefile I have created on QGIS
+path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
+
+NW_icecap_greenland_mask=gpd.read_file(path_regional_masks+'/NW_icecap_greenland_mask_3413.shp')
+NW_north_greenland_mask=gpd.read_file(path_regional_masks+'/NW_north_greenland_mask_3413.shp')
+NW_west_greenland_mask=gpd.read_file(path_regional_masks+'/NW_west_greenland_mask_3413.shp')
+SW_greenland_mask=gpd.read_file(path_regional_masks+'/SW_greenland_mask_3413.shp')
+
+#2. Do the intersection between the mask and 2010-2014 data and keep only the matching one
+
+#This part of code is from 'refine_location_2017_2018.py'
+#Loop over all data point to check whether it belongs to one of the four shapefile
+for i in range(0,lon_3413_MacFerrin.size):
+    #select the point i
+    single_point=Point(lon_3413_MacFerrin[i],lat_3413_MacFerrin[i])
+    
+    #Do the identification between the point i and the regional shapefiles
+    #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
+    check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
+    check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
+    check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
+    check_SW_greenland=np.asarray(SW_greenland_mask.contains(single_point)).astype(int)
+    
+    #Associated the point of interest to its regional shapefile in data_iceslabs
+    if (np.sum(check_NW_icecap_greenland)>0):
+        df_MacFerrin['key_shp'][i]='NW_icecap'
+    elif (np.sum(check_NW_north_greenland)>0):
+        df_MacFerrin['key_shp'][i]='NW_north'
+    elif (np.sum(check_NW_west_greenland)>0):
+        df_MacFerrin['key_shp'][i]='NW_west'
+    elif (np.sum(check_SW_greenland)>0):
+        df_MacFerrin['key_shp'][i]='SW'
+    else:
+        df_MacFerrin['key_shp'][i]='Out'
+    
+    print(i/lon_3413_MacFerrin.size*100,'%')
+
+#Display the keys
+fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('Iceslabs keys')
+
+#Display DEM
+cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+cbar1.set_label('Elevation [m]')
+
+#Display the shapefile
+NW_icecap_greenland_mask.plot(ax=ax1)
+NW_north_greenland_mask.plot(ax=ax1)
+NW_west_greenland_mask.plot(ax=ax1)
+SW_greenland_mask.plot(ax=ax1)
+
+#Display the data as a function of their belonging keys
+ax.plot(data_iceslabs['lon_3413'][data_iceslabs['key_shp']=='SW'],data_iceslabs['lat_3413'][data_iceslabs['key_shp']=='SW'],facecolors='red')
+ax.plot(data_iceslabs['lon_3413'][data_iceslabs['key_shp']=='SW'],data_iceslabs['lat_3413'][data_iceslabs['key_shp']=='NW_icecap'],facecolors='blue')
+ax.plot(data_iceslabs['lon_3413'][data_iceslabs['key_shp']=='SW'],data_iceslabs['lat_3413'][data_iceslabs['key_shp']=='NW_west'],facecolors='yellow')
+ax.plot(data_iceslabs['lon_3413'][data_iceslabs['key_shp']=='SW'],data_iceslabs['lat_3413'][data_iceslabs['key_shp']=='NW_north'],facecolors='green')
+
+#3. Do the intersection between the mask and 2002-2003 data
+
+#4. Average the lower and upper limit of 2010-2014 ice slabs extent in each region
+
+#5. Extract lower and upper limit of 2002-2003 ice slabs in each region, and average if several
+#6. Compare lower and upper limit difference in term of elevation and calculate an inland progression
 
 #######################################################################
 ### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
