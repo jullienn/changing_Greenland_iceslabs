@@ -1628,18 +1628,13 @@ pdb.set_trace()
 
 #IV. Select the absolute low and absolute high of 2002-2003 and 2010-2014
 
-
-
-#Let's work with the IceBridge_ShapeArea.shp file for elevation difference:
-#1. Extract elevation from IceBridge_ShapeArea.shp contours
-
-#y'a moyen que je doive looper elon toutes les coordonéées des sommets et extraire des points tous les 10m par exemple pour extraire elevation
-lstr=IceBridgeArea_Shape.boundary
-
-#2. Clip elevation lines to each region
-#3. Identify lower end and higher end elevation lines in each region
-#4. Take the minimum of lower end elevation line and maximum of higher end elevation line of each region
-#5. Flag the more or less perpendicularly crossing 2002-2003 flght lines and exclude the one not crossing
+#Let's create 10km latitudinal (resp. longitudinal) slices for SW Greenland (resp. NW Greenland)
+#and calculate the low and high end in each slice for elevation difference:
+#1. Create the latitudinal (resp. longitudinal) slices
+#2. Identify lower end and higher end elevation lines in each slice
+#3. Associate each slice to its belonging region
+#4. Calculate the average minimum and maximum of each region amonf the slices
+#5. Flag the more or less perpendicularly crossing 2002-2003 flight lines and exclude the one not crossing
 #6. Take the absolute min and max of all 2002-2003 ice slabs in a specific region
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
