@@ -1493,7 +1493,7 @@ df_MacFerrin['lon_3413']=lon_3413_MacFerrin
 df_MacFerrin['key_shp']=np.nan
 df_MacFerrin['elevation']=np.nan
 
-#1. Load regional shapefile I have created on QGIS
+#I. Load regional shapefile I have created on QGIS
 path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
 
 NW_icecap_greenland_mask=gpd.read_file(path_regional_masks+'/NW_icecap_greenland_mask_3413.shp')
@@ -1503,7 +1503,7 @@ SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_m
 SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
 SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
 
-#2. Do the intersection between the mask and 2010-2014 data and keep only the matching one
+#II. Do the intersection between the mask and 2010-2014 data and keep only the matching one
 
 #This part of code is from 'refine_location_2017_2018.py'
 #Loop over all data point to check whether it belongs to one of the four shapefile
@@ -1567,7 +1567,7 @@ ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_lower'],df_Mac
 ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_middle'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_middle'],facecolors='green')
 ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_upper'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_upper'],facecolors='k')
 
-#3. Do the intersection between the mask and 2002-2003 data
+#III. Do the intersection between the mask and 2002-2003 data
 #Only work with green slabs
 df_2002_2003_green=pd.DataFrame(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'], columns =['lat_3413'])
 df_2002_2003_green['lon_3413']=df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413']
@@ -1581,7 +1581,7 @@ pdb.set_trace()
 #Loop over all data point to check whether it belongs to one of the four shapefile
 for i in range(0,len(df_2002_2003_green)):
     #select the point i
-    single_point=Point(df_2002_2003_green['lon_3413'][i],df_2002_2003_green['lat_3413'][i])
+    single_point=Point(df_2002_2003_green['lon_3413'].iloc[i],df_2002_2003_green['lat_3413'].iloc[i])
     
     #Do the identification between the point i and the regional shapefiles
     #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
@@ -1594,22 +1594,22 @@ for i in range(0,len(df_2002_2003_green)):
 
     #Associated the point of interest to its regional shapefile in data_iceslabs
     if (np.sum(check_NW_icecap_greenland)>0):
-        df_2002_2003_green['key_shp'][i]='NW_icecap'
+        df_2002_2003_green['key_shp'].iloc[i]='NW_icecap'
     elif (np.sum(check_NW_north_greenland)>0):
-        df_2002_2003_green['key_shp'][i]='NW_north'
+        df_2002_2003_green['key_shp'].iloc[i]='NW_north'
     elif (np.sum(check_NW_west_greenland)>0):
-        df_2002_2003_green['key_shp'][i]='NW_west'
+        df_2002_2003_green['key_shp'].iloc[i]='NW_west'
     elif (np.sum(check_SW_lower_greenland)>0):
-        df_2002_2003_green['key_shp'][i]='SW_lower'
+        df_2002_2003_green['key_shp'].iloc[i]='SW_lower'
     elif (np.sum(check_SW_middle_greenland)>0):
-        df_2002_2003_green['key_shp'][i]='SW_middle'
+        df_2002_2003_green['key_shp'].iloc[i]='SW_middle'
     elif (np.sum(check_SW_upper_greenland)>0):
-        df_2002_2003_green['key_shp'][i]='SW_upper'
+        df_2002_2003_green['key_shp'].iloc[i]='SW_upper'
     else:
-        df_2002_2003_green['key_shp'][i]='Out'
+        df_2002_2003_green['key_shp'].iloc[i]='Out'
     
     #Calculate the corresponding elevation
-    df_2002_2003_green['elevation'][i]=calcul_elevation(df_2002_2003_green['lon_3413'][i],df_2002_2003_green['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+    df_2002_2003_green['elevation'].iloc[i]=calcul_elevation(df_2002_2003_green['lon_3413'].iloc[i],df_2002_2003_green['lat_3413'].iloc[i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
    
     #Monitor the process
     print(i/len(df_2002_2003_green)*100,'%')
@@ -1626,7 +1626,24 @@ ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_up
 plt.show()
 pdb.set_trace()
 
-#4. Select the absolute low and absolute high of 2002-2003 and 2010-2014
+#IV. Select the absolute low and absolute high of 2002-2003 and 2010-2014
+
+
+
+#Let's work with the IceBridge_ShapeArea.shp file for elevation difference:
+#1. Extract elevation from IceBridge_ShapeArea.shp contours
+
+#y'a moyen que je doive looper elon toutes les coordonéées des sommets et extraire des points tous les 10m par exemple pour extraire elevation
+lstr=IceBridgeArea_Shape.boundary
+
+#2. Clip elevation lines to each region
+#3. Identify lower end and higher end elevation lines in each region
+#4. Take the minimum of lower end elevation line and maximum of higher end elevation line of each region
+#5. Flag the more or less perpendicularly crossing 2002-2003 flght lines and exclude the one not crossing
+#6. Take the absolute min and max of all 2002-2003 ice slabs in a specific region
+#7. Do the elevation difference and eventually the corresponding distance calculation in each region
+
+
 #Create a dictionnary where to store relevant information
 dict_summary={k: {} for k in list(df_2002_2003_green['key_shp'].unique())}
 
@@ -1658,14 +1675,6 @@ for region in list(df_2002_2003_green['key_shp'].unique()):
     
 
 
-#Let's work with the IceBridge_ShapeArea.shp file for elevation difference:
-#1. Extract elevation from IceBridge_ShapeArea.shp contours
-#2. Clip elevation lines to each region
-#3. Identify lower end and higher end elevation lines in each region
-#4. Take the minimum of lower end elevation line and maximum of higher end elevation line of each region
-#5. Flag the more or less perpendicularly crossing 2002-2003 flght lines and exclude the one not crossing
-#6. Take the absolute min and max of all 2002-2003 ice slabs in a specific region
-#7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
 #######################################################################
 ### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
