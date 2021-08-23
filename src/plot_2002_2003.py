@@ -962,6 +962,7 @@ f_icelens_flightlines.close()
 lat_icelens=[]
 lon_icelens=[]
 colorcode_icelens=[]
+Track_name=[]
 
 for year in list(icelens_2002_3_flightlines.keys()):
     for days in list(icelens_2002_3_flightlines[year].keys()):
@@ -977,6 +978,14 @@ for year in list(icelens_2002_3_flightlines.keys()):
                 lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
                 lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
                 colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
+                #Create an empty vector of strings
+                Track_name=np.append(Track_name,[indiv_file for x in range(0,len(icelens_2002_3_flightlines[year][days][indiv_file][0]))])
+
+#Create a dataframe out of it
+df_2002_2003=pd.DataFrame(lat_icelens, columns =['lat_3413'])
+df_2002_2003['lon_3413']=lon_icelens
+df_2002_2003['colorcode_icelens']=colorcode_icelens
+df_2002_2003['Track_name']=Track_name
 ################### Load 2002-2003 ice lenses location ##################
 
 ################### Load 2010-2014 ice slabs location ##################
@@ -992,7 +1001,6 @@ points=transformer.transform(np.array(df_MacFerrin.lon),np.array(df_MacFerrin.la
 
 lon_3413_MacFerrin=points[0]
 lat_3413_MacFerrin=points[1]
-
 ################### Load 2010-2014 ice slabs location ##################
 
 ################################### Plot ##################################
@@ -1078,13 +1086,13 @@ plot_radar_slice(ax1,ax5,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day
 
 #Plot all the 2002-2003 icelenses according to their confidence color 
 #1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#c9662c', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=1,facecolors='#c9662c', edgecolors='none')
 #2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fed976', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=1,facecolors='#fed976', edgecolors='none')
 #3. Green
-ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=1,facecolors='#238b45', edgecolors='none')
 #Purple
-ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=1,facecolors='purple', edgecolors='none')
 
 #Zoom on SW Greenland
 ax1.set_xlim(-380100,106800)
@@ -1128,13 +1136,13 @@ ax1.scatter(lon_all, lat_all,s=0.1,facecolors='lightgrey', edgecolors='none',alp
 
 #Plot all the 2002-2003 icelenses according to their condifence color
 #1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=0.1,facecolors='#c9662c', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=0.1,facecolors='#c9662c', edgecolors='none')
 #2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=0.1,facecolors='#fed976', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=0.1,facecolors='#fed976', edgecolors='none')
 #3. Green
-ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=0.1,facecolors='#238b45', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=0.1,facecolors='#238b45', edgecolors='none')
 #Purple
-ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=0.1,facecolors='purple', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=0.1,facecolors='purple', edgecolors='none')
 
 #Correct zoom
 ax1.set_xlim(-650000,900000)
@@ -1434,7 +1442,7 @@ for year in list(icelens_2002_3_flightlines.keys()):
 #######################################################################
 import geopandas as gpd  # Requires the pyshp package
 
-pdb.set_trace()
+#pdb.set_trace()
 
 #######################################################################
 ### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
@@ -1460,11 +1468,11 @@ IceBridgeArea_Shape.plot(ax=ax1)
 
 #Plot all the 2002-2003 icelenses according to their condifence color
 #1. Red
-ax1.scatter(lon_icelens[colorcode_icelens==-1], lat_icelens[colorcode_icelens==-1],s=1,facecolors='#c9662c', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=1,facecolors='#c9662c', edgecolors='none')
 #2. Orange
-ax1.scatter(lon_icelens[colorcode_icelens==0], lat_icelens[colorcode_icelens==0],s=1,facecolors='#fed976', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=1,facecolors='#fed976', edgecolors='none')
 #3. Green
-ax1.scatter(lon_icelens[colorcode_icelens==1], lat_icelens[colorcode_icelens==1],s=1,facecolors='#238b45', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=1,facecolors='#238b45', edgecolors='none')
 ##Purple
 #ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
 
@@ -1561,17 +1569,17 @@ ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_upper'],df_Mac
 
 #3. Do the intersection between the mask and 2002-2003 data
 #Only work with green slabs
-df_2002_2003=pd.DataFrame(lat_icelens[colorcode_icelens==1], columns =['lat_3413'])
-df_2002_2003['lon_3413']=lon_icelens[colorcode_icelens==1]
+df_2002_2003_green=pd.DataFrame(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'], columns =['lat_3413'])
+df_2002_2003_green['lon_3413']=df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413']
 #Initialise the shapefile belonging column
-df_2002_2003['key_shp']=np.nan
-df_2002_2003['elevation']=np.nan
+df_2002_2003_green['key_shp']=np.nan
+df_2002_2003_green['elevation']=np.nan
 
 #This part of code is from 'refine_location_2017_2018.py'
 #Loop over all data point to check whether it belongs to one of the four shapefile
-for i in range(0,len(df_2002_2003)):
+for i in range(0,len(df_2002_2003_green)):
     #select the point i
-    single_point=Point(df_2002_2003['lon_3413'][i],df_2002_2003['lat_3413'][i])
+    single_point=Point(df_2002_2003_green['lon_3413'][i],df_2002_2003_green['lat_3413'][i])
     
     #Do the identification between the point i and the regional shapefiles
     #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
@@ -1584,44 +1592,44 @@ for i in range(0,len(df_2002_2003)):
 
     #Associated the point of interest to its regional shapefile in data_iceslabs
     if (np.sum(check_NW_icecap_greenland)>0):
-        df_2002_2003['key_shp'][i]='NW_icecap'
+        df_2002_2003_green['key_shp'][i]='NW_icecap'
     elif (np.sum(check_NW_north_greenland)>0):
-        df_2002_2003['key_shp'][i]='NW_north'
+        df_2002_2003_green['key_shp'][i]='NW_north'
     elif (np.sum(check_NW_west_greenland)>0):
-        df_2002_2003['key_shp'][i]='NW_west'
+        df_2002_2003_green['key_shp'][i]='NW_west'
     elif (np.sum(check_SW_lower_greenland)>0):
-        df_2002_2003['key_shp'][i]='SW_lower'
+        df_2002_2003_green['key_shp'][i]='SW_lower'
     elif (np.sum(check_SW_middle_greenland)>0):
-        df_2002_2003['key_shp'][i]='SW_middle'
+        df_2002_2003_green['key_shp'][i]='SW_middle'
     elif (np.sum(check_SW_upper_greenland)>0):
-        df_2002_2003['key_shp'][i]='SW_upper'
+        df_2002_2003_green['key_shp'][i]='SW_upper'
     else:
-        df_2002_2003['key_shp'][i]='Out'
+        df_2002_2003_green['key_shp'][i]='Out'
     
     #Calculate the corresponding elevation
-    df_2002_2003['elevation'][i]=calcul_elevation(df_2002_2003['lon_3413'][i],df_2002_2003['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+    df_2002_2003_green['elevation'][i]=calcul_elevation(df_2002_2003_green['lon_3413'][i],df_2002_2003_green['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
    
     #Monitor the process
-    print(i/len(df_2002_2003)*100,'%')
+    print(i/len(df_2002_2003_green)*100,'%')
 
 
 #Display the data as a function of their belonging keys
-ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='NW_icecap'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='NW_icecap'],facecolors='brown')
-ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='NW_west'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='NW_west'],facecolors='cyan')
-ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='NW_north'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='NW_north'],facecolors='pink')
-ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='SW_lower'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='SW_lower'],facecolors='yellow')
-ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='SW_middle'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='SW_middle'],facecolors='olive')
-ax1.scatter(df_2002_2003['lon_3413'][df_2002_2003['key_shp']=='SW_upper'],df_2002_2003['lat_3413'][df_2002_2003['key_shp']=='SW_upper'],facecolors='gray')
+ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],facecolors='brown')
+ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_west'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_west'],facecolors='cyan')
+ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_north'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_north'],facecolors='pink')
+ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_lower'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_lower'],facecolors='yellow')
+ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_middle'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_middle'],facecolors='olive')
+ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_upper'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_upper'],facecolors='gray')
 
 plt.show()
 pdb.set_trace()
 
 #4. Select the absolute low and absolute high of 2002-2003 and 2010-2014
 #Create a dictionnary where to store relevant information
-dict_summary={k: {} for k in list(df_2002_2003['key_shp'].unique())}
+dict_summary={k: {} for k in list(df_2002_2003_green['key_shp'].unique())}
 
 #Loop over the regions
-for region in list(df_2002_2003['key_shp'].unique()):
+for region in list(df_2002_2003_green['key_shp'].unique()):
     
     #Continue building the dictionnary
     dict_summary[region]={k: {} for k in list(['2002_2003','2010_2014'])}
@@ -1629,15 +1637,15 @@ for region in list(df_2002_2003['key_shp'].unique()):
     #Loop over the 2 time periods
     
     for time_period in list(['2002_2003','2010_2014']):
-        dict_summary[region][time_period]={k: {} for k in list(['min_elev','max_elev'])}}
+        dict_summary[region][time_period]={k: {} for k in list(['min_elev','max_elev'])}
         
         #Take the lower and highest point where ice slabs have been
         #identified in this region, no matter the year in this specific time
         #period, and store relevant information
         
         if (time_period=='2002_2003'):
-            df_temp=df_2002_2003[df_2002_2003['key_shp']==region]
-        elif (time_period=='2010-2014'):
+            df_temp=df_2002_2003_green[df_2002_2003_green['key_shp']==region]
+        elif (time_period=='2010_2014'):
             df_temp=df_MacFerrin[df_MacFerrin['key_shp']==region]
         else:
             print('Time period not known, break')
