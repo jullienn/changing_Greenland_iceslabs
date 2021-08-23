@@ -1628,12 +1628,81 @@ pdb.set_trace()
 
 #IV. Select the absolute low and absolute high of 2002-2003 and 2010-2014
 
-#Let's create 10km latitudinal (resp. longitudinal) slices for SW Greenland (resp. NW Greenland)
+#Let's create ~10km latitudinal (resp. longitudinal) slices for SW Greenland (resp. NW Greenland)
 #and calculate the low and high end in each slice for elevation difference:
+
 #1. Create the latitudinal (resp. longitudinal) slices
-#2. Identify lower end and higher end elevation lines in each slice
-#3. Associate each slice to its belonging region
-#4. Calculate the average minimum and maximum of each region amonf the slices
+############ Is this grid to change?? This is about 10km width but not even whether north or south!
+lat_slices=np.linspace(-2800000,-1490000,int((np.abs(-2800000)-np.abs(-1490000))/10000))
+lon_slices=np.linspace(-600000,650000,int((np.abs(650000)+np.abs(-600000))/10000))
+
+#2. Select and store all the data belonging to the lon/last slices in a dictionnary.
+#   Retreive and store min and max elevation of each slice in a dataframe
+
+#Create a dictionnary where to store slices information
+dict_lat_slice={}
+
+#Create a dataframe to store slices min and max elevation
+df_lat_slices_summary=pd.DataFrame(np.zeros(len(lat_slices)), columns =['min_elev'])
+df_lat_slices_summary['max_elev']=np.zeros(len(lat_slices))
+
+#The first index is nan
+df_lat_slices_summary['min_elev'].iloc[0]=np.nan
+df_lat_slices_summary['max_elev'].iloc[0]=np.nan
+    
+#Loop over each boundary of lat slices and store dataset related to slices
+for i in range(1,len(lat_slices)):
+    
+    #Identify low and higher end of the slice
+    low_bound=lat_slices[i-1]
+    high_bound=lat_slices[i]
+    
+    #Select all the data belonging to this slice
+    ind_slice=np.logical_and(np.array(df_MacFerrin['lat_3413']>=low_bound),np.array(df_MacFerrin['lat_3413']<high_bound))
+    df_slice=df_MacFerrin[ind_slice]
+    
+    #Store the associated df
+    dict_lat_slice[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice
+    
+    #Identify min and max and store them into a dataframe
+    df_lat_slices_summary['min_elev'].iloc[i]=np.min(df_slice['elevation'])
+    df_lat_slices_summary['max_elev'].iloc[i]=np.max(df_slice['elevation'])
+
+#Create a dictionnary where to store slices information
+dict_lon_slice={}
+
+#Create a dataframe to store slices min and max elevation
+df_lon_slices_summary=pd.DataFrame(np.zeros(len(lon_slices)), columns =['min_elev'])
+df_lon_slices_summary['max_elev']=np.zeros(len(lon_slices))
+
+#The first index is nan
+df_lon_slices_summary['min_elev'].iloc[0]=np.nan
+df_lon_slices_summary['max_elev'].iloc[0]=np.nan
+
+for i in range(1,len(lon_slices)):
+    
+    #Identify low and higher end of the slice
+    low_bound=lon_slices[i-1]
+    high_bound=lon_slices[i]
+    
+    #Select all the data belonging to this slice
+    ind_slice=np.logical_and(np.array(df_MacFerrin['lon_3413']>=low_bound),np.array(df_MacFerrin['lon_3413']<high_bound))
+    df_slice=df_MacFerrin[ind_slice]
+    
+    #Store the associated df
+    dict_lon_slice[str(int(lon_slices[i-1]))+' to '+str(int(lon_slices[i]))]=df_slice
+    
+    #Identify min and max and store them into a dataframe
+    df_lon_slices_summary['min_elev'].iloc[i]=np.min(df_slice['elevation'])
+    df_lon_slices_summary['max_elev'].iloc[i]=np.max(df_slice['elevation'])
+    
+#3. Associate each slice to its belonging region.
+#   Not needed! Already present in dataframes!
+
+#4. Calculate the average minimum and maximum of each region among the slices
+
+
+
 #5. Flag the more or less perpendicularly crossing 2002-2003 flight lines and exclude the one not crossing
 #6. Take the absolute min and max of all 2002-2003 ice slabs in a specific region
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
