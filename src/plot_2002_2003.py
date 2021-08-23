@@ -1575,6 +1575,8 @@ df_2002_2003_green['lon_3413']=df_2002_2003[df_2002_2003['colorcode_icelens']==1
 df_2002_2003_green['key_shp']=np.nan
 df_2002_2003_green['elevation']=np.nan
 
+pdb.set_trace()
+
 #This part of code is from 'refine_location_2017_2018.py'
 #Loop over all data point to check whether it belongs to one of the four shapefile
 for i in range(0,len(df_2002_2003_green)):
@@ -1650,16 +1652,20 @@ for region in list(df_2002_2003_green['key_shp'].unique()):
         else:
             print('Time period not known, break')
             break
-        #I SHOULD TAKE THE AVERAGE, NOT THE ABSOLUTE!!!
-        
+                
         dict_summary[region][time_period]['min_elev']=np.min(df_temp['elevation'])
         dict_summary[region][time_period]['max_elev']=np.max(df_temp['elevation'])
     
-    
-    
-    
-#5. Extract lower and upper limit of 2002-2003 ice slabs in each region, and average if several
-#6. Compare lower and upper limit difference in term of elevation and calculate an inland progression
+
+
+#Let's work with the IceBridge_ShapeArea.shp file for elevation difference:
+#1. Extract elevation from IceBridge_ShapeArea.shp contours
+#2. Clip elevation lines to each region
+#3. Identify lower end and higher end elevation lines in each region
+#4. Take the minimum of lower end elevation line and maximum of higher end elevation line of each region
+#5. Flag the more or less perpendicularly crossing 2002-2003 flght lines and exclude the one not crossing
+#6. Take the absolute min and max of all 2002-2003 ice slabs in a specific region
+#7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
 #######################################################################
 ### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
