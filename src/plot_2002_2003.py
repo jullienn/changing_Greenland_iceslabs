@@ -1721,10 +1721,32 @@ for i in range(1,len(lon_slices)):
 
 #4. Calculate the average minimum and maximum of each region among the slices
 
-
-
 #5. Flag the more or less perpendicularly crossing 2002-2003 flight lines and exclude the one not crossing
+flag_low=['jun04_02proc_4.mat','jun04_02proc_36.mat','jun04_02proc_52.mat','jun04_02proc_53.mat',
+      'may09_03_0_aggregated','may09_03_1_aggregated','may09_03_30_aggregated',
+      'may09_03_37_aggregated','may11_03_8_aggregated','may11_03_12_aggregated',
+      'may11_03_13_aggregated','may11_03_16_aggregated','may11_03_20_aggregated',
+      'may11_03_21_aggregated','may11_03_38_aggregated','may11_03_39_aggregated',
+      'may12_03_1_aggregated','may12_03_2_aggregated','may12_03_11_aggregated',
+      'may12_03_15_aggregated','may12_03_36_aggregated','may13_03_30_aggregated',
+      'may14_03_1_aggregated','may14_03_2_aggregated','may14_03_7_aggregated',
+      'may14_03_8_aggregated','may14_03_20_aggregated','may14_03_21_aggregated',
+      'may15_03_0_aggregated','may15_03_2_aggregated','may15_03_4_aggregated',
+      'may15_03_9_aggregated','may18_02_27_aggregated']
+
+flag_high=['jun04_02proc_4.mat','jun04_02proc36.mat','jun04_02proc_52.mat','jun04_02proc_53.mat',
+      'may09_03_0_aggregated','may09_03_1_aggregated','may09_03_30_aggregated',
+      'may09_03_37_aggregated','may11_03_20_aggregated','may11_03_21_aggregated',
+      'may11_03_37_aggregated','may11_03_38_aggregated','may12_03_1_aggregated',
+      'may12_03_2_aggregated','may12_03_11_aggregated','may12_03_36_aggregated',
+      'may13_03_30_aggregated','may14_03_1_aggregated','may14_03_2_aggregated',
+      'may14_03_7_aggregated','may14_03_20_aggregated','may14_03_21_aggregated',
+      'may15_03_2_aggregated','may15_03_4_aggregated','may15_03_9_aggregated',
+      'may18_02_27_aggregated']
+
+#!! Bare in mind I shoud consider together consecutive ones!!
 #6. Take the absolute min and max of all 2002-2003 ice slabs in a specific region
+#!! Gather consecutive ones
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
 
