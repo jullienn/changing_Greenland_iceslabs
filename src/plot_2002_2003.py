@@ -1568,20 +1568,18 @@ ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_middle'],df_Ma
 ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_upper'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_upper'],facecolors='k')
 
 #III. Do the intersection between the mask and 2002-2003 data
-#Only work with green slabs
-df_2002_2003_green=pd.DataFrame(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'], columns =['lat_3413'])
-df_2002_2003_green['lon_3413']=df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413']
+
 #Initialise the shapefile belonging column
-df_2002_2003_green['key_shp']=np.nan
-df_2002_2003_green['elevation']=np.nan
+df_2002_2003['key_shp']=np.nan
+df_2002_2003['elevation']=np.nan
 
 pdb.set_trace()
 
 #This part of code is from 'refine_location_2017_2018.py'
 #Loop over all data point to check whether it belongs to one of the four shapefile
-for i in range(0,len(df_2002_2003_green)):
+for i in range(0,len(df_2002_2003)):
     #select the point i
-    single_point=Point(df_2002_2003_green['lon_3413'].iloc[i],df_2002_2003_green['lat_3413'].iloc[i])
+    single_point=Point(df_2002_2003['lon_3413'].iloc[i],df_2002_2003['lat_3413'].iloc[i])
     
     #Do the identification between the point i and the regional shapefiles
     #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
@@ -1594,26 +1592,28 @@ for i in range(0,len(df_2002_2003_green)):
 
     #Associated the point of interest to its regional shapefile in data_iceslabs
     if (np.sum(check_NW_icecap_greenland)>0):
-        df_2002_2003_green['key_shp'].iloc[i]='NW_icecap'
+        df_2002_2003['key_shp'].iloc[i]='NW_icecap'
     elif (np.sum(check_NW_north_greenland)>0):
-        df_2002_2003_green['key_shp'].iloc[i]='NW_north'
+        df_2002_2003['key_shp'].iloc[i]='NW_north'
     elif (np.sum(check_NW_west_greenland)>0):
-        df_2002_2003_green['key_shp'].iloc[i]='NW_west'
+        df_2002_2003['key_shp'].iloc[i]='NW_west'
     elif (np.sum(check_SW_lower_greenland)>0):
-        df_2002_2003_green['key_shp'].iloc[i]='SW_lower'
+        df_2002_2003['key_shp'].iloc[i]='SW_lower'
     elif (np.sum(check_SW_middle_greenland)>0):
-        df_2002_2003_green['key_shp'].iloc[i]='SW_middle'
+        df_2002_2003['key_shp'].iloc[i]='SW_middle'
     elif (np.sum(check_SW_upper_greenland)>0):
-        df_2002_2003_green['key_shp'].iloc[i]='SW_upper'
+        df_2002_2003['key_shp'].iloc[i]='SW_upper'
     else:
-        df_2002_2003_green['key_shp'].iloc[i]='Out'
+        df_2002_2003['key_shp'].iloc[i]='Out'
     
     #Calculate the corresponding elevation
-    df_2002_2003_green['elevation'].iloc[i]=calcul_elevation(df_2002_2003_green['lon_3413'].iloc[i],df_2002_2003_green['lat_3413'].iloc[i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+    df_2002_2003['elevation'].iloc[i]=calcul_elevation(df_2002_2003['lon_3413'].iloc[i],df_2002_2003['lat_3413'].iloc[i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
    
     #Monitor the process
-    print(i/len(df_2002_2003_green)*100,'%')
+    print(i/len(df_2002_2003)*100,'%')
 
+#Only work with green slabs
+df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
 
 #Display the data as a function of their belonging keys
 ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],facecolors='brown')
