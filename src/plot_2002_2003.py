@@ -1838,10 +1838,10 @@ for trace in traces:
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
 #Create a dictionnary where to store relevant information
-dict_summary={k: {} for k in list(df_2002_2003_green['key_shp'].unique())}
+dict_summary={k: {} for k in list(df_MacFerrin['key_shp'].unique())}
 
 #Loop over the regions
-for region in list(df_2002_2003_green['key_shp'].unique()):
+for region in list(df_MacFerrin['key_shp'].unique()):
     
     #Continue building the dictionnary
     dict_summary[region]={k: {} for k in list(['2002_2003','2010_2014'])}
