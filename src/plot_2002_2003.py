@@ -1790,38 +1790,27 @@ for region in list(df_MacFerrin['key_shp'].unique()):
 count=0
 #Loop over the traces
 for trace in traces:
-    
+        
     #Check whether we are dealing with single or consecutive traces
     if(len(trace)>1):
         #We are dealing with consecutive traces
         #Select the data related to the first trace
-        data_trace=df_2002_2003_green[df_2002_2003_green['Track_name']==trace[0]]
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
         
         #loop over the traces and append data to each other, do not take the first one
         for indiv_trace in list(trace[1:]):
-            #If trace does not belong to df_2002_2003, continue
-            if (not(indiv_trace in list(df_2002_2003_green['Track_name'].unique()))):
-                continue
-            
             #Select all the data related to this trace
-            data_trace=data_trace.append(df_2002_2003_green[df_2002_2003_green['Track_name']==indiv_trace])
-            
-            #Identify the region
-            region=list(np.unique(data_trace['key_shp']))
+            data_trace=data_trace.append(df_2002_2003[df_2002_2003['Track_name']==indiv_trace])
             
     else:
-        #If trace does not belong to df_2002_2003, continue
-        if (not(trace[0] in list(df_2002_2003_green['Track_name'].unique()))):
-            continue
-        
         #We are dealing with individual traces
         #Select all the data related to this trace
-        data_trace=df_2002_2003_green[df_2002_2003_green['Track_name']==trace[0]]
-            
-        #Identify the region
-        region=list(np.unique(data_trace['key_shp']))
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
 
     #Now my data_trace datasets are ready to be worked with
+    
+    #Identify the region
+    region=list(np.unique(data_trace['key_shp']))
     
     #Retreive the stored array
     array_region_indiv=dict_summary_2002_2003[region[0]]
