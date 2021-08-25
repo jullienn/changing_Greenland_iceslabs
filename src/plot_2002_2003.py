@@ -1734,7 +1734,7 @@ flag_low=['jun04_02proc_4.mat','jun04_02proc_36.mat','jun04_02proc_52.mat','jun0
       'may15_03_0_aggregated','may15_03_2_aggregated','may15_03_4_aggregated',
       'may15_03_9_aggregated','may18_02_27_aggregated']
 
-flag_high=['jun04_02proc_4.mat','jun04_02proc36.mat','jun04_02proc_52.mat','jun04_02proc_53.mat',
+flag_high=['jun04_02proc_4.mat','jun04_02proc_36.mat','jun04_02proc_52.mat','jun04_02proc_53.mat',
       'may09_03_0_aggregated','may09_03_1_aggregated','may09_03_30_aggregated',
       'may09_03_37_aggregated','may11_03_20_aggregated','may11_03_21_aggregated',
       'may11_03_37_aggregated','may11_03_38_aggregated','may12_03_1_aggregated',
@@ -1744,9 +1744,92 @@ flag_high=['jun04_02proc_4.mat','jun04_02proc36.mat','jun04_02proc_52.mat','jun0
       'may15_03_2_aggregated','may15_03_4_aggregated','may15_03_9_aggregated',
       'may18_02_27_aggregated']
 
-#!! Bare in mind I shoud consider together consecutive ones!!
+unique_flags=np.unique(np.append(flag_low,flag_high))
+
 #6. Take the absolute min and max of all 2002-2003 ice slabs in a specific region
-#!! Gather consecutive ones
+#A suite of 2002-2003 traces do not belong to different region, which ease coding
+
+#Here are the traces. For consecutive ones, the ice slabs range elevation is distributed through consecutive traces
+traces=[['jun04_02proc_4.mat'],
+        ['jun04_02proc_36.mat'],
+        ['jun04_02proc_52.mat','jun04_02proc_53.mat'],
+        ['may09_03_0_aggregated','may09_03_1_aggregated'],
+        ['may09_03_30_aggregated'],
+        ['may09_03_37_aggregated'],
+        ['may11_03_8_aggregated'],
+        ['may11_03_12_aggregated','may11_03_13_aggregated'],
+        ['may11_03_16_aggregated'],
+        ['may11_03_20_aggregated','may11_03_21_aggregated'],
+        ['may11_03_37_aggregated','may11_03_38_aggregated','may11_03_39_aggregated'],
+        ['may12_03_1_aggregated','may12_03_2_aggregated'],
+        ['may12_03_11_aggregated'],
+        ['may12_03_15_aggregated'],
+        ['may12_03_36_aggregated'],
+        ['may13_03_30_aggregated'],
+        ['may14_03_1_aggregated','may14_03_2_aggregated'],
+        ['may14_03_7_aggregated','may14_03_8_aggregated'],
+        ['may14_03_20_aggregated','may14_03_21_aggregated'],
+        ['may15_03_0_aggregated'],
+        ['may15_03_2_aggregated'],
+        ['may15_03_4_aggregated'],
+        ['may15_03_9_aggregated'],
+        ['may18_02_27_aggregated']]
+
+list_traces=[item for sublist in traces for item in sublist]
+
+#Loop over the traces, check the flags and populate a low end and high end vector where applicable.
+#If consecutive traces, consider the suite of traces!
+
+#Create the dictionary
+dict_summary_2002_2003={k: {} for k in list(df_MacFerrin['key_shp'].unique())}
+
+#Fill the dict_summary_2002_2003 dictionnary with a np.nan
+for region in list(df_MacFerrin['key_shp'].unique()):
+    dict_summary_2002_2003[region]=np.zeros((len(traces),2))
+
+count=0
+#Loop over the traces
+for trace in traces:
+        
+    #Check whether we are dealing with single or consecutive traces
+    if(len(trace)>1):
+        #We are dealing with consecutive traces
+        #Select the data related to the first trace
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
+        
+        #loop over the traces and append data to each other, do not take the first one
+        for indiv_trace in list(trace[1:]):
+            #Select all the data related to this trace
+            data_trace=data_trace.append(df_2002_2003[df_2002_2003['Track_name']==indiv_trace])
+            
+    else:
+        #We are dealing with individual traces
+        #Select all the data related to this trace
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
+
+    #Now my data_trace datasets are ready to be worked with
+    
+    #Identify the region
+    region=list(np.unique(data_trace['key_shp']))
+    
+    #Retreive the stored array
+    array_region_indiv=dict_summary_2002_2003[region[0]]
+    
+    #Check the flag: shall we store data?
+    if trace[0] in list(flag_low):
+        #!!! deal with consecutive traces. Modify manually the flags files?
+        #Store min in array_region_indiv
+        array_region_indiv[count,0]=np.min(data_trace['elevation'])
+    
+    if trace[0] in list(flag_high):
+        #Store max in array_region_indiv
+        array_region_indiv[count,1]=np.max(data_trace['elevation'])
+    
+    #Update count
+    count=count+1
+    #Store again data into dict_lat_slices_summary
+    dict_summary_2002_2003[region[0]]=array_region_indiv
+
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
 
