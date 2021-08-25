@@ -1830,8 +1830,8 @@ for trace in traces:
     #Store again data into dict_lat_slices_summary
     dict_summary_2002_2003[region[0]]=array_region_indiv
 
-#7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
+#7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
 #Create a dictionnary where to store relevant information
 dict_summary={k: {} for k in list(df_2002_2003_green['key_shp'].unique())}
