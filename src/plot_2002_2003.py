@@ -1823,7 +1823,6 @@ for trace in traces:
         
         #Check the flag: shall we store data?
         if trace[0] in list(flag_low):
-            #!!! deal with consecutive traces. Modify manually the flags files?
             #Store min in array_region_indiv
             array_region_indiv[count,0]=np.min(data_trace['elevation'])
         
@@ -1835,8 +1834,6 @@ for trace in traces:
         count=count+1
         #Store again data into dict_lat_slices_summary
         dict_summary_2002_2003[region[0]]=array_region_indiv
-
-#!!!!!!!!!! WORK WITH DF_2002_2003_GREEN !!!!!!!!!!!!
 
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
 
@@ -1854,20 +1851,20 @@ for region in list(df_2002_2003_green['key_shp'].unique()):
     for time_period in list(['2002_2003','2010_2014']):
         dict_summary[region][time_period]={k: {} for k in list(['min_elev','max_elev'])}
         
-        #Take the lower and highest point where ice slabs have been
+        #Take the average of low and high elevation where ice slabs have been
         #identified in this region, no matter the year in this specific time
         #period, and store relevant information
         
         if (time_period=='2002_2003'):
-            df_temp=df_2002_2003_green[df_2002_2003_green['key_shp']==region]
+            dict_temp=dict_summary_2002_2003[region]
         elif (time_period=='2010_2014'):
             df_temp=df_MacFerrin[df_MacFerrin['key_shp']==region]
         else:
             print('Time period not known, break')
             break
                 
-        dict_summary[region][time_period]['min_elev']=np.min(df_temp['elevation'])
-        dict_summary[region][time_period]['max_elev']=np.max(df_temp['elevation'])
+        dict_summary[region][time_period]['min_elev']=np.nanmean(dict_temp[:,0])
+        dict_summary[region][time_period]['max_elev']=np.nanmean(dict_temp[:,1])
     
 
 
