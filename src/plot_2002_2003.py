@@ -1648,7 +1648,7 @@ dict_lat_slices_summary={k: {} for k in list(df_MacFerrin['key_shp'].unique())}
 
 #Fill the dict_lat_slices_summary dictionnary with zeros
 for region in list(df_MacFerrin['key_shp'].unique()):
-    dict_lat_slices_summary[region]=np.zeros((len(lat_slices),2))
+    dict_lat_slices_summary[region]=np.zeros((len(lat_slices),2))*np.nan
 
 #Loop over each boundary of lat slices and store dataset related to slices
 for i in range(1,len(lat_slices)):
@@ -1687,7 +1687,7 @@ dict_lon_slices_summary={k: {} for k in list(df_MacFerrin['key_shp'].unique())}
 
 #Fill the dict_lon_slices_summary dictionnary with zeros
 for region in list(df_MacFerrin['key_shp'].unique()):
-    dict_lon_slices_summary[region]=np.zeros((len(lon_slices),2))
+    dict_lon_slices_summary[region]=np.zeros((len(lon_slices),2))*np.nan
 
 #Loop over each boundary of lon slices and store dataset related to slices
 for i in range(1,len(lon_slices)):
@@ -1856,15 +1856,26 @@ for region in list(df_2002_2003_green['key_shp'].unique()):
         #period, and store relevant information
         
         if (time_period=='2002_2003'):
+            #Retreive the corresponding matrix where data are stored
             dict_temp=dict_summary_2002_2003[region]
+        
         elif (time_period=='2010_2014'):
-            df_temp=df_MacFerrin[df_MacFerrin['key_shp']==region]
+            #The dictionnary to select is different whether we are in north or south greenland
+            if (region in list(['NW_north','NW_west','NW_icecap'])):
+                dict_temp=dict_lon_slices_summary[region]
+            else:
+                dict_temp=dict_lat_slices_summary[region]
         else:
             print('Time period not known, break')
             break
-                
+        
+        #Calculate and store averages
         dict_summary[region][time_period]['min_elev']=np.nanmean(dict_temp[:,0])
         dict_summary[region][time_period]['max_elev']=np.nanmean(dict_temp[:,1])
+        
+#Print results
+
+
     
 
 
