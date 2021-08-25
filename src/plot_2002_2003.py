@@ -1785,7 +1785,7 @@ dict_summary_2002_2003={k: {} for k in list(df_MacFerrin['key_shp'].unique())}
 
 #Fill the dict_summary_2002_2003 dictionnary with a np.nan
 for region in list(df_MacFerrin['key_shp'].unique()):
-    dict_summary_2002_2003[region]=np.zeros((len(traces),2))
+    dict_summary_2002_2003[region]=np.zeros((len(traces),2))*np.nan
 
 count=0
 #Loop over the traces
