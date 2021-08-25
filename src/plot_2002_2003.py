@@ -1790,7 +1790,7 @@ for region in list(df_MacFerrin['key_shp'].unique()):
 count=0
 #Loop over the traces
 for trace in traces:
-        
+    
     #Check whether we are dealing with single or consecutive traces
     if(len(trace)>1):
         #We are dealing with consecutive traces
@@ -1808,27 +1808,33 @@ for trace in traces:
         data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
 
     #Now my data_trace datasets are ready to be worked with
+    #Keep only green ice slabs
+    data_trace=data_trace[data_trace['colorcode_icelens']==1]
     
-    #Identify the region
-    region=list(np.unique(data_trace['key_shp']))
-    
-    #Retreive the stored array
-    array_region_indiv=dict_summary_2002_2003[region[0]]
-    
-    #Check the flag: shall we store data?
-    if trace[0] in list(flag_low):
-        #!!! deal with consecutive traces. Modify manually the flags files?
-        #Store min in array_region_indiv
-        array_region_indiv[count,0]=np.min(data_trace['elevation'])
-    
-    if trace[0] in list(flag_high):
-        #Store max in array_region_indiv
-        array_region_indiv[count,1]=np.max(data_trace['elevation'])
-    
-    #Update count
-    count=count+1
-    #Store again data into dict_lat_slices_summary
-    dict_summary_2002_2003[region[0]]=array_region_indiv
+    if (len(data_trace)<1):
+        #No green ice slabs, continue
+        continue
+    else:
+        #Identify the region
+        region=list(np.unique(data_trace['key_shp']))
+        
+        #Retreive the stored array
+        array_region_indiv=dict_summary_2002_2003[region[0]]
+        
+        #Check the flag: shall we store data?
+        if trace[0] in list(flag_low):
+            #!!! deal with consecutive traces. Modify manually the flags files?
+            #Store min in array_region_indiv
+            array_region_indiv[count,0]=np.min(data_trace['elevation'])
+        
+        if trace[0] in list(flag_high):
+            #Store max in array_region_indiv
+            array_region_indiv[count,1]=np.max(data_trace['elevation'])
+        
+        #Update count
+        count=count+1
+        #Store again data into dict_lat_slices_summary
+        dict_summary_2002_2003[region[0]]=array_region_indiv
 
 #!!!!!!!!!! WORK WITH DF_2002_2003_GREEN !!!!!!!!!!!!
 
