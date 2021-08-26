@@ -1017,15 +1017,15 @@ index_2017=(df_jullien.Track_name.str[:4] == '2017')
 index_2018=(df_jullien.Track_name.str[:4] == '2018')
 
 df_2017_2018=df_jullien[index_2017]
-df_2017_2018=df_2017_2018.append(df_jullien[index_2017])
+df_2017_2018=df_2017_2018.append(df_jullien[index_2018])
 
 #Transform the coordinated from WGS84 to EPSG:3413
 #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.array(df_2017_2018.lon),np.array(df_2017_2018.lat))
 
-lon_3413_jullien=points[0]
-lat_3413_jullien=points[1]
+lon_3413_2017_2018=points[0]
+lat_3413_2017_2018=points[1]
 ################### Load 2017-2018 ice slabs location ##################
 
 ################################### Plot ##################################
@@ -1595,8 +1595,8 @@ ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_upper'],df_Mac
 #II. bis. Do the intersection between the mask and 2017-2018 data and keep only the matching one
 
 #Store lat/lon 3413
-df_2017_2018['lat_3413']=lat_3413_jullien
-df_2017_2018['lon_3413']=lon_3413_jullien
+df_2017_2018['lat_3413']=lat_3413_2017_2018
+df_2017_2018['lon_3413']=lon_3413_2017_2018
 
 #Initialise the elevation and shapefile belonging column
 df_2017_2018['key_shp']=np.nan
@@ -1604,9 +1604,9 @@ df_2017_2018['elevation']=np.nan
 
 #This part of code is from 'refine_location_2017_2018.py'
 #Loop over all data point to check whether it belongs to one of the four shapefile
-for i in range(0,lat_3413_jullien.size):
+for i in range(0,lat_3413_2017_2018.size):
     #select the point i
-    single_point=Point(lon_3413_jullien[i],lat_3413_jullien[i])
+    single_point=Point(lon_3413_2017_2018[i],lat_3413_2017_2018[i])
     
     #Do the identification between the point i and the regional shapefiles
     #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
@@ -1795,7 +1795,9 @@ for i in range(1,len(lon_slices)):
         array_region_indiv[i,1]=np.max(df_region['elevation'])
         #Store again data into dict_lat_slices_summary
         dict_lon_slices_summary[region]=array_region_indiv
-    
+
+#2. bis. Do the same as 2 but for 2017_2018!!!
+
 #3. Associate each slice to its belonging region.
 #   Not needed! Already present in dataframes!
 
