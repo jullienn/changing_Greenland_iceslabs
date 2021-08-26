@@ -1717,6 +1717,7 @@ lat_slices=np.linspace(-2800000,-1490000,int((np.abs(-2800000)-np.abs(-1490000))
 lon_slices=np.linspace(-600000,650000,int((np.abs(650000)+np.abs(-600000))/10000))
 
 #2. Select and store all the data belonging to the lon/lat slices in a dictionnary.
+#### ------------------------- 2010-2014 -------------------------------- ####
 #   Retreive and store min and max elevation of each slice in a dataframe
 #   ----- Latitudinal slices
 
@@ -1795,9 +1796,90 @@ for i in range(1,len(lon_slices)):
         array_region_indiv[i,1]=np.max(df_region['elevation'])
         #Store again data into dict_lat_slices_summary
         dict_lon_slices_summary[region]=array_region_indiv
+#### ------------------------- 2010-2014 -------------------------------- ####
 
-#2. bis. Do the same as 2 but for 2017_2018!!!
+#2. bis. Do the same as 2 but for 2017_2018
+#### ------------------------- 2017-2018 -------------------------------- ####
+#   Retreive and store min and max elevation of each slice in a dataframe
+#   ----- Latitudinal slices
 
+#Create a dictionnary where to store slices information
+dict_lat_slice_20172018={}
+
+#Create a dictionnary to store np arrays storing slices min and max elevation for each region
+dict_lat_slices_summary_20172018={k: {} for k in list(df_MacFerrin['key_shp'].unique())}
+
+#Fill the dict_lat_slices_summary dictionnary with zeros
+for region in list(df_MacFerrin['key_shp'].unique()):
+    dict_lat_slices_summary_20172018[region]=np.zeros((len(lat_slices),2))*np.nan
+
+#Loop over each boundary of lat slices and store dataset related to slices
+for i in range(1,len(lat_slices)):
+    
+    #Identify low and higher end of the slice
+    low_bound=lat_slices[i-1]
+    high_bound=lat_slices[i]
+    
+    #Select all the data belonging to this slice
+    ind_slice=np.logical_and(np.array(df_2017_2018['lat_3413']>=low_bound),np.array(df_2017_2018['lat_3413']<high_bound))
+    df_slice=df_2017_2018[ind_slice]
+    
+    #Store the associated df
+    dict_lat_slice_20172018[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice
+    
+    #Identify min and max of each region and store them into a dataframe    
+    #Loop over the regions present in df_slice
+    for region in list(df_slice['key_shp'].unique()):
+        #Select only the data belonging to this region
+        df_region=df_slice[df_slice['key_shp']==region]
+        #Retreive the stored array
+        array_region_indiv=dict_lat_slices_summary_20172018[region]
+        #Store min and max of this regional slice
+        array_region_indiv[i,0]=np.min(df_region['elevation'])
+        array_region_indiv[i,1]=np.max(df_region['elevation'])
+        #Store again data into dict_lat_slices_summary_20172018
+        dict_lat_slices_summary_20172018[region]=array_region_indiv
+
+
+#   ----- Longitudinal slices
+#Create a dictionnary where to store slices information
+dict_lon_slice_20172018={}
+
+#Create a dictionnary to store np arrays storing slices min and max elevation for each region
+dict_lon_slices_summary_20172018={k: {} for k in list(df_MacFerrin['key_shp'].unique())}
+
+#Fill the dict_lon_slices_summary dictionnary with zeros
+for region in list(df_MacFerrin['key_shp'].unique()):
+    dict_lon_slices_summary_20172018[region]=np.zeros((len(lon_slices),2))*np.nan
+
+#Loop over each boundary of lon slices and store dataset related to slices
+for i in range(1,len(lon_slices)):
+    
+    #Identify low and higher end of the slice
+    low_bound=lon_slices[i-1]
+    high_bound=lon_slices[i]
+    
+    #Select all the data belonging to this slice
+    ind_slice=np.logical_and(np.array(df_2017_2018['lon_3413']>=low_bound),np.array(df_2017_2018['lon_3413']<high_bound))
+    df_slice=df_2017_2018[ind_slice]
+    
+    #Store the associated df
+    dict_lon_slice_20172018[str(int(lon_slices[i-1]))+' to '+str(int(lon_slices[i]))]=df_slice
+    
+    #Identify min and max of each region and store them into a dataframe    
+    #Loop over the regions present in df_slice
+    for region in list(df_slice['key_shp'].unique()):
+        #Select only the data belonging to this region
+        df_region=df_slice[df_slice['key_shp']==region]
+        #Retreive the stored array
+        array_region_indiv=dict_lon_slices_summary_20172018[region]
+        #Store min and max of this regional slice
+        array_region_indiv[i,0]=np.min(df_region['elevation'])
+        array_region_indiv[i,1]=np.max(df_region['elevation'])
+        #Store again data into dict_lon_slices_summary_20172018
+        dict_lon_slices_summary_20172018[region]=array_region_indiv
+#### ------------------------- 2017-2018 -------------------------------- ####
+pdb.set_trace()
 #3. Associate each slice to its belonging region.
 #   Not needed! Already present in dataframes!
 
