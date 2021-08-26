@@ -2050,27 +2050,46 @@ for region in list(df_MacFerrin['key_shp'].unique()):
 #Plot the inland expansion as a graph
 
 #Display the keys
-fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs inland progression')
 
+axs = axs.ravel()
+
+#count for subplot
+i=0
 #Loop over the region
 for region in list(dict_summary.keys()):
+    if (region == 'Out'):
+        continue
     #Create empty vectors
-    low_end=np.nan
-    high_end=np.nan
+    low_end=np.zeros(1)
+    high_end=np.zeros(1)
 
     for time_period in list(dict_summary[region].keys()):
         low_end=np.append(low_end,dict_summary[region][time_period]['min_elev'])
         high_end=np.append(high_end,dict_summary[region][time_period]['max_elev'])
     
-    #Remove nan from low_end and high_end vectors
-    low_end = low_end[~np.isnan(low_end)]
-    high_end = high_end[~np.isnan(high_end)]
+    #Remove zeros from low_end and high_end vectors
+    low_end = low_end[~(low_end==0)]
+    high_end = high_end[~(high_end==0)]
     
     #Plot the low end and high end of each region
-    plt.plot(np.linspace(0,3,1),low_end,label='Low end - %s' % region)
-    plt.plot(np.linspace(0,3,1),high_end,label='High end - %s' % region)
-
+    axs[i].plot(np.linspace(0,2,len(low_end)),low_end,label='Low end')
+    axs[i].plot(np.linspace(0,2,len(high_end)),high_end,label='High end')
+    
+    #Set title
+    axs[i].title.set_text(region)
+    
+    #Set x tick
+    axs[i].set_xticks(np.linspace(0,2,len(high_end)))
+    axs[i].set_xticklabels(list(dict_summary[region].keys()))
+    
+    axs[i].set_xlim(0,2)
+    
+    axs[i].grid()
+    #Update count
+    i=i+1
+    
 plt.legend()
 plt.show()
 #######################################################################
