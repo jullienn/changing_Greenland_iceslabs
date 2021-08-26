@@ -1602,6 +1602,8 @@ df_2017_2018['lon_3413']=lon_3413_2017_2018
 df_2017_2018['key_shp']=np.nan
 df_2017_2018['elevation']=np.nan
 
+pdb.set_trace()
+
 #This part of code is from 'refine_location_2017_2018.py'
 #Loop over all data point to check whether it belongs to one of the four shapefile
 for i in range(0,lat_3413_2017_2018.size):
@@ -1619,22 +1621,22 @@ for i in range(0,lat_3413_2017_2018.size):
 
     #Associated the point of interest to its regional shapefile in data_iceslabs
     if (np.sum(check_NW_icecap_greenland)>0):
-        df_2017_2018['key_shp'][i]='NW_icecap'
+        df_2017_2018['key_shp'].iloc[i]='NW_icecap'
     elif (np.sum(check_NW_north_greenland)>0):
-        df_2017_2018['key_shp'][i]='NW_north'
+        df_2017_2018['key_shp'].iloc[i]='NW_north'
     elif (np.sum(check_NW_west_greenland)>0):
-        df_2017_2018['key_shp'][i]='NW_west'
+        df_2017_2018['key_shp'].iloc[i]='NW_west'
     elif (np.sum(check_SW_lower_greenland)>0):
-        df_2017_2018['key_shp'][i]='SW_lower'
+        df_2017_2018['key_shp'].iloc[i]='SW_lower'
     elif (np.sum(check_SW_middle_greenland)>0):
-        df_2017_2018['key_shp'][i]='SW_middle'
+        df_2017_2018['key_shp'].iloc[i]='SW_middle'
     elif (np.sum(check_SW_upper_greenland)>0):
-        df_2017_2018['key_shp'][i]='SW_upper'
+        df_2017_2018['key_shp'].iloc[i]='SW_upper'
     else:
-        df_2017_2018['key_shp'][i]='Out'
+        df_2017_2018['key_shp'].iloc[i]='Out'
     
     #Calculate the corresponding elevation
-    df_2017_2018['elevation'][i]=calcul_elevation(df_2017_2018['lon_3413'][i],df_2017_2018['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+    df_2017_2018['elevation'].iloc[i]=calcul_elevation(df_2017_2018['lon_3413'].iloc[i],df_2017_2018['lat_3413'].iloc[i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
 
     #Monitor the process
     print(i/df_2017_2018.size*100,'%')
@@ -2008,11 +2010,11 @@ dict_summary={k: {} for k in list(df_MacFerrin['key_shp'].unique())}
 for region in list(df_MacFerrin['key_shp'].unique()):
     
     #Continue building the dictionnary
-    dict_summary[region]={k: {} for k in list(['2002_2003','2010_2014'])}
+    dict_summary[region]={k: {} for k in list(['2002_2003','2010_2014','2017_2018'])}
     
     #Loop over the 2 time periods
     
-    for time_period in list(['2002_2003','2010_2014']):
+    for time_period in list(['2002_2003','2010_2014','2017_2018']):
         dict_summary[region][time_period]={k: {} for k in list(['min_elev','max_elev'])}
         
         #Take the average of low and high elevation where ice slabs have been
@@ -2029,6 +2031,14 @@ for region in list(df_MacFerrin['key_shp'].unique()):
                 dict_temp=dict_lon_slices_summary[region]
             else:
                 dict_temp=dict_lat_slices_summary[region]
+        
+        elif (time_period=='2017_2018'):
+            #The dictionnary to select is different whether we are in north or south greenland
+            if (region in list(['NW_north','NW_west','NW_icecap'])):
+                dict_temp=dict_lon_slices_summary_20172018[region]
+            else:
+                dict_temp=dict_lat_slices_summary_20172018[region]
+        
         else:
             print('Time period not known, break')
             break
@@ -2037,6 +2047,32 @@ for region in list(df_MacFerrin['key_shp'].unique()):
         dict_summary[region][time_period]['min_elev']=np.nanmean(dict_temp[:,0])
         dict_summary[region][time_period]['max_elev']=np.nanmean(dict_temp[:,1])
 
+#Plot the inland expansion as a graph
+
+#Display the keys
+fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('Iceslabs inland progression')
+
+#Loop over the region
+for region in list(dict_summary.keys()):
+    #Create empty vectors
+    low_end=np.nan
+    high_end=np.nan
+
+    for time_period in list(dict_summary[region].keys()):
+        low_end=np.append(low_end,dict_summary[region][time_period]['min_elev'])
+        high_end=np.append(high_end,dict_summary[region][time_period]['max_elev'])
+    
+    #Remove nan from low_end and high_end vectors
+    low_end = low_end[~np.isnan(low_end)]
+    high_end = high_end[~np.isnan(high_end)]
+    
+    #Plot the low end and high end of each region
+    plt.plot(np.linspace(0,3,1),low_end,label='Low end - %s' % region)
+    plt.plot(np.linspace(0,3,1),high_end,label='High end - %s' % region)
+
+plt.legend()
+plt.show()
 #######################################################################
 ### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
 #######################################################################
