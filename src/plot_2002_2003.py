@@ -2096,6 +2096,59 @@ plt.show()
 ### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
 #######################################################################
 
+#Try the violin plot - Do not require any latitudinal and longitudinal averaging!
+
+import seaborn as sns
+
+sns.set_theme(style="whitegrid")
+
+#Set the year for plotting
+df_2002_2003_green['year']=["2002-2003" for x in range(len(df_2002_2003_green))]
+df_MacFerrin['year']=["2010-2014" for x in range(len(df_MacFerrin))]
+df_2017_2018['year']=["2017-2018" for x in range(len(df_2017_2018))]
+
+#Append all the dataframes together
+df_all=df_2002_2003_green
+df_all=df_all.append(df_MacFerrin)
+df_all=df_all.append(df_2017_2018)
+
+#Prepare plot
+fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('Iceslabs inland progression')
+
+axs = axs.ravel()
+i=0
+
+for region in df_all['key_shp'].unique():
+    if (region == 'Out'):
+        continue
+    
+    #Add 2010-2017 and 2017-2018!
+    sns.violinplot(ax=axs[i], data=df_all[df_all['key_shp']==region], x="year", y="elevation",
+               inner="quart", linewidth=1)
+    sns.despine(left=True)
+
+    #Set title
+    axs[i].title.set_text(region)
+    
+    axs[i].grid()
+    #Update count
+    i=i+1
+                        
+    '''
+    catplot is noce but did not managed to to subplots with it
+    sns.catplot(data=df_2002_2003_green[df_2002_2003_green['key_shp']==region], kind="violin", x="year", y="elevation", hue="colorcode_icelens",ax = axs[i])
+    '''
+    
+
+
+
+
+
+
+
+
+
 
 
 
