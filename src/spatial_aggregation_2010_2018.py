@@ -85,7 +85,7 @@ for index in neigh_list:
 
 pdb.set_trace()
 #Keep only unique keys
-for i in range(0,len(neigh_list),np.quantile(step,0.1)):
+for i in range(0,len(neigh_list),int(np.quantile(step,0.1))):
     index = neigh_list[i]
     #Copy the list of index and transform into numpy array
     index_to_copy=np.asarray(index).astype(float)
