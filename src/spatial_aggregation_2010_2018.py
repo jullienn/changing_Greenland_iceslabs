@@ -37,6 +37,8 @@ import matplotlib.colors as mcolors
 
 #Custom radius
 custom_radius=500
+#With 500, 0.02% of the data do not belong to any aggregation point
+#With 100, 0.016% of the data do not belong to any aggregation point
 
 #Load the excel file
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'
@@ -230,7 +232,7 @@ cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
 cbar1.set_label('Elevation [m]')
 
 #Select the index to show
-index_to_show=78
+index_to_show=0
 
 #Load raw data
 index_toshow=np.asarray(neigh_list_unique[index_to_show])
