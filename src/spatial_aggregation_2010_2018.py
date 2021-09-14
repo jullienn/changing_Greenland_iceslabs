@@ -35,6 +35,9 @@ import matplotlib.pyplot as plt
 from pysheds.grid import Grid
 import matplotlib.colors as mcolors
 
+#Custom radius
+custom_radius=500
+
 #Load the excel file
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'
 df_2010_2018 = pd.read_csv(path+'jullienetal_20102018.csv',delimiter=';',decimal=',')
@@ -62,7 +65,7 @@ tree = spatial.cKDTree(XY_iceslabs)
 #Find all the point that lies within the circle of radius r centered around the point of reference
 neigh_list=[]
 for count, value in enumerate(XY_iceslabs):
-    neigh_list.append(tree.query_ball_point(value,r=500))
+    neigh_list.append(tree.query_ball_point(value,r=custom_radius))
 
 #Create a vector of nan of length of neigh_list
 keys=np.empty(len(neigh_list))
@@ -203,10 +206,10 @@ df_spatial_aggregation=pd.DataFrame({'avg_20m_icecontent':avg_20m_icecontent,
                                      'key':keys})
 
 pdb.set_trace()
-'''
+
 #Save df as excel file
-df_spatial_aggregation.to_excel('C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/jullien_etal_20102018_spatial_aggregation.xlsx')#index='FALSE')#columns=['index','avg_20m_icecontent','avg_lat_3413','avg_lon_3413','year','key'])
-'''
+filename_to_save='jullien_etal_20102018_spatial_aggregation'+str(custom_radius)+'.xlsx'
+df_spatial_aggregation.to_excel('C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'+filename_to_save)
 
 #Visualize the spatial aggregation process
 ########################## Load GrIS elevation ##########################
