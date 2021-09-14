@@ -36,7 +36,8 @@ from pysheds.grid import Grid
 import matplotlib.colors as mcolors
 
 #Custom radius
-custom_radius=500
+custom_radius=1000
+#With 1000, 0.025% of the data do not belong to any aggregation point
 #With 500, 0.02% of the data do not belong to any aggregation point
 #With 100, 0.016% of the data do not belong to any aggregation point
 
@@ -88,7 +89,6 @@ for index in neigh_list:
     step[i]=len(index)
     i=i+1
 
-pdb.set_trace()
 #Keep only unique keys
 for i in range(0,len(neigh_list),int(np.quantile(step,0.1))):
     index = neigh_list[i]
@@ -207,7 +207,6 @@ df_spatial_aggregation=pd.DataFrame({'avg_20m_icecontent':avg_20m_icecontent,
                                      'year':year_data,
                                      'key':keys})
 
-pdb.set_trace()
 
 #Save df as excel file
 filename_to_save='jullien_etal_20102018_spatial_aggregation'+str(custom_radius)+'.xlsx'
