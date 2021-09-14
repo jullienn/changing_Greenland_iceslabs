@@ -62,7 +62,7 @@ tree = spatial.cKDTree(XY_iceslabs)
 #Find all the point that lies within the circle of radius r centered around the point of reference
 neigh_list=[]
 for count, value in enumerate(XY_iceslabs):
-    neigh_list.append(tree.query_ball_point(value,r=100))
+    neigh_list.append(tree.query_ball_point(value,r=500))
 
 #Create a vector of nan of length of neigh_list
 keys=np.empty(len(neigh_list))
@@ -74,8 +74,18 @@ neigh_list_unique=[]
 #Initialize the verification vector
 verification=np.nan
 
+#For step identificastion
+step=np.empty(len(neigh_list))
+step[:]=np.nan
+
+i=0
+for index in neigh_list:
+    step[i]=len(index)
+    i=i+1
+
+pdb.set_trace()
 #Keep only unique keys
-for i in range(0,len(neigh_list),10):
+for i in range(0,len(neigh_list),np.quantile(step,0.1)):
     index = neigh_list[i]
     #Copy the list of index and transform into numpy array
     index_to_copy=np.asarray(index).astype(float)
@@ -192,6 +202,7 @@ df_spatial_aggregation=pd.DataFrame({'avg_20m_icecontent':avg_20m_icecontent,
                                      'year':year_data,
                                      'key':keys})
 
+pdb.set_trace()
 '''
 #Save df as excel file
 df_spatial_aggregation.to_excel('C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/jullien_etal_20102018_spatial_aggregation.xlsx')#index='FALSE')#columns=['index','avg_20m_icecontent','avg_lat_3413','avg_lon_3413','year','key'])
