@@ -207,11 +207,11 @@ df_spatial_aggregation=pd.DataFrame({'avg_20m_icecontent':avg_20m_icecontent,
                                      'year':year_data,
                                      'key':keys})
 
-
+'''
 #Save df as excel file
 filename_to_save='jullien_etal_20102018_spatial_aggregation'+str(custom_radius)+'.xlsx'
 df_spatial_aggregation.to_excel('C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'+filename_to_save)
-
+'''
 #Visualize the spatial aggregation process
 ########################## Load GrIS elevation ##########################
 #Open the DEM
@@ -231,7 +231,7 @@ cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
 cbar1.set_label('Elevation [m]')
 
 #Select the index to show
-index_to_show=0
+index_to_show=1
 
 #Load raw data
 index_toshow=np.asarray(neigh_list_unique[index_to_show])
@@ -249,8 +249,8 @@ plt.scatter(df_toshow['lon_3413'],df_toshow['lat_3413'],color='red')
 
 #Display the aggregation data
 plt.scatter(df_agg['avg_lon_3413'],df_agg['avg_lat_3413'],color='green')
-
 plt.show()
+
 
 #Display the spatial aggregated dataset
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
