@@ -113,6 +113,9 @@ for count, value in enumerate(points):
 avg_20m_icecontent=np.zeros(len(neigh_list))
 avg_20m_icecontent[:]=np.nan
 
+std_20m_icecontent=np.zeros(len(neigh_list))
+std_20m_icecontent[:]=np.nan
+
 avg_lat_3413=np.zeros(len(neigh_list))
 avg_lat_3413[:]=np.nan
 
@@ -152,12 +155,17 @@ for index_list in neigh_list:
         for year in list(np.unique(df_temp['year'])):
             #average the 20m ice content for each year
             ice_avg=np.average(df_temp[df_temp['year']==year]['20m_ice_content_m'])
+            
+            #calculate std of 20m ice content for each year
+            std_avg=np.std(df_temp[df_temp['year']==year]['20m_ice_content_m'])
+            
             #take the lat/lon of the gris point
             lat_avg=points[ite][1]
             lon_avg=points[ite][0]
             
             #Store the results
             avg_20m_icecontent[count]=ice_avg
+            std_20m_icecontent[count]=std_avg
             avg_lat_3413[count]=lat_avg
             avg_lon_3413[count]=lon_avg
             year_data[count]=year
@@ -174,6 +182,7 @@ for index_list in neigh_list:
         
 #Remove nans
 avg_20m_icecontent=avg_20m_icecontent[~np.isnan(avg_20m_icecontent)]
+std_20m_icecontent=std_20m_icecontent[~np.isnan(std_20m_icecontent)]
 avg_lat_3413=avg_lat_3413[~np.isnan(avg_lat_3413)]
 avg_lon_3413=avg_lon_3413[~np.isnan(avg_lon_3413)]
 year_data=year_data[~np.isnan(year_data)]
@@ -181,6 +190,7 @@ keys=keys[~np.isnan(keys)]
 
 #Create a pd dataframe
 df_spatial_aggregation=pd.DataFrame({'avg_20m_icecontent':avg_20m_icecontent,
+                                     'std_20m_icecontent':std_20m_icecontent,
                                      'avg_lat_3413':avg_lat_3413,
                                      'avg_lon_3413':avg_lon_3413,
                                      'year':year_data,
