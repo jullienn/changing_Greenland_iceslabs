@@ -35,7 +35,8 @@ from pysheds.grid import Grid
 import matplotlib.colors as mcolors
 
 #Load all 2010-2018 data
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'
+#path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'
+path='/home/jullienn/data/iceslabs/'
 df_2010_2018 = pd.read_csv(path+'jullienetal_20102018.csv',delimiter=';',decimal=',')
 
 #Create a year column
@@ -53,7 +54,8 @@ df_2010_2018['lat_3413']=points[1]
 #Visualize the spatial aggregation process
 ########################## Load GrIS elevation ##########################
 #Open the DEM
-path_raster='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/'
+#path_raster='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/'
+path_raster='/home/jullienn/data/iceslabs/'
 grid = Grid.from_raster(path_raster+"greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
 #Minnor slicing on borders to enhance colorbars
 elevDem=grid.dem[:-1,:-1]              
@@ -137,6 +139,8 @@ for index_list in neigh_list:
     #retreive all data which index belong to index_list
     df_temp=df_2010_2018.iloc[index_list]
     
+    print(ite/len(neigh_list)*100,' %')
+    
     if (len(df_temp) == 0):
         #no data at this grid point, continue
         #Update ite
@@ -168,8 +172,6 @@ for index_list in neigh_list:
         #Update key
         key=key+1
         
-    print(ite/len(neigh_list)*100,' %')
-    
 #Remove nans
 avg_20m_icecontent=avg_20m_icecontent[~np.isnan(avg_20m_icecontent)]
 avg_lat_3413=avg_lat_3413[~np.isnan(avg_lat_3413)]
@@ -184,12 +186,10 @@ df_spatial_aggregation=pd.DataFrame({'avg_20m_icecontent':avg_20m_icecontent,
                                      'year':year_data,
                                      'key':keys})
 
-'''
+
 #Save df as excel file
-filename_to_save='jullien_etal_20102018_spatial_aggregation'+str(custom_radius)+'.xlsx'
-df_spatial_aggregation.to_excel('C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'+filename_to_save)
-'''
-    
+filename_to_save='jullien_etal_20102018_spatial_aggregation_grid_'+str(a)+'.xlsx'
+df_spatial_aggregation.to_excel(path+filename_to_save)
 
 ###         End from spatial_aggregation_2010_2018.py            ###
 ######################################################################
