@@ -176,15 +176,15 @@ for index_list in neigh_list:
             
             #Update count
             count=count+1
+            
+            #List for verification
+            verification=np.append(verification,index_list)
         
         #Update ite
         ite=ite+1
         
         #Update key
         key=key+1
-        
-        #List for verification
-        verification=np.append(verification,index_list)
 
 
 #Delete all the NaNs in verification vector
