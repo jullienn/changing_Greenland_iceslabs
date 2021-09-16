@@ -137,6 +137,9 @@ count=0
 #Initialise ite for lat/lon of grid retrieval
 ite=0
 
+#Initialize the verification vector
+verification=np.nan
+
 for index_list in neigh_list:
 
     #retreive all data which index belong to index_list
@@ -180,6 +183,17 @@ for index_list in neigh_list:
         #Update key
         key=key+1
         
+        #List for verification
+        verification=np.append(verification,index_list)
+
+
+#Delete all the NaNs in verification vector
+verification_without_nans=verification[~np.isnan(verification)]
+#Compare the length of verification_without_nans with length of df_2010_2018
+data_not_aggregated=(len(df_2010_2018)-len(verification_without_nans))/len(df_2010_2018)
+#Display in command window
+print(data_not_aggregated,' % of the data have not been aggreated')
+
 #Remove nans
 avg_20m_icecontent=avg_20m_icecontent[~np.isnan(avg_20m_icecontent)]
 std_20m_icecontent=std_20m_icecontent[~np.isnan(std_20m_icecontent)]
