@@ -190,7 +190,7 @@ for index_list in neigh_list:
 #Delete all the NaNs in verification vector
 verification_without_nans=verification[~np.isnan(verification)]
 #Compare the length of verification_without_nans with length of df_2010_2018
-data_not_aggregated=(len(df_2010_2018)-len(verification_without_nans))/len(df_2010_2018)
+data_not_aggregated=(len(df_2010_2018)-len(np.unique(verification_without_nans)))/len(df_2010_2018)
 #Display in command window
 print(data_not_aggregated,' % of the data have not been aggreated')
 
