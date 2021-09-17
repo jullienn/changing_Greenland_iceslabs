@@ -430,7 +430,6 @@ figManager.window.showMaximized()
 
 plt.show()
 
-
 '''
 ##############################################################################
 ###     This part of code is from OIB1014_iceslabs_script.py and adapted   ###
