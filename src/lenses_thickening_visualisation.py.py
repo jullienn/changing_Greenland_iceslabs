@@ -87,6 +87,15 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
+
+#investigation_year={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
+#                    2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
+#                    2012:'empty',
+#                    2013:'empty',
+#                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
+#                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat','Data_20170424_01_013.mat','Data_20170424_01_014.mat']}
+
+
 '''
 #Very good candidate for ice slabs filling!!
 investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
@@ -98,12 +107,7 @@ investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat']
 
 '''
 '''
-#investigation_year={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
-#                    2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
-#                    2012:'empty',
-#                    2013:'empty',
-#                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
-#                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat']}
+
 
 #This one is collocated with FS1, 2, 3.
 #investigation_year={2010:'empty',
@@ -208,11 +212,136 @@ investigation_year={2010:['Data_20100514_02_009.mat','Data_20100514_02_010.mat']
                     2017:['Data_20170429_01_122.mat','Data_20170429_01_123.mat','Data_20170429_01_124.mat','Data_20170429_01_125.mat','Data_20170429_01_126.mat','Data_20170429_01_127.mat','Data_20170429_01_128.mat','Data_20170429_01_129.mat'],
                     2018:'empty'}
 
+
+
+
+investigation_year={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+                    2011:'empty',
+                    2012:'empty',
+                    2013:'empty',
+                    2014:'empty',
+                    2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
+                    2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
 '''
+'''
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:'empty',
+                    2013:['Data_20130405_01_011.mat','Data_20130405_01_012.mat','Data_20130405_01_013.mat'],
+                    2014:['Data_20140424_03_046.mat','Data_20140424_03_047.mat','Data_20140424_03_048.mat'],
+                    2017:['Data_20170422_01_007.mat','Data_20170422_01_008.mat','Data_20170422_01_009.mat'],
+                    2018:['Data_20180427_01_004.mat','Data_20180427_01_005.mat','Data_20180427_01_006.mat']}
 
+investigation_year={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+                    2011:'empty',
+                    2012:'empty',
+                    2013:'empty',
+                    2014:'empty',
+                    2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
+                    2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
 
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:['Data_20120418_01_005.mat','Data_20120418_01_006.mat','Data_20120418_01_007.mat'],
+                    2013:'empty',
+                    2014:'empty',
+                    2017:['Data_20170505_02_181.mat','Data_20170505_02_182.mat','Data_20170505_02_183.mat'],
+                    2018:'empty'}
 
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:['Data_20120423_01_006.mat','Data_20120423_01_007.mat'],
+                    2013:'empty',
+                    2014:'empty',
+                    2017:['Data_20170505_02_008.mat','Data_20170505_02_009.mat','Data_20170505_02_010.mat'],
+                    2018:'empty'}
 
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:['Data_20120423_01_137.mat','Data_20120423_01_138.mat'],
+                    2013:['Data_20130409_01_010.mat','Data_20130409_01_011.mat''Data_20130409_01_012.mat'],
+                    2014:'empty',
+                    2017:'empty',
+                    2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
+#20170502_01_171_173 and 20140416_05_035_037 are nearby but a but tilted
+
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:'empty',
+                    2013:'empty',
+                    2014:['Data_20140408_04_001.mat','Data_20140408_04_002.mat','Data_20140408_04_003.mat'],
+                    2017:['Data_20170508_02_011.mat','Data_20170508_02_012.mat','Data_20170508_02_013.mat'],
+                    2018:'empty'}
+#also for 2017: 20170506_01_010_012
+
+##### SW Greenland perpendicular to elevation tracks #####
+
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:['Data_20120428_01_006.mat','Data_20120428_01_007.mat'],
+                    2013:['Data_20130411_01_009.mat','Data_20130411_01_010.mat'],
+                    2014:'empty',
+                    2017:'empty',
+                    2018:'empty'}
+
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:['Data_20120412_01_095.mat'],
+                    2013:'empty',
+                    2014:'empty',
+                    2017:'empty',
+                    2018:['Data_20180421_01_174.mat','Data_20180421_01_175.mat','Data_20180421_01_176.mat','Data_20180421_01_177.mat']}
+
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:'empty',
+                    2013:'empty',
+                    2014:['Data_20140416_05_007.mat','Data_20140416_05_008.mat','Data_20140416_05_009.mat'],
+                    2017:['Data_20170502_01_142.mat','Data_20170502_01_143.mat','Data_20170502_01_144.mat'],
+                    2018:'empty'}
+
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:'empty',
+                    2013:'empty',
+                    2014:['Data_20140416_04_024.mat','Data_20140416_04_025.mat','Data_20140416_04_026.mat','Data_20140416_04_027.mat'],
+                    2017:['Data_20170502_01_120.mat','Data_20170502_01_121.mat','Data_20170502_01_122.mat'],
+                    2018:'empty'}
+
+investigation_year={2010:['Data_20100517_01_023.mat','Data_20100517_01_024.mat','Data_20100517_01_025.mat','Data_20100517_01_026.mat'],
+                    2011:['Data_20110416_01_053.mat','Data_20110416_01_054.mat','Data_20110416_01_055.mat'],
+                    2012:'empty',
+                    2013:['Data_20130410_01_028.mat','Data_20130410_01_029.mat','Data_20130410_01_030.mat','Data_20130410_01_031.mat'],
+                    2014:['Data_20140419_01_016.mat','Data_20140419_01_017.mat'],
+                    2017:'empty',
+                    2018:'empty'}
+
+investigation_year={2010:['Data_20100517_01_037.mat','Data_20100517_01_038.mat','Data_20100517_01_039.mat'],
+                    2011:['Data_20110416_01_041.mat','Data_20110416_01_042.mat]',
+                    2012:['Data_20120502_01_016.mat'],
+                    2013:['Data_20130410_01_043.mat'],
+                    2014:['Data_20140419_01_028.mat'],
+                    2017:'empty',
+                    2018:'empty'}
+
+investigation_year={2010:['Data_20100517_01_037.mat','Data_20100517_01_038.mat','Data_20100517_01_039.mat'],
+                    2011:'empty',
+                    2012:'empty',
+                    2013:['Data_20130410_01_045.mat'],
+                    2014:'empty',
+                    2017:'empty',
+                    2018:'empty'}
+
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:'empty',
+                    2013:['Data_20130410_01_099.mat','Data_20130410_01_100.mat'],
+                    2014:['Data_20140419_03_048.mat'],
+                    2017:['Data_20170501_04_018.mat','Data_20170501_04_019.mat'],
+                    2018:'empty'}
+
+##### SW Greenland perpendicular to elevation tracks #####
+'''
 
 ##############################################################################
 ###                     Define what we want to show                        ###
