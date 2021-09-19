@@ -422,7 +422,9 @@ for k in (np.arange(0,30)):
     investigation_year=inv[k]
     
     #if already generated, continue
-    filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected.png'
+    #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
+    filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
+
     if (os.path.isfile(filename_to_check)):
         print('Figure already existent, continue')
         continue
@@ -750,7 +752,7 @@ for k in (np.arange(0,30)):
             
             cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
             ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
-            #ax_plotting.set_aspect(0.001) # X scale matches Y scale
+            ax_plotting.set_aspect(0.0025) # X scale matches Y scale
             ax_plotting.set_title(date_track+' - Depth corrected')
             
             ax_plotting.set_xticklabels([])
@@ -810,23 +812,32 @@ for k in (np.arange(0,30)):
             
             cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray_r'))#,norm=divnorm)
             ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
-            ax_plotting.set_aspect(0.001) # X scale matches Y scale
-            ax_plotting.set_title(str(single_year)+' '+plot_boolean)
+            ax_plotting.set_aspect(0.0025) # X scale matches Y scale
+            ax_plotting.set_title(date_track+' '+plot_boolean)
             '''
             ax_plotting.set_ylabel('Depth [m]')
             ax_plotting.set_xlabel('Longitude [°]')
-            '''
+            
             ax_plotting.set_xlim(-47.8,-46.8)
             ax_plotting.set_ylim(20,0)
+            '''
             
+            ax_plotting.set_xticklabels([])
+            ax_plotting.set_yticklabels([])
+            
+            ax_plotting.set_xlim(min_lon,max_lon)
+            ax_plotting.set_ylim(20,0)
+            
+            '''
             cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
             cbar.set_label('Signal strength')
+            '''
             
             ##Create the figure name
             #fig_name=[]
             #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+plot_boolean+'.png'
             
-            pyplot.show()
+            #pyplot.show()
             
             ##Save the figure
             #pyplot.savefig(fig_name,dpi=2000)
@@ -927,15 +938,16 @@ for k in (np.arange(0,30)):
             
             pdb.set_trace()
     '''
-    
     pyplot.subplots_adjust(wspace=0, hspace=0.2)
     
-    fig1.set_size_inches(40, 20)
+    #fig1.set_size_inches(40, 20)
+    fig2.set_size_inches(40, 20)
     
     #Create the figure name
     fig_name=[]
-    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected.png'
-    
+    #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
+    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
+
     #Save the figure
     pyplot.savefig(fig_name)
     pyplot.clf()
