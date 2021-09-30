@@ -70,7 +70,7 @@ plot_boolean= 'plot_boolean_SG1_cut045_th350' # can be 'plot_boolean_orig_cut045
               #'plot_boolean_SG1_cut045_th000', 'plot_boolean_SG1_cut045_th350'     
 plot_years_overlay='FALSE'
 plot_depth_corrected_single='FALSE'
-plot_depth_corrected_subplot='TRUE'
+plot_depth_corrected_subplot='TRUE' #Must be true!!
 plot_boolean_subplot='FALSE' #Must be true!!
 plot_images_subplot='FALSE'
 yearly_comparison_indiv='FALSE'
@@ -396,11 +396,11 @@ path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/da
 #Define the path of processed data
 path_outcomes='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/'
 #Define the path for masks
-path_mask=path_outcomes+'Boolean Array Picklefiles/'
+path_mask=path_outcomes+'Boolean_Array_Picklefiles/'
 #Define path for depth corrected
 path_depth_corrected=path_outcomes+'Depth_Corrected_Picklefiles/'
 #Define the path for boolean
-path_boolean=path_outcomes+'Boolean Array Picklefiles/'
+path_boolean=path_outcomes+'Boolean_Array_Picklefiles/'
 #Define the path for boolean images
 path_boolean_images=path_outcomes
 
@@ -744,7 +744,7 @@ for k in (np.arange(0,30)):
                 ax_plotting=ax7s
             else:
                 print('Year not existing')
-                
+            
             #fig.suptitle(str(plot_name1))
             X=dataframe[str(single_year)]['lon_appended']
             Y=np.arange(0,100,100/dataframe[str(single_year)]['radar'].shape[0])
@@ -755,11 +755,12 @@ for k in (np.arange(0,30)):
             ax_plotting.set_aspect(0.0025) # X scale matches Y scale
             ax_plotting.set_title(date_track+' - Depth corrected')
             
+            ax_plotting.set_ylabel('Depth [m]')
+
+            '''
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticklabels([])
             
-            '''
-            ax_plotting.set_ylabel('Depth [m]')
             ax_plotting.set_xlabel('Longitude [°]]')
             '''
             
@@ -769,18 +770,16 @@ for k in (np.arange(0,30)):
             '''
             ax_plotting.set_xlim(min_lon,max_lon)
             ax_plotting.set_ylim(20,0)
-            
+
             '''
-            ax_plotting.set_xticks(distances)
-            ax_plotting.set_xticklabels(distances)
-            
-            cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
-            cbar.set_label('Signal strength')
+            ax_plotting.set_xticks(distances[0:len(distances):(int(len(distances)/5))])
+            ax_plotting.set_xticklabels(distances[0:len(distances):(int(len(distances)/5))])
             '''
+            cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.5,aspect=2,pad=0.01)
+            cb.set_clim(-12.0,0)
             
-            #pyplot.show()
+            pyplot.show()
             
-    
         if (plot_boolean_subplot=='TRUE'):
             
             #If no data, continue
@@ -814,16 +813,17 @@ for k in (np.arange(0,30)):
             ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
             ax_plotting.set_aspect(0.0025) # X scale matches Y scale
             ax_plotting.set_title(date_track+' '+plot_boolean)
-            '''
+            
             ax_plotting.set_ylabel('Depth [m]')
+            '''
             ax_plotting.set_xlabel('Longitude [°]')
             
             ax_plotting.set_xlim(-47.8,-46.8)
             ax_plotting.set_ylim(20,0)
-            '''
-            
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticklabels([])
+            
+            '''
             
             ax_plotting.set_xlim(min_lon,max_lon)
             ax_plotting.set_ylim(20,0)
@@ -940,20 +940,21 @@ for k in (np.arange(0,30)):
     '''
     pyplot.subplots_adjust(wspace=0, hspace=0.2)
     
-    #fig1.set_size_inches(40, 20)
-    fig2.set_size_inches(40, 20)
+    fig1.set_size_inches(40, 20)
+    #fig2.set_size_inches(40, 20)
     
     #Create the figure name
     fig_name=[]
     #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
-    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
+    #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
 
     #Save the figure
     pyplot.savefig(fig_name)
     pyplot.clf()
     
     print(np.round(k/29*100),' %')
-
+    pdb.set_trace()
+    
 
 
 
