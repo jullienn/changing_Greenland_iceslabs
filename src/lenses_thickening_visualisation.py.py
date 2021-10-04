@@ -421,7 +421,7 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 for k in (np.arange(0,30)):
     investigation_year=inv[k]
     
-    '''
+    
     #if already generated, continue
     #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
     filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
@@ -429,7 +429,7 @@ for k in (np.arange(0,30)):
     if (os.path.isfile(filename_to_check)):
         print('Figure already existent, continue')
         continue
-    '''
+    
     dataframe={}
     
     for single_year in investigation_year.keys():
