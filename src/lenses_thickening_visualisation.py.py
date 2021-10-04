@@ -421,6 +421,7 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 for k in (np.arange(0,30)):
     investigation_year=inv[k]
     
+    '''
     #if already generated, continue
     #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
     filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
@@ -428,7 +429,7 @@ for k in (np.arange(0,30)):
     if (os.path.isfile(filename_to_check)):
         print('Figure already existent, continue')
         continue
-    
+    '''
     dataframe={}
     
     for single_year in investigation_year.keys():
@@ -776,9 +777,11 @@ for k in (np.arange(0,30)):
             ax_plotting.set_xticklabels(distances[0:len(distances):(int(len(distances)/5))])
             '''
             cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.5,aspect=2,pad=0.01)
+            #pdb.set_trace()
+
             cb.set_clim(-12.0,0)
             
-            pyplot.show()
+            #pyplot.show()
             
         if (plot_boolean_subplot=='TRUE'):
             
@@ -938,14 +941,16 @@ for k in (np.arange(0,30)):
             
             pdb.set_trace()
     '''
+    #pdb.set_trace()
+
     pyplot.subplots_adjust(wspace=0, hspace=0.2)
     
     fig1.set_size_inches(40, 20)
     #fig2.set_size_inches(40, 20)
-    
+        
     #Create the figure name
     fig_name=[]
-    #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
+    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
     #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
 
     #Save the figure
