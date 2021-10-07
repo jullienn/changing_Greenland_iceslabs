@@ -86,10 +86,17 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
     CUTOFFS = tuple(quantile_investigation)
     THRESHOLDS = (350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
                   350, 350, 350, 350, 350, 350, 350, 350, 350, 350)
+    
+    #Initalize count to 0 for cutoff names
+    count=0
+    names_cutoff=np.arange(0.6,0.8,0.01)
     '''
     
     for algorithm, cutoff, continuity_threshold in zip(ALGORITHMS, CUTOFFS, THRESHOLDS):
-        
+        '''
+        #Retrieve cutoff name
+        cutoff_q=names_cutoff[count]
+        '''
         # Apply the cutoff.
         boolean_traces = (traces <= cutoff)
         
@@ -137,6 +144,11 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
+        
+        '''
+        #Update count
+        count=count+1
+        '''
         
         
         '''
@@ -388,10 +400,11 @@ import scipy.optimize
 import pdb
 from PIL import Image
 
-create_pickle='TRUE'
+create_pickle='FALSE'
 display_pickle='FALSE'
 gaussian_calibration='FALSE'
 display_plots_quick_check='FALSE'
+investigation_quantile='TRUE'
 #1. Open roll corrected of the specific year
 '''
 investigation_year={2010:'empty',
@@ -708,7 +721,7 @@ if (create_pickle == 'TRUE'):
         
         #Open the conservative mask
         path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/'
-        boolean_mask = Image.open(path_mask+'conservative_mask_20130409_01_010_012_XDEPTHCORRECT_AFTER.png').convert("L")
+        boolean_mask = Image.open(path_mask+'binary_conservative_mask_20130409_01_010_012_XDEPTHCORRECT_AFTER.png').convert("L")
         arr_boolean_mask = np.asarray(boolean_mask)
         
         #Keep only the first 20m of the 30m boolean mask
@@ -787,6 +800,139 @@ if (create_pickle == 'TRUE'):
     print('end')
 
 #pdb.set_trace()
+
+if (investigation_quantile=='TRUE'):
+    
+    pdb.set_trace()
+    
+    #Compute the speed (Modified Robin speed):
+    # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+    v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+    
+    #Define paths
+    path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+    path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'
+    
+    #Define the year
+    single_year=2013
+    
+    #Define the quantiles to open
+    quantiles_open=np.round(np.arange(0.6,0.79,0.01),2)
+    
+    #Set dataframe
+    dataframe={}
+    dataframe={k: {} for k in list(quantiles_open)}
+    
+    #Construct the date for data loading
+    start_date_track=investigation_year[single_year][0]
+    end_date_track=investigation_year[single_year][-1]
+    date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
+    
+    #Open the quantile files
+    for indiv_quantile in dataframe.keys():
+        #Define filename of boolean files 
+        filename_boolean_quantile=date_track+'_SG1_cutoff_'+str(indiv_quantile)+'_threshold_350.pickle'
+        
+        #Load boolean files
+        f_boolean_quantile = open(path_boolean_remove_surf+filename_boolean_quantile, "rb")
+        dataframe[indiv_quantile] = pickle.load(f_boolean_quantile)
+        f_boolean_quantile.close()
+    
+    #########################################################################
+    # From plot_2002_2003.py - END
+    #########################################################################
+    
+    ###2. Load the latitude and longitude
+    lat_appended=[]
+    lon_appended=[]
+        
+    for indiv_file_load in investigation_year[single_year]:
+        print(indiv_file_load)
+        
+        #Create the path
+        path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
+        
+        #Load data
+        if (single_year>=2014):
+            
+            fdata_filename = h5py.File(path_raw_data+indiv_file_load)
+            lat_filename=fdata_filename['Latitude'][:,:]
+            lon_filename=fdata_filename['Longitude'][:,:]
+            time_filename=fdata_filename['Time'][:,:]
+            
+        else:
+            fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
+            lat_filename = fdata_filename['Latitude']
+            lon_filename = fdata_filename['Longitude']
+            time_filename = fdata_filename['Time']
+        
+        #Append data
+        lat_appended=np.append(lat_appended,lat_filename)
+        lon_appended=np.append(lon_appended,lon_filename)
+            
+    #Check whether the data are acquired ascending or descending elevation wise.
+    #I choose the ascending format. For the data that are descending, reverse them
+    #To have ascending data, the longitude should increase
+    #(-48 = low elevations, -46 = higher elevations)
+    
+    if (np.sum(np.diff(lon_appended))<0):
+        #It is going toward lower elevations, thus flip left-right
+        #(or up-down) all the data!
+        
+        lat_appended=np.flipud(lat_appended)
+        lon_appended=np.flipud(lon_appended)
+        
+    #Calculate the depth from the time
+    #########################################################################
+    # From plot_2002_2003.py - BEGIN
+    #########################################################################
+    depth_check = v * time_filename / 2.0
+    
+    #If 2014, transpose the vector
+    if (str(single_year)>='2014'):
+        depth_check=np.transpose(depth_check)
+    
+    #Reset times to zero! This is from IceBridgeGPR_Manager_v2.py
+    if (depth_check[10]<0):
+        #depth_check[10] so that I am sure that the whole vector is negative and
+        #not the first as can be for some date were the proccessing is working
+        depth_check=depth_check+abs(depth_check[0])
+        depth = depth_check
+    else:
+        depth = depth_check
+    
+    if (str(single_year) in list(['2011','2012','2014','2017','2018'])):
+        if (depth_check[10]>1):
+            #depth_check[10] so that I am sure that the whole vector is largely positive and
+            #not the first as can be for some date were the proccessing is working
+            depth_check=depth_check-abs(depth_check[0])
+            depth = depth_check
+        
+    pdb.set_trace()
+    #Store reunited lat/lon, slice output and mask in a dictionnary:
+    dataframe['lat_appended']=lat_appended
+    dataframe['lon_appended']=lon_appended
+    dataframe['depth']=depth
+    dataframe['datetrack']=date_track
+    
+    #Open the conservative mask
+    path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/'
+    boolean_mask = Image.open(path_mask+'binary_conservative_mask_20130409_01_010_012_XDEPTHCORRECT_AFTER.png').convert("L")
+    arr_boolean_mask = np.asarray(boolean_mask)
+    
+    #Keep only the first 20m of the 30m boolean mask
+    boolean_20m=dataframe['depth'] <= 20
+    ind_20m=np.where(boolean_20m==True)[0]
+    arr_boolean_mask_20m=arr_boolean_mask[ind_20m,:]
+    # Convert the image mask into a boolean
+    arr_boolean_mask_20m=~arr_boolean_mask_20m
+    arr_boolean_mask_20m[arr_boolean_mask_20m==255]=1
+    
+    dataframe['mask_truth']=arr_boolean_mask_20m
+    
+    ##############################################################################
+    ###                          Load and organise data                        ###
+    ##############################################################################
 
 if (display_pickle=='TRUE'):
     
