@@ -387,7 +387,7 @@ import scipy.optimize
 import pdb
 from PIL import Image
 
-create_pickle='TRUE'
+create_pickle='FALSE'
 display_pickle='TRUE'
 gaussian_calibration='FALSE'
 display_plots_quick_check='FALSE'
@@ -1074,7 +1074,7 @@ if (display_pickle=='TRUE'):
         ax_plotting_dry.set_ylim(20,0)
         ax_plotting_dry.set_aspect(0.002)
         
-        '''
+        
         #Plot MacFerrin's boolean
         ax_plotting_MF.pcolor(X,Y,dataframe[str(single_year)]['SG1_CUTOFF_-0.45_THRESHOLD_350'],cmap=plt.get_cmap('gray_r'))#,norm=divnorm)
         ax_plotting_MF.title.set_text(dataframe[str(single_year)]['datetrack'])
@@ -1090,7 +1090,7 @@ if (display_pickle=='TRUE'):
         ax_plotting_depth.set_xlim(-47.8,-46.8)
         ax_plotting_depth.set_ylim(20,0)
         ax_plotting_depth.set_aspect(0.002)
-        '''
+        
         '''
         #Display my remove_surf boolean file
         X=dataframe[str(single_year)]['lon_appended']
