@@ -415,8 +415,8 @@ from PIL import Image
 
 create_pickle='TRUE'
 display_pickle='FALSE'
-gaussian_calibration='FALSE'
-display_plots_quick_check='TRUE'
+gaussian_calibration='TRUE'
+display_plots_quick_check='FALSE'
 #1. Open roll corrected of the specific year
 '''
 investigation_year={2010:'empty',
@@ -437,7 +437,7 @@ investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat']
                     2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
                     2018:'empty'}
 '''
-
+'''
 #7years case study
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
                     2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
@@ -446,8 +446,8 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
-
 '''
+
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -457,7 +457,7 @@ investigation_year={2010:'empty',
                     2017:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 #2014 and 2017 almost colocated
-'''
+
 if (create_pickle == 'TRUE'):
     ##############################################################################
     ###                             Load data                                  ###
@@ -868,19 +868,9 @@ if (display_pickle=='TRUE'):
         
         
         #Define filename of boolean files 
-        filename_boolean_a=date_track+'_SG1_cutoff_-0.08927652699581005_threshold_350.pickle'
-        filename_boolean_b=date_track+'_SG1_cutoff_-0.04_threshold_350.pickle'
         filename_boolean_c=date_track+'_SG1_cutoff_quant095_threshold_350.pickle'
         
         #Load boolean files
-        f_boolean_a = open(path_boolean_remove_surf+filename_boolean_a, "rb")
-        boolean_a_DF = pickle.load(f_boolean_a)
-        f_boolean_a.close()
-        
-        f_boolean_b = open(path_boolean_remove_surf+filename_boolean_b, "rb")
-        boolean_b_DF = pickle.load(f_boolean_b)
-        f_boolean_b.close()
-        
         f_boolean_c = open(path_boolean_remove_surf+filename_boolean_c, "rb")
         boolean_c_DF = pickle.load(f_boolean_c)
         f_boolean_c.close()
@@ -968,9 +958,7 @@ if (display_pickle=='TRUE'):
                                      'orig_CUTOFF_-0.45_THRESHOLD_0':boolean_a_MF,
                                      'SG1_CUTOFF_-0.45_THRESHOLD_0':boolean_b_MF,
                                      'SG1_CUTOFF_-0.45_THRESHOLD_350':boolean_c_MF,
-                                     'remove_surf_proc1':boolean_a_DF,
-                                     'remove_surf_proc2':boolean_b_DF,
-                                     'remove_surf_proc3':boolean_c_DF,
+                                     'remove_surf_proc':boolean_c_DF,
                                      'datetrack':date_track}
         
         
@@ -1096,7 +1084,7 @@ if (display_pickle=='TRUE'):
         X=dataframe[str(single_year)]['lon_appended']
         Y=np.arange(0,20,20/dataframe[str(single_year)]['SG1_CUTOFF_-0.45_THRESHOLD_350'].shape[0])
         
-        ax_plotting_dry.pcolor(X,Y,dataframe[str(single_year)]['remove_surf_proc3'],cmap=plt.get_cmap('gray_r'))#,norm=divnorm)
+        ax_plotting_dry.pcolor(X,Y,dataframe[str(single_year)]['remove_surf_proc'],cmap=plt.get_cmap('gray_r'))#,norm=divnorm)
         ax_plotting_dry.title.set_text(dataframe[str(single_year)]['datetrack'])
         ax_plotting_dry.set_xlim(-47.8,-46.8)
         ax_plotting_dry.set_ylim(20,0)
