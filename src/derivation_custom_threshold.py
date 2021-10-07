@@ -372,14 +372,13 @@ def extract_surface_return(slice_roll_corrected):
     
     #slice_roll_corrected is dataframe['year_of_interest']['roll_corrected']
     
-    '''
     # --- Remove the average
     #Let's say we take the 1 top pixels
-    surface_return=slice_roll_corrected[0:1,]
+    surface_return=slice_roll_corrected[0,]
     #substract the average of surface_return to the whole radar slice
     roll_corrected_after_surf_removal=slice_roll_corrected-np.nanmean(surface_return)
-    '''
     
+    '''
     # --- Remove the top at each column
     roll_corrected_after_surf_removal=np.empty((slice_roll_corrected.shape[0],slice_roll_corrected.shape[1]))
     
@@ -399,10 +398,10 @@ def extract_surface_return(slice_roll_corrected):
             mov_window=slice_roll_corrected[0,(i-(slice_roll_corrected.shape[1]-i-1)):slice_roll_corrected.shape[1]]
         else:
             mov_window=slice_roll_corrected[0,(i-size_mov_window):(i+size_mov_window+1)]
-        print(i)
-        print(mov_window)
-        roll_corrected_after_surf_removal[:,i]=slice_roll_corrected[:,i]-np.nanmean(mov_window)
         
+        #Remove the moving window to the data
+        roll_corrected_after_surf_removal[:,i]=slice_roll_corrected[:,i]-np.nanmean(mov_window)
+    '''   
     return roll_corrected_after_surf_removal
 
 import pickle
