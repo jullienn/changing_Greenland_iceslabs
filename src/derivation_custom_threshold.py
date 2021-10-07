@@ -53,7 +53,7 @@ def apply_normalisation(roll_corrected_array,mask, depth):
     
     return traces_norm_full
 
-def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quantile_investigation):
+def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
     #traces_20m should be the 20m traces
     
     
@@ -62,12 +62,12 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
     # These sets of cutoffs were produced from examination done in validate_reference_track_w_in_situ_data(),
     # and plot_validation_data_and_find_minima()
     
-    '''
+    
     #Original
     ALGORITHMS = ("orig","SG1","SG1")
     CUTOFFS = (-0.45, -0.45, -0.45)
     THRESHOLDS = (0, 0, 350)
-    '''
+    
     
     '''
     #Custom identification with distribution:
@@ -79,20 +79,16 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
     THRESHOLDS = (350, 350, 350)
     '''
     
+    '''
     #Investigate custom threshold sensitivity
     ALGORITHMS = ("SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1",
                   "SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1")
     CUTOFFS = tuple(quantile_investigation)
     THRESHOLDS = (350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
                   350, 350, 350, 350, 350, 350, 350, 350, 350, 350)
-    
-    #Initalize count to 0 for cutoff names
-    count=0
-    names_cutoff=np.arange(0.6,0.8,0.01)
+    '''
     
     for algorithm, cutoff, continuity_threshold in zip(ALGORITHMS, CUTOFFS, THRESHOLDS):
-        #Retrieve cutoff name
-        cutoff_q=names_cutoff[count]
         
         # Apply the cutoff.
         boolean_traces = (traces <= cutoff)
@@ -137,13 +133,11 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
         
         #pdb.set_trace()
         #Save as pickle file     
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(cutoff_q)+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(cutoff)+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
         
-        #Update count
-        count=count+1
         
         '''
         #Save figures here
@@ -396,7 +390,7 @@ from PIL import Image
 
 create_pickle='TRUE'
 display_pickle='FALSE'
-gaussian_calibration='TRUE'
+gaussian_calibration='FALSE'
 display_plots_quick_check='FALSE'
 #1. Open roll corrected of the specific year
 '''
@@ -787,7 +781,7 @@ if (create_pickle == 'TRUE'):
         #Extrac the 20m slices and get rid of exclusions
         traces_20m=select_20m_slice_without_NaNs(iceslabs_to_extract,depth,mask)
         #Identify ice slabs
-        boolean_slabs=identify_ice_lenses(traces_20m,iceslabs_to_extract,depth,mask,datetrack,quantile_investigation)
+        boolean_slabs=identify_ice_lenses(traces_20m,iceslabs_to_extract,depth,mask,datetrack)
         #Ok all of the above works!!!! Great :). Just need to save the figures of display them and that's it
         
     print('end')
