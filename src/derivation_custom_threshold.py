@@ -929,10 +929,12 @@ if (investigation_quantile=='TRUE'):
     arr_boolean_mask_20m[arr_boolean_mask_20m==255]=1
     
     dataframe['mask_truth']=arr_boolean_mask_20m
-    
     ##############################################################################
     ###                          Load and organise data                        ###
     ##############################################################################
+    
+    #Contigency table to perform here
+    
     
 
 if (display_pickle=='TRUE'):
