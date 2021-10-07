@@ -369,13 +369,40 @@ def reconstruct_with_NaNs(dry_firn_normalisation,depth,mask,boolean_iceslabs):
     return traces_20m_full
 
 def extract_surface_return(slice_roll_corrected):
+    
     #slice_roll_corrected is dataframe['year_of_interest']['roll_corrected']
-
+    
+    '''
+    # --- Remove the average
     #Let's say we take the 1 top pixels
     surface_return=slice_roll_corrected[0:1,]
     #substract the average of surface_return to the whole radar slice
     roll_corrected_after_surf_removal=slice_roll_corrected-np.nanmean(surface_return)
+    '''
     
+    # --- Remove the top at each column
+    roll_corrected_after_surf_removal=np.empty((slice_roll_corrected.shape[0],slice_roll_corrected.shape[1]))
+    
+    #Set half the size of the moving window
+    size_mov_window=5
+    
+    for i in range(0,slice_roll_corrected.shape[1]):
+        #pdb.set_trace()
+        
+        if (i==0):
+            mov_window=slice_roll_corrected[0,0]
+        elif (i==(slice_roll_corrected.shape[1]-1)):
+            mov_window=slice_roll_corrected[0,-1]
+        elif (i<(size_mov_window)):
+            mov_window=slice_roll_corrected[0,0:2*i+1]
+        elif (i>=(slice_roll_corrected.shape[1]-size_mov_window)):
+            mov_window=slice_roll_corrected[0,(i-(slice_roll_corrected.shape[1]-i-1)):slice_roll_corrected.shape[1]]
+        else:
+            mov_window=slice_roll_corrected[0,(i-size_mov_window):(i+size_mov_window+1)]
+        print(i)
+        print(mov_window)
+        roll_corrected_after_surf_removal[:,i]=slice_roll_corrected[:,i]-np.nanmean(mov_window)
+        
     return roll_corrected_after_surf_removal
 
 import pickle
@@ -387,10 +414,10 @@ import scipy.optimize
 import pdb
 from PIL import Image
 
-create_pickle='FALSE'
-display_pickle='TRUE'
+create_pickle='TRUE'
+display_pickle='FALSE'
 gaussian_calibration='FALSE'
-display_plots_quick_check='FALSE'
+display_plots_quick_check='TRUE'
 #1. Open roll corrected of the specific year
 '''
 investigation_year={2010:'empty',
@@ -568,6 +595,7 @@ if (create_pickle == 'TRUE'):
         
         print(single_year)
         #Extract surface return
+        
         dataframe[str(single_year)]['roll_corrected_after_surf_removal']=extract_surface_return(dataframe[str(single_year)]['roll_corrected'])
         #Perform depth correction + normalisation
         #if 2010 or 2011, depth is from 0:428
@@ -577,7 +605,7 @@ if (create_pickle == 'TRUE'):
             dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm']=apply_normalisation(dataframe[str(single_year)]['roll_corrected_after_surf_removal'],dataframe[str(single_year)]['mask'],dataframe[str(single_year)]['depth'][0:201])
     
     if (display_plots_quick_check=='TRUE'):
-        '''
+        
         #Display results
         fig1, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7, 1)
         fig1.suptitle('Roll corrected')
@@ -658,7 +686,8 @@ if (create_pickle == 'TRUE'):
         cb7.set_clim(-2.0,2)
         
         plt.show()
-        '''
+        
+        pdb.set_trace()
         
         #Display roll corrected, removal of surface return, depth corrected without normalisation
         fig1, (ax3,ax4,ax7) = plt.subplots(3, 1)
