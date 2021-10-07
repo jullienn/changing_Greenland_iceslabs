@@ -63,15 +63,59 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
     # and plot_validation_data_and_find_minima()
     
     '''
+    #Original
     ALGORITHMS = ("orig","SG1","SG1")
     CUTOFFS = (-0.45, -0.45, -0.45)
     THRESHOLDS = (0, 0, 350)
     '''
+    
+    '''
+    #Custom identification with distribution:
+    # ---- -0.08927652699581005 is quantile(iceslabs,0.5)
+    # ---- -0.04 is the hollow within the 2 distributions
+    # ---- -0.00439656779575809 is quantile(iceslabs,0.75)
     ALGORITHMS = ("SG1","SG1","SG1")
     CUTOFFS = (-0.08927652699581005,-0.04,-0.00439656779575809)
     THRESHOLDS = (350, 350, 350)
+    '''
     
-    for algorithm, cutoff, continuity_threshold in zip(ALGORITHMS, CUTOFFS, THRESHOLDS):
+    #Investigate custom threshold sensitivity
+    ALGORITHMS = ("SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1")
+    CUTOFFS = ('quant06','quant065','quant07','quant075','quant08','quant085','quant09','quant095')
+    THRESHOLDS = (350, 350, 350, 350, 350, 350, 350, 350)
+    '''
+    quantile(iceslabs,0.6) = -0.05859131487951458
+    quantile(iceslabs,0.65) = -0.041898865159435646
+    quantile(iceslabs,0.7) = -0.023780757881606624
+    quantile(iceslabs,0.75) = -0.00439656779575809
+    quantile(iceslabs,0.8) = 0.01683087122486248
+    quantile(iceslabs,0.85) = 0.04240918749489318
+    quantile(iceslabs,0.9) = 0.07435337843425789
+    quantile(iceslabs,0.95) = 0.12501391539311174
+    '''
+    
+    for algorithm, cutoff_q, continuity_threshold in zip(ALGORITHMS, CUTOFFS, THRESHOLDS):
+        #correspondance between quantile and actual value
+        if (cutoff_q == 'quant06'):
+            cutoff=-0.05859131487951458
+        elif (cutoff_q == 'quant065'):
+            cutoff=-0.041898865159435646
+        elif (cutoff_q == 'quant07'):
+            cutoff=-0.023780757881606624
+        elif (cutoff_q == 'quant075'):
+            cutoff=-0.00439656779575809
+        elif (cutoff_q == 'quant08'):
+            cutoff=0.01683087122486248
+        elif (cutoff_q == 'quant085'):
+            cutoff= 0.04240918749489318
+        elif (cutoff_q == 'quant09'):
+            cutoff=0.07435337843425789
+        elif (cutoff_q == 'quant095'):
+            cutoff=0.12501391539311174
+        else:
+            print('Cutoff not known, break')
+            break
+        
         # Apply the cutoff.
         boolean_traces = (traces <= cutoff)
         
@@ -115,7 +159,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
         
         #pdb.set_trace()
         #Save as pickle file     
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(cutoff)+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(cutoff_q)+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
@@ -343,11 +387,30 @@ import scipy.optimize
 import pdb
 from PIL import Image
 
-create_pickle='FALSE'
+create_pickle='TRUE'
 display_pickle='TRUE'
 gaussian_calibration='FALSE'
+display_plots_quick_check='FALSE'
 #1. Open roll corrected of the specific year
+'''
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:['Data_20120423_01_137.mat','Data_20120423_01_138.mat'],
+                    2013:['Data_20130409_01_010.mat','Data_20130409_01_011.mat','Data_20130409_01_012.mat'],
+                    2014:'empty',
+                    2017:'empty',
+                    2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 
+'''
+'''
+investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
+                    2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
+                    2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
+                    2013:'empty',
+                    2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat'],
+                    2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
+                    2018:'empty'}
+'''
 
 #7years case study
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
@@ -357,6 +420,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
+
 '''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
@@ -496,7 +560,7 @@ if (create_pickle == 'TRUE'):
     
     #3. Extract surface return and perform depth correction without normalisation
     for single_year in investigation_year.keys():
-        
+        print('--- Perform depth correction ---')
         #If no data, continue
         if (investigation_year[single_year]=='empty'):
             print('No data for year '+str(single_year)+', continue')
@@ -512,129 +576,129 @@ if (create_pickle == 'TRUE'):
         else:
             dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm']=apply_normalisation(dataframe[str(single_year)]['roll_corrected_after_surf_removal'],dataframe[str(single_year)]['mask'],dataframe[str(single_year)]['depth'][0:201])
     
+    if (display_plots_quick_check=='TRUE'):
+        '''
+        #Display results
+        fig1, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7, 1)
+        fig1.suptitle('Roll corrected')
     
-    '''
-    #Display results
-    fig1, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7, 1)
-    fig1.suptitle('Roll corrected')
-
-    cb1=ax1.imshow(dataframe['2010']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb1,ax=ax1)
-    ax1.set_ylim(129,0)
-    cb1.set_clim(-12.0,0)
-
-    cb2=ax2.imshow(dataframe['2011']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb2,ax=ax2)
-    ax2.set_ylim(129,0)
-    cb2.set_clim(-12.0,0)
+        cb1=ax1.imshow(dataframe['2010']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb1,ax=ax1)
+        ax1.set_ylim(129,0)
+        cb1.set_clim(-12.0,0)
     
-    cb3=ax3.imshow(dataframe['2012']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb3,ax=ax3)
-    ax3.set_ylim(61,0)
-    cb3.set_clim(-12.0,0)
-   
-    cb4=ax4.imshow(dataframe['2013']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb4,ax=ax4)
-    ax4.set_ylim(61,0)
-    cb4.set_clim(-12.0,0)
+        cb2=ax2.imshow(dataframe['2011']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb2,ax=ax2)
+        ax2.set_ylim(129,0)
+        cb2.set_clim(-12.0,0)
+        
+        cb3=ax3.imshow(dataframe['2012']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb3,ax=ax3)
+        ax3.set_ylim(61,0)
+        cb3.set_clim(-12.0,0)
+       
+        cb4=ax4.imshow(dataframe['2013']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb4,ax=ax4)
+        ax4.set_ylim(61,0)
+        cb4.set_clim(-12.0,0)
+        
+        cb5=ax5.imshow(dataframe['2014']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb5,ax=ax5)
+        ax5.set_ylim(61,0)
+        cb5.set_clim(-12.0,0)
+        
+        cb6=ax6.imshow(dataframe['2017']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb6,ax=ax6)
+        ax6.set_ylim(61,0)
+        cb6.set_clim(-12.0,0)
+        
+        cb7=ax7.imshow(dataframe['2018']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb7,ax=ax7)
+        ax7.set_ylim(61,0)
+        cb7.set_clim(-12.0,0)
+        
+        plt.show()
+        
+        fig2, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7, 1)
+        fig2.suptitle('Roll corrected after removal of surface return')
     
-    cb5=ax5.imshow(dataframe['2014']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb5,ax=ax5)
-    ax5.set_ylim(61,0)
-    cb5.set_clim(-12.0,0)
+        cb1=ax1.imshow(dataframe['2010']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig2.colorbar(cb1,ax=ax1)
+        ax1.set_ylim(129,0)
+        cb1.set_clim(-2.0,2)
+      
+        cb2=ax2.imshow(dataframe['2011']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig2.colorbar(cb2,ax=ax2)
+        ax2.set_ylim(129,0)
+        cb2.set_clim(-2.0,2)
+        
+        cb3=ax3.imshow(dataframe['2012']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig2.colorbar(cb3,ax=ax3)
+        ax3.set_ylim(61,0)
+        cb3.set_clim(-2.0,2)
+        
+        cb4=ax4.imshow(dataframe['2013']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig2.colorbar(cb4,ax=ax4)
+        ax4.set_ylim(61,0)
+        cb4.set_clim(-2.0,2)
+       
+        cb5=ax5.imshow(dataframe['2014']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig2.colorbar(cb5,ax=ax5)
+        ax5.set_ylim(61,0)
+        cb5.set_clim(-2.0,2)
+        
+        cb6=ax6.imshow(dataframe['2017']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig2.colorbar(cb6,ax=ax6)
+        ax6.set_ylim(61,0)
+        cb6.set_clim(-2.0,2)
+        
+        cb7=ax7.imshow(dataframe['2018']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig2.colorbar(cb7,ax=ax7)
+        ax7.set_ylim(61,0)
+        cb7.set_clim(-2.0,2)
+        
+        plt.show()
+        '''
+        
+        #Display roll corrected, removal of surface return, depth corrected without normalisation
+        fig1, (ax3,ax4,ax7) = plt.subplots(3, 1)
+        fig1.suptitle('Depth corrected without normalisation, surface return removal')
+        '''
+        cb1=ax1.imshow(dataframe['2010']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb1,ax=ax1)
+        ax1.set_ylim(129,0)
+        #cb1.set_clim(-2.0,0)
     
-    cb6=ax6.imshow(dataframe['2017']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb6,ax=ax6)
-    ax6.set_ylim(61,0)
-    cb6.set_clim(-12.0,0)
-    
-    cb7=ax7.imshow(dataframe['2018']['roll_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb7,ax=ax7)
-    ax7.set_ylim(61,0)
-    cb7.set_clim(-12.0,0)
-    
-    plt.show()
-    
-    fig2, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7, 1)
-    fig2.suptitle('Roll corrected after removal of surface return')
-
-    cb1=ax1.imshow(dataframe['2010']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig2.colorbar(cb1,ax=ax1)
-    ax1.set_ylim(129,0)
-    cb1.set_clim(-2.0,2)
-  
-    cb2=ax2.imshow(dataframe['2011']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig2.colorbar(cb2,ax=ax2)
-    ax2.set_ylim(129,0)
-    cb2.set_clim(-2.0,2)
-    
-    cb3=ax3.imshow(dataframe['2012']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig2.colorbar(cb3,ax=ax3)
-    ax3.set_ylim(61,0)
-    cb3.set_clim(-2.0,2)
-    
-    cb4=ax4.imshow(dataframe['2013']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig2.colorbar(cb4,ax=ax4)
-    ax4.set_ylim(61,0)
-    cb4.set_clim(-2.0,2)
-   
-    cb5=ax5.imshow(dataframe['2014']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig2.colorbar(cb5,ax=ax5)
-    ax5.set_ylim(61,0)
-    cb5.set_clim(-2.0,2)
-    
-    cb6=ax6.imshow(dataframe['2017']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig2.colorbar(cb6,ax=ax6)
-    ax6.set_ylim(61,0)
-    cb6.set_clim(-2.0,2)
-    
-    cb7=ax7.imshow(dataframe['2018']['roll_corrected_after_surf_removal'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig2.colorbar(cb7,ax=ax7)
-    ax7.set_ylim(61,0)
-    cb7.set_clim(-2.0,2)
-    
-    plt.show()
-    '''
-    
-    #Display roll corrected, removal of surface return, depth corrected without normalisation
-    fig1, (ax3,ax4,ax7) = plt.subplots(3, 1)
-    fig1.suptitle('Depth corrected without normalisation, surface return removal')
-    '''
-    cb1=ax1.imshow(dataframe['2010']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb1,ax=ax1)
-    ax1.set_ylim(129,0)
-    #cb1.set_clim(-2.0,0)
-
-    cb2=ax2.imshow(dataframe['2011']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb2,ax=ax2)
-    ax2.set_ylim(129,0)
-    #cb2.set_clim(-12.0,0)
-    '''
-    cb3=ax3.imshow(dataframe['2012']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb3,ax=ax3)
-    ax3.set_ylim(61,0)
-    #cb3.set_clim(-12.0,0)
-   
-    cb4=ax4.imshow(dataframe['2013']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb4,ax=ax4)
-    ax4.set_ylim(61,0)
-    #cb4.set_clim(-12.0,0)
-    '''
-    cb5=ax5.imshow(dataframe['2014']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb5,ax=ax5)
-    ax5.set_ylim(61,0)
-    #cb5.set_clim(-12.0,0)
-    
-    cb6=ax6.imshow(dataframe['2017']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb6,ax=ax6)
-    ax6.set_ylim(61,0)
-    #cb6.set_clim(-12.0,0)
-    '''
-    cb7=ax7.imshow(dataframe['2018']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    fig1.colorbar(cb7,ax=ax7)
-    ax7.set_ylim(61,0)
-    #cb7.set_clim(-12.0,0)
-    plt.show()
+        cb2=ax2.imshow(dataframe['2011']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb2,ax=ax2)
+        ax2.set_ylim(129,0)
+        #cb2.set_clim(-12.0,0)
+        '''
+        cb3=ax3.imshow(dataframe['2012']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb3,ax=ax3)
+        ax3.set_ylim(61,0)
+        #cb3.set_clim(-12.0,0)
+       
+        cb4=ax4.imshow(dataframe['2013']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb4,ax=ax4)
+        ax4.set_ylim(61,0)
+        #cb4.set_clim(-12.0,0)
+        '''
+        cb5=ax5.imshow(dataframe['2014']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb5,ax=ax5)
+        ax5.set_ylim(61,0)
+        #cb5.set_clim(-12.0,0)
+        
+        cb6=ax6.imshow(dataframe['2017']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb6,ax=ax6)
+        ax6.set_ylim(61,0)
+        #cb6.set_clim(-12.0,0)
+        '''
+        cb7=ax7.imshow(dataframe['2018']['depth_corrected_after_surf_removal_without_norm'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        fig1.colorbar(cb7,ax=ax7)
+        ax7.set_ylim(61,0)
+        #cb7.set_clim(-12.0,0)
+        plt.show()
     
     if (gaussian_calibration=='TRUE'):
         ### -------- Gaussian of iceslabs VS non iceslabs
@@ -675,6 +739,8 @@ if (create_pickle == 'TRUE'):
         ax1.hist(dry_firn,bins=500,density=True,alpha=0.2,label='dry firn')
         ax1.legend()
         plt.show()
+        
+        pdb.set_trace()
     
     '''
     Not usefull anymore but kept in case needed
@@ -692,7 +758,7 @@ if (create_pickle == 'TRUE'):
     #pdb.set_trace()
     #5. apply smoothing and thresholding
     for single_year in investigation_year.keys():
-        
+        print('--- Creating the pickle files ---')
         #If no data, continue
         if (investigation_year[single_year]=='empty'):
             print('No data for year '+str(single_year)+', continue')
@@ -714,7 +780,7 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-pdb.set_trace()
+#pdb.set_trace()
 
 if (display_pickle=='TRUE'):
     
@@ -776,7 +842,7 @@ if (display_pickle=='TRUE'):
         #Define filename of boolean files 
         filename_boolean_a=date_track+'_SG1_cutoff_-0.08927652699581005_threshold_350.pickle'
         filename_boolean_b=date_track+'_SG1_cutoff_-0.04_threshold_350.pickle'
-        filename_boolean_c=date_track+'_SG1_cutoff_-0.00439656779575809_threshold_350.pickle'
+        filename_boolean_c=date_track+'_SG1_cutoff_quant095_threshold_350.pickle'
         
         #Load boolean files
         f_boolean_a = open(path_boolean_remove_surf+filename_boolean_a, "rb")
@@ -894,6 +960,7 @@ if (display_pickle=='TRUE'):
         ###                          Load and organise data                        ###
         ##############################################################################
     
+    '''
     pdb.set_trace()
     
     fig1, (ax1,ax2,ax3,ax4,ax5) = plt.subplots(5, 1)
@@ -931,7 +998,7 @@ if (display_pickle=='TRUE'):
     plt.show()
     
     pdb.set_trace()
-   
+   '''
     
     
     #Prepare figures
@@ -939,12 +1006,18 @@ if (display_pickle=='TRUE'):
     figde.suptitle('Depth corrected from MacFerrin et al., 2019')
     
     figd, (ax1d,ax2d,ax3d,ax4d,ax5d,ax6d,ax7d) = plt.subplots(7, 1)
-    figd.suptitle('Custom threshold: quantile 0.75 of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
+    figd.suptitle('Custom threshold: quantile 0.95 of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
     
     figm, (ax1m,ax2m,ax3m,ax4m,ax5m,ax6m,ax7m) = plt.subplots(7, 1)
     figm.suptitle('MacFerrin et al., 2019: SG1_CUTOFF_-0.45_THRESHOLD_350')
     
     for single_year in investigation_year.keys():
+        
+        #If no data, continue
+        if (investigation_year[single_year]=='empty'):
+            print('No data for year '+str(single_year)+', continue')
+            continue
+        
         print(single_year)
         
         #Associate axs for plotting
@@ -1001,6 +1074,7 @@ if (display_pickle=='TRUE'):
         ax_plotting_dry.set_ylim(20,0)
         ax_plotting_dry.set_aspect(0.002)
         
+        '''
         #Plot MacFerrin's boolean
         ax_plotting_MF.pcolor(X,Y,dataframe[str(single_year)]['SG1_CUTOFF_-0.45_THRESHOLD_350'],cmap=plt.get_cmap('gray_r'))#,norm=divnorm)
         ax_plotting_MF.title.set_text(dataframe[str(single_year)]['datetrack'])
@@ -1016,6 +1090,7 @@ if (display_pickle=='TRUE'):
         ax_plotting_depth.set_xlim(-47.8,-46.8)
         ax_plotting_depth.set_ylim(20,0)
         ax_plotting_depth.set_aspect(0.002)
+        '''
         '''
         #Display my remove_surf boolean file
         X=dataframe[str(single_year)]['lon_appended']
