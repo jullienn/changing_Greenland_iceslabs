@@ -89,7 +89,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
     
     #Initalize count to 0 for cutoff names
     count=0
-    names_cutoff=np.arange(0.6,0.8,0.01)
+    names_cutoff=np.arange(0,0.2,0.01)
     '''
     
     for algorithm, cutoff, continuity_threshold in zip(ALGORITHMS, CUTOFFS, THRESHOLDS):
@@ -399,12 +399,13 @@ import h5py
 import scipy.optimize
 import pdb
 from PIL import Image
+from sklearn.metrics.cluster import contingency_matrix
 
-create_pickle='FALSE'
+create_pickle='TRUE'
 display_pickle='FALSE'
-gaussian_calibration='FALSE'
+gaussian_calibration='TRUE'
 display_plots_quick_check='FALSE'
-investigation_quantile='TRUE'
+investigation_quantile='FALSE'
 #1. Open roll corrected of the specific year
 '''
 investigation_year={2010:'empty',
@@ -435,7 +436,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 '''
-
+'''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -444,6 +445,16 @@ investigation_year={2010:'empty',
                     2014:'empty',
                     2017:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
+#2014 and 2017 almost colocated
+'''
+#Calibration track in MacFerrin et al, 2019
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:'empty',
+                    2013:['Data_20130409_01_010.mat','Data_20130409_01_011.mat','Data_20130409_01_012.mat'],
+                    2014:'empty',
+                    2017:'empty',
+                    2018:'empty'}
 #2014 and 2017 almost colocated
 
 if (create_pickle == 'TRUE'):
@@ -757,7 +768,7 @@ if (create_pickle == 'TRUE'):
         plt.show()
         
         #Define quantiles for investigation of accuracy
-        quantile_investigation=np.quantile(iceslabs,np.arange(0.6,0.8,0.01))
+        quantile_investigation=np.quantile(iceslabs,np.arange(0,0.2,0.01))
         
         pdb.set_trace()
     
@@ -799,11 +810,11 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-#pdb.set_trace()
+pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     #Compute the speed (Modified Robin speed):
     # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
@@ -933,9 +944,66 @@ if (investigation_quantile=='TRUE'):
     ###                          Load and organise data                        ###
     ##############################################################################
     
+    pdb.set_trace()
+    #23h40
+    
+    #Extract overall accuracy and plot quatile VS accuracy
+
     #Contigency table to perform here
     
+    #Define the Overall accuracy vector
+    OA=np.zeros(len(quantiles_open))
+    PA_dryfirn=np.zeros(len(quantiles_open))
+    UA_dryfirn=np.zeros(len(quantiles_open))
+    PA_iceslabs=np.zeros(len(quantiles_open))
+    UA_iceslabs=np.zeros(len(quantiles_open))
     
+    #Use sklearn.metrics.cluster.contingency_matrix, cf. https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cluster.contingency_matrix.html
+    #loop over the different quantiles
+    for i in range(0,len(quantiles_open)):
+        print(quantiles_open[i])
+        cont_matrix=contingency_matrix(dataframe['mask_truth'], dataframe[quantiles_open[i]])
+        #0 is dry firn, 1 is slabs
+        OA[i]=(cont_matrix[0,0]+cont_matrix[1,1])/np.sum(cont_matrix)
+        #error of omissions = along the columns
+        PA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[:,0]))
+        UA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[0,:]))
+        
+        PA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[:,1]))
+        UA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[1,:]))
+        
+    
+    fig, (ax1,ax2,ax3) = plt.subplots(1, 3)
+    fig.suptitle('Accuracy VS quantile')
+    
+    #Plot OA
+    ax1.plot(quantiles_open,OA)
+    ax1.set_title("Overall accuracy")
+    
+    #Plot PA
+    #Producer's Accuracy is the map accuracy from the point of view of the map
+    #maker (the producer). This is how often are real features on the ground
+    #correctly shown on the classified map or the probability that a certain
+    #land cover of an area on the ground is classified as such
+    #(from http://gsp.humboldt.edu/olm_2019/courses/GSP_216_Online/lesson6-2/metrics.html)
+    # ---> This is this quantity we are interested in !!
+    ax2.plot(quantiles_open,PA_dryfirn,label='dry firn')
+    ax2.plot(quantiles_open,PA_iceslabs,label='ice slabs')
+    ax2.set_title("Producer's accuracy")
+    ax2.legend()
+    
+    #Plot UA
+    #the User's accuracy essentially tells use how often the class on the map
+    #will actually be present on the ground. This is referred to as reliability
+    #(from http://gsp.humboldt.edu/olm_2019/courses/GSP_216_Online/lesson6-2/metrics.html)
+    
+    ax3.plot(quantiles_open,UA_dryfirn,label='dry firn')
+    ax3.plot(quantiles_open,UA_iceslabs,label='iceslabs')
+    ax3.set_title("User's accuracy")
+    ax3.legend()
+    
+    plt.show()
+    pdb.set_trace()
 
 if (display_pickle=='TRUE'):
     
