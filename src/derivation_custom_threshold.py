@@ -1027,7 +1027,7 @@ if (investigation_quantile=='TRUE'):
     ax3.grid()
     
     plt.show()
-    #pdb.set_trace()
+    pdb.set_trace()
     
     #Display the resulting slabs identification
     path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_investigation/'
@@ -1041,10 +1041,15 @@ if (investigation_quantile=='TRUE'):
         fig, (ax1) = plt.subplots(1, 1)
         fig.suptitle('Custom threshold: quantile'+str(quantiles_open[i])+' of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
         
+        #Replace where dry firn by nan so that overlay plot can be possible
+        quantile_to_plot=dataframe[quantiles_open[i]]
+        quantile_to_plot[quantile_to_plot==0]=np.nan
+        
         #Plot custom threshold ice slabs identification
-        ax1.imshow(dataframe[quantiles_open[i]],cmap=plt.get_cmap('gray_r'))#,norm=divnorm)
+        ax1.imshow(dataframe['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        ax1.imshow(quantile_to_plot,cmap=plt.get_cmap('gray'))#,norm=divnorm)
         ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
-        ax1.title.set_text(dataframe['datetrack'])
+        ax1.title.set_text(dataframe['datetrack']+' - quantile: '+str(quantiles_open[i]))
         ax1.set_xlim(0,2500)
         ax1.set_ylim(41,0)
         ax1.set_aspect(2)
@@ -1065,7 +1070,7 @@ if (investigation_quantile=='TRUE'):
     
     ax1.imshow(dataframe['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
     ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
-    ax1.title.set_text(dataframe['datetrack'])
+    ax1.title.set_text(dataframe['datetrack'] +' - depth corrected')
     ax1.set_xlim(0,2500)
     ax1.set_ylim(41,0)
     ax1.set_aspect(2)
