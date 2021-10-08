@@ -79,7 +79,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
     THRESHOLDS = (350, 350, 350)
     '''
     
-    
+    #pdb.set_trace()
     #Investigate custom threshold sensitivity
     ALGORITHMS = ("SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1",
                   "SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1",
@@ -95,7 +95,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
     
     
     for algorithm, cutoff, continuity_threshold in zip(ALGORITHMS, CUTOFFS, THRESHOLDS):
-        
+        #pdb.set_trace()
         #Retrieve cutoff name
         cutoff_q=names_cutoff[count]
         
@@ -402,10 +402,11 @@ import scipy.optimize
 import pdb
 from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
+import pandas as pd
 
 create_pickle='TRUE'
 display_pickle='FALSE'
-gaussian_calibration='TRUE'
+gaussian_calibration='FALSE'
 display_plots_quick_check='FALSE'
 investigation_quantile='FALSE'
 #1. Open roll corrected of the specific year
@@ -428,7 +429,7 @@ investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat']
                     2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
                     2018:'empty'}
 '''
-'''
+
 #7years case study
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
                     2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
@@ -437,7 +438,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
-'''
+
 '''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
@@ -449,7 +450,7 @@ investigation_year={2010:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 #2014 and 2017 almost colocated
 '''
-
+'''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -459,7 +460,7 @@ investigation_year={2010:'empty',
                     2017:'empty',
                     2018:'empty'}
 #2014 and 2017 almost colocated
-
+'''
 if (create_pickle == 'TRUE'):
     ##############################################################################
     ###                             Load data                                  ###
@@ -473,6 +474,10 @@ if (create_pickle == 'TRUE'):
     path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Boolean_Array_Picklefiles/'
     dataframe={}
     
+    #Define the desired quantiles
+    desired_quantiles=np.arange(0.6,0.83,0.01)
+    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
+
     for single_year in investigation_year.keys():
         print(single_year)
         
@@ -732,8 +737,6 @@ if (create_pickle == 'TRUE'):
     
     if (gaussian_calibration=='TRUE'):
         ### -------- Gaussian of iceslabs VS non iceslabs
-        #Defines the desired quantiles
-        desired_quantiles=np.arange(0.6,0.83,0.01)
         
         #Open the conservative mask
         path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/'
@@ -775,13 +778,17 @@ if (create_pickle == 'TRUE'):
         #Define quantiles for investigation of accuracy
         quantile_investigation=np.quantile(iceslabs,desired_quantiles)
             
-        filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
         f_quantiles = open(filename_quantiles, "w")
         f_quantiles.write(str(np.round(desired_quantiles,2))+'\n')
         f_quantiles.write(str(quantile_investigation))
         f_quantiles.close() #Close the quantile file when we’re done!
+    else:
+        #pdb.set_trace()
+        #Then open the quantile file created previously        
+        quantile_file = pd.read_csv(filename_quantiles, sep=" ", header=None)
+        quantile_investigation=np.asarray(quantile_file.iloc[1])
         
-    
+        
     '''
     Not usefull anymore but kept in case needed
     boolean_mask_nb=np.empty((depth_corr_20m.shape[0],depth_corr_20m.shape[1]))
@@ -795,7 +802,7 @@ if (create_pickle == 'TRUE'):
     nan_index=np.isnan(boolean_mask_nb_flatten)
     boolean_mask_nb_flatten_without_nans=boolean_mask_nb_flatten[~nan_index]
     '''
-    #pdb.set_trace()
+    pdb.set_trace()
     #5. apply smoothing and thresholding
     for single_year in investigation_year.keys():
         print('--- Creating the pickle files ---')
