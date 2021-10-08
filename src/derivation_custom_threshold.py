@@ -404,8 +404,8 @@ from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 import pandas as pd
 
-create_pickle='TRUE'
-display_pickle='FALSE'
+create_pickle='FALSE'
+display_pickle='TRUE'
 gaussian_calibration='FALSE'
 display_plots_quick_check='FALSE'
 investigation_quantile='FALSE'
@@ -1099,10 +1099,6 @@ pdb.set_trace()
     
 if (display_pickle=='TRUE'):
     
-    #Define min and max lon for plotting
-    min_lon=0
-    max_lon=0
-    
     #Compute the speed (Modified Robin speed):
     # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
     v= 299792458 / (1.0 + (0.734*0.873/1000.0))
@@ -1130,9 +1126,7 @@ if (display_pickle=='TRUE'):
         
         #Define filename depth corrected and boolean files from Macferrin
         filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
-        filename_boolean_a_MF=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.pickle'
-        filename_boolean_b_MF=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
-        filename_boolean_c_MF=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.pickle'
+        filename_boolean_MF=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.pickle'
         
         #Open the depth corrected file from Macferrin
         f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
@@ -1140,20 +1134,11 @@ if (display_pickle=='TRUE'):
         f_depth_corrected.close()
         
         #Load boolean files from Macferrin
-        f_boolean_a_MF = open(path_boolean_MacFerrin+filename_boolean_a_MF, "rb")
-        boolean_a_MF = pickle.load(f_boolean_a_MF)
-        f_boolean_a_MF.close()
-        
-        f_boolean_b_MF = open(path_boolean_MacFerrin+filename_boolean_b_MF, "rb")
-        boolean_b_MF = pickle.load(f_boolean_b_MF)
-        f_boolean_b_MF.close()
+        f_boolean_MF = open(path_boolean_MacFerrin+filename_boolean_MF, "rb")
+        boolean_MF = pickle.load(f_boolean_MF)
+        f_boolean_MF.close()
 
-        f_boolean_c_MF = open(path_boolean_MacFerrin+filename_boolean_c_MF, "rb")
-        boolean_c_MF = pickle.load(f_boolean_c_MF)
-        f_boolean_c_MF.close()
-        
-        
-        
+
         #Define filename of boolean files 
         filename_boolean_c=date_track+'_SG1_cutoff_0.65_threshold_350.pickle'
         
@@ -1206,9 +1191,7 @@ if (display_pickle=='TRUE'):
             lat_appended=np.flipud(lat_appended)
             lon_appended=np.flipud(lon_appended)
             depth_corrected=np.fliplr(depth_corrected)
-            boolean_a_MF=np.fliplr(boolean_a_MF)
-            boolean_b_MF=np.fliplr(boolean_b_MF)
-            boolean_c_MF=np.fliplr(boolean_c_MF)
+            boolean_MF=np.fliplr(boolean_MF)
             #Dry firn boolean do not need to be flipped because they are from depthcorrected which where already flipped over
             
         #Calculate the depth from the time
@@ -1242,9 +1225,7 @@ if (display_pickle=='TRUE'):
                                      'lon_appended':lon_appended,
                                      'depth':depth,
                                      'depth_corrected':depth_corrected,
-                                     'orig_CUTOFF_-0.45_THRESHOLD_0':boolean_a_MF,
-                                     'SG1_CUTOFF_-0.45_THRESHOLD_0':boolean_b_MF,
-                                     'SG1_CUTOFF_-0.45_THRESHOLD_350':boolean_c_MF,
+                                     'SG1_CUTOFF_-0.45_THRESHOLD_350':boolean_MF,
                                      'remove_surf_proc':boolean_c_DF,
                                      'datetrack':date_track}
         
