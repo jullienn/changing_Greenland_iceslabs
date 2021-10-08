@@ -53,7 +53,7 @@ def apply_normalisation(roll_corrected_array,mask, depth):
     
     return traces_norm_full
 
-def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
+def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quantile_investigation,desired_quantiles):
     #traces_20m should be the 20m traces
     
     
@@ -62,12 +62,12 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
     # These sets of cutoffs were produced from examination done in validate_reference_track_w_in_situ_data(),
     # and plot_validation_data_and_find_minima()
     
-    
+    '''
     #Original
     ALGORITHMS = ("orig","SG1","SG1")
     CUTOFFS = (-0.45, -0.45, -0.45)
     THRESHOLDS = (0, 0, 350)
-    
+    '''
     
     '''
     #Custom identification with distribution:
@@ -79,24 +79,26 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
     THRESHOLDS = (350, 350, 350)
     '''
     
-    '''
+    
     #Investigate custom threshold sensitivity
     ALGORITHMS = ("SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1",
-                  "SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1")
+                  "SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1",
+                  "SG1","SG1","SG1")
     CUTOFFS = tuple(quantile_investigation)
     THRESHOLDS = (350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
-                  350, 350, 350, 350, 350, 350, 350, 350, 350, 350)
+                  350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
+                  350, 350, 350)
     
     #Initalize count to 0 for cutoff names
     count=0
-    names_cutoff=np.arange(0,0.2,0.01)
-    '''
+    names_cutoff=desired_quantiles
+    
     
     for algorithm, cutoff, continuity_threshold in zip(ALGORITHMS, CUTOFFS, THRESHOLDS):
-        '''
+        
         #Retrieve cutoff name
         cutoff_q=names_cutoff[count]
-        '''
+        
         # Apply the cutoff.
         boolean_traces = (traces <= cutoff)
         
@@ -140,15 +142,15 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack):
         
         #pdb.set_trace()
         #Save as pickle file     
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(cutoff)+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(cutoff_q)+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
         
-        '''
+        
         #Update count
         count=count+1
-        '''
+        
         
         
         '''
@@ -401,11 +403,11 @@ import pdb
 from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 
-create_pickle='FALSE'
+create_pickle='TRUE'
 display_pickle='FALSE'
-gaussian_calibration='FALSE'
+gaussian_calibration='TRUE'
 display_plots_quick_check='FALSE'
-investigation_quantile='TRUE'
+investigation_quantile='FALSE'
 #1. Open roll corrected of the specific year
 '''
 investigation_year={2010:'empty',
@@ -447,6 +449,7 @@ investigation_year={2010:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 #2014 and 2017 almost colocated
 '''
+
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -729,6 +732,8 @@ if (create_pickle == 'TRUE'):
     
     if (gaussian_calibration=='TRUE'):
         ### -------- Gaussian of iceslabs VS non iceslabs
+        #Defines the desired quantiles
+        desired_quantiles=np.arange(0.6,0.83,0.01)
         
         #Open the conservative mask
         path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/'
@@ -768,9 +773,14 @@ if (create_pickle == 'TRUE'):
         plt.show()
         
         #Define quantiles for investigation of accuracy
-        quantile_investigation=np.quantile(iceslabs,np.arange(0,0.2,0.01))
+        quantile_investigation=np.quantile(iceslabs,desired_quantiles)
+            
+        filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
+        f_quantiles = open(filename_quantiles, "w")
+        f_quantiles.write(str(np.round(desired_quantiles,2))+'\n')
+        f_quantiles.write(str(quantile_investigation))
+        f_quantiles.close() #Close the quantile file when we’re done!
         
-        pdb.set_trace()
     
     '''
     Not usefull anymore but kept in case needed
@@ -805,12 +815,12 @@ if (create_pickle == 'TRUE'):
         #Extrac the 20m slices and get rid of exclusions
         traces_20m=select_20m_slice_without_NaNs(iceslabs_to_extract,depth,mask)
         #Identify ice slabs
-        boolean_slabs=identify_ice_lenses(traces_20m,iceslabs_to_extract,depth,mask,datetrack)
+        boolean_slabs=identify_ice_lenses(traces_20m,iceslabs_to_extract,depth,mask,datetrack,quantile_investigation,desired_quantiles)
         #Ok all of the above works!!!! Great :). Just need to save the figures of display them and that's it
         
     print('end')
 
-#pdb.set_trace()
+pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
