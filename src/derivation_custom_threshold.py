@@ -401,11 +401,11 @@ import pdb
 from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 
-create_pickle='TRUE'
+create_pickle='FALSE'
 display_pickle='FALSE'
-gaussian_calibration='TRUE'
+gaussian_calibration='FALSE'
 display_plots_quick_check='FALSE'
-investigation_quantile='FALSE'
+investigation_quantile='TRUE'
 #1. Open roll corrected of the specific year
 '''
 investigation_year={2010:'empty',
@@ -810,7 +810,7 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-pdb.set_trace()
+#pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
@@ -823,21 +823,30 @@ if (investigation_quantile=='TRUE'):
     #Define paths
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
     path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'
+    path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Depth_Corrected_Picklefiles/'
     
     #Define the year
     single_year=2013
-    
-    #Define the quantiles to open
-    quantiles_open=np.round(np.arange(0.6,0.79,0.01),2)
-    
-    #Set dataframe
-    dataframe={}
-    dataframe={k: {} for k in list(quantiles_open)}
     
     #Construct the date for data loading
     start_date_track=investigation_year[single_year][0]
     end_date_track=investigation_year[single_year][-1]
     date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
+    
+    #Define filename roll, depth corrected data and mask
+    filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
+                 
+    #Open the roll corrected file
+    f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+    depth_corrected = pickle.load(f_depth_corrected)
+    f_depth_corrected.close()
+    
+    #Define the quantiles to open
+    quantiles_open=np.round(np.arange(0,1,0.01),2)
+    
+    #Set dataframe
+    dataframe={}
+    dataframe={k: {} for k in list(quantiles_open)}
     
     #Open the quantile files
     for indiv_quantile in dataframe.keys():
@@ -919,12 +928,13 @@ if (investigation_quantile=='TRUE'):
             depth_check=depth_check-abs(depth_check[0])
             depth = depth_check
         
-    pdb.set_trace()
+    #pdb.set_trace()
     #Store reunited lat/lon, slice output and mask in a dictionnary:
     dataframe['lat_appended']=lat_appended
     dataframe['lon_appended']=lon_appended
     dataframe['depth']=depth
     dataframe['datetrack']=date_track
+    dataframe['depth_corrected']=depth_corrected
     
     #Open the conservative mask
     path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/'
@@ -944,8 +954,7 @@ if (investigation_quantile=='TRUE'):
     ###                          Load and organise data                        ###
     ##############################################################################
     
-    pdb.set_trace()
-    #23h40
+    #pdb.set_trace()
     
     #Extract overall accuracy and plot quatile VS accuracy
 
@@ -963,14 +972,26 @@ if (investigation_quantile=='TRUE'):
     for i in range(0,len(quantiles_open)):
         print(quantiles_open[i])
         cont_matrix=contingency_matrix(dataframe['mask_truth'], dataframe[quantiles_open[i]])
-        #0 is dry firn, 1 is slabs
-        OA[i]=(cont_matrix[0,0]+cont_matrix[1,1])/np.sum(cont_matrix)
-        #error of omissions = along the columns
-        PA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[:,0]))
-        UA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[0,:]))
         
-        PA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[:,1]))
-        UA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[1,:]))
+        if (cont_matrix.shape[1]==1):
+            #Only one class, store nan
+            #0 is dry firn, 1 is slabs
+            OA[i]=np.nan
+            #error of omissions = along the columns
+            PA_dryfirn[i]=np.nan
+            UA_dryfirn[i]=np.nan
+            
+            PA_iceslabs[i]=np.nan
+            UA_iceslabs[i]=np.nan
+        else:
+            #0 is dry firn, 1 is slabs
+            OA[i]=(cont_matrix[0,0]+cont_matrix[1,1])/np.sum(cont_matrix)
+            #error of omissions = along the columns
+            PA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[0,:]))
+            UA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[:,0]))
+            
+            PA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[1,:]))
+            UA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[:,1]))
         
     
     fig, (ax1,ax2,ax3) = plt.subplots(1, 3)
@@ -978,6 +999,7 @@ if (investigation_quantile=='TRUE'):
     
     #Plot OA
     ax1.plot(quantiles_open,OA)
+    ax1.grid()
     ax1.set_title("Overall accuracy")
     
     #Plot PA
@@ -991,6 +1013,7 @@ if (investigation_quantile=='TRUE'):
     ax2.plot(quantiles_open,PA_iceslabs,label='ice slabs')
     ax2.set_title("Producer's accuracy")
     ax2.legend()
+    ax2.grid()
     
     #Plot UA
     #the User's accuracy essentially tells use how often the class on the map
@@ -1001,10 +1024,60 @@ if (investigation_quantile=='TRUE'):
     ax3.plot(quantiles_open,UA_iceslabs,label='iceslabs')
     ax3.set_title("User's accuracy")
     ax3.legend()
+    ax3.grid()
     
     plt.show()
-    pdb.set_trace()
-
+    #pdb.set_trace()
+    
+    #Display the resulting slabs identification
+    X=dataframe['lon_appended']
+    Y=np.arange(0,20,20/dataframe[quantiles_open[0]].shape[0])
+    path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_investigation/'
+    
+    for i in range(0,len(quantiles_open)):
+        
+        #Define fig name
+        fig_name=path_savefig+'quant_'+str(quantiles_open[i])+'.png'
+        
+        #Prepare the plot
+        fig, (ax1) = plt.subplots(1, 1)
+        fig.suptitle('Custom threshold: quantile'+str(quantiles_open[i])+' of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
+        
+        #Plot custom threshold ice slabs identification
+        ax1.imshow(dataframe[quantiles_open[i]],cmap=plt.get_cmap('gray_r'))#,norm=divnorm)
+        ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
+        ax1.title.set_text(dataframe['datetrack'])
+        ax1.set_xlim(0,2500)
+        ax1.set_ylim(41,0)
+        ax1.set_aspect(2)
+        
+        #Save the figure
+        plt.savefig(fig_name,dpi=2000)
+        plt.clf()
+    
+    #Plot the depth correctes traces
+    #pdb.set_trace()
+    
+    #Define fig name
+    fig_name=path_savefig+'depth_corr'+'.png'
+    
+    #Prepare the plot
+    fig, (ax1) = plt.subplots(1, 1)
+    fig.suptitle('Depth corrected traces, 2013 trace in MF2019')
+    
+    ax1.imshow(dataframe['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
+    ax1.title.set_text(dataframe['datetrack'])
+    ax1.set_xlim(0,2500)
+    ax1.set_ylim(41,0)
+    ax1.set_aspect(2)
+    
+    #Save the figure
+    plt.savefig(fig_name,dpi=2000)
+    plt.clf()
+        
+pdb.set_trace()
+    
 if (display_pickle=='TRUE'):
     
     #Define min and max lon for plotting
@@ -1063,7 +1136,7 @@ if (display_pickle=='TRUE'):
         
         
         #Define filename of boolean files 
-        filename_boolean_c=date_track+'_SG1_cutoff_quant095_threshold_350.pickle'
+        filename_boolean_c=date_track+'_SG1_cutoff_0.65_threshold_350.pickle'
         
         #Load boolean files
         f_boolean_c = open(path_boolean_remove_surf+filename_boolean_c, "rb")
@@ -1217,7 +1290,7 @@ if (display_pickle=='TRUE'):
     figde.suptitle('Depth corrected from MacFerrin et al., 2019')
     
     figd, (ax1d,ax2d,ax3d,ax4d,ax5d,ax6d,ax7d) = plt.subplots(7, 1)
-    figd.suptitle('Custom threshold: quantile 0.95 of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
+    figd.suptitle('Custom threshold: quantile 0.65 of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
     
     figm, (ax1m,ax2m,ax3m,ax4m,ax5m,ax6m,ax7m) = plt.subplots(7, 1)
     figm.suptitle('MacFerrin et al., 2019: SG1_CUTOFF_-0.45_THRESHOLD_350')
@@ -1334,11 +1407,6 @@ if (display_pickle=='TRUE'):
         
         
     plt.show()
-
-
-
-
-
 
 
 
