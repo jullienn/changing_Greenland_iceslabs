@@ -787,8 +787,7 @@ if (create_pickle == 'TRUE'):
         #Then open the quantile file created previously        
         quantile_file = pd.read_csv(filename_quantiles, sep=" ", header=None)
         quantile_investigation=np.asarray(quantile_file.iloc[1])
-        
-        
+    
     '''
     Not usefull anymore but kept in case needed
     boolean_mask_nb=np.empty((depth_corr_20m.shape[0],depth_corr_20m.shape[1]))
