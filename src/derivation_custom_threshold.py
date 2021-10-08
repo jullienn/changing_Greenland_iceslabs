@@ -142,7 +142,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
         
         #pdb.set_trace()
         #Save as pickle file     
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(cutoff_q)+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(np.round(cutoff_q,2))+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
