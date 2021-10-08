@@ -1030,8 +1030,6 @@ if (investigation_quantile=='TRUE'):
     #pdb.set_trace()
     
     #Display the resulting slabs identification
-    X=dataframe['lon_appended']
-    Y=np.arange(0,20,20/dataframe[quantiles_open[0]].shape[0])
     path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_investigation/'
     
     for i in range(0,len(quantiles_open)):
