@@ -400,15 +400,15 @@ from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 import pandas as pd
 
-create_pickle='TRUE'
+create_pickle='FALSE'
 display_pickle='FALSE'
 display_plots_quick_check='FALSE'
 
-investigation_quantile='FALSE'
+investigation_quantile='TRUE'
 gaussian_calibration='FALSE'
 #For quantile investigation plotting
-show_reference_trace='FALSE'
-show_case_study='TRUE'
+show_reference_trace='TRUE'
+show_case_study='FALSE'
 
 #1. Open roll corrected of the specific year
 '''
@@ -430,7 +430,7 @@ investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat']
                     2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
                     2018:'empty'}
 '''
-
+'''
 #7years case study
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
                     2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
@@ -439,7 +439,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
-
+'''
 '''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
@@ -451,7 +451,7 @@ investigation_year={2010:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 #2014 and 2017 almost colocated
 '''
-'''
+
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -461,7 +461,7 @@ investigation_year={2010:'empty',
                     2017:'empty',
                     2018:'empty'}
 #2014 and 2017 almost colocated
-'''
+
 if (create_pickle == 'TRUE'):
     ##############################################################################
     ###                             Load data                                  ###
@@ -476,7 +476,7 @@ if (create_pickle == 'TRUE'):
     dataframe={}
     
     #Define the desired quantiles
-    desired_quantiles=np.arange(0.6,0.91,0.01)
+    desired_quantiles=np.arange(0,1,0.01)
     filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
     
     for single_year in investigation_year.keys():
@@ -778,11 +778,12 @@ if (create_pickle == 'TRUE'):
         
         #Define quantiles for investigation of accuracy
         quantile_investigation=np.quantile(iceslabs,desired_quantiles)
-            
+        
         f_quantiles = open(filename_quantiles, "w")
         f_quantiles.write(str(np.round(desired_quantiles,2))+'\n')
         f_quantiles.write(str(quantile_investigation))
         f_quantiles.close() #Close the quantile file when we’re done!
+        
     else:
         #pdb.set_trace()
         #Then open the quantile file created previously        
@@ -827,7 +828,7 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-pdb.set_trace()
+#pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
@@ -1053,7 +1054,7 @@ if (investigation_quantile=='TRUE'):
         ax3.grid()
         
         plt.show()
-        pdb.set_trace()
+        #pdb.set_trace()
         
         #Display the resulting slabs identification
         path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/'
@@ -1080,7 +1081,14 @@ if (investigation_quantile=='TRUE'):
             ax1.title.set_text(dataframe['datetrack']+' - quantile: '+str(quantiles_open[i]))
             ax1.set_xlim(0,2500)
             ax1.set_ylim(41,0)
-            ax1.set_aspect(2)
+            ax1.set_aspect(4)
+            
+            plt.setp(ax1.get_xticklabels(), visible=False)
+            ax1.set_yticks(np.linspace(0,41,3))
+            ax1.set_yticklabels(list(np.linspace(0,20,3)))
+            ax1.set_ylabel('Depth [m]')
+            
+            #pdb.set_trace()
             
             #Save the figure
             plt.savefig(fig_name,dpi=2000)
@@ -1095,7 +1103,9 @@ if (investigation_quantile=='TRUE'):
         #Prepare the plot
         fig, (ax1) = plt.subplots(1, 1)
         fig.suptitle('Depth corrected traces, 2013 trace in MF2019')
-        
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+            
         ax1.imshow(dataframe['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
         ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
         ax1.title.set_text(dataframe['datetrack'] +' - depth corrected')
