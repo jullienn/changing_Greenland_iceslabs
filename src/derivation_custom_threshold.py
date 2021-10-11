@@ -405,10 +405,15 @@ from sklearn.metrics.cluster import contingency_matrix
 import pandas as pd
 
 create_pickle='FALSE'
-display_pickle='TRUE'
+display_pickle='FALSE'
 gaussian_calibration='FALSE'
 display_plots_quick_check='FALSE'
-investigation_quantile='FALSE'
+investigation_quantile='TRUE'
+
+#For quantile investigation plotting
+show_reference_trace='FALSE'
+show_case_study='TRUE'
+
 #1. Open roll corrected of the specific year
 '''
 investigation_year={2010:'empty',
@@ -826,7 +831,7 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-pdb.set_trace()
+#pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
@@ -841,231 +846,254 @@ if (investigation_quantile=='TRUE'):
     path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'
     path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Depth_Corrected_Picklefiles/'
     
-    #Define the year
-    single_year=2013
-    
-    #Construct the date for data loading
-    start_date_track=investigation_year[single_year][0]
-    end_date_track=investigation_year[single_year][-1]
-    date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
-    
-    #Define filename roll, depth corrected data and mask
-    filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
-                 
-    #Open the roll corrected file
-    f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
-    depth_corrected = pickle.load(f_depth_corrected)
-    f_depth_corrected.close()
-    
-    #Define the quantiles to open
-    quantiles_open=np.round(np.arange(0,1,0.01),2)
-    
-    #Set dataframe
-    dataframe={}
-    dataframe={k: {} for k in list(quantiles_open)}
-    
-    #Open the quantile files
-    for indiv_quantile in dataframe.keys():
-        #Define filename of boolean files 
-        filename_boolean_quantile=date_track+'_SG1_cutoff_'+str(indiv_quantile)+'_threshold_350.pickle'
+    if (show_reference_trace=='TRUE'):
         
-        #Load boolean files
-        f_boolean_quantile = open(path_boolean_remove_surf+filename_boolean_quantile, "rb")
-        dataframe[indiv_quantile] = pickle.load(f_boolean_quantile)
-        f_boolean_quantile.close()
-    
-    #########################################################################
-    # From plot_2002_2003.py - END
-    #########################################################################
-    
-    ###2. Load the latitude and longitude
-    lat_appended=[]
-    lon_appended=[]
+        #Define the year
+        single_year=2013
         
-    for indiv_file_load in investigation_year[single_year]:
-        print(indiv_file_load)
+        #Construct the date for data loading
+        start_date_track=investigation_year[single_year][0]
+        end_date_track=investigation_year[single_year][-1]
+        date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
         
-        #Create the path
-        path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
+        #Define filename roll, depth corrected data and mask
+        filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
+                     
+        #Open the roll corrected file
+        f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+        depth_corrected = pickle.load(f_depth_corrected)
+        f_depth_corrected.close()
         
-        #Load data
-        if (single_year>=2014):
+        #Define the quantiles to open
+        quantiles_open=np.round(np.arange(0,1,0.01),2)
+        
+        #Set dataframe
+        dataframe={}
+        dataframe={k: {} for k in list(quantiles_open)}
+        
+        #Open the quantile files
+        for indiv_quantile in dataframe.keys():
+            #Define filename of boolean files 
+            filename_boolean_quantile=date_track+'_SG1_cutoff_'+str(indiv_quantile)+'_threshold_350.pickle'
             
-            fdata_filename = h5py.File(path_raw_data+indiv_file_load)
-            lat_filename=fdata_filename['Latitude'][:,:]
-            lon_filename=fdata_filename['Longitude'][:,:]
-            time_filename=fdata_filename['Time'][:,:]
+            #Load boolean files
+            f_boolean_quantile = open(path_boolean_remove_surf+filename_boolean_quantile, "rb")
+            dataframe[indiv_quantile] = pickle.load(f_boolean_quantile)
+            f_boolean_quantile.close()
+        
+        #########################################################################
+        # From plot_2002_2003.py - END
+        #########################################################################
+        
+        ###2. Load the latitude and longitude
+        lat_appended=[]
+        lon_appended=[]
             
-        else:
-            fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
-            lat_filename = fdata_filename['Latitude']
-            lon_filename = fdata_filename['Longitude']
-            time_filename = fdata_filename['Time']
-        
-        #Append data
-        lat_appended=np.append(lat_appended,lat_filename)
-        lon_appended=np.append(lon_appended,lon_filename)
+        for indiv_file_load in investigation_year[single_year]:
+            print(indiv_file_load)
             
-    #Check whether the data are acquired ascending or descending elevation wise.
-    #I choose the ascending format. For the data that are descending, reverse them
-    #To have ascending data, the longitude should increase
-    #(-48 = low elevations, -46 = higher elevations)
-    
-    if (np.sum(np.diff(lon_appended))<0):
-        #It is going toward lower elevations, thus flip left-right
-        #(or up-down) all the data!
+            #Create the path
+            path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
+            
+            #Load data
+            if (single_year>=2014):
+                
+                fdata_filename = h5py.File(path_raw_data+indiv_file_load)
+                lat_filename=fdata_filename['Latitude'][:,:]
+                lon_filename=fdata_filename['Longitude'][:,:]
+                time_filename=fdata_filename['Time'][:,:]
+                
+            else:
+                fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
+                lat_filename = fdata_filename['Latitude']
+                lon_filename = fdata_filename['Longitude']
+                time_filename = fdata_filename['Time']
+            
+            #Append data
+            lat_appended=np.append(lat_appended,lat_filename)
+            lon_appended=np.append(lon_appended,lon_filename)
+                
+        #Check whether the data are acquired ascending or descending elevation wise.
+        #I choose the ascending format. For the data that are descending, reverse them
+        #To have ascending data, the longitude should increase
+        #(-48 = low elevations, -46 = higher elevations)
         
-        lat_appended=np.flipud(lat_appended)
-        lon_appended=np.flipud(lon_appended)
+        if (np.sum(np.diff(lon_appended))<0):
+            #It is going toward lower elevations, thus flip left-right
+            #(or up-down) all the data!
+            
+            lat_appended=np.flipud(lat_appended)
+            lon_appended=np.flipud(lon_appended)
+            
+        #Calculate the depth from the time
+        #########################################################################
+        # From plot_2002_2003.py - BEGIN
+        #########################################################################
+        depth_check = v * time_filename / 2.0
         
-    #Calculate the depth from the time
-    #########################################################################
-    # From plot_2002_2003.py - BEGIN
-    #########################################################################
-    depth_check = v * time_filename / 2.0
-    
-    #If 2014, transpose the vector
-    if (str(single_year)>='2014'):
-        depth_check=np.transpose(depth_check)
-    
-    #Reset times to zero! This is from IceBridgeGPR_Manager_v2.py
-    if (depth_check[10]<0):
-        #depth_check[10] so that I am sure that the whole vector is negative and
-        #not the first as can be for some date were the proccessing is working
-        depth_check=depth_check+abs(depth_check[0])
-        depth = depth_check
-    else:
-        depth = depth_check
-    
-    if (str(single_year) in list(['2011','2012','2014','2017','2018'])):
-        if (depth_check[10]>1):
-            #depth_check[10] so that I am sure that the whole vector is largely positive and
+        #If 2014, transpose the vector
+        if (str(single_year)>='2014'):
+            depth_check=np.transpose(depth_check)
+        
+        #Reset times to zero! This is from IceBridgeGPR_Manager_v2.py
+        if (depth_check[10]<0):
+            #depth_check[10] so that I am sure that the whole vector is negative and
             #not the first as can be for some date were the proccessing is working
-            depth_check=depth_check-abs(depth_check[0])
+            depth_check=depth_check+abs(depth_check[0])
+            depth = depth_check
+        else:
             depth = depth_check
         
-    #pdb.set_trace()
-    #Store reunited lat/lon, slice output and mask in a dictionnary:
-    dataframe['lat_appended']=lat_appended
-    dataframe['lon_appended']=lon_appended
-    dataframe['depth']=depth
-    dataframe['datetrack']=date_track
-    dataframe['depth_corrected']=depth_corrected
-    
-    #Open the conservative mask
-    path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/'
-    boolean_mask = Image.open(path_mask+'binary_conservative_mask_20130409_01_010_012_XDEPTHCORRECT_AFTER.png').convert("L")
-    arr_boolean_mask = np.asarray(boolean_mask)
-    
-    #Keep only the first 20m of the 30m boolean mask
-    boolean_20m=dataframe['depth'] <= 20
-    ind_20m=np.where(boolean_20m==True)[0]
-    arr_boolean_mask_20m=arr_boolean_mask[ind_20m,:]
-    # Convert the image mask into a boolean
-    arr_boolean_mask_20m=~arr_boolean_mask_20m
-    arr_boolean_mask_20m[arr_boolean_mask_20m==255]=1
-    
-    dataframe['mask_truth']=arr_boolean_mask_20m
-    ##############################################################################
-    ###                          Load and organise data                        ###
-    ##############################################################################
-    
-    #pdb.set_trace()
-    
-    #Extract overall accuracy and plot quatile VS accuracy
-
-    #Contigency table to perform here
-    
-    #Define the Overall accuracy vector
-    OA=np.zeros(len(quantiles_open))
-    PA_dryfirn=np.zeros(len(quantiles_open))
-    UA_dryfirn=np.zeros(len(quantiles_open))
-    PA_iceslabs=np.zeros(len(quantiles_open))
-    UA_iceslabs=np.zeros(len(quantiles_open))
-    
-    #Use sklearn.metrics.cluster.contingency_matrix, cf. https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cluster.contingency_matrix.html
-    #loop over the different quantiles
-    for i in range(0,len(quantiles_open)):
-        print(quantiles_open[i])
-        cont_matrix=contingency_matrix(dataframe['mask_truth'], dataframe[quantiles_open[i]])
-        
-        if (cont_matrix.shape[1]==1):
-            #Only one class, store nan
-            #0 is dry firn, 1 is slabs
-            OA[i]=np.nan
-            #error of omissions = along the columns
-            PA_dryfirn[i]=np.nan
-            UA_dryfirn[i]=np.nan
+        if (str(single_year) in list(['2011','2012','2014','2017','2018'])):
+            if (depth_check[10]>1):
+                #depth_check[10] so that I am sure that the whole vector is largely positive and
+                #not the first as can be for some date were the proccessing is working
+                depth_check=depth_check-abs(depth_check[0])
+                depth = depth_check
             
-            PA_iceslabs[i]=np.nan
-            UA_iceslabs[i]=np.nan
-        else:
-            #0 is dry firn, 1 is slabs
-            OA[i]=(cont_matrix[0,0]+cont_matrix[1,1])/np.sum(cont_matrix)
-            #error of omissions = along the columns
-            PA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[0,:]))
-            UA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[:,0]))
-            
-            PA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[1,:]))
-            UA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[:,1]))
+        #pdb.set_trace()
+        #Store reunited lat/lon, slice output and mask in a dictionnary:
+        dataframe['lat_appended']=lat_appended
+        dataframe['lon_appended']=lon_appended
+        dataframe['depth']=depth
+        dataframe['datetrack']=date_track
+        dataframe['depth_corrected']=depth_corrected
         
+        #Open the conservative mask
+        path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/'
+        boolean_mask = Image.open(path_mask+'binary_conservative_mask_20130409_01_010_012_XDEPTHCORRECT_AFTER.png').convert("L")
+        arr_boolean_mask = np.asarray(boolean_mask)
+        
+        #Keep only the first 20m of the 30m boolean mask
+        boolean_20m=dataframe['depth'] <= 20
+        ind_20m=np.where(boolean_20m==True)[0]
+        arr_boolean_mask_20m=arr_boolean_mask[ind_20m,:]
+        # Convert the image mask into a boolean
+        arr_boolean_mask_20m=~arr_boolean_mask_20m
+        arr_boolean_mask_20m[arr_boolean_mask_20m==255]=1
+        
+        dataframe['mask_truth']=arr_boolean_mask_20m
+        ##############################################################################
+        ###                          Load and organise data                        ###
+        ##############################################################################
+        
+        #pdb.set_trace()
+        
+        #Extract overall accuracy and plot quatile VS accuracy
     
-    fig, (ax1,ax2,ax3) = plt.subplots(1, 3)
-    fig.suptitle('Accuracy VS quantile')
-    
-    #Plot OA
-    ax1.plot(quantiles_open,OA)
-    ax1.grid()
-    ax1.set_title("Overall accuracy")
-    
-    #Plot PA
-    #Producer's Accuracy is the map accuracy from the point of view of the map
-    #maker (the producer). This is how often are real features on the ground
-    #correctly shown on the classified map or the probability that a certain
-    #land cover of an area on the ground is classified as such
-    #(from http://gsp.humboldt.edu/olm_2019/courses/GSP_216_Online/lesson6-2/metrics.html)
-    # ---> This is this quantity we are interested in !!
-    ax2.plot(quantiles_open,PA_dryfirn,label='dry firn')
-    ax2.plot(quantiles_open,PA_iceslabs,label='ice slabs')
-    ax2.set_title("Producer's accuracy")
-    ax2.legend()
-    ax2.grid()
-    
-    #Plot UA
-    #the User's accuracy essentially tells use how often the class on the map
-    #will actually be present on the ground. This is referred to as reliability
-    #(from http://gsp.humboldt.edu/olm_2019/courses/GSP_216_Online/lesson6-2/metrics.html)
-    
-    ax3.plot(quantiles_open,UA_dryfirn,label='dry firn')
-    ax3.plot(quantiles_open,UA_iceslabs,label='iceslabs')
-    ax3.set_title("User's accuracy")
-    ax3.legend()
-    ax3.grid()
-    
-    plt.show()
-    pdb.set_trace()
-    
-    #Display the resulting slabs identification
-    path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_investigation/'
-    
-    for i in range(0,len(quantiles_open)):
+        #Contigency table to perform here
+        
+        #Define the Overall accuracy vector
+        OA=np.zeros(len(quantiles_open))
+        PA_dryfirn=np.zeros(len(quantiles_open))
+        UA_dryfirn=np.zeros(len(quantiles_open))
+        PA_iceslabs=np.zeros(len(quantiles_open))
+        UA_iceslabs=np.zeros(len(quantiles_open))
+        
+        #Use sklearn.metrics.cluster.contingency_matrix, cf. https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cluster.contingency_matrix.html
+        #loop over the different quantiles
+        for i in range(0,len(quantiles_open)):
+            print(quantiles_open[i])
+            cont_matrix=contingency_matrix(dataframe['mask_truth'], dataframe[quantiles_open[i]])
+            
+            if (cont_matrix.shape[1]==1):
+                #Only one class, store nan
+                #0 is dry firn, 1 is slabs
+                OA[i]=np.nan
+                #error of omissions = along the columns
+                PA_dryfirn[i]=np.nan
+                UA_dryfirn[i]=np.nan
+                
+                PA_iceslabs[i]=np.nan
+                UA_iceslabs[i]=np.nan
+            else:
+                #0 is dry firn, 1 is slabs
+                OA[i]=(cont_matrix[0,0]+cont_matrix[1,1])/np.sum(cont_matrix)
+                #error of omissions = along the columns
+                PA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[0,:]))
+                UA_dryfirn[i]=cont_matrix[0,0]/(np.sum(cont_matrix[:,0]))
+                
+                PA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[1,:]))
+                UA_iceslabs[i]=cont_matrix[1,1]/(np.sum(cont_matrix[:,1]))
+            
+        
+        fig, (ax1,ax2,ax3) = plt.subplots(1, 3)
+        fig.suptitle('Accuracy VS quantile')
+        
+        #Plot OA
+        ax1.plot(quantiles_open,OA)
+        ax1.grid()
+        ax1.set_title("Overall accuracy")
+        
+        #Plot PA
+        #Producer's Accuracy is the map accuracy from the point of view of the map
+        #maker (the producer). This is how often are real features on the ground
+        #correctly shown on the classified map or the probability that a certain
+        #land cover of an area on the ground is classified as such
+        #(from http://gsp.humboldt.edu/olm_2019/courses/GSP_216_Online/lesson6-2/metrics.html)
+        # ---> This is this quantity we are interested in !!
+        ax2.plot(quantiles_open,PA_dryfirn,label='dry firn')
+        ax2.plot(quantiles_open,PA_iceslabs,label='ice slabs')
+        ax2.set_title("Producer's accuracy")
+        ax2.legend()
+        ax2.grid()
+        
+        #Plot UA
+        #the User's accuracy essentially tells use how often the class on the map
+        #will actually be present on the ground. This is referred to as reliability
+        #(from http://gsp.humboldt.edu/olm_2019/courses/GSP_216_Online/lesson6-2/metrics.html)
+        
+        ax3.plot(quantiles_open,UA_dryfirn,label='dry firn')
+        ax3.plot(quantiles_open,UA_iceslabs,label='iceslabs')
+        ax3.set_title("User's accuracy")
+        ax3.legend()
+        ax3.grid()
+        
+        plt.show()
+        pdb.set_trace()
+        
+        #Display the resulting slabs identification
+        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_investigation/'
+        
+        for i in range(0,len(quantiles_open)):
+            
+            #Define fig name
+            fig_name=path_savefig+'quant_'+str(quantiles_open[i])+'.png'
+            
+            #Prepare the plot
+            fig, (ax1) = plt.subplots(1, 1)
+            fig.suptitle('Custom threshold: quantile'+str(quantiles_open[i])+' of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
+            
+            #Replace where dry firn by nan so that overlay plot can be possible
+            quantile_to_plot=dataframe[quantiles_open[i]]
+            quantile_to_plot[quantile_to_plot==0]=np.nan
+            
+            #Plot custom threshold ice slabs identification
+            ax1.imshow(dataframe['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+            ax1.imshow(quantile_to_plot,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+            ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
+            ax1.title.set_text(dataframe['datetrack']+' - quantile: '+str(quantiles_open[i]))
+            ax1.set_xlim(0,2500)
+            ax1.set_ylim(41,0)
+            ax1.set_aspect(2)
+            
+            #Save the figure
+            plt.savefig(fig_name,dpi=2000)
+            plt.clf()
+        
+        #Plot the depth correctes traces
+        #pdb.set_trace()
         
         #Define fig name
-        fig_name=path_savefig+'quant_'+str(quantiles_open[i])+'.png'
+        fig_name=path_savefig+'depth_corr'+'.png'
         
         #Prepare the plot
         fig, (ax1) = plt.subplots(1, 1)
-        fig.suptitle('Custom threshold: quantile'+str(quantiles_open[i])+' of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
+        fig.suptitle('Depth corrected traces, 2013 trace in MF2019')
         
-        #Replace where dry firn by nan so that overlay plot can be possible
-        quantile_to_plot=dataframe[quantiles_open[i]]
-        quantile_to_plot[quantile_to_plot==0]=np.nan
-        
-        #Plot custom threshold ice slabs identification
         ax1.imshow(dataframe['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-        ax1.imshow(quantile_to_plot,cmap=plt.get_cmap('gray'))#,norm=divnorm)
         ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
-        ax1.title.set_text(dataframe['datetrack']+' - quantile: '+str(quantiles_open[i]))
+        ax1.title.set_text(dataframe['datetrack'] +' - depth corrected')
         ax1.set_xlim(0,2500)
         ax1.set_ylim(41,0)
         ax1.set_aspect(2)
@@ -1074,27 +1102,198 @@ if (investigation_quantile=='TRUE'):
         plt.savefig(fig_name,dpi=2000)
         plt.clf()
     
-    #Plot the depth correctes traces
-    #pdb.set_trace()
-    
-    #Define fig name
-    fig_name=path_savefig+'depth_corr'+'.png'
-    
-    #Prepare the plot
-    fig, (ax1) = plt.subplots(1, 1)
-    fig.suptitle('Depth corrected traces, 2013 trace in MF2019')
-    
-    ax1.imshow(dataframe['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
-    ax1.title.set_text(dataframe['datetrack'] +' - depth corrected')
-    ax1.set_xlim(0,2500)
-    ax1.set_ylim(41,0)
-    ax1.set_aspect(2)
-    
-    #Save the figure
-    plt.savefig(fig_name,dpi=2000)
-    plt.clf()
+    if (show_case_study=='TRUE'):
+        #pdb.set_trace()
         
+        #Set dataframe
+        dataframe={}
+        dataframe={k: {} for k in list(investigation_year.keys())}
+            
+        for single_year in investigation_year.keys():
+            print(single_year)
+            #Define the quantiles to open
+            quantiles_open=np.round(np.arange(0.6,.83,0.01),2)
+            
+            #Set dataframe
+            dataframe[single_year]={k: {} for k in list(quantiles_open)}
+            
+            #Construct the date for data loading
+            start_date_track=investigation_year[single_year][0]
+            end_date_track=investigation_year[single_year][-1]
+            date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
+            
+            #Define filename roll, depth corrected data and mask
+            filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
+                         
+            #Open the roll corrected file
+            f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+            depth_corrected = pickle.load(f_depth_corrected)
+            f_depth_corrected.close()
+            
+            #pdb.set_trace()
+            
+            #Open the quantile files
+            for indiv_quantile in quantiles_open:
+                #Define filename of boolean files 
+                filename_boolean_quantile=date_track+'_SG1_cutoff_'+str(indiv_quantile)+'_threshold_350.pickle'
+                
+                #Load boolean files
+                f_boolean_quantile = open(path_boolean_remove_surf+filename_boolean_quantile, "rb")
+                dataframe[single_year][indiv_quantile] = pickle.load(f_boolean_quantile)
+                f_boolean_quantile.close()
+            
+            #########################################################################
+            # From plot_2002_2003.py - END
+            #########################################################################
+            #pdb.set_trace()
+            ###2. Load the latitude and longitude
+            lat_appended=[]
+            lon_appended=[]
+                
+            for indiv_file_load in investigation_year[single_year]:
+                print(indiv_file_load)
+                
+                #Create the path
+                path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
+                
+                #Load data
+                if (single_year>=2014):
+                    
+                    fdata_filename = h5py.File(path_raw_data+indiv_file_load)
+                    lat_filename=fdata_filename['Latitude'][:,:]
+                    lon_filename=fdata_filename['Longitude'][:,:]
+                    time_filename=fdata_filename['Time'][:,:]
+                    
+                else:
+                    fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
+                    lat_filename = fdata_filename['Latitude']
+                    lon_filename = fdata_filename['Longitude']
+                    time_filename = fdata_filename['Time']
+                
+                #Append data
+                lat_appended=np.append(lat_appended,lat_filename)
+                lon_appended=np.append(lon_appended,lon_filename)
+                    
+            #Check whether the data are acquired ascending or descending elevation wise.
+            #I choose the ascending format. For the data that are descending, reverse them
+            #To have ascending data, the longitude should increase
+            #(-48 = low elevations, -46 = higher elevations)
+            
+            if (np.sum(np.diff(lon_appended))<0):
+                #It is going toward lower elevations, thus flip left-right
+                #(or up-down) all the data!
+                
+                lat_appended=np.flipud(lat_appended)
+                lon_appended=np.flipud(lon_appended)
+                depth_corrected=np.fliplr(depth_corrected)
+                
+            #Calculate the depth from the time
+            #########################################################################
+            # From plot_2002_2003.py - BEGIN
+            #########################################################################
+            depth_check = v * time_filename / 2.0
+            
+            #If 2014, transpose the vector
+            if (str(single_year)>='2014'):
+                depth_check=np.transpose(depth_check)
+            
+            #Reset times to zero! This is from IceBridgeGPR_Manager_v2.py
+            if (depth_check[10]<0):
+                #depth_check[10] so that I am sure that the whole vector is negative and
+                #not the first as can be for some date were the proccessing is working
+                depth_check=depth_check+abs(depth_check[0])
+                depth = depth_check
+            else:
+                depth = depth_check
+            
+            if (str(single_year) in list(['2011','2012','2014','2017','2018'])):
+                if (depth_check[10]>1):
+                    #depth_check[10] so that I am sure that the whole vector is largely positive and
+                    #not the first as can be for some date were the proccessing is working
+                    depth_check=depth_check-abs(depth_check[0])
+                    depth = depth_check
+                
+            #pdb.set_trace()
+            #Store reunited lat/lon, slice output and mask in a dictionnary:
+            dataframe[single_year]['lat_appended']=lat_appended
+            dataframe[single_year]['lon_appended']=lon_appended
+            dataframe[single_year]['depth']=depth
+            #Store depth corrected traces into dataframe
+            dataframe[single_year]['datetrack']=date_track
+            dataframe[single_year]['depth_corrected']=depth_corrected
+            
+            ##############################################################################
+            ###                          Load and organise data                        ###
+            ##############################################################################
+            
+        #pdb.set_trace()
+        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_investigation/'
+        
+        #Plot data
+        #Loop on the quantiles
+        for i in range(0,len(quantiles_open)):
+            #pdb.set_trace()
+            
+            #Prepare the plot
+            fig, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7, 1)
+            fig.suptitle('Custom threshold: quantile'+str(quantiles_open[i])+' of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
+            
+            #Define fig name
+            fig_name=path_savefig+'casestudy_quant_'+str(quantiles_open[i])+'.png'
+            
+            #Loop on the years
+            for single_year in investigation_year.keys():
+                    
+                if (single_year==2010):
+                    ax_plotting=ax1
+                    ylim_down=86
+                elif (single_year==2011):
+                    ax_plotting=ax2
+                    ylim_down=86
+                elif (single_year==2012):
+                    ax_plotting=ax3
+                    ylim_down=41
+                elif (single_year==2013):
+                    ax_plotting=ax4
+                    ylim_down=41
+                elif (single_year==2014):
+                    ax_plotting=ax5
+                    ylim_down=41
+                elif (single_year==2017):
+                    ax_plotting=ax6
+                    ylim_down=41
+                elif (single_year==2018):
+                    ax_plotting=ax7
+                    ylim_down=41
+                else:
+                    print('Year not existing')
+                
+                #pdb.set_trace()
+                
+                #Replace where dry firn by nan so that overlay plot can be possible
+                quantile_to_plot=dataframe[single_year][quantiles_open[i]]
+                quantile_to_plot[quantile_to_plot==0]=np.nan
+                
+                #Find x and y lim for imshow plotting
+                xlimits_start=np.where(dataframe[single_year]['lon_appended'] >= -47.8)[0][0]
+                xlimits_end=np.where(dataframe[single_year]['lon_appended'] <= -46.8)[0][-1]
+                #xlimits=(dataframe[single_year]['lon_appended'] >= -47.8)&(dataframe[single_year]['lon_appended'] <= -46.8)
+                
+                #Plot custom threshold ice slabs identification
+                ax_plotting.imshow(dataframe[single_year]['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+                ax_plotting.imshow(quantile_to_plot,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+                #ax_plotting.title.set_text(dataframe[single_year]['datetrack'])
+                ax_plotting.set_xlim(xlimits_start,xlimits_end)
+                ax_plotting.set_ylim(ylim_down,0)
+                #ax_plotting.set_aspect(2)
+                #pdb.set_trace()
+              
+            pdb.set_trace()
+            #Save the figure
+            plt.savefig(fig_name,dpi=2000)
+            plt.clf()
+            
+            
 pdb.set_trace()
     
 if (display_pickle=='TRUE'):
