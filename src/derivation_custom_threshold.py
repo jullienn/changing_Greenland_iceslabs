@@ -81,13 +81,9 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
     
     #pdb.set_trace()
     #Investigate custom threshold sensitivity
-    ALGORITHMS = ("SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1",
-                  "SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1","SG1",
-                  "SG1","SG1","SG1")
+    ALGORITHMS = tuple(np.repeat("SG1",len(quantile_investigation)))
     CUTOFFS = tuple(quantile_investigation)
-    THRESHOLDS = (350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
-                  350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
-                  350, 350, 350)
+    THRESHOLDS = tuple(np.repeat(350,len(quantile_investigation)))
     
     #Initalize count to 0 for cutoff names
     count=0
@@ -142,7 +138,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
         
         #pdb.set_trace()
         #Save as pickle file     
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'+datetrack+'_'+algorithm+'_cutoff_'+str(np.round(cutoff_q,2))+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'+datetrack+'_'+algorithm+'_cutoff_'+str(np.round(cutoff_q,2))+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
@@ -404,12 +400,12 @@ from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 import pandas as pd
 
-create_pickle='FALSE'
+create_pickle='TRUE'
 display_pickle='FALSE'
-gaussian_calibration='FALSE'
 display_plots_quick_check='FALSE'
-investigation_quantile='TRUE'
 
+investigation_quantile='FALSE'
+gaussian_calibration='FALSE'
 #For quantile investigation plotting
 show_reference_trace='FALSE'
 show_case_study='TRUE'
@@ -480,9 +476,9 @@ if (create_pickle == 'TRUE'):
     dataframe={}
     
     #Define the desired quantiles
-    desired_quantiles=np.arange(0.6,0.83,0.01)
-    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
-
+    desired_quantiles=np.arange(0.6,0.91,0.01)
+    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
+    
     for single_year in investigation_year.keys():
         print(single_year)
         
@@ -595,7 +591,7 @@ if (create_pickle == 'TRUE'):
         ##############################################################################
         ###                          Load and organise data                        ###
         ##############################################################################
-    
+    #pdb.set_trace()
     #3. Extract surface return and perform depth correction without normalisation
     for single_year in investigation_year.keys():
         print('--- Perform depth correction ---')
@@ -806,7 +802,7 @@ if (create_pickle == 'TRUE'):
     nan_index=np.isnan(boolean_mask_nb_flatten)
     boolean_mask_nb_flatten_without_nans=boolean_mask_nb_flatten[~nan_index]
     '''
-    pdb.set_trace()
+    #pdb.set_trace()
     #5. apply smoothing and thresholding
     for single_year in investigation_year.keys():
         print('--- Creating the pickle files ---')
@@ -831,7 +827,7 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-#pdb.set_trace()
+pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
@@ -994,6 +990,7 @@ if (investigation_quantile=='TRUE'):
         #loop over the different quantiles
         for i in range(0,len(quantiles_open)):
             print(quantiles_open[i])
+            
             cont_matrix=contingency_matrix(dataframe['mask_truth'], dataframe[quantiles_open[i]])
             
             if (cont_matrix.shape[1]==1):
@@ -1024,6 +1021,8 @@ if (investigation_quantile=='TRUE'):
         ax1.plot(quantiles_open,OA)
         ax1.grid()
         ax1.set_title("Overall accuracy")
+        ax1.set_xlabel('Quantile [ ]')
+        ax1.set_ylabel('Accuracy [%]')
         
         #Plot PA
         #Producer's Accuracy is the map accuracy from the point of view of the map
@@ -1036,6 +1035,8 @@ if (investigation_quantile=='TRUE'):
         ax2.plot(quantiles_open,PA_iceslabs,label='ice slabs')
         ax2.set_title("Producer's accuracy")
         ax2.legend()
+        ax2.set_xlabel('Quantile [ ]')
+        ax2.set_ylabel('Accuracy [%]')
         ax2.grid()
         
         #Plot UA
@@ -1047,6 +1048,8 @@ if (investigation_quantile=='TRUE'):
         ax3.plot(quantiles_open,UA_iceslabs,label='iceslabs')
         ax3.set_title("User's accuracy")
         ax3.legend()
+        ax3.set_xlabel('Quantile [ ]')
+        ax3.set_ylabel('Accuracy [%]')
         ax3.grid()
         
         plt.show()
@@ -1233,17 +1236,19 @@ if (investigation_quantile=='TRUE'):
         #Loop on the quantiles
         for i in range(0,len(quantiles_open)):
             #pdb.set_trace()
-            
+            print('Quantile: ',quantiles_open[i])
             #Prepare the plot
             fig, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7, 1)
-            fig.suptitle('Custom threshold: quantile'+str(quantiles_open[i])+' of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
-            
+            fig.suptitle('Custom threshold: quantile '+str(quantiles_open[i])+' of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
+            figManager = plt.get_current_fig_manager()
+            figManager.window.showMaximized()
+
             #Define fig name
             fig_name=path_savefig+'casestudy_quant_'+str(quantiles_open[i])+'.png'
             
             #Loop on the years
             for single_year in investigation_year.keys():
-                    
+                print(single_year)
                 if (single_year==2010):
                     ax_plotting=ax1
                     ylim_down=86
@@ -1281,13 +1286,22 @@ if (investigation_quantile=='TRUE'):
                 
                 #Plot custom threshold ice slabs identification
                 ax_plotting.imshow(dataframe[single_year]['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-                ax_plotting.imshow(quantile_to_plot,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+                ax_plotting.imshow(quantile_to_plot,cmap=plt.get_cmap('autumn'),alpha=0.1)#,norm=divnorm)
                 #ax_plotting.title.set_text(dataframe[single_year]['datetrack'])
                 ax_plotting.set_xlim(xlimits_start,xlimits_end)
                 ax_plotting.set_ylim(ylim_down,0)
-                #ax_plotting.set_aspect(2)
+                ax_plotting.set_aspect(np.abs(xlimits_start-xlimits_end)/ylim_down/17)
                 #pdb.set_trace()
-              
+                plt.setp(ax_plotting.get_xticklabels(), visible=False)
+                ax_plotting.set_yticks(np.linspace(0,ylim_down,3))
+                ax_plotting.set_yticklabels(list(np.linspace(0,20,3)))
+                ax_plotting.set_ylabel('Depth [m]')
+                
+                #pdb.set_trace()
+                #change figsize to make it bigger while saving
+
+                
+            #plt.show()
             pdb.set_trace()
             #Save the figure
             plt.savefig(fig_name,dpi=2000)
