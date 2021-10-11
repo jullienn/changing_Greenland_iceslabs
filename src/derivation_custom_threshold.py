@@ -839,7 +839,7 @@ if (investigation_quantile=='TRUE'):
     
     #Define paths
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-    path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/'
+    path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'
     path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Depth_Corrected_Picklefiles/'
     
     if (show_reference_trace=='TRUE'):
@@ -1056,16 +1056,18 @@ if (investigation_quantile=='TRUE'):
         pdb.set_trace()
         
         #Display the resulting slabs identification
-        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_investigation/'
+        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/'
         
         for i in range(0,len(quantiles_open)):
             
             #Define fig name
-            fig_name=path_savefig+'quant_'+str(quantiles_open[i])+'.png'
+            fig_name=path_savefig+'referencetrace_quant_'+str(quantiles_open[i])+'.png'
             
             #Prepare the plot
             fig, (ax1) = plt.subplots(1, 1)
             fig.suptitle('Custom threshold: quantile'+str(quantiles_open[i])+' of ice slabs distribution, SG1, 350 continuity from 2013 trace in MF2019')
+            figManager = plt.get_current_fig_manager()
+            figManager.window.showMaximized()
             
             #Replace where dry firn by nan so that overlay plot can be possible
             quantile_to_plot=dataframe[quantiles_open[i]]
@@ -1088,7 +1090,7 @@ if (investigation_quantile=='TRUE'):
         #pdb.set_trace()
         
         #Define fig name
-        fig_name=path_savefig+'depth_corr'+'.png'
+        fig_name=path_savefig+'referencetrace_depth_corr'+'.png'
         
         #Prepare the plot
         fig, (ax1) = plt.subplots(1, 1)
@@ -1100,6 +1102,10 @@ if (investigation_quantile=='TRUE'):
         ax1.set_xlim(0,2500)
         ax1.set_ylim(41,0)
         ax1.set_aspect(2)
+        plt.setp(ax1.get_xticklabels(), visible=False)
+        ax1.set_yticks(np.linspace(0,41,3))
+        ax1.set_yticklabels(list(np.linspace(0,20,3)))
+        ax1.set_ylabel('Depth [m]')
         
         #Save the figure
         plt.savefig(fig_name,dpi=2000)
@@ -1230,7 +1236,7 @@ if (investigation_quantile=='TRUE'):
             ##############################################################################
             
         #pdb.set_trace()
-        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/remove_surface_return/quantile_investigation/'
+        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/'
         
         #Plot data
         #Loop on the quantiles
