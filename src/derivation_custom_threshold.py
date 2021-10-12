@@ -400,7 +400,7 @@ from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 import pandas as pd
 
-create_pickle='FALSE'
+create_pickle='TRUE'
 display_pickle='FALSE'
 display_plots_quick_check='FALSE'
 
@@ -421,7 +421,7 @@ investigation_year={2010:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 
 '''
-'''
+
 investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
                     2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
                     2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
@@ -429,8 +429,8 @@ investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat']
                     2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat'],
                     2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
                     2018:'empty'}
-'''
 
+'''
 #7years case study
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
                     2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
@@ -439,7 +439,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
-
+'''
 '''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
@@ -476,7 +476,7 @@ if (create_pickle == 'TRUE'):
     dataframe={}
     
     #Define the desired quantiles
-    desired_quantiles=np.arange(0,1,0.01)
+    desired_quantiles=np.arange(0.6,0.91,0.01)
     filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
     
     for single_year in investigation_year.keys():
@@ -828,7 +828,7 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-#pdb.set_trace()
+pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
@@ -1267,7 +1267,7 @@ if (investigation_quantile=='TRUE'):
             figManager.window.showMaximized()
 
             #Define fig name
-            fig_name=path_savefig+'casestudy_quant_'+str(quantiles_open[i])+'.png'
+            fig_name=path_savefig+'casestudy_1_quant_'+str(quantiles_open[i])+'.png'
             
             #Loop on the years
             for single_year in investigation_year.keys():
