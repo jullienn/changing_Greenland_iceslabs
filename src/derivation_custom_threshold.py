@@ -407,8 +407,8 @@ display_plots_quick_check='FALSE'
 investigation_quantile='TRUE'
 gaussian_calibration='FALSE'
 #For quantile investigation plotting
-show_reference_trace='TRUE'
-show_case_study='FALSE'
+show_reference_trace='FALSE'
+show_case_study='TRUE'
 
 #1. Open roll corrected of the specific year
 '''
@@ -430,7 +430,7 @@ investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat']
                     2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
                     2018:'empty'}
 '''
-'''
+
 #7years case study
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
                     2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
@@ -439,7 +439,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
-'''
+
 '''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
@@ -451,7 +451,7 @@ investigation_year={2010:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 #2014 and 2017 almost colocated
 '''
-
+'''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -461,7 +461,7 @@ investigation_year={2010:'empty',
                     2017:'empty',
                     2018:'empty'}
 #2014 and 2017 almost colocated
-
+'''
 if (create_pickle == 'TRUE'):
     ##############################################################################
     ###                             Load data                                  ###
@@ -862,8 +862,9 @@ if (investigation_quantile=='TRUE'):
         f_depth_corrected.close()
         
         #Define the quantiles to open
-        quantiles_open=np.round(np.arange(0,1,0.01),2)
+        quantiles_open=np.round(np.arange(0.6,0.91,0.01),2)
         
+        #pdb.set_trace()
         #Set dataframe
         dataframe={}
         dataframe={k: {} for k in list(quantiles_open)}
@@ -1111,7 +1112,7 @@ if (investigation_quantile=='TRUE'):
         ax1.title.set_text(dataframe['datetrack'] +' - depth corrected')
         ax1.set_xlim(0,2500)
         ax1.set_ylim(41,0)
-        ax1.set_aspect(2)
+        ax1.set_aspect(4)
         plt.setp(ax1.get_xticklabels(), visible=False)
         ax1.set_yticks(np.linspace(0,41,3))
         ax1.set_yticklabels(list(np.linspace(0,20,3)))
@@ -1129,9 +1130,15 @@ if (investigation_quantile=='TRUE'):
         dataframe={k: {} for k in list(investigation_year.keys())}
             
         for single_year in investigation_year.keys():
+            
+            #If no data, continue
+            if (investigation_year[single_year]=='empty'):
+                print('No data for year '+str(single_year)+', continue')
+                continue
+        
             print(single_year)
             #Define the quantiles to open
-            quantiles_open=np.round(np.arange(0.6,.83,0.01),2)
+            quantiles_open=np.round(np.arange(0.83,.91,0.01),2)
             
             #Set dataframe
             dataframe[single_year]={k: {} for k in list(quantiles_open)}
@@ -1245,7 +1252,7 @@ if (investigation_quantile=='TRUE'):
             ###                          Load and organise data                        ###
             ##############################################################################
             
-        #pdb.set_trace()
+        pdb.set_trace()
         path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/'
         
         #Plot data
@@ -1264,7 +1271,14 @@ if (investigation_quantile=='TRUE'):
             
             #Loop on the years
             for single_year in investigation_year.keys():
+                
+                #If no data, continue
+                if (investigation_year[single_year]=='empty'):
+                    print('No data for year '+str(single_year)+', continue')
+                    continue
+                
                 print(single_year)
+                
                 if (single_year==2010):
                     ax_plotting=ax1
                     ylim_down=86
