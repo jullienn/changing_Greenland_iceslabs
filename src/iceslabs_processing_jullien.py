@@ -559,8 +559,8 @@ for indiv_trace in datetrack_toread:
     #Identify ice slabs
     
     boolean_slabs=identify_ice_lenses(traces_20m,dataframe['depth_corrected_after_surf_removal_without_norm'],dataframe['depth'],dataframe['mask'],dataframe['datetrack'],quantile_file[1,:],quantile_file[0,:])
-    #Ok all of the above works!!!! Great :). Just need to save the figures of display them and that's it
-    pdb.set_trace()
+    
+    #pdb.set_trace()
     #2. Open roll corrected traces and raw data
     #3. Perform surface removal
     #4. Perform depth correction without normalisation
