@@ -208,7 +208,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         '''
         filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
         '''
-        filename_tosave='/home/jullienn/data/threshold_processing_output/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
@@ -218,7 +218,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         '''
         fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
         '''
-        fig_name='home/jullienn/data/threshold_processing_output/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
+        fig_name='flash/jullienn/data/threshold_processing_output/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
         
         #Prepare the plot
         fig, (ax1) = plt.subplots(1, 1)
@@ -428,15 +428,15 @@ path_roll_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_da
 path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Boolean_Array_Picklefiles/'
 '''
 #Define paths cluster
-path_data='/home/jullienn/data/threshold_processing/'
-path_roll_corrected='/home/jullienn/data/threshold_processing/Roll_Corrected_Picklefiles/'
-path_mask='/home/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
+path_data='/flash/jullienn/data/threshold_processing/'
+path_roll_corrected='/flash/jullienn/data/threshold_processing/Roll_Corrected_Picklefiles/'
+path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
 
 #I. Identify all the datetraces to process
 '''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
-path_datetrack='/home/jullienn/data/threshold_processing/'
+path_datetrack='/flash/jullienn/data/threshold_processing/'
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Open the quantile file over whoch we will loop
@@ -444,7 +444,7 @@ quantiles_file=np.arange(0.63,0.83,0.01)
 '''
 filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
 '''
-filename_quantiles='/home/jullienn/data/threshold_processing/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
+filename_quantiles='/flash/jullienn/data/threshold_processing/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
 quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None))
 
 #intialize counter to 0
