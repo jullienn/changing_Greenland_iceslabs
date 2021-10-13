@@ -204,15 +204,21 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
             cutoff_q_save=cutoff_q_save+'0'
         
         #pdb.set_trace()
-        #Save as pickle file     
+        #Save as pickle file
+        '''
         filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
+        '''
+        filename_tosave='/home/jullienn/data/threshold_processing_output/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
         
         #Save figures here
         #Define fig name
+        '''
         fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
+        '''
+        fig_name='home/jullienn/data/threshold_processing_output/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
         
         #Prepare the plot
         fig, (ax1) = plt.subplots(1, 1)
@@ -409,28 +415,46 @@ import scipy.io
 import h5py
 import scipy.optimize
 import matplotlib.pyplot as plt
+import time
 
 
 #Define speed
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
+'''
 #Define paths
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 path_roll_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Roll_Corrected_Picklefiles/'
 path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Boolean_Array_Picklefiles/'
-    
+'''
+#Define paths cluster
+path_data='/home/jullienn/data/threshold_processing/'
+path_roll_corrected='/home/jullienn/data/threshold_processing/Roll_Corrected_Picklefiles/'
+path_mask='/home/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
+
 #I. Identify all the datetraces to process
+'''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+'''
+path_datetrack='/home/jullienn/data/threshold_processing/'
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Open the quantile file over whoch we will loop
 quantiles_file=np.arange(0.63,0.83,0.01)
+'''
 filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
+'''
+filename_quantiles='/home/jullienn/data/threshold_processing/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
 quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None))
 
+#intialize counter to 0
+count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:
+    start = time.time()
+
     print(indiv_trace[0])
+    print(count_time/len(datetrack_toread)*100,'%')
     #pdb.set_trace()
     
     ###########################################################################
@@ -559,6 +583,13 @@ for indiv_trace in datetrack_toread:
     #Identify ice slabs
     
     boolean_slabs=identify_ice_lenses(traces_20m,dataframe['depth_corrected_after_surf_removal_without_norm'],dataframe['depth'],dataframe['mask'],dataframe['datetrack'],quantile_file[1,:],quantile_file[0,:])
+    
+    #update counter
+    count_time=count_time+1
+    
+    #Print the time it took to process
+    end = time.time()
+    print('   ',end - start,'s')
     
     #pdb.set_trace()
     #2. Open roll corrected traces and raw data
