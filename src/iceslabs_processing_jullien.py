@@ -198,79 +198,50 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         boolean_full_slabs=reconstruct_with_NaNs(slices_depth_corrected_after_surf_removal_without_norm,depth,mask,boolean_slabs)
         #Ok that works!
         
-        pdb.set_trace()
+        #format cutoff_q for name saving
+        cutoff_q_save=str(np.round(cutoff_q,2))
+        if (len(cutoff_q_save)==3):
+            cutoff_q_save=cutoff_q_save+'0'
+        
+        #pdb.set_trace()
         #Save as pickle file     
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+str(np.round(cutoff_q,2))+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
         
-        #Update count
-        count=count+1
-        
-        pdb.set_trace()
-        
-        '''
         #Save figures here
-        
         #Define fig name
-        fig_name=path_savefig+'referencetrace_quant_'+str(quantiles_open[i])+'.png'
+        fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
         
         #Prepare the plot
         fig, (ax1) = plt.subplots(1, 1)
-        fig.suptitle('Custom threshold: quantile'+str(np.round(cutoff_q,2))+' of ice slabs distribution, SG1, 350 continuity')
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
         
         #Replace where dry firn by nan so that overlay plot can be possible
-        quantile_to_plot=dataframe[quantiles_open[i]]
-        quantile_to_plot[quantile_to_plot==0]=np.nan
+        quantile_to_plot=boolean_full_slabs
+        quantile_to_plot[boolean_full_slabs==0]=np.nan
         
         #Plot custom threshold ice slabs identification
-        ax1.imshow(dataframe['depth_corrected'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-        ax1.imshow(quantile_to_plot,cmap=plt.get_cmap('gray'))#,norm=divnorm)
-        ax1.imshow(dataframe['mask_truth'],cmap=plt.get_cmap('OrRd'), alpha=0.2)
-        ax1.title.set_text(dataframe['datetrack']+' - quantile: '+str(quantiles_open[i]))
-        ax1.set_xlim(0,2500)
-        ax1.set_ylim(41,0)
-        ax1.set_aspect(4)
+        ax1.imshow(slices_depth_corrected_after_surf_removal_without_norm,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        ax1.imshow(quantile_to_plot,cmap=plt.get_cmap('autumn'),alpha=0.1)#,norm=divnorm)
+        ax1.title.set_text(dataframe['datetrack']+' - quantile: '+cutoff_q_save)
+        ax1.set_ylim(boolean_full_slabs.shape[0],0)
+        ax1.set_aspect(boolean_full_slabs.shape[1]/boolean_full_slabs.shape[0]/17)
         
         plt.setp(ax1.get_xticklabels(), visible=False)
-        ax1.set_yticks(np.linspace(0,41,3))
+        ax1.set_yticks(np.linspace(0,boolean_full_slabs.shape[0],3))
         ax1.set_yticklabels(list(np.linspace(0,20,3)))
         ax1.set_ylabel('Depth [m]')
-        
-        #pdb.set_trace()
-        
+                
         #Save the figure
         plt.savefig(fig_name,dpi=2000)
-        plt.clf()
+        plt.close(fig)
         
+        #Update count
+        count=count+1
         
-        
-        
-
-        
-        fig1, (ax1) = plt.subplots(1, 1)
-        fig1.suptitle(single_year)
-        
-        cb1=ax1.pcolor(np.arange(0,boolean_full_slabs.shape[1]),np.arange(0,boolean_full_slabs.shape[0]),boolean_full_slabs,cmap=plt.get_cmap('gray'))#,norm=divnorm)
-        #fig1.colorbar(cb1,ax=ax1)
-        ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
-        ax1.title.set_text('boolean full slabs')
-        ax1.set_aspect(3)
-
-        #Create the figure name
-        fig_name=[]
-        fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/dry_firn_normalisation/'+single_year+'_'+algorithm+'_cutoff_'+str(cutoff)+'_threshold_'+str(continuity_threshold)+'.png'
-        
-        #"_{0}_CUTOFF_{1:0.2f}_THRESHOLD_{2:0>3d}.png".format(algorithm, cutoff, continuity_threshold)
-        
-        #Save the figure
-        plt.savefig(fig_name,dpi=2000)
-        plt.clf()
-        
-        '''
     return 
 
 
@@ -437,6 +408,7 @@ import pickle
 import scipy.io
 import h5py
 import scipy.optimize
+import matplotlib.pyplot as plt
 
 
 #Define speed
@@ -452,7 +424,7 @@ path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerr
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Open the quantile file over whoch we will loop
-quantiles_file=np.arange(0.6,0.91,0.01)
+quantiles_file=np.arange(0.63,0.83,0.01)
 filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
 quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None))
 
@@ -588,7 +560,7 @@ for indiv_trace in datetrack_toread:
     
     boolean_slabs=identify_ice_lenses(traces_20m,dataframe['depth_corrected_after_surf_removal_without_norm'],dataframe['depth'],dataframe['mask'],dataframe['datetrack'],quantile_file[1,:],quantile_file[0,:])
     #Ok all of the above works!!!! Great :). Just need to save the figures of display them and that's it
-    
+    pdb.set_trace()
     #2. Open roll corrected traces and raw data
     #3. Perform surface removal
     #4. Perform depth correction without normalisation
