@@ -177,7 +177,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
 
         # Perform the continuity thresholding.
         group_id_array, group_size_dict = caluculate_icelens_connectedness(boolean_traces)
-        ice_lenses_above_cutoff_size = np.zeros(boolean_traces.shape, dtype=np.bool)
+        ice_lenses_above_cutoff_size = np.zeros(boolean_traces.shape, dtype=bool)
 
         # Set each group of pixels in that category to True, only for groups larger than the cutoff
         for group_ID in [ID for (ID,size) in list(group_size_dict.items()) if size >= continuity_threshold]:
