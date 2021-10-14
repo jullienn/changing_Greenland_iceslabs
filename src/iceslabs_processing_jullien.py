@@ -209,6 +209,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
         '''
         filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
+        
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
@@ -323,8 +324,8 @@ def caluculate_icelens_connectedness(boolean_image):
 
     '''A parent function that iterates over an image until all pixels have found which "group" they belong to.
     Return an int array of group_ID numbers (zero are empty pixels), and a dictionary of (ID:size) pairs.'''
-    group_id_array = np.zeros(boolean_image.shape, dtype=np.int)
-    visited_mask_empty = np.zeros(boolean_image.shape, dtype=np.bool)
+    group_id_array = np.zeros(boolean_image.shape, dtype=int)
+    visited_mask_empty = np.zeros(boolean_image.shape, dtype=bool)
     # Visited mask cumulative -- a boolean array of all the pixels we've visited.  Starts out empty, should match boolean_image in the end
     visited_mask_cumulative = visited_mask_empty.copy()
     # Keeps track of how many pixels are in each group.
