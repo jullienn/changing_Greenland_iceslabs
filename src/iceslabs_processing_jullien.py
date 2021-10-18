@@ -462,13 +462,13 @@ count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:   
     
-    pdb.set_trace()
+    #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
-    filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+datetrack+'*'
+    filename_to_check='/flash/jullienn/data/threshold_processing_output/pickles/'+indiv_trace[0]+'*'
     
-    if (len(glob.glob(filename_to_check))==0):
-        print('Aggregated files already existent, move on to the next date')
-    continue
+    if (len(glob.glob(filename_to_check))>0):
+        print(indiv_trace[0],': files already existent, move on to the next date')
+        continue
     
     start = time.time()
 
