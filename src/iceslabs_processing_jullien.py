@@ -117,7 +117,6 @@ def select_20m_slice_without_NaNs(slice_input,depth,mask):
 def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without_norm,depth,mask,datetrack,quantile_investigation,desired_quantiles):
     #traces_20m should be the 20m traces
     
-
     # We identified the minimum signal-cutoff and continuity-threshold values for each algorithm.  They
     # gave very close results.  Produce one image from each Algorithm and we will evaluate which one worked best on all the datasets.
     # These sets of cutoffs were produced from examination done in validate_reference_track_w_in_situ_data(),
@@ -151,6 +150,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
     names_cutoff=desired_quantiles
     
     for algorithm, cutoff, continuity_threshold in zip(ALGORITHMS, CUTOFFS, THRESHOLDS):
+        
         #pdb.set_trace()
         #Retrieve cutoff name
         cutoff_q=names_cutoff[count]
@@ -219,12 +219,14 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         '''
         fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
         '''
-        fig_name='flash/jullienn/data/threshold_processing_output/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
+        fig_name='/flash/jullienn/data/threshold_processing_output/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
         
         #Prepare the plot
         fig, (ax1) = plt.subplots(1, 1)
+        '''
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
+        '''
         
         #Replace where dry firn by nan so that overlay plot can be possible
         quantile_to_plot=boolean_full_slabs
@@ -415,9 +417,14 @@ import pickle
 import scipy.io
 import h5py
 import scipy.optimize
-import matplotlib.pyplot as plt
-import time
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+import time
+import os.path
+import glob
 
 #Define speed
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
@@ -438,6 +445,7 @@ path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
+
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Open the quantile file over whoch we will loop
@@ -446,12 +454,22 @@ quantiles_file=np.arange(0.63,0.83,0.01)
 filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
 '''
 filename_quantiles='/flash/jullienn/data/threshold_processing/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
+
 quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None))
 
 #intialize counter to 0
 count_time=0
 #II. Loop over these traces, and do the following:
-for indiv_trace in datetrack_toread:
+for indiv_trace in datetrack_toread:   
+    
+    pdb.set_trace()
+    #If pickle files have already been created, do not process and continue
+    filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+datetrack+'*'
+    
+    if (len(glob.glob(filename_to_check))==0):
+        print('Aggregated files already existent, move on to the next date')
+    continue
+    
     start = time.time()
 
     print(indiv_trace[0])
