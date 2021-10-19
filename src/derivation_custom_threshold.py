@@ -138,7 +138,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
         
         #pdb.set_trace()
         #Save as pickle file     
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/rem2pix_'+datetrack+'_'+algorithm+'_cutoff_'+str(np.round(cutoff_q,2))+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'+datetrack+'_'+algorithm+'_cutoff_'+str(np.round(cutoff_q,2))+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
@@ -359,7 +359,7 @@ def extract_surface_return(slice_roll_corrected):
     
     # --- Remove the average
     #Let's say we take the 1 top pixels
-    surface_return=slice_roll_corrected[0:2,]
+    surface_return=slice_roll_corrected[0:1,]
     #substract the average of surface_return to the whole radar slice
     roll_corrected_after_surf_removal=slice_roll_corrected-np.nanmean(surface_return)
     
@@ -477,7 +477,7 @@ if (create_pickle == 'TRUE'):
     
     #Define the desired quantiles
     desired_quantiles=np.arange(0.63,0.83,0.01)
-    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/rem2pix_quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
+    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
     
     for single_year in investigation_year.keys():
         print(single_year)
@@ -829,7 +829,7 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-#pdb.set_trace()
+pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
@@ -841,7 +841,7 @@ if (investigation_quantile=='TRUE'):
     
     #Define paths
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-    path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/rem2pix_'
+    path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'
     path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Depth_Corrected_Picklefiles/'
     
     if (show_reference_trace=='TRUE'):
@@ -1254,7 +1254,7 @@ if (investigation_quantile=='TRUE'):
             ##############################################################################
             
         #pdb.set_trace()
-        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/rem2pix_'
+        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/'
         
         #Plot data
         #Loop on the quantiles
