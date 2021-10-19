@@ -138,7 +138,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
         
         #pdb.set_trace()
         #Save as pickle file     
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'+datetrack+'_'+algorithm+'_cutoff_'+str(np.round(cutoff_q,2))+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/rem2pix_'+datetrack+'_'+algorithm+'_cutoff_'+str(np.round(cutoff_q,2))+'_threshold_'+str(continuity_threshold)+'.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
         outfile.close()
@@ -359,7 +359,7 @@ def extract_surface_return(slice_roll_corrected):
     
     # --- Remove the average
     #Let's say we take the 1 top pixels
-    surface_return=slice_roll_corrected[0,]
+    surface_return=slice_roll_corrected[0:2,]
     #substract the average of surface_return to the whole radar slice
     roll_corrected_after_surf_removal=slice_roll_corrected-np.nanmean(surface_return)
     
@@ -400,8 +400,8 @@ from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 import pandas as pd
 
-create_pickle='TRUE'
-display_pickle='FALSE'
+create_pickle='FALSE'
+display_pickle='TRUE'
 display_plots_quick_check='FALSE'
 
 investigation_quantile='TRUE'
@@ -421,7 +421,7 @@ investigation_year={2010:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 
 '''
-
+'''
 investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
                     2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
                     2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
@@ -429,7 +429,7 @@ investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat']
                     2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat'],
                     2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
                     2018:'empty'}
-
+'''
 '''
 #7years case study
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
@@ -440,7 +440,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 '''
-'''
+
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -450,7 +450,7 @@ investigation_year={2010:'empty',
                     2017:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 #2014 and 2017 almost colocated
-'''
+
 '''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
@@ -476,8 +476,8 @@ if (create_pickle == 'TRUE'):
     dataframe={}
     
     #Define the desired quantiles
-    desired_quantiles=np.arange(0.6,0.91,0.01)
-    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
+    desired_quantiles=np.arange(0.63,0.83,0.01)
+    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/rem2pix_quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
     
     for single_year in investigation_year.keys():
         print(single_year)
@@ -783,6 +783,7 @@ if (create_pickle == 'TRUE'):
         f_quantiles.write(str(np.round(desired_quantiles,2))+'\n')
         f_quantiles.write(str(quantile_investigation))
         f_quantiles.close() #Close the quantile file when we’re done!
+        pdb.set_trace()
         
     else:
         #pdb.set_trace()
@@ -828,7 +829,7 @@ if (create_pickle == 'TRUE'):
         
     print('end')
 
-pdb.set_trace()
+#pdb.set_trace()
 
 if (investigation_quantile=='TRUE'):
     
@@ -840,7 +841,7 @@ if (investigation_quantile=='TRUE'):
     
     #Define paths
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-    path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'
+    path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/rem2pix_'
     path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Depth_Corrected_Picklefiles/'
     
     if (show_reference_trace=='TRUE'):
@@ -1138,7 +1139,7 @@ if (investigation_quantile=='TRUE'):
         
             print(single_year)
             #Define the quantiles to open
-            quantiles_open=np.round(np.arange(0.83,.91,0.01),2)
+            quantiles_open=np.round(np.arange(0.63,0.83,0.01),2)
             
             #Set dataframe
             dataframe[single_year]={k: {} for k in list(quantiles_open)}
@@ -1252,8 +1253,8 @@ if (investigation_quantile=='TRUE'):
             ###                          Load and organise data                        ###
             ##############################################################################
             
-        pdb.set_trace()
-        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/'
+        #pdb.set_trace()
+        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/rem2pix_'
         
         #Plot data
         #Loop on the quantiles
@@ -1267,7 +1268,7 @@ if (investigation_quantile=='TRUE'):
             figManager.window.showMaximized()
 
             #Define fig name
-            fig_name=path_savefig+'casestudy_1_quant_'+str(quantiles_open[i])+'.png'
+            fig_name=path_savefig+'ref_year_overlap_quant_'+str(quantiles_open[i])+'.png'
             
             #Loop on the years
             for single_year in investigation_year.keys():
