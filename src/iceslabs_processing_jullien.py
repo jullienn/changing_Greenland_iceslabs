@@ -237,7 +237,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         ax1.imshow(quantile_to_plot,cmap=plt.get_cmap('autumn'),alpha=0.1)#,norm=divnorm)
         ax1.title.set_text(dataframe['datetrack']+' - quantile: '+cutoff_q_save)
         ax1.set_ylim(boolean_full_slabs.shape[0],0)
-        ax1.set_aspect(boolean_full_slabs.shape[1]/boolean_full_slabs.shape[0]/17)
+        #ax1.set_aspect(boolean_full_slabs.shape[1]/boolean_full_slabs.shape[0]/17)
         
         plt.setp(ax1.get_xticklabels(), visible=False)
         ax1.set_yticks(np.linspace(0,boolean_full_slabs.shape[0],3))
