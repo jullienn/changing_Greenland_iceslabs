@@ -52,18 +52,18 @@ import time
 import os.path
 import glob
 
-#Define path
+#I. Define path, open datetracks and define desired quantiles
+#Define path where to pick roll corrected data
+'''
 path_quantiles_data='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/'
 '''
-#Define paths cluster
-path_quantiles_data='/flash/jullienn/data/threshold_processing/Roll_Corrected_Picklefiles/'
-'''
-#I. Identify all the datetraces to process
+path_quantiles_data='/flash/jullienn/data/threshold_processing_output/pickles/'
 
+#Identify all the datetraces to process
+'''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-'''
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Define the desired quantiles over which we will loop
@@ -72,63 +72,41 @@ desired_quantiles=np.round(np.arange(0.63,0.82,0.01),2)
 #intialize counter to 0
 count_time=0
 
-list_test=['20100507_01_008_010',
-           '20100507_04_070_070',
-           '20110329_04_001_002',
-           '20110329_05_001_002',
-           '20120418_01_005_007',
-           '20120418_01_129_131',
-           '20130406_01_078_086',
-           '20130406_01_146_152',
-           '20140409_10_081_083',
-           '20140412_05_002_003',
-           '20170403_03_001_001',
-           '20170403_05_006_015',
-           '20180427_01_170_172',
-           '20180429_01_008_014']
-
-#II. Loop over these traces, and do the following:
+#II. Loop over these datetracks, and perform probability calculation:
 for indiv_trace in datetrack_toread:
     
-    if (indiv_trace[0] not in list(list_test)):
-        print('Not in list test, continue')
-        continue
-
-    #pdb.set_trace()
-    '''
     #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
-    filename_to_check='/flash/jullienn/data/threshold_processing_output/pickles/'+indiv_trace[0]+'*'
+    filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'*'
     
     if (len(glob.glob(filename_to_check))>0):
         print(indiv_trace[0],': files already existent, move on to the next date')
         continue
-    '''
+    
+    #To access advance
     start = time.time()
-
     print(indiv_trace[0])
     print(count_time/len(datetrack_toread)*100,'%')
     
-    #Must open the first quantile to know the size 
-    #Define filename of quantile 0.63
+    #Must open the first quantile (0.63) to know the size 
     filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str(0.63)+'_threshold_350.pickle'
                          
-    #Open the roll corrected file
+    #Open the corresponding quantile 0.63 file
     f_quantile = open(path_quantiles_data+filename_quantile_open, "rb")
     indiv_quantile063_slice = pickle.load(f_quantile)
     f_quantile.close()
     
-    #Set the indiv quantile slice to zeros
+    #Set the probabilistic_slice to zeros
     probabilistic_slice=np.zeros((indiv_quantile063_slice.shape[0],indiv_quantile063_slice.shape[1]))
     
-    #Loop over the quantiles, load ans store the data
+    #Loop over the quantiles, load data and perform probability calculation
     for indiv_quantile in desired_quantiles:
-        print(str('%.2f' % indiv_quantile))
+        #print(str('%.2f' % indiv_quantile))
         
-        #Define filename of quantiles    
+        #Define filename of quantiles of interest
         filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str('%.2f' % indiv_quantile)+'_threshold_350.pickle'
                     
-        #Open the roll corrected file
+        #Open the corresponding quantile file
         f_quantile = open(path_quantiles_data+filename_quantile_open, "rb")
         indiv_quantile_slice=pickle.load(f_quantile)
         f_quantile.close()
@@ -142,11 +120,13 @@ for indiv_trace in datetrack_toread:
     probabilistic_slice=probabilistic_slice/len(desired_quantiles)
     
     #Save the image
+    '''
     fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
     '''
-    fig_name='/flash/jullienn/data/threshold_processing_output/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
+    fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
+    
     '''
-    #Prepare the plot
+    #Traditional was of plotting, depreciated here
     fig, (ax1) = plt.subplots(1, 1)
     
     #Plot custom threshold ice slabs identification
@@ -154,7 +134,7 @@ for indiv_trace in datetrack_toread:
     ax1.title.set_text(indiv_trace[0]+' - ice slabs presence probability (quantile 0.63-0.81)')
     
     plt.show()
-    '''
+    
     #Save the figure
     plt.savefig(fig_name,dpi=2000)
     plt.close(fig)
@@ -171,7 +151,9 @@ for indiv_trace in datetrack_toread:
     ax2.imshow(probabilistic_slice_png_toplot,cmap=plt.get_cmap('Blues'))
     plt.show()
     '''
-    #1-probabilistic_slice because 1 is white out of the function, and I want black
+    
+    #Prepare matrix for png plot. (1-probabilistic_slice) because 1 is white
+    #out of the function _export_to_8bit_array, and I want black
     probabilistic_slice_png=_export_to_8bit_array((1-probabilistic_slice))
     
     #Save the image
@@ -179,11 +161,13 @@ for indiv_trace in datetrack_toread:
     png_to_save.save(fig_name)
     
     #Save the pickle file
+    '''
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/prob/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
     '''
-    filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
-    '''
+    filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+    
     outfile= open(filename_tosave, "wb" )
     pickle.dump(probabilistic_slice,outfile)
     outfile.close()
-    
+
+print('End of probabilistic processing')
