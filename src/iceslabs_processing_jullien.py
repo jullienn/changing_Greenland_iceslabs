@@ -449,7 +449,7 @@ path_datetrack='/flash/jullienn/data/threshold_processing/'
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Open the quantile file over whoch we will loop
-quantiles_file=np.arange(0.63,0.83,0.01)
+quantiles_file=np.arange(0.63,0.82,0.01)
 '''
 filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
 '''
