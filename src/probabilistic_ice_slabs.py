@@ -17,8 +17,9 @@ def _export_to_8bit_array(array):
     range_max = 2**8 - 1
     # Get the data minimum and maximum while cutting off 0.5% of outliers
     nonzero_values = array[~excluded_mask]
-    data_cutoff_min = np.percentile(nonzero_values,  0.5)
-    data_cutoff_max = np.percentile(nonzero_values, 99.5)
+    #pdb.set_trace()
+    data_cutoff_min = 0#np.percentile(nonzero_values,  0.5)
+    data_cutoff_max = 1#np.percentile(nonzero_values, 99.5)
 
     export_array_rescaled = (array - data_cutoff_min) / (data_cutoff_max - data_cutoff_min) * range_max
     # Round to integer values
@@ -64,6 +65,7 @@ path_quantiles_data='/flash/jullienn/data/threshold_processing_output/pickles/'
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
+
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Define the desired quantiles over which we will loop
@@ -157,6 +159,7 @@ for indiv_trace in datetrack_toread:
     probabilistic_slice_png=_export_to_8bit_array((1-probabilistic_slice))
     
     #Save the image
+    pdb.set_trace()
     png_to_save=png.from_array(probabilistic_slice_png, mode='L')
     png_to_save.save(fig_name)
     
