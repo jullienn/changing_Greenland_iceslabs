@@ -132,7 +132,7 @@ for indiv_trace in datetrack_toread:
     '''
     fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
     '''
-    fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
+    fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability50_iceslabs_presence.png'
     
     
     '''
@@ -175,7 +175,7 @@ for indiv_trace in datetrack_toread:
     '''
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/prob/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
     '''
-    filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+    filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'_probability50_iceslabs_presence.pickle'
     
     outfile= open(filename_tosave, "wb" )
     pickle.dump(probabilistic_slice,outfile)
