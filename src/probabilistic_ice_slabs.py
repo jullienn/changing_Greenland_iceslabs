@@ -120,19 +120,11 @@ for indiv_trace in datetrack_toread:
     #Divide the probabilistic_slice by the number of quantiles to have a probability map
     probabilistic_slice=probabilistic_slice/len(desired_quantiles)
     
-    #--- Where probability is less than 50%, make it tp probability =0
-    #Create an empty slice
-    final_probability_slice=np.zeros((probabilistic_slice.shape[0],probabilistic_slice.shape[1]))
-    #Identify where probability is more than 50%
-    index_prob_more=probabilistic_slice>=0.5
-    #Store in final_probability_slice only where probability is higher than 50%
-    final_probability_slice[index_prob_more]=probabilistic_slice[index_prob_more]
-    
     #Save the image
     '''
     fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
     '''
-    fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability50_iceslabs_presence.png'
+    fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
     
     
     '''
@@ -164,7 +156,7 @@ for indiv_trace in datetrack_toread:
         
     #Prepare matrix for png plot. (1-probabilistic_slice) because 1 is white
     #out of the function _export_to_8bit_array, and I want black
-    probabilistic_slice_png=_export_to_8bit_array((1-final_probability_slice))
+    probabilistic_slice_png=_export_to_8bit_array((1-probabilistic_slice))
     
     #Save the image
     #pdb.set_trace()
@@ -175,7 +167,7 @@ for indiv_trace in datetrack_toread:
     '''
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/prob/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
     '''
-    filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'_probability50_iceslabs_presence.pickle'
+    filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
     
     outfile= open(filename_tosave, "wb" )
     pickle.dump(probabilistic_slice,outfile)
