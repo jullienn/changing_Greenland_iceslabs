@@ -159,10 +159,11 @@ for indiv_trace in datetrack_toread:
     probabilistic_slice_png=_export_to_8bit_array((1-probabilistic_slice))
     
     #Save the image
-    pdb.set_trace()
+    #pdb.set_trace()
     png_to_save=png.from_array(probabilistic_slice_png, mode='L')
     png_to_save.save(fig_name)
     
+    '''
     #Save the pickle file
     '''
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/prob/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
@@ -172,5 +173,6 @@ for indiv_trace in datetrack_toread:
     outfile= open(filename_tosave, "wb" )
     pickle.dump(probabilistic_slice,outfile)
     outfile.close()
+    '''
 
 print('End of probabilistic processing')
