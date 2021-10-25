@@ -116,10 +116,17 @@ for indiv_trace in datetrack_toread:
         #Add up the numbers
         probabilistic_slice=probabilistic_slice+indiv_quantile_slice
     
-    #pdb.set_trace()
-    
+        
     #Divide the probabilistic_slice by the number of quantiles to have a probability map
     probabilistic_slice=probabilistic_slice/len(desired_quantiles)
+    
+    #--- Where probability is less than 50%, make it tp probability =0
+    #Create an empty slice
+    final_probability_slice=np.zeros((probabilistic_slice.shape[0],probabilistic_slice.shape[1]))
+    #Identify where probability is more than 50%
+    index_prob_more=probabilistic_slice>=0.5
+    #Store in final_probability_slice only where probability is higher than 50%
+    final_probability_slice[index_prob_more]=probabilistic_slice[index_prob_more]
     
     #Save the image
     '''
@@ -127,16 +134,17 @@ for indiv_trace in datetrack_toread:
     '''
     fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
     
+    
     '''
     #Traditional was of plotting, depreciated here
     fig, (ax1) = plt.subplots(1, 1)
     
     #Plot custom threshold ice slabs identification
-    cb=ax1.imshow(probabilistic_slice,cmap=plt.get_cmap('Blues'))#,norm=divnorm)
+    cb=ax1.imshow(final_probability_slice,cmap=plt.get_cmap('Blues'))#,norm=divnorm)
     ax1.title.set_text(indiv_trace[0]+' - ice slabs presence probability (quantile 0.63-0.81)')
     
     plt.show()
-    
+        
     #Save the figure
     plt.savefig(fig_name,dpi=2000)
     plt.close(fig)
@@ -150,20 +158,19 @@ for indiv_trace in datetrack_toread:
     
     fig, (ax1,ax2) = plt.subplots(2, 1)
     ax1.imshow(probabilistic_slice,cmap=plt.get_cmap('Blues'))
-    ax2.imshow(probabilistic_slice_png_toplot,cmap=plt.get_cmap('Blues'))
+    ax2.imshow(final_probability_slice,cmap=plt.get_cmap('Blues'))
     plt.show()
     '''
-    
+        
     #Prepare matrix for png plot. (1-probabilistic_slice) because 1 is white
     #out of the function _export_to_8bit_array, and I want black
-    probabilistic_slice_png=_export_to_8bit_array((1-probabilistic_slice))
+    probabilistic_slice_png=_export_to_8bit_array((1-final_probability_slice))
     
     #Save the image
     #pdb.set_trace()
     png_to_save=png.from_array(probabilistic_slice_png, mode='L')
     png_to_save.save(fig_name)
     
-    '''
     #Save the pickle file
     '''
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/prob/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
@@ -173,6 +180,5 @@ for indiv_trace in datetrack_toread:
     outfile= open(filename_tosave, "wb" )
     pickle.dump(probabilistic_slice,outfile)
     outfile.close()
-    '''
 
 print('End of probabilistic processing')
