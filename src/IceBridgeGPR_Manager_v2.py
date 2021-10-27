@@ -17,6 +17,7 @@ from GPR_FileData import ICEBRIDGE_DATA_FOLDER, \
                          ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE, \
                          ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, \
                          ICEBRIDGE_EXCLUSIONS_16M, \
+                         ICEBRIDGE_EXCLUSIONS_DRY_FIRN, \
                          ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, \
                          ICEBRIDGE_ROLL_CORRECTED_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_DEPTH_CORRECTED_PICKLEFILE_FOLDER, \
@@ -573,7 +574,7 @@ class Mask_Manager():
         ###############################################
         ## FILES/VARIABLES FOR MASKING OUT PIXELS
         self.mask_dictionary = None
-        self.valid_mask_filenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE, ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
+        self.valid_mask_filenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE, ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN]#, ICEBRIDGE_EXCLUSIONS_16M]
         self._initialize_mask_dictionary()
         ###############################################
 
@@ -1935,7 +1936,7 @@ class IceBridgeGPR_Track_v2():
         pathname = os.path.join(ICEBRIDGE_SURFACE_SLICE_PICKLEFILE_FOLDER, fname)
 
         # Get the masks that tell us where we need to mask stuff out.
-        maskfilenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
+        maskfilenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN]#, ICEBRIDGE_EXCLUSIONS_16M]
         # Get the surface indices and traces, mask them out according to masks above.
         surface_indices = self.compute_surface_picks(export=False)
 
@@ -2014,7 +2015,7 @@ class IceBridgeGPR_Track_v2():
 
         ####################################
         ## 1) Read surface slice... potentially from files created above in ::compute_surface_picks().
-        trace_masks = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
+        trace_masks = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN]#, ICEBRIDGE_EXCLUSIONS_16M]
         # Read the raw traces
 
         traces = self.get_radar_slice_100m()
