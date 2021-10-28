@@ -368,9 +368,10 @@ class IceBridgeGPR_Manager_v2():
         #pdb.set_trace()
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
-
+        
         for track in tracks:
             print(track.NAME, end=' ')
+            
             lats, lons, distances, ice_contents = track.return_ice_layers_lat_lon_distance_thickness(masked=False)
             # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
             if track.NAME == "20120412_01_095_095":
@@ -1591,12 +1592,13 @@ class IceBridgeGPR_Track_v2():
         surface_picks.shape = (surface_picks.shape[0], 1)
         sample_time.shape   = (1, sample_time.shape[0])
         match_outputs = (surface_picks == sample_time)
-
+        
         # Make sure every surface pick actually had an index in the array.
         if not numpy.all(numpy.any(match_outputs, axis=1)):
             # Some of the surface picks don't seem to actually line up with time sample values.
             # We can fix this by simply getting the "closest" pick to it.
             mismatched_mask = ~numpy.any(match_outputs, axis=1)
+            #pdb.set_trace()
             if self.VERBOSE:
                 print("Surface mismatches.  Correcting {0} values.".format(numpy.sum(mismatched_mask)))
             closest_matches_i = numpy.argmin(sample_time - surface_picks[mismatched_mask], axis=1)
