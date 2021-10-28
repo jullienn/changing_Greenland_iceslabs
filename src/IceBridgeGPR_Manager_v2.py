@@ -368,9 +368,15 @@ class IceBridgeGPR_Manager_v2():
         #pdb.set_trace()
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
-        
+                
         for track in tracks:
+            
             print(track.NAME, end=' ')
+
+            if (not(track.NAME == '20170511_01_010_025')):
+                continue
+            else:
+                pdb.set_trace()
             
             lats, lons, distances, ice_contents = track.return_ice_layers_lat_lon_distance_thickness(masked=False)
             # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
@@ -1593,6 +1599,9 @@ class IceBridgeGPR_Track_v2():
         sample_time.shape   = (1, sample_time.shape[0])
         match_outputs = (surface_picks == sample_time)
         
+        if (self.NAME == '20170511_01_010_025'):
+            pdb.set_trace()
+        
         # Make sure every surface pick actually had an index in the array.
         if not numpy.all(numpy.any(match_outputs, axis=1)):
             # Some of the surface picks don't seem to actually line up with time sample values.
@@ -1601,14 +1610,19 @@ class IceBridgeGPR_Track_v2():
             #pdb.set_trace()
             if self.VERBOSE:
                 print("Surface mismatches.  Correcting {0} values.".format(numpy.sum(mismatched_mask)))
+            closest_matches_i = numpy.argmin(abs(sample_time - surface_picks[mismatched_mask]), axis=1)
+            '''
             closest_matches_i = numpy.argmin(sample_time - surface_picks[mismatched_mask], axis=1)
             # Assign these "closest matches" as the matches themselves
             match_outputs[mismatched_mask, closest_matches_i] = True
 
         # Get the indices of the closest matches along that axis.
         output_array = numpy.where(match_outputs)[1]
-
+        '''
+        output_array=closest_matches_i
+        
         self.LIST_original_surface_indices = output_array
+        
         #print('-------------------- OUT _compute_original_surface_indices --------------------')
         return output_array
 
@@ -3102,7 +3116,7 @@ def plot_surface_picking_mask_curve():
 if __name__ == "__main__":
 
     ib = IceBridgeGPR_Manager_v2()
-    #pdb.set_trace()
+    pdb.set_trace()
     #ib.export_KML_reference_tracks()
     ib.export_ice_layer_lat_lon_distance_thicknesses()
     # Le 12 Septembre 2020, je sors sans erreur de export_ice_layer_lat_lom_distance_thicknesses!
@@ -3110,4 +3124,9 @@ if __name__ == "__main__":
     #pdb.set_trace()
 
     for track in ib.tracks:
+        
+        if (not(track == '20170511_01_010_025')):
+            continue
+            pdb.set_trace()
+        
         track.DO_IT_ALL()
