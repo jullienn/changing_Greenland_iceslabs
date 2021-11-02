@@ -1600,9 +1600,10 @@ class IceBridgeGPR_Track_v2():
         match_outputs = (surface_picks == sample_time)
         
         '''
-        if (self.NAME == '20170511_01_010_025'):
+        if (self.NAME == '20170329_01_001_001'):
             pdb.set_trace()
         '''
+        
         # Make sure every surface pick actually had an index in the array.
         if not numpy.all(numpy.any(match_outputs, axis=1)):
             # Some of the surface picks don't seem to actually line up with time sample values.
@@ -1614,14 +1615,13 @@ class IceBridgeGPR_Track_v2():
             closest_matches_i = numpy.argmin(abs(sample_time - surface_picks[mismatched_mask]), axis=1)
             '''
             closest_matches_i = numpy.argmin(sample_time - surface_picks[mismatched_mask], axis=1)
+            '''
             # Assign these "closest matches" as the matches themselves
             match_outputs[mismatched_mask, closest_matches_i] = True
 
         # Get the indices of the closest matches along that axis.
         output_array = numpy.where(match_outputs)[1]
-        '''
-        output_array=closest_matches_i
-        
+                
         self.LIST_original_surface_indices = output_array
         
         #print('-------------------- OUT _compute_original_surface_indices --------------------')
