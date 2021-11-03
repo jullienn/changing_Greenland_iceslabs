@@ -9,7 +9,6 @@ def exfunc(y,A,B,C):
     return A * np.exp(B * y) + C
 
 def apply_normalisation(roll_corrected_array,mask, depth):
-    
     #Where mask is False
     index_false=np.where(mask==False)[0]
     #Where mask is True
@@ -50,7 +49,7 @@ def apply_normalisation(roll_corrected_array,mask, depth):
     traces_norm_full=np.zeros((roll_corrected_array.shape[0],roll_corrected_array.shape[1]))
     traces_norm_full[:,index_false]=np.nan
     traces_norm_full[:,index_true]=traces_norm
-    
+
     return traces_norm_full
 
 def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quantile_investigation,desired_quantiles):
@@ -400,8 +399,8 @@ from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 import pandas as pd
 
-create_pickle='FALSE'
-display_pickle='TRUE'
+create_pickle='TRUE'
+display_pickle='FALSE'
 display_plots_quick_check='FALSE'
 
 investigation_quantile='TRUE'
@@ -440,7 +439,7 @@ investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat']
                     2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
                     2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 '''
-
+'''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -450,7 +449,7 @@ investigation_year={2010:'empty',
                     2017:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 #2014 and 2017 almost colocated
-
+'''
 '''
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
@@ -462,6 +461,32 @@ investigation_year={2010:'empty',
                     2018:'empty'}
 #2014 and 2017 almost colocated
 '''
+
+#Investigation failing ice slabs likelihood
+#list_trace=list(['20110416_01_053_055':['Data_20110416_01_053.mat','Data_20110416_01_054.mat','Data_20110416_01_055.mat']
+                #'20120421_01_052_052':['Data_20120421_01_052.mat']
+                #'20130423_01_125_125':['Data_20130423_01_125.mat']
+                #'20130423_01_127_127':['Data_20130423_01_127.mat']
+                #'20130426_01_089_089':['Data_20130426_01_089.mat']
+                #'20140419_01_016_017':['Data_20140419_01_016.mat','Data_20140419_01_017.mat']
+                #'20140419_01_028_028':['Data_20140419_01_028.mat']
+                #'20140419_03_075_075':['Data_20140419_03_075.mat']
+                #'20140516_02_031_034':['Data_20140516_02_031.mat','Data_20140516_02_032.mat','Data_20140516_02_033.mat','Data_20140516_02_034.mat']
+                #'20180419_02_032_033':['Data_20180419_02_032.mat','Data_20180419_02_033.mat']
+                #'20180419_02_035_036':['Data_20180419_02_035.mat','Data_20180419_02_036.mat']
+                #'20180425_01_166_169':['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']
+                #'20180427_01_170_172':['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']
+                #'20180429_01_008_014'])['Data_20180429_01_008.mat','Data_20180429_01_009.mat','Data_20180429_01_010.mat','Data_20180429_01_011.mat','Data_20180429_01_012.mat','Data_20180429_01_013.mat','Data_20180429_01_014.mat']
+
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:'empty',
+                    2013:'empty',
+                    2014:'empty',
+                    2017:'empty',
+                    2018:['Data_20180429_01_008.mat','Data_20180429_01_009.mat','Data_20180429_01_010.mat','Data_20180429_01_011.mat','Data_20180429_01_012.mat','Data_20180429_01_013.mat','Data_20180429_01_014.mat']}
+
+
 if (create_pickle == 'TRUE'):
     ##############################################################################
     ###                             Load data                                  ###
@@ -471,12 +496,12 @@ if (create_pickle == 'TRUE'):
     v= 299792458 / (1.0 + (0.734*0.873/1000.0))
     
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-    path_roll_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Roll_Corrected_Picklefiles/'
-    path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Boolean_Array_Picklefiles/'
+    path_roll_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Roll_Corrected_Picklefiles/'
+    path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
     dataframe={}
-    
+
     #Define the desired quantiles
-    desired_quantiles=np.arange(0.63,0.83,0.01)
+    desired_quantiles=np.arange(0.63,0.82,0.01)
     filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
     
     for single_year in investigation_year.keys():
@@ -610,7 +635,15 @@ if (create_pickle == 'TRUE'):
             dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm']=apply_normalisation(dataframe[str(single_year)]['roll_corrected_after_surf_removal'],dataframe[str(single_year)]['mask'],dataframe[str(single_year)]['depth'][0:428])
         else:
             dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm']=apply_normalisation(dataframe[str(single_year)]['roll_corrected_after_surf_removal'],dataframe[str(single_year)]['mask'],dataframe[str(single_year)]['depth'][0:201])
-    
+        
+        #Save as the depth corrected trace as pickle file     
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'+dataframe[str(single_year)]['datetrack']+'_Depth_Corrected_surf_removal.pickle'
+        outfile= open(filename_tosave, "wb" )
+        pickle.dump(dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm'],outfile)
+        outfile.close()
+        
+        print('Exporting '+dataframe[str(single_year)]['datetrack']+' depth corrected pickle file')
+        
     if (display_plots_quick_check=='TRUE'):
         
         #Display results
