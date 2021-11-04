@@ -603,7 +603,7 @@ for indiv_trace in datetrack_toread:
     
     #7.Perform ice slabs identification (thresholding and smoothing)
     print('   Perform iceslabs identification')
-        
+    
     #Extract the 20m slices and get rid of exclusions
     traces_20m=select_20m_slice_without_NaNs(dataframe['depth_corrected_after_surf_removal_without_norm'],dataframe['depth'],dataframe['mask'])
     #Identify ice slabs
