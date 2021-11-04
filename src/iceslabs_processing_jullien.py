@@ -593,7 +593,14 @@ for indiv_trace in datetrack_toread:
         dataframe['depth_corrected_after_surf_removal_without_norm']=apply_depth_correction(dataframe['roll_corrected_after_surf_removal'],dataframe['mask'],dataframe['depth'][0:428])
     else:
         dataframe['depth_corrected_after_surf_removal_without_norm']=apply_depth_correction(dataframe['roll_corrected_after_surf_removal'],dataframe['mask'],dataframe['depth'][0:201])
-        
+    
+    #Save as the depth corrected trace as pickle file     
+    filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+dataframe['datetrack']+'_Depth_Corrected_surf_removal.pickle'
+    outfile= open(filename_tosave, "wb" )
+    pickle.dump(dataframe['depth_corrected_after_surf_removal_without_norm'],outfile)
+    outfile.close()
+    print('   Exporting '+dataframe['datetrack']+' depth corrected pickle file')
+    
     #7.Perform ice slabs identification (thresholding and smoothing)
     print('   Perform iceslabs identification')
         
