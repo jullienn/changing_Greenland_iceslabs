@@ -461,7 +461,7 @@ quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None)
 count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:   
-    '''
+    
     #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
     filename_to_check='/flash/jullienn/data/threshold_processing_output/pickles/'+indiv_trace[0]+'*'
@@ -469,13 +469,6 @@ for indiv_trace in datetrack_toread:
     if (len(glob.glob(filename_to_check))>0):
         print(indiv_trace[0],': files already existent, move on to the next date')
         continue
-    '''
-    
-    if (indiv_trace[0] not in list(['20180427_01_004_006'])):
-        print('Not 20180427_01_004_006')
-        continue
-    else:
-        pdb.set_trace()
     
     start = time.time()
 
