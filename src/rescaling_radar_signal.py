@@ -325,7 +325,7 @@ list_trace=list(['20110416_01_053_055','20120421_01_052_052','20130423_01_125_12
                   '20130423_01_127_127','20130426_01_089_089','20140419_01_016_017',
                   '20140419_01_028_028','20140419_03_075_075','20140516_02_031_034',
                   '20180419_02_032_033','20180419_02_035_036','20180425_01_166_169',
-                  '20180427_01_170_172','20180429_01_008_014','20180427_01_004_006'])#The processing on the last one works well, this is for comparison
+                  '20180427_01_170_172','20180429_01_008_014'])#The processing on the last one works well, this is for comparison
 
 #Define paths
 path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
