@@ -429,7 +429,7 @@ import glob
 #Define speed
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-
+'''
 #Define paths
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 path_roll_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Roll_Corrected_Picklefiles/'
@@ -439,22 +439,22 @@ path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010
 path_data='/flash/jullienn/data/threshold_processing/'
 path_roll_corrected='/flash/jullienn/data/threshold_processing/Roll_Corrected_Picklefiles/'
 path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
-'''
-#I. Identify all the datetraces to process
 
+#I. Identify all the datetraces to process
+'''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-'''
+
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Open the quantile file over whoch we will loop
 quantiles_file=np.arange(0.63,0.82,0.01)
-
+'''
 filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
 '''
 filename_quantiles='/flash/jullienn/data/threshold_processing/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
-'''
+
 quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None))
 
 #intialize counter to 0
@@ -470,6 +470,13 @@ for indiv_trace in datetrack_toread:
         print(indiv_trace[0],': files already existent, move on to the next date')
         continue
     '''
+    
+    if (indiv_trace[0] not in list(['20180427_01_004_006'])):
+        print('Not 20180427_01_004_006')
+        continue
+    else:
+        pdb.set_trace()
+    
     start = time.time()
 
     print(indiv_trace[0])
@@ -578,7 +585,6 @@ for indiv_trace in datetrack_toread:
     dataframe['depth_corrected_after_surf_removal_without_norm']=np.nan
     dataframe['datetrack']=indiv_trace[0]
     
-    pdb.set_trace()
     ###########################################################################
     ###                       Load and organise data                        ###
     ###########################################################################
