@@ -77,6 +77,7 @@ count_time=0
 #II. Loop over these datetracks, and perform probability calculation:
 for indiv_trace in datetrack_toread:
     
+    '''
     #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
     filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'*'
@@ -84,7 +85,7 @@ for indiv_trace in datetrack_toread:
     if (len(glob.glob(filename_to_check))>0):
         print(indiv_trace[0],': files already existent, move on to the next date')
         continue
-    
+    '''
     #To access advance
     start = time.time()
     print(indiv_trace[0])
@@ -104,10 +105,9 @@ for indiv_trace in datetrack_toread:
     #Loop over the quantiles, load data and perform probability calculation
     for indiv_quantile in desired_quantiles:
         #print(str('%.2f' % indiv_quantile))
-        
         #Define filename of quantiles of interest
         filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str('%.2f' % indiv_quantile)+'_threshold_350.pickle'
-                    
+        
         #Open the corresponding quantile file
         f_quantile = open(path_quantiles_data+filename_quantile_open, "rb")
         indiv_quantile_slice=pickle.load(f_quantile)
@@ -153,7 +153,12 @@ for indiv_trace in datetrack_toread:
     ax2.imshow(final_probability_slice,cmap=plt.get_cmap('Blues'))
     plt.show()
     '''
-        
+    
+    if (indiv_trace not in list(['20110416_01_053_055'])):
+        continue
+    else:
+        pdb.set_trace()
+    
     #Prepare matrix for png plot. (1-probabilistic_slice) because 1 is white
     #out of the function _export_to_8bit_array, and I want black
     probabilistic_slice_png=_export_to_8bit_array((1-probabilistic_slice))
