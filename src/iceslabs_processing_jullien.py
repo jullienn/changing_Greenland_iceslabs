@@ -155,7 +155,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         #Retrieve cutoff name
         cutoff_q=names_cutoff[count]
         
-        print('      Creating the pickle files of quantile',cutoff_q)
+        print('         Creating the pickle files of quantile',cutoff_q)
         
         # Apply the cutoff.
         boolean_traces = (traces <= cutoff)
@@ -425,6 +425,7 @@ import matplotlib.pyplot as plt
 import time
 import os.path
 import glob
+import sklearn.preprocessing
 
 #Define speed
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
@@ -474,8 +475,6 @@ list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20130423_01
 count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:   
-    
-    print(indiv_date[0])
     
     #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
@@ -645,6 +644,7 @@ for indiv_trace in datetrack_toread:
 ##############################################################################
 appended_radar_slices=[]
 
+print('   ')
 print('Gather all the distributions to perform rescaling')
 
 path_depth_corrected='/flash/jullienn/data/threshold_processing_output/pickles/'
@@ -655,7 +655,7 @@ for indiv_date in datetrack_toread:
     if (indiv_date[0] in list_trace_failed):
         print(indiv_date[0],' have failed, continue')
         continue
-    print(indiv_date[0])
+    print('   ',indiv_date[0])
     
     #Define filename
     filename_depth_corrected=indiv_date[0]+'_Depth_Corrected_surf_removal.pickle'
@@ -691,12 +691,12 @@ for indiv_date in datetrack_toread:
 
 #open all the 20m depth corrected pickles files and extract the distributution of signal return
 #then rescale the dates which are problematic with the e.g. 5-95 percentiles of the ditribution
-#Thsi requires to create the deèth corrected files
-
+#Thsi requires to create the depth corrected files
+print('   ')
 print('Perform rescaling')
 
 for indiv_file in list_trace_failed:
-    #pdb.set_trace()
+    pdb.set_trace()
     
     #Define filename
     filename_depth_corrected=indiv_file+'_Depth_Corrected_surf_removal.pickle'
@@ -822,10 +822,10 @@ for indiv_file in list_trace_failed:
     outfile= open(filename_tosave, "wb" )
     pickle.dump(full_rescaled_slice,outfile)
     outfile.close()
-    print('   Exporting '+indiv_file[0:19]+' depth corrected pickle file')
+    print('      Exporting '+indiv_file[0:19]+' depth corrected pickle file')
     
     #7.Perform ice slabs identification (thresholding and smoothing)
-    print('   Perform iceslabs identification')
+    print('      Perform iceslabs identification')
     
     #Extract the 20m slices and get rid of exclusions
     traces_20m=select_20m_slice_without_NaNs(full_rescaled_slice,depth,mask)
