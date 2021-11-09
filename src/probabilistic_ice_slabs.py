@@ -34,6 +34,21 @@ def _export_to_8bit_array(array):
     
     return output_array
 
+########################## From plot_2002_2003.py #############################
+def compute_distances(eastings,northings):
+    #This part of code is from MacFerrin et al., 2019
+    '''Compute the distance (in m here, not km as written originally) of the traces in the file.'''
+    # C = sqrt(A^2  + B^2)
+    distances = np.power(np.power((eastings[1:] - eastings[:-1]),2) + np.power((northings[1:] - northings[:-1]),2), 0.5)
+    #Calculate the cumsum of the distances
+    cumsum_distances=np.nancumsum(distances)
+    #Seeting the first value of the cumsum to be zero as it is the origin
+    return_cumsum_distances=np.zeros(eastings.shape[0])
+    return_cumsum_distances[1:eastings.shape[0]]=cumsum_distances
+    
+    return return_cumsum_distances
+########################## From plot_2002_2003.py #############################
+
 #1. Open the data
 #2. Loop over dates and load data
 #3. Loop over quantiles and calculate probability
@@ -77,15 +92,14 @@ count_time=0
 #II. Loop over these datetracks, and perform probability calculation:
 for indiv_trace in datetrack_toread:
     
-    '''
-    #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
-    filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'*'
-    
+    #filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'*'
+    filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+                      
     if (len(glob.glob(filename_to_check))>0):
-        print(indiv_trace[0],': files already existent, move on to the next date')
+        print(indiv_trace[0],': file already existent, move on to the next date')
         continue
-    '''
+    
     #To access advance
     start = time.time()
     print(indiv_trace[0])
@@ -180,7 +194,7 @@ for indiv_trace in datetrack_toread:
 
 print('End of probabilistic processing')
 
-
+pdb.set_trace()
 
 
 
@@ -188,7 +202,223 @@ print('End of probabilistic processing')
 ##############################################################################
 ###              Generate en excel file of ice slabs thickness             ###
 ##############################################################################
+
+import scipy.io
+import h5py
+from pyproj import Transformer
+
+
 # This is from IceBridgeGPR_Manager_v2.py
+
+#1. Open the excel file to populate
+#2. Loop over all the dates and perform filling of excel file at each iteration
+#3. Close the excel file
+
+#Define speed
+v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+
+#Define path where data are stored
+path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research\RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
+path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+
+'''
+path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'
+path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
+path_data='/flash/jullienn/data/threshold_processing/'
+
+'''
+
+
+#Define filename
+filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
+
+#Open filename (same procedure as MacFerrin et al., 2019)
+fout = open(filename_excel_output, 'w')
+header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
+fout.write(header)
+
+#Loop over the traces
+for indiv_trace in datetrack_toread:
+        
+    #Open probability ice slabs pickle file
+    filename_probability_open=indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+    
+    f_probability = open(path_probability_iceslabs+filename_probability_open, "rb")
+    indiv_probability_slice=pickle.load(f_probability)
+    f_probability.close()
+    
+    #Open mask
+    filename_mask=indiv_trace[0]+'_mask.pickle'
+    
+    f_mask = open(path_mask+filename_mask, "rb")
+    indiv_mask_slice = pickle.load(f_mask)
+    f_mask.close()
+    
+    #Open depths and lat/lon
+    
+    #Create list of dates
+    start_trace=int(indiv_trace[0][12:15])
+    end_trace=int(indiv_trace[0][16:19])
+    
+    single_year=int(indiv_trace[0][0:4])
+    
+    lat_appended=[]
+    lon_appended=[]
+        
+    for nb_trace in np.arange(start_trace,end_trace+1,1):
+        
+        #Reconstruct the name of the file
+        if (nb_trace<10):
+            indiv_file_load='Data_'+indiv_trace[0][0:12]+'00'+str(nb_trace)+'.mat'
+        elif ((nb_trace>=10)&(nb_trace<100)):
+            indiv_file_load='Data_'+indiv_trace[0][0:12]+'0'+str(nb_trace)+'.mat'
+        else:
+            indiv_file_load='Data_'+indiv_trace[0][0:12]+str(nb_trace)+'.mat'
+        
+        print('  ',indiv_file_load)
+        #pdb.set_trace()
+        #Create the path
+        path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
+        
+        #Load data
+        if (single_year>=2014):
+            
+            fdata_filename = h5py.File(path_raw_data+indiv_file_load)
+            lat_filename=fdata_filename['Latitude'][:,:]
+            lon_filename=fdata_filename['Longitude'][:,:]
+            time_filename=fdata_filename['Time'][:,:]
+            
+        else:
+            fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
+            lat_filename = fdata_filename['Latitude']
+            lon_filename = fdata_filename['Longitude']
+            time_filename = fdata_filename['Time']
+        
+        #Append data
+        lat_appended=np.append(lat_appended,lat_filename)
+        lon_appended=np.append(lon_appended,lon_filename)
+    
+                     
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.array(lon_appended),np.array(lat_appended))
+    
+    #Reset the lat_3413 and lon_3413 to empty vectors.
+    lon_3413=[]
+    lat_3413=[]
+    
+    lon_3413=points[0]
+    lat_3413=points[1]
+    
+    #Compute distances
+    distances=compute_distances(lon_3413,lat_3413)
+    
+    #3. Calculate the depth from the time
+    #########################################################################
+    # From plot_2002_2003.py - BEGIN
+    #########################################################################
+    depth_check = v * time_filename / 2.0
+    
+    #If 2014, transpose the vector
+    if (str(single_year)>='2014'):
+        depth_check=np.transpose(depth_check)
+    
+    #Reset times to zero! This is from IceBridgeGPR_Manager_v2.py
+    if (depth_check[10]<0):
+        #depth_check[10] so that I am sure that the whole vector is negative and
+        #not the first as can be for some date were the proccessing is working
+        depth_check=depth_check+abs(depth_check[0])
+        depth = depth_check
+    else:
+        depth = depth_check
+    
+    if (str(single_year) in list(['2011','2012','2014','2017','2018'])):
+        if (depth_check[10]>1):
+            #depth_check[10] so that I am sure that the whole vector is largely positive and
+            #not the first as can be for some date were the proccessing is working
+            depth_check=depth_check-abs(depth_check[0])
+            depth = depth_check
+    
+    #########################################################################
+    # From plot_2002_2003.py - END
+    #########################################################################    
+        
+    #Compute depth_delta_m
+    depth_delta_m = np.mean(depth[1:] - depth[:-1])
+    
+    #we must choose how we transform the probabilistic ice slabs into an ice content
+    #Let's choose as a first guess whre likelihood is > 0.5. We'll see later one whether this is good or not
+    index_prob=indiv_probability_slice>=0.5
+    
+    #Create slice full of zeros
+    slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
+    
+    #fill in slice_for_calculation by ones where likelihood >= 0.5
+    slice_for_calculation[index_prob]=1
+
+    # Number of pixels times the thickness of each pixel
+    ice_content_m = np.sum(slice_for_calculation, axis=0) * depth_delta_m
+    
+    #Use the same names as MacFerrin et al., 2019
+    lats=lat_3413
+    lons=lon_3413
+    ice_contents = ice_content_m
+    
+    # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
+    if indiv_trace[0] == "20120412_01_095_095":
+        ice_contents[0:9000] = 0.0
+
+    assert len(lats) == len(lons) == len(ice_contents)
+    tracenums = np.arange(len(lats), dtype=np.int)
+
+    tracecount = 0
+    for lat, lon, tracenum, distance, ice_content in zip(lats, lons, tracenums, distances, ice_contents):
+        # Record ONLY traces that have > 1 m ice content in them.  We're not interested in thinner stuff here.
+        # If it has > 16 m ice content (80%), we also omit it, just to keep pure ice out of it.
+        if 1.0 <= ice_content <= 16.0:
+            line = "{0},{1},{2},{3},{4},{5}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content)
+            fout.write(line)
+            tracecount += 1
+    print(tracecount, "of", len(lats), "traces.")
+    print()
+
+fout.close()
+
+
+
+
+
+def return_ice_layers_lat_lon_distance_thickness(self, masked=False):
+
+    '''Once we have boolean ice layers calculated, return the latitude,
+    longitude, elevation, and ice thickness for each trace.  If masked=True,
+    return them masked out.  If masked=False, don't bother masking them.'''
+
+    lats, lons = self.return_coordinates_lat_lon()
+    # So far I have read the data and stored the lat and lon coordinates
+    #####boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers") ====>>> This is the SG+ cutoff -0.45, continuits 350 file 
+
+    depths = self.get_sample_depths(trace_array = boolean_traces)
+    depth_delta_m = numpy.mean(depths[1:] - depths[:-1])
+    distances = numpy.cumsum(self.compute_distances())
+    distances = numpy.append([0.0], distances)
+
+    # Number of pixels times the thickness of each pixel
+    ice_content_m = numpy.sum(boolean_traces, axis=0) * depth_delta_m
+
+    if masked:
+        mask = self.get_boolean_ice_mask()
+        lats = lats[mask]
+        lons = lons[mask]
+        distances = distances[mask]
+        ice_content_m = ice_content_m[mask]
+
+    return lats, lons, distances, ice_content_m
+
+
+
 
 
 
@@ -294,34 +524,6 @@ def compile_icebridge_tracks_with_ice_lenses(self, quicklook_directory = ICEBRID
     
 
 
-def return_ice_layers_lat_lon_distance_thickness(self, masked=False):
-
-    '''Once we have boolean ice layers calculated, return the latitude,
-    longitude, elevation, and ice thickness for each trace.  If masked=True,
-    return them masked out.  If masked=False, don't bother masking them.'''
-
-    lats, lons = self.return_coordinates_lat_lon()
-    # So far I have read the data and stored the lat and lon coordinates
-    boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers") ====>>> This is the SG+ cutoff -0.45, continuits 350 file 
-
-    depths = self.get_sample_depths(trace_array = boolean_traces)
-    depth_delta_m = numpy.mean(depths[1:] - depths[:-1])
-    distances = numpy.cumsum(self.compute_distances())
-    distances = numpy.append([0.0], distances)
-
-    # Number of pixels times the thickness of each pixel
-    ice_content_m = numpy.sum(boolean_traces, axis=0) * depth_delta_m
-
-    if masked:
-        mask = self.get_boolean_ice_mask()
-        lats = lats[mask]
-        lons = lons[mask]
-        distances = distances[mask]
-        ice_content_m = ice_content_m[mask]
-
-    return lats, lons, distances, ice_content_m
-
-ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE=ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE = os.path.join(ICEBRIDGE_EXPORT_FOLDER,"txt\Ice_Layer_Output_Thicknesses_2018.csv")
 
 
 ##############################################################################
