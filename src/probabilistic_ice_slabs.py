@@ -42,7 +42,6 @@ def compute_distances(eastings,northings):
     distances = np.power(np.power((eastings[1:] - eastings[:-1]),2) + np.power((northings[1:] - northings[:-1]),2), 0.5)
     #Calculate the cumsum of the distances
     cumsum_distances=np.nancumsum(distances)
-    pdb.set_trace()
     #Seeting the first value of the cumsum to be zero as it is the origin
     return_cumsum_distances=np.zeros(eastings.shape[0])
     return_cumsum_distances[1:eastings.shape[0]]=cumsum_distances
