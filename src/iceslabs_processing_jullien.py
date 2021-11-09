@@ -235,7 +235,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         #Plot custom threshold ice slabs identification
         ax1.imshow(slices_depth_corrected_after_surf_removal_without_norm,cmap=plt.get_cmap('gray'))#,norm=divnorm)
         ax1.imshow(quantile_to_plot,cmap=plt.get_cmap('autumn'),alpha=0.1)#,norm=divnorm)
-        ax1.title.set_text(dataframe['datetrack']+' - quantile: '+cutoff_q_save)
+        ax1.title.set_text(datetrack+' - quantile: '+cutoff_q_save)
         ax1.set_ylim(boolean_full_slabs.shape[0],0)
         #ax1.set_aspect(boolean_full_slabs.shape[1]/boolean_full_slabs.shape[0]/17)
         
