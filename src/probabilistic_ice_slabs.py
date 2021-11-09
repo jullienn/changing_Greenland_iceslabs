@@ -179,3 +179,151 @@ for indiv_trace in datetrack_toread:
     outfile.close()
 
 print('End of probabilistic processing')
+
+
+
+
+
+
+##############################################################################
+###              Generate en excel file of ice slabs thickness             ###
+##############################################################################
+# This is from IceBridgeGPR_Manager_v2.py
+
+
+
+def export_ice_layer_lat_lon_distance_thicknesses(self):
+    '''Export to a CSV, ice layer lat,lon,& thicknesses.  Omit all zero values.'''
+
+    tracks = self.compile_icebridge_tracks_with_ice_lenses()
+    #Once I am out of this, I just store the suite of commands to execute in tracks but no actual data sotred in it
+
+    fout = open(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, 'w')
+    #pdb.set_trace()
+    header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
+    fout.write(header)
+            
+    for track in tracks:
+        
+        print(track.NAME, end=' ')
+        '''
+        if (not(track.NAME == '20170511_01_010_025')):
+            continue
+        else:
+            pdb.set_trace()
+        '''
+        lats, lons, distances, ice_contents = track.return_ice_layers_lat_lon_distance_thickness(masked=False)
+        # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
+        if track.NAME == "20120412_01_095_095":
+            ice_contents[0:9000] = 0.0
+
+        assert len(lats) == len(lons) == len(ice_contents)
+        tracenums = numpy.arange(len(lats), dtype=numpy.int)
+
+        tracecount = 0
+        for lat, lon, tracenum, distance, ice_content in zip(lats, lons, tracenums, distances, ice_contents):
+            # Record ONLY traces that have > 1 m ice content in them.  We're not interested in thinner stuff here.
+            # If it has > 16 m ice content (80%), we also omit it, just to keep pure ice out of it.
+            if 1.0 <= ice_content <= 16.0:
+                line = "{0},{1},{2},{3},{4},{5}\n".format(track.NAME, tracenum, lat, lon, distance, ice_content)
+                fout.write(line)
+                tracecount += 1
+        print(tracecount, "of", len(lats), "traces.")
+        print()
+
+    fout.close()
+    #pdb.set_trace()
+    print("Exported", os.path.split(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE)[-1])
+
+
+ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\jullienn\Documents\working_environment\iceslabs_MacFerrin\data\2018_Greenland_P3\images'
+
+def compile_icebridge_tracks_with_ice_lenses(self, quicklook_directory = ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER):
+
+    '''Similar to "::compile_icebridge_tracks()", this will complile a dictionary of IceBridge_Track objects.
+    However, instead of using all tracks and all files within the tracks, this will peruse a directory containing only files that
+    have been flagged to be part of IceBridge files that may (or do) contain ice lenses in them.
+
+    The directory contains only the quicklook PDF files that visualize the tracks.
+    '''
+    track_count_N = 0
+
+    # 1) Open the directory, get a list of all the files in there
+    # 2) Peruse files, separate out "map" files from "echo" files, use just the echo files.
+    all_files = [f for f in os.listdir(quicklook_directory) if f.find("1echo.jpg") != -1]
+
+    # 3) Compile lists of all sequential adjoining files (part of the same sequence) that will create tracks.
+    track_list_dict = {}
+    current_list = []
+    for f in all_files:
+        # If we have a new list, OR if the last file listed in the current list has the
+        # same FILE_ID, and the file number is one greater than the last one, append it onto the list.
+        if len(current_list) == 0 or \
+            (f[0:11] == current_list[-1][0:11] and (int(f[12:15]) - int(current_list[-1][12:15])) == 1):
+
+            current_list.append(f)
+        else:
+            # Convert the track_id substring into a TRACK_ID integer, append it.
+            track_id = current_list[0][0:11] + current_list[0][11:15] + current_list[-1][11:15]
+            # Stick it into the dictionary
+            track_list_dict[track_id] = current_list
+
+            # Create a new "current list" with the new file in it.
+            current_list = [f]
+            track_count_N += 1
+
+    # Make sure the very last one gets on there.
+    track_list_dict[current_list[0][0:11] + current_list[0][11:15] + current_list[-1][11:15]] = current_list
+    track_count_N += 1
+    # We have just created a list where the track id are stores
+
+    if self.verbose:
+        print(track_count_N, "tracks from", len(all_files), "files.\n")
+
+
+    # 4) Create a (subset) track from each file.
+    self.track_names = list(track_list_dict.keys())
+    self.track_names.sort()
+
+    tracks = [IceBridgeGPR_Track_v2(self.h5file, name, verbose=self.verbose) for name in self.track_names]
+
+    # 5) Save the dictionary.
+    self.tracks = tracks
+
+    return tracks
+    
+
+
+def return_ice_layers_lat_lon_distance_thickness(self, masked=False):
+
+    '''Once we have boolean ice layers calculated, return the latitude,
+    longitude, elevation, and ice thickness for each trace.  If masked=True,
+    return them masked out.  If masked=False, don't bother masking them.'''
+
+    lats, lons = self.return_coordinates_lat_lon()
+    # So far I have read the data and stored the lat and lon coordinates
+    boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers") ====>>> This is the SG+ cutoff -0.45, continuits 350 file 
+
+    depths = self.get_sample_depths(trace_array = boolean_traces)
+    depth_delta_m = numpy.mean(depths[1:] - depths[:-1])
+    distances = numpy.cumsum(self.compute_distances())
+    distances = numpy.append([0.0], distances)
+
+    # Number of pixels times the thickness of each pixel
+    ice_content_m = numpy.sum(boolean_traces, axis=0) * depth_delta_m
+
+    if masked:
+        mask = self.get_boolean_ice_mask()
+        lats = lats[mask]
+        lons = lons[mask]
+        distances = distances[mask]
+        ice_content_m = ice_content_m[mask]
+
+    return lats, lons, distances, ice_content_m
+
+ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE=ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE = os.path.join(ICEBRIDGE_EXPORT_FOLDER,"txt\Ice_Layer_Output_Thicknesses_2018.csv")
+
+
+##############################################################################
+###              Generate en excel file of ice slabs thickness             ###
+##############################################################################
