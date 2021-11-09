@@ -70,17 +70,17 @@ import glob
 
 #I. Define path, open datetracks and define desired quantiles
 #Define path where to pick roll corrected data
-
+'''
 path_quantiles_data='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
 '''
 path_quantiles_data='/flash/jullienn/data/threshold_processing_output/pickles/'
-'''
-#Identify all the datetraces to process
 
+#Identify all the datetraces to process
+'''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-'''
+
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Define the desired quantiles over which we will loop
@@ -93,8 +93,8 @@ count_time=0
 for indiv_trace in datetrack_toread:
     
     #If pickle files have already been created, do not process and continue
-    #filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'*'
-    filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+    filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'*'
+    #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
                       
     if (len(glob.glob(filename_to_check))>0):
         print(indiv_trace[0],': file already existent, move on to the next date')
@@ -135,11 +135,11 @@ for indiv_trace in datetrack_toread:
     probabilistic_slice=probabilistic_slice/len(desired_quantiles)
     
     #Save the image
-    
+    '''
     fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
     '''
     fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
-    '''
+    
     
     '''
     #Traditional was of plotting, depreciated here
@@ -183,32 +183,25 @@ for indiv_trace in datetrack_toread:
     png_to_save.save(fig_name)
     
     #Save the pickle file
-    
+    '''
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
     '''
     filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
-    '''
+    
     outfile= open(filename_tosave, "wb" )
     pickle.dump(probabilistic_slice,outfile)
     outfile.close()
 
 print('End of probabilistic processing')
 
-pdb.set_trace()
-
-
-
-
 ##############################################################################
 ###              Generate en excel file of ice slabs thickness             ###
 ##############################################################################
+# This is inspired from IceBridgeGPR_Manager_v2.py from MacFerrin et al., 2019
 
 import scipy.io
 import h5py
 from pyproj import Transformer
-
-
-# This is from IceBridgeGPR_Manager_v2.py
 
 #1. Open the excel file to populate
 #2. Loop over all the dates and perform filling of excel file at each iteration
@@ -218,6 +211,7 @@ from pyproj import Transformer
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 #Define path where data are stored
+'''
 path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research\RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
 path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
@@ -227,11 +221,11 @@ path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/prob
 path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
 path_data='/flash/jullienn/data/threshold_processing/'
 
-'''
-
-
 #Define filename
+'''
 filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
+'''
+filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
 
 #Open filename (same procedure as MacFerrin et al., 2019)
 fout = open(filename_excel_output, 'w')
