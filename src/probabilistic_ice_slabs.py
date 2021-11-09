@@ -293,7 +293,7 @@ for indiv_trace in datetrack_toread:
         lon_appended=np.append(lon_appended,lon_filename)
     
                      
-    #Transform the coordinated from WGS84 to EPSG:3413
+    #Transform the coordinated from WGS84 to EPSG:3413 for distance calculation
     #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
     transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
     points=transformer.transform(np.array(lon_appended),np.array(lat_appended))
@@ -355,8 +355,8 @@ for indiv_trace in datetrack_toread:
     ice_content_m = np.sum(slice_for_calculation, axis=0) * depth_delta_m
     
     #Use the same names as MacFerrin et al., 2019
-    lats=lat_3413
-    lons=lon_3413
+    lats=lat_appended
+    lons=lon_appended
     ice_contents = ice_content_m
     
     # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
