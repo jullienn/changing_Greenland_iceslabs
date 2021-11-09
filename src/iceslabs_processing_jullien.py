@@ -409,6 +409,20 @@ def reconstruct_with_NaNs(slices_depth_corrected_after_surf_removal_without_norm
     
     return traces_20m_full
 
+def reconstruct_with_NaNs_rescaling(slices_depth_corrected_after_surf_removal_without_norm,mask,boolean_iceslabs):
+    #pdb.set_trace()
+    #Where mask is False
+    index_false=np.where(mask==False)[0]
+    #Where mask is True
+    index_true=np.where(mask==True)[0]
+    
+    #reconstruct the array with the NaNs
+    traces_20m_full=np.zeros((boolean_iceslabs.shape[0],slices_depth_corrected_after_surf_removal_without_norm.shape[1]))
+    traces_20m_full[:,index_false]=np.nan
+    traces_20m_full[:,index_true]=boolean_iceslabs
+    
+    return traces_20m_full
+
 
 import pandas as pd
 import numpy as np
@@ -653,7 +667,7 @@ path_depth_corrected='/flash/jullienn/data/threshold_processing_output/pickles/'
 for indiv_date in datetrack_toread:
     
     if (indiv_date[0] in list_trace_failed):
-        print(indiv_date[0],' have failed, continue')
+        print('   ',indiv_date[0],' have failed, continue')
         continue
     print('   ',indiv_date[0])
     
@@ -791,14 +805,13 @@ for indiv_file in list_trace_failed:
     rescaled_slice=sklearn.preprocessing.minmax_scale(slice_depth_corrected_20m_without_nans, feature_range=(np.nanpercentile(appended_radar_slices,5),np.nanpercentile(appended_radar_slices,95)))
     
     #Reconsruct full slice with NaNs
-    full_rescaled_slice=reconstruct_with_NaNs(slice_depth_corrected_20m,mask,rescaled_slice)
+    full_rescaled_slice=reconstruct_with_NaNs_rescaling(slice_depth_corrected_20m,mask,rescaled_slice)
     
+    pdb.set_trace()
     #Display the results
     
     #Plot to briefly check
     fig, (ax1,ax2) = plt.subplots(2, 1)
-    figManager = plt.get_current_fig_manager()
-    figManager.window.showMaximized()
     fig.suptitle(indiv_file)
     
     cb=ax1.imshow(slice_depth_corrected_20m,cmap=plt.get_cmap('gray'))
@@ -836,9 +849,6 @@ for indiv_file in list_trace_failed:
     
 #Plot the distribution of 2010-2018 radar signal strenght
 fig, (ax1) = plt.subplots(1, 1)
-figManager = plt.get_current_fig_manager()
-figManager.window.showMaximized()
-
 ax1.set_title('2010-2018 depth corrected radar signal strength distribution')
 ax1.hist(appended_radar_slices,bins=100)
 
