@@ -55,17 +55,17 @@ import glob
 
 #I. Define path, open datetracks and define desired quantiles
 #Define path where to pick roll corrected data
-'''
-path_quantiles_data='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/'
+
+path_quantiles_data='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
 '''
 path_quantiles_data='/flash/jullienn/data/threshold_processing_output/pickles/'
-
-#Identify all the datetraces to process
 '''
+#Identify all the datetraces to process
+
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-
+'''
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Define the desired quantiles over which we will loop
@@ -121,11 +121,11 @@ for indiv_trace in datetrack_toread:
     probabilistic_slice=probabilistic_slice/len(desired_quantiles)
     
     #Save the image
-    '''
-    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
+    
+    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
     '''
     fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
-    
+    '''
     
     '''
     #Traditional was of plotting, depreciated here
@@ -169,11 +169,11 @@ for indiv_trace in datetrack_toread:
     png_to_save.save(fig_name)
     
     #Save the pickle file
-    '''
-    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/prob/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+    
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
     '''
     filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
-    
+    '''
     outfile= open(filename_tosave, "wb" )
     pickle.dump(probabilistic_slice,outfile)
     outfile.close()
