@@ -463,7 +463,7 @@ path_datetrack='/flash/jullienn/data/threshold_processing/'
 
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
-#Open the quantile file over whoch we will loop
+#Open the quantile file over which we will loop
 quantiles_file=np.arange(0.63,0.82,0.01)
 '''
 filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
@@ -710,7 +710,7 @@ print('   ')
 print('Perform rescaling')
 
 for indiv_file in list_trace_failed:
-    pdb.set_trace()
+    #pdb.set_trace()
     
     #Define filename
     filename_depth_corrected=indiv_file+'_Depth_Corrected_surf_removal.pickle'
@@ -807,7 +807,7 @@ for indiv_file in list_trace_failed:
     #Reconsruct full slice with NaNs
     full_rescaled_slice=reconstruct_with_NaNs_rescaling(slice_depth_corrected_20m,mask,rescaled_slice)
     
-    pdb.set_trace()
+    #pdb.set_trace()
     #Display the results
     
     #Plot to briefly check
@@ -828,7 +828,7 @@ for indiv_file in list_trace_failed:
     plt.savefig('/flash/jullienn/data/threshold_processing_output/images/'+indiv_file[0:19]+'_rescaling.png',dpi=2000)
     plt.close(fig)
     
-    pdb.set_trace()
+    #pdb.set_trace()
      
     #Save the depth corrected rescaled slices as pickle files
     filename_tosave=path_depth_corrected+indiv_file[0:19]+'_Depth_Corrected_surf_removal_rescaled.pickle'
@@ -855,4 +855,7 @@ ax1.hist(appended_radar_slices,bins=100)
 #Save the figure
 plt.savefig(path_depth_corrected+'distribution_for_rescaling.png',dpi=2000)
 plt.close(fig)
-    
+
+print('   ')
+print(' --- End of processing --- ')
+
