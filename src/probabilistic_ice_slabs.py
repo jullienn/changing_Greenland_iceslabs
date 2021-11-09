@@ -270,7 +270,6 @@ for indiv_trace in datetrack_toread:
         else:
             indiv_file_load='Data_'+indiv_trace[0][0:12]+str(nb_trace)+'.mat'
         
-        print('  ',indiv_file_load)
         #pdb.set_trace()
         #Create the path
         path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
