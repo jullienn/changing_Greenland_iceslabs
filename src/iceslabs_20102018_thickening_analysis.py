@@ -35,11 +35,11 @@ from pysheds.grid import Grid
 import matplotlib.colors as mcolors
 
 #Load the spatial aggregated data. All the points within a radius of 100m are averaged
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/'
 df_2010_2018_spatially_aggregated = pd.read_csv(path+'jullien_etal_20102018_spatial_aggregation_grid_1000.csv',delimiter=';',decimal=',')
 
 #Load all 2010-2018 data without spatial aggregation
-df_2010_2018 = pd.read_csv(path+'jullienetal_20102018.csv',delimiter=';',decimal=',')
+df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(df_2010_2018["lon"]),np.asarray(df_2010_2018["lat"]))

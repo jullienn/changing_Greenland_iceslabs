@@ -215,6 +215,8 @@ df_spatial_aggregation=pd.DataFrame({'avg_20m_icecontent':avg_20m_icecontent,
 filename_to_save='jullien_etal_20102018_spatial_aggregation_grid_'+str(a)+'.xlsx'
 df_spatial_aggregation.to_excel(path+filename_to_save)
 
+print(' --- End of processing ---')
+
 ###         End from spatial_aggregation_2010_2018.py            ###
 ######################################################################
 
