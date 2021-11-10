@@ -37,7 +37,7 @@ import matplotlib.colors as mcolors
 #Load all 2010-2018 data
 #path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'
 path='/home/jullienn/data/iceslabs/'
-df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv',delimiter=';',decimal=',')
+df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
 
 #Create a year column
 year=df_2010_2018.Track_name.str[:4]
