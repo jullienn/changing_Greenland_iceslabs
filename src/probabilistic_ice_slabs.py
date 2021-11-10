@@ -168,11 +168,6 @@ for indiv_trace in datetrack_toread:
     plt.show()
     '''
     
-    if (indiv_trace not in list(['20110416_01_053_055'])):
-        continue
-    else:
-        pdb.set_trace()
-    
     #Prepare matrix for png plot. (1-probabilistic_slice) because 1 is white
     #out of the function _export_to_8bit_array, and I want black
     probabilistic_slice_png=_export_to_8bit_array((1-probabilistic_slice))
@@ -364,7 +359,7 @@ for indiv_trace in datetrack_toread:
         ice_contents[0:9000] = 0.0
 
     assert len(lats) == len(lons) == len(ice_contents)
-    tracenums = np.arange(len(lats), dtype=np.int)
+    tracenums = np.arange(len(lats), dtype=np.int64)
 
     tracecount = 0
     for lat, lon, tracenum, distance, ice_content in zip(lats, lons, tracenums, distances, ice_contents):
