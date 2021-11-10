@@ -71,15 +71,14 @@ plot_boolean= 'plot_boolean_SG1_cut045_th350' # can be 'plot_boolean_orig_cut045
 plot_years_overlay='FALSE'
 plot_depth_corrected_single='FALSE'
 plot_depth_corrected_subplot='TRUE' #Must be true!!
-plot_boolean_subplot='FALSE' #Must be true!!
-plot_images_subplot='FALSE'
+plot_boolean_subplot='TRUE' #Must be true!!
+plot_probabilistic_subplot='TRUE'
 yearly_comparison_indiv='FALSE'
 yearly_comparison_ref='TRUE'
 cumulative_comparison='FALSE'
 
 #Define the years and data to investigate:
 inv = {k: {} for k in list(np.arange(0,30))}
-
 
 #Less good candidate for ice slabs filling!!
 investigation_year={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
@@ -394,15 +393,13 @@ inv[29]=investigation_year
 #Define the general path as a function of the year
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 #Define the path of processed data
-path_outcomes='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/'
-#Define the path for masks
-path_mask=path_outcomes+'Boolean_Array_Picklefiles/'
+path_outcomes='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/'
+#Define the path for booleans and masks
+path_boolean='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
 #Define path for depth corrected
-path_depth_corrected=path_outcomes+'Depth_Corrected_Picklefiles/'
-#Define the path for boolean
-path_boolean=path_outcomes+'Boolean_Array_Picklefiles/'
-#Define the path for boolean images
-path_boolean_images=path_outcomes
+path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
+#Define the path for probabilistic ice slabs
+path_probabilistic='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
 
 ##############################################################################
 ###                               Define paths                             ###
@@ -424,7 +421,8 @@ for k in (np.arange(0,30)):
     
     #if already generated, continue
     #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
-    filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
+    #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
+    filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'probabilistic_aspect00025'+'.png'
 
     if (os.path.isfile(filename_to_check)):
         print('Figure already existent, continue')
@@ -448,20 +446,20 @@ for k in (np.arange(0,30)):
         #pdb.set_trace()
         
         #Define filename depth corrected data
-        filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
+        filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
                   
         #Define boolean filename and boolean image filename
         if (plot_boolean=='plot_boolean_orig_cut045_th000'):
             filename_boolean=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.pickle'
-            filename_boolean_image=date_track+'_orig_CUTOFF_-0.45_THRESHOLD_000.png'
             
         if (plot_boolean=='plot_boolean_SG1_cut045_th000'):
             filename_boolean=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
-            filename_boolean_image=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_000.png'
             
         if (plot_boolean=='plot_boolean_SG1_cut045_th350'):
             filename_boolean=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.pickle'
-            filename_boolean_image=date_track+'_SG1_CUTOFF_-0.45_THRESHOLD_350.png'
+        
+        #Define probailistic filename
+        filename_probabilistic=date_track+'_probability_iceslabs_presence.pickle'
         
         #Open the depth corrected file
         f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
@@ -473,12 +471,13 @@ for k in (np.arange(0,30)):
         boolean_file = pickle.load(f_boolean)
         f_boolean.close()
         
-        #Open boolean image
-        boolean_image = Image.open(path_boolean_images+filename_boolean_image).convert("L")
-        arr_boolean_image = np.asarray(boolean_image)
+        #Open probabilistic file
+        f_probabilistic = open(path_probabilistic+filename_probabilistic, "rb")
+        probabilistic_file = pickle.load(f_probabilistic)
+        f_probabilistic.close()
         
         #Open mask file
-        f_mask = open(path_mask+date_track+'_mask.pickle', "rb")
+        f_mask = open(path_boolean+date_track+'_mask.pickle', "rb")
         data_mask = pickle.load(f_mask)
         f_mask.close()
         
@@ -531,7 +530,7 @@ for k in (np.arange(0,30)):
             lon_appended=np.flipud(lon_appended)
             radar=np.fliplr(radar)
             boolean_file=np.fliplr(boolean_file)
-            arr_boolean_image=np.fliplr(arr_boolean_image)
+            probabilistic_file=np.fliplr(probabilistic_file)
             data_mask=np.flipud(data_mask)
         
         #Calculate the depth from the time
@@ -569,10 +568,10 @@ for k in (np.arange(0,30)):
                                      'lon_appended':lon_appended,
                                      'depth':depth,
                                      'radar':radar,
-                                     'boolean':boolean_file,
-                                     'boolean_image':arr_boolean_image,
-                                     'mask':data_mask}
-        
+                                     'probabilistic':probabilistic_file,
+                                     'mask':data_mask,
+                                     'boolean':boolean_file}
+
     ##############################################################################
     ###                          Load and organise data                        ###
     ##############################################################################
@@ -619,7 +618,7 @@ for k in (np.arange(0,30)):
     ##############################################################################
     ###                                 Plot data                              ###
     ##############################################################################
-    
+        
     if (plot_years_overlay=='TRUE'):
         #Create an empty radar slice to plot data over it
         empty_slice=np.empty((dataframe[str(single_year)]['radar'].shape[0],5000))
@@ -656,15 +655,15 @@ for k in (np.arange(0,30)):
         pyplot.figure(figsize=(40,20))
         pyplot.rcParams.update({'font.size': 5})
         fig2, (ax1b,ax2b,ax3b,ax4b,ax5b,ax6b,ax7b) = pyplot.subplots(7, 1)
-        
-    if (plot_images_subplot=='TRUE'):
+
+    if (plot_probabilistic_subplot=='TRUE'):
         pyplot.rcParams['axes.linewidth'] = 0.1 #set the value globally
         pyplot.rcParams['xtick.major.width']=0.1
         pyplot.rcParams['ytick.major.width']=0.1
         
         pyplot.figure(figsize=(40,20))
         pyplot.rcParams.update({'font.size': 5})
-        fig3, (ax1i,ax2i,ax3i,ax4i,ax5i,ax6i,ax7i) = pyplot.subplots(7, 1)
+        fig4, (ax1p,ax2p,ax3p,ax4p,ax5p,ax6p,ax7p) = pyplot.subplots(7, 1)
             
     for single_year in investigation_year.keys():
         
@@ -844,60 +843,70 @@ for k in (np.arange(0,30)):
             
             ##Save the figure
             #pyplot.savefig(fig_name,dpi=2000)
-            #pyplot.clf()        
-    
-        if (plot_images_subplot=='TRUE'):
-            
+            #pyplot.clf()
+
+        if (plot_probabilistic_subplot=='TRUE'):
+
             #If no data, continue
             if (investigation_year[single_year]=='empty'):
                 print('No data for year '+str(single_year)+', continue')
                 continue
             
             if (single_year==2010):
-                ax_plotting=ax1i
+                ax_plotting=ax1p
             elif (single_year==2011):
-                ax_plotting=ax2i
+                ax_plotting=ax2p
             elif (single_year==2012):
-                ax_plotting=ax3i
+                ax_plotting=ax3p
             elif (single_year==2013):
-                ax_plotting=ax4i
+                ax_plotting=ax4p
             elif (single_year==2014):
-                ax_plotting=ax5i
+                ax_plotting=ax5p
             elif (single_year==2017):
-                ax_plotting=ax6i
+                ax_plotting=ax6p
             elif (single_year==2018):
-                ax_plotting=ax7i
+                ax_plotting=ax7p
             else:
                 print('Year not existing')
-            
-            
-            #Prepare the plot
-            #ax_plotting.set_xticks(ticks=np.linspace(min_lon,max_lon,dataframe[str(single_year)]['boolean'].shape[1]))
-    
+                
+            #fig.suptitle(str(plot_name1))
             X=dataframe[str(single_year)]['lon_appended']
-            Y=np.arange(0,20,20/dataframe[str(single_year)]['boolean'].shape[0])
-            C=dataframe[str(single_year)]['boolean_image'].astype(float)
+            Y=np.arange(0,20,20/dataframe[str(single_year)]['probabilistic'].shape[0])
+            C=dataframe[str(single_year)]['probabilistic'].astype(float)
             
-            cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+            cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray_r'))#,norm=divnorm)
             ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
-            ax_plotting.set_aspect(0.001) # X scale matches Y scale
-            ax_plotting.set_title(str(single_year)+' '+plot_boolean)
+            ax_plotting.set_aspect(0.0025) # X scale matches Y scale
+            ax_plotting.set_title(date_track+' probabilistic slice')
+            
             ax_plotting.set_ylabel('Depth [m]')
+            '''
             ax_plotting.set_xlabel('Longitude [°]')
+            
+            ax_plotting.set_xlim(-47.8,-46.8)
+            ax_plotting.set_ylim(20,0)
+            ax_plotting.set_xticklabels([])
+            ax_plotting.set_yticklabels([])
+            
+            '''
+            
             ax_plotting.set_xlim(min_lon,max_lon)
             ax_plotting.set_ylim(20,0)
             
-            cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
+            '''
+            cbar=fig4.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
             cbar.set_label('Signal strength')
+            '''
             
             ##Create the figure name
             #fig_name=[]
-            #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+plot_boolean+'.png'
+            #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/'+date_track+'_probabilistic_aspect00025.png'
             
             pyplot.show()
+            
             ##Save the figure
             #pyplot.savefig(fig_name,dpi=2000)
-            #pyplot.clf()    
+            #pyplot.clf()
     
     '''
         else:
@@ -945,12 +954,13 @@ for k in (np.arange(0,30)):
 
     pyplot.subplots_adjust(wspace=0, hspace=0.2)
     
-    fig1.set_size_inches(40, 20)
+    fig4.set_size_inches(40, 20)
     #fig2.set_size_inches(40, 20)
         
     #Create the figure name
     fig_name=[]
-    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
+    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/'+date_track+'_probabilistic_aspect00025.png'
+    #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
     #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
 
     #Save the figure

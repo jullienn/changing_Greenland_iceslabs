@@ -228,6 +228,7 @@ figManager.window.showMaximized()
 
 plt.show()
 
+pdb.set_trace()
 
 diff_to_plot=df_spatially_aggregated_2012-df_spatially_aggregated_2011
 
@@ -255,6 +256,7 @@ figManager.window.showMaximized()
 
 plt.show()
 
+pdb.set_trace()
 
 
 diff_to_plot=df_spatially_aggregated_2013-df_spatially_aggregated_2012
@@ -283,6 +285,7 @@ figManager.window.showMaximized()
 
 plt.show()
 
+pdb.set_trace()
 
 
 diff_to_plot=df_spatially_aggregated_2014-df_spatially_aggregated_2013
@@ -311,6 +314,7 @@ figManager.window.showMaximized()
 
 plt.show()
 
+pdb.set_trace()
 
 
 diff_to_plot=df_spatially_aggregated_2017-df_spatially_aggregated_2014
@@ -339,6 +343,7 @@ figManager.window.showMaximized()
 
 plt.show()
 
+pdb.set_trace()
 
 
 diff_to_plot=df_spatially_aggregated_2018-df_spatially_aggregated_2017
@@ -368,6 +373,7 @@ figManager.window.showMaximized()
 plt.show()
 
 
+pdb.set_trace()
 
 
 
@@ -397,6 +403,7 @@ figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
 plt.show()
+pdb.set_trace()
 
 #2018-2010
 diff_to_plot=df_spatially_aggregated_2018-df_spatially_aggregated_2010
@@ -424,6 +431,7 @@ figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
 plt.show()
+pdb.set_trace()
 
 #2018-2010
 #this is the 7 years overlaping case study!!
@@ -455,6 +463,7 @@ figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
 plt.show()
+pdb.set_trace()
 
 #2017-2014
 #this is the 7 years overlaping case study!!
