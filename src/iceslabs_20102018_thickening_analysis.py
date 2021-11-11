@@ -200,7 +200,7 @@ df_spatially_aggregated_2017=pd.DataFrame(data=array_2017,
                                           columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
 df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
                                           columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
-
+'''
 #Save the individual files
 path_to_save_indiv_excel='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/'
 
@@ -211,7 +211,7 @@ df_spatially_aggregated_2013.to_csv(path_or_buf=path_to_save_indiv_excel+'jullie
 df_spatially_aggregated_2014.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2014_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
 df_spatially_aggregated_2017.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2017_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
 df_spatially_aggregated_2018.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2018_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
-
+'''
 
 #Plot differences
 diff_to_plot=df_spatially_aggregated_2011-df_spatially_aggregated_2010
