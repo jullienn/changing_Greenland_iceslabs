@@ -201,6 +201,18 @@ df_spatially_aggregated_2017=pd.DataFrame(data=array_2017,
 df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
                                           columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
 
+#Save the individual files
+path_to_save_indiv_excel='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/'
+
+df_spatially_aggregated_2010.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2010_jullienetal2021.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2011.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2011_jullienetal2021.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2012.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2012_jullienetal2021.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2013.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2013_jullienetal2021.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2014.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2014_jullienetal2021.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2017.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2017_jullienetal2021.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2018.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2018_jullienetal2021.csv',header=True,na_rep='NaN')
+
+
 #Plot differences
 diff_to_plot=df_spatially_aggregated_2011-df_spatially_aggregated_2010
 
@@ -221,6 +233,9 @@ sc= ax1.scatter(df_spatially_aggregated_2011['avg_lon_3413'],df_spatially_aggreg
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
+
+ax1.set_xlim(-150000,-80000)
+ax1.set_ylim(-2460000,-2410000)
 
 #Allows to open plot in full size directly
 figManager = plt.get_current_fig_manager()
@@ -249,6 +264,9 @@ sc= ax1.scatter(df_spatially_aggregated_2012['avg_lon_3413'],df_spatially_aggreg
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
+
+ax1.set_xlim(-150000,-80000)
+ax1.set_ylim(-2460000,-2410000)
 
 #Allows to open plot in full size directly
 figManager = plt.get_current_fig_manager()
@@ -279,6 +297,9 @@ cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
 
+ax1.set_xlim(-150000,-80000)
+ax1.set_ylim(-2460000,-2410000)
+
 #Allows to open plot in full size directly
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
@@ -307,6 +328,9 @@ sc= ax1.scatter(df_spatially_aggregated_2014['avg_lon_3413'],df_spatially_aggreg
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
+
+ax1.set_xlim(-150000,-80000)
+ax1.set_ylim(-2460000,-2410000)
 
 #Allows to open plot in full size directly
 figManager = plt.get_current_fig_manager()
@@ -337,6 +361,9 @@ cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
 
+ax1.set_xlim(-150000,-80000)
+ax1.set_ylim(-2460000,-2410000)
+
 #Allows to open plot in full size directly
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
@@ -366,6 +393,9 @@ cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
 
+ax1.set_xlim(-150000,-80000)
+ax1.set_ylim(-2460000,-2410000)
+
 #Allows to open plot in full size directly
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
@@ -389,18 +419,21 @@ cbar1.set_label('Elevation [m]')
 # Make the norm for difference plotting
 divnorm_diff = mcolors.DivergingNorm(vmin=-5, vcenter=0, vmax=5)
 #Display 2017 data
-plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lat_3413'],s=0.1,color='#525252',label='2017')
+plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lat_3413'],s=0.01,color='#525252',label='2017', edgecolors='none')
 #Display 2010 data
-plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#d9d9d9',label='2010')
+plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lat_3413'],s=0.01,color='#d9d9d9',label='2010', edgecolors='none')
 #Display the difference between 2017 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff,s=0.01, edgecolors='none')
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
-
+'''
 #Allows to open plot in full size directly
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
+'''
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/2017_minus_2010.png'
+plt.savefig(fig_name,dpi=2000)
 
 plt.show()
 pdb.set_trace()
