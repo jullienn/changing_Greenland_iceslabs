@@ -39,6 +39,24 @@ import matplotlib.colors as mcolors
 path='/home/jullienn/data/iceslabs/'
 df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
 
+#Select individual years and save corresponding files
+df_2010=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']
+df_2011=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2011']
+df_2012=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2012']
+df_2013=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2013']
+df_2014=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2014']
+df_2017=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']
+df_2018=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2018']
+
+df_2010.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2010_jullienetal2021.csv',header=True)
+df_2011.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2011_jullienetal2021.csv',header=True)
+df_2012.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2012_jullienetal2021.csv',header=True)
+df_2013.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2013_jullienetal2021.csv',header=True)
+df_2014.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2014_jullienetal2021.csv',header=True)
+df_2017.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2017_jullienetal2021.csv',header=True)
+df_2018.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2018_jullienetal2021.csv',header=True)
+
+
 #Create a year column
 year=df_2010_2018.Track_name.str[:4]
 df_2010_2018['year']=year.astype(str).astype(int)
