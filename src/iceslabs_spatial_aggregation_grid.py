@@ -39,6 +39,7 @@ import matplotlib.colors as mcolors
 path='/home/jullienn/data/iceslabs/'
 df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
 
+'''
 #Select individual years and save corresponding files
 df_2010=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']
 df_2011=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2011']
@@ -55,7 +56,7 @@ df_2013.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2013_jullienetal20
 df_2014.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2014_jullienetal2021.csv',header=True)
 df_2017.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2017_jullienetal2021.csv',header=True)
 df_2018.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2018_jullienetal2021.csv',header=True)
-
+'''
 
 #Create a year column
 year=df_2010_2018.Track_name.str[:4]
@@ -80,7 +81,7 @@ elevDem=grid.dem[:-1,:-1]
 #Scale the colormap
 divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 ########################## Load GrIS elevation ##########################
-
+'''
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Spatial aggregation illustration')
 #Display DEM
@@ -98,7 +99,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2018']['lon_3413'],df
 #Display the aggregation data
 plt.legend()
 plt.show()
-
+'''
 
 #Create the grid
 a=1000 #length of one side of the cell
@@ -120,12 +121,13 @@ XY_iceslabs = np.array((df_2010_2018['lon_3413'],df_2010_2018['lat_3413'])).swap
 #Define the look up tree
 tree = spatial.cKDTree(XY_iceslabs)
 
+print('Build the lookup tree')
 #This is from : https://medium.com/nam-r/10-essential-operations-for-spatial-data-in-python-4603d933bdda, point 7
 #Find all the point that lies within the circle of radius r centered around the point of reference
 neigh_list=[]
 for count, value in enumerate(points):
     neigh_list.append(tree.query_ball_point(value,r=radius_search))
-    print(count/len(points)*100,'%')
+    #print(count/len(points)*100,'%')
 
 #Create the vectors to store the aggregated data
 avg_20m_icecontent=np.zeros(len(neigh_list))
@@ -158,12 +160,14 @@ ite=0
 #Initialize the verification vector
 verification=np.nan
 
+print('Make the correspondance')
+
 for index_list in neigh_list:
 
     #retreive all data which index belong to index_list
     df_temp=df_2010_2018.iloc[index_list]
     
-    print(ite/len(neigh_list)*100,' %')
+    #print(ite/len(neigh_list)*100,' %')
     
     if (len(df_temp) == 0):
         #no data at this grid point, continue
