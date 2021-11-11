@@ -204,13 +204,13 @@ df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
 #Save the individual files
 path_to_save_indiv_excel='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/'
 
-df_spatially_aggregated_2010.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2010_jullienetal2021.csv',header=True,na_rep='NaN')
-df_spatially_aggregated_2011.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2011_jullienetal2021.csv',header=True,na_rep='NaN')
-df_spatially_aggregated_2012.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2012_jullienetal2021.csv',header=True,na_rep='NaN')
-df_spatially_aggregated_2013.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2013_jullienetal2021.csv',header=True,na_rep='NaN')
-df_spatially_aggregated_2014.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2014_jullienetal2021.csv',header=True,na_rep='NaN')
-df_spatially_aggregated_2017.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2017_jullienetal2021.csv',header=True,na_rep='NaN')
-df_spatially_aggregated_2018.to_csv(path_or_buf=path_to_save_indiv_excel+'Ice_Layer_Output_Thicknesses_indiv2018_jullienetal2021.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2010.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2010_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2011.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2011_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2012.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2012_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2013.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2013_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2014.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2014_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2017.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2017_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
+df_spatially_aggregated_2018.to_csv(path_or_buf=path_to_save_indiv_excel+'jullien_etal_2018_spatial_aggregation_grid_1000.csv',header=True,na_rep='NaN')
 
 
 #Plot differences
