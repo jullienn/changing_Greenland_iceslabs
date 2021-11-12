@@ -77,6 +77,22 @@ yearly_comparison_indiv='FALSE'
 yearly_comparison_ref='TRUE'
 cumulative_comparison='FALSE'
 
+#List of traces where iceslabs likelihood identification have failed
+list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20130423_01_125_125',
+                        '20130423_01_127_127','20130426_01_089_089','20140419_01_016_017',
+                        '20140419_01_028_028','20140419_03_075_075','20140516_02_031_034',
+                        '20180419_02_032_033','20180419_02_035_036','20180425_01_166_169',
+                        '20180427_01_170_172','20180429_01_008_014','20110509_01_001_001',
+                        '20120511_01_059_059','20140409_10_036_038','20170410_01_132_134',
+                        '20170412_01_150_150','20170414_01_022_024','20170414_01_051_055',
+                        '20170417_01_104_106','20170421_01_171_174','20170422_01_168_171',
+                        '20170501_02_093_094','20170501_04_040_043','20170502_01_041_060',
+                        '20170502_01_120_122','20170510_02_080_085','20170510_02_100_105',
+                        '20180405_01_022_024','20180405_01_051_056','20180405_01_078_082',
+                        '20180405_01_090_091','20180421_01_174_177','20180423_01_180_182',
+                        '20180426_01_004_006','20170510_02_107_121','20180419_02_040_044',
+                        '20120418_01_005_007'])
+
 #Define the years and data to investigate:
 inv = {k: {} for k in list(np.arange(0,30))}
 
@@ -446,7 +462,11 @@ for k in (np.arange(0,30)):
         #pdb.set_trace()
         
         #Define filename depth corrected data
-        filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
+        if (date_track not in list_trace_failed):
+            filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
+        else:
+            filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal_rescaled.pickle'
+
                   
         #Define boolean filename and boolean image filename
         if (plot_boolean=='plot_boolean_orig_cut045_th000'):
@@ -760,25 +780,24 @@ for k in (np.arange(0,30)):
             '''
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticklabels([])
-            
-            ax_plotting.set_xlabel('Longitude [°]]')
             '''
+            #ax_plotting.set_xlabel('Longitude [°]]')
             
-            '''
-            ax_plotting.set_xlim(-47.8,-46.8)
+            ax_plotting.set_xlim(-47.9,-46.8)
             ax_plotting.set_ylim(20,0)
             '''
             ax_plotting.set_xlim(min_lon,max_lon)
             ax_plotting.set_ylim(20,0)
-
+            '''
             '''
             ax_plotting.set_xticks(distances[0:len(distances):(int(len(distances)/5))])
             ax_plotting.set_xticklabels(distances[0:len(distances):(int(len(distances)/5))])
-            '''
+            
             cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.5,aspect=2,pad=0.01)
+            '''
             #pdb.set_trace()
 
-            cb.set_clim(-12.0,0)
+            #cb.set_clim(-12.0,0)
             
             #pyplot.show()
             
@@ -817,24 +836,22 @@ for k in (np.arange(0,30)):
             ax_plotting.set_title(date_track+' '+plot_boolean)
             
             ax_plotting.set_ylabel('Depth [m]')
-            '''
-            ax_plotting.set_xlabel('Longitude [°]')
+            #ax_plotting.set_xlabel('Longitude [°]')
             
-            ax_plotting.set_xlim(-47.8,-46.8)
+            ax_plotting.set_xlim(-47.9,-46.8)
             ax_plotting.set_ylim(20,0)
+            '''
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticklabels([])
-            
-            '''
             
             ax_plotting.set_xlim(min_lon,max_lon)
             ax_plotting.set_ylim(20,0)
             
             '''
+            '''
             cbar=fig1.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
             cbar.set_label('Signal strength')
             '''
-            
             ##Create the figure name
             #fig_name=[]
             #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2010_2014_thickening/'+date_track+'_'+plot_boolean+'.png'
@@ -879,20 +896,24 @@ for k in (np.arange(0,30)):
             ax_plotting.set_aspect(0.0025) # X scale matches Y scale
             ax_plotting.set_title(date_track+' probabilistic slice')
             
-            ax_plotting.set_ylabel('Depth [m]')
-            '''
-            ax_plotting.set_xlabel('Longitude [°]')
+            #Overlay probilistic ice slabs >= 0.5 on top of it
+            prob_05=np.zeros((C.shape[0],C.shape[1]))
+            ind_05=C>=0.5
+            prob_05[ind_05]=C[ind_05]
             
-            ax_plotting.set_xlim(-47.8,-46.8)
+            ax_plotting.set_ylabel('Depth [m]')
+            #ax_plotting.set_xlabel('Longitude [°]')
+            
+            ax_plotting.set_xlim(-47.9,-46.8)
             ax_plotting.set_ylim(20,0)
+            
+            '''
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticklabels([])
             
-            '''
-            
             ax_plotting.set_xlim(min_lon,max_lon)
             ax_plotting.set_ylim(20,0)
-            
+            '''
             '''
             cbar=fig4.colorbar(cb, ax=[ax_plotting], location='right',shrink=0.12,aspect=10,pad=0.01)
             cbar.set_label('Signal strength')
@@ -950,7 +971,7 @@ for k in (np.arange(0,30)):
             
             pdb.set_trace()
     '''
-    #pdb.set_trace()
+    pdb.set_trace()
 
     pyplot.subplots_adjust(wspace=0, hspace=0.2)
     

@@ -419,21 +419,21 @@ cbar1.set_label('Elevation [m]')
 # Make the norm for difference plotting
 divnorm_diff = mcolors.DivergingNorm(vmin=-5, vcenter=0, vmax=5)
 #Display 2017 data
-plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lat_3413'],s=0.01,color='#525252',label='2017', edgecolors='none')
+plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lat_3413'],s=5,color='#525252',label='2017', edgecolors='none')
 #Display 2010 data
-plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lat_3413'],s=0.01,color='#d9d9d9',label='2010', edgecolors='none')
+plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lat_3413'],s=5,color='#d9d9d9',label='2010', edgecolors='none')
 #Display the difference between 2017 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff,s=0.01, edgecolors='none')
+sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff,s=15, edgecolors='none')
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
-'''
+
 #Allows to open plot in full size directly
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
-'''
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/2017_minus_2010.png'
-plt.savefig(fig_name,dpi=2000)
+
+#fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/2017_minus_2010.png'
+#plt.savefig(fig_name,dpi=2000)
 
 plt.show()
 pdb.set_trace()
