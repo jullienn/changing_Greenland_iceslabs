@@ -4,6 +4,26 @@ Created on Fri Nov 12 16:07:38 2021
 
 @author: jullienn
 """
+
+##############################################################################
+############### Define function for discrete colorbar display ###############
+##############################################################################
+def discrete_cmap(N, base_cmap=None):
+    """Create an N-bin discrete colormap from the specified input map"""
+    #This piece of code is from: https://gist.github.com/jakevdp/91077b0cae40f8f8244a
+    # Note that if base_cmap is a string or None, you can simply do
+    #    return plt.cm.get_cmap(base_cmap, N)
+    # The following works for string, None, or a colormap instance:
+    
+    base = plt.cm.get_cmap(base_cmap)
+    color_list = base(np.linspace(0, 1, N))
+    cmap_name = base.name + str(N)
+    return base.from_list(cmap_name, color_list, N)
+##############################################################################
+############### Define function for discrete colorbar display ###############
+##############################################################################
+
+
 #Import packages
 import rasterio
 from rasterio.plot import show
@@ -24,9 +44,6 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-technique='perc_2p5_97p5'
-making_down_to_up='FALSE'
-plt.rcParams.update({'font.size': 7})
 ########################## Load GrIS elevation ##########################
 #Open the DEM
 grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -167,10 +184,25 @@ df_2002_2003['colorcode_icelens']=colorcode_icelens
 df_2002_2003['Track_name']=Track_name
 ################### Load 2002-2003 ice lenses location ##################
 
-#pdb.set_trace()
+pdb.set_trace()
+
+################### Load 2010-2018 ice slabs location ##################
+
+#Load the data
+filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
+df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
+
+#Transform the coordinated from WGS84 to EPSG:3413
+#Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+points=transformer.transform(np.array(df_20102018.lon),np.array(df_20102018.lat))
+
+lon_3413_20102018=points[0]
+lat_3413_20102018=points[1]
+################### Load 2010-2018 ice slabs location ##################
 
 #######################################################################
-### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
+###          Inland expansion of iceslabs from 2002 to 2018         ###
 #######################################################################
 
 ### --------------------------- Load shapefile --------------------------- ###
@@ -211,12 +243,12 @@ plt.show()
 from shapely.geometry import Point, Polygon
 
 #Store lat/lon 3413
-df_MacFerrin['lat_3413']=lat_3413_MacFerrin
-df_MacFerrin['lon_3413']=lon_3413_MacFerrin
+df_20102018['lat_3413']=lat_3413_20102018
+df_20102018['lon_3413']=lon_3413_20102018
 
 #Initialise the elevation and shapefile belonging column
-df_MacFerrin['key_shp']=np.nan
-df_MacFerrin['elevation']=np.nan
+df_20102018['key_shp']=np.nan
+df_20102018['elevation']=np.nan
 
 #I. Load regional shapefile I have created on QGIS
 path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
@@ -228,13 +260,13 @@ SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_m
 SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
 SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
 
-#II. Do the intersection between the mask and 2010-2014 data and keep only the matching one
+#II. Do the intersection between the mask and 2010-2018 data and keep only the matching one
 
 #This part of code is from 'refine_location_2017_2018.py'
 #Loop over all data point to check whether it belongs to one of the four shapefile
-for i in range(0,lon_3413_MacFerrin.size):
+for i in range(0,lon_3413_20102018.size):
     #select the point i
-    single_point=Point(lon_3413_MacFerrin[i],lat_3413_MacFerrin[i])
+    single_point=Point(lon_3413_20102018[i],lat_3413_20102018[i])
     
     #Do the identification between the point i and the regional shapefiles
     #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
@@ -247,25 +279,25 @@ for i in range(0,lon_3413_MacFerrin.size):
 
     #Associated the point of interest to its regional shapefile in data_iceslabs
     if (np.sum(check_NW_icecap_greenland)>0):
-        df_MacFerrin['key_shp'][i]='NW_icecap'
+        df_20102018['key_shp'][i]='NW_icecap'
     elif (np.sum(check_NW_north_greenland)>0):
-        df_MacFerrin['key_shp'][i]='NW_north'
+        df_20102018['key_shp'][i]='NW_north'
     elif (np.sum(check_NW_west_greenland)>0):
-        df_MacFerrin['key_shp'][i]='NW_west'
+        df_20102018['key_shp'][i]='NW_west'
     elif (np.sum(check_SW_lower_greenland)>0):
-        df_MacFerrin['key_shp'][i]='SW_lower'
+        df_20102018['key_shp'][i]='SW_lower'
     elif (np.sum(check_SW_middle_greenland)>0):
-        df_MacFerrin['key_shp'][i]='SW_middle'
+        df_20102018['key_shp'][i]='SW_middle'
     elif (np.sum(check_SW_upper_greenland)>0):
-        df_MacFerrin['key_shp'][i]='SW_upper'
+        df_20102018['key_shp'][i]='SW_upper'
     else:
-        df_MacFerrin['key_shp'][i]='Out'
+        df_20102018['key_shp'][i]='Out'
     
     #Calculate the corresponding elevation
-    df_MacFerrin['elevation'][i]=calcul_elevation(df_MacFerrin['lon_3413'][i],df_MacFerrin['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+    df_20102018['elevation'][i]=calcul_elevation(df_20102018['lon_3413'][i],df_20102018['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
 
     #Monitor the process
-    print(i/lon_3413_MacFerrin.size*100,'%')
+    print(i/lon_3413_20102018.size*100,'%')
 
 #Display the keys
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
@@ -285,69 +317,12 @@ SW_middle_greenland_mask.plot(ax=ax1)
 SW_upper_greenland_mask.plot(ax=ax1)
 
 #Display the data as a function of their belonging keys
-ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='NW_icecap'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='NW_icecap'],facecolors='orange')
-ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='NW_west'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='NW_west'],facecolors='blue')
-ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='NW_north'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='NW_north'],facecolors='purple')
-ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_lower'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_lower'],facecolors='red')
-ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_middle'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_middle'],facecolors='green')
-ax1.scatter(df_MacFerrin['lon_3413'][df_MacFerrin['key_shp']=='SW_upper'],df_MacFerrin['lat_3413'][df_MacFerrin['key_shp']=='SW_upper'],facecolors='k')
-
-#II. bis. Do the intersection between the mask and 2017-2018 data and keep only the matching one
-
-#Store lat/lon 3413
-df_2017_2018['lat_3413']=lat_3413_2017_2018
-df_2017_2018['lon_3413']=lon_3413_2017_2018
-
-#Initialise the elevation and shapefile belonging column
-df_2017_2018['key_shp']=np.nan
-df_2017_2018['elevation']=np.nan
-
-pdb.set_trace()
-
-#This part of code is from 'refine_location_2017_2018.py'
-#Loop over all data point to check whether it belongs to one of the four shapefile
-for i in range(0,lat_3413_2017_2018.size):
-    #select the point i
-    single_point=Point(lon_3413_2017_2018[i],lat_3413_2017_2018[i])
-    
-    #Do the identification between the point i and the regional shapefiles
-    #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
-    check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
-    check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
-    check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
-    check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
-    check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
-    check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
-
-    #Associated the point of interest to its regional shapefile in data_iceslabs
-    if (np.sum(check_NW_icecap_greenland)>0):
-        df_2017_2018['key_shp'].iloc[i]='NW_icecap'
-    elif (np.sum(check_NW_north_greenland)>0):
-        df_2017_2018['key_shp'].iloc[i]='NW_north'
-    elif (np.sum(check_NW_west_greenland)>0):
-        df_2017_2018['key_shp'].iloc[i]='NW_west'
-    elif (np.sum(check_SW_lower_greenland)>0):
-        df_2017_2018['key_shp'].iloc[i]='SW_lower'
-    elif (np.sum(check_SW_middle_greenland)>0):
-        df_2017_2018['key_shp'].iloc[i]='SW_middle'
-    elif (np.sum(check_SW_upper_greenland)>0):
-        df_2017_2018['key_shp'].iloc[i]='SW_upper'
-    else:
-        df_2017_2018['key_shp'].iloc[i]='Out'
-    
-    #Calculate the corresponding elevation
-    df_2017_2018['elevation'].iloc[i]=calcul_elevation(df_2017_2018['lon_3413'].iloc[i],df_2017_2018['lat_3413'].iloc[i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
-
-    #Monitor the process
-    print(i/df_2017_2018.size*100,'%')
-
-#Display the 2017-2018 data as a function of their belonging keys
-ax1.scatter(df_2017_2018['lon_3413'][df_2017_2018['key_shp']=='NW_icecap'],df_2017_2018['lat_3413'][df_2017_2018['key_shp']=='NW_icecap'],facecolors='orange')
-ax1.scatter(df_2017_2018['lon_3413'][df_2017_2018['key_shp']=='NW_west'],df_2017_2018['lat_3413'][df_2017_2018['key_shp']=='NW_west'],facecolors='blue')
-ax1.scatter(df_2017_2018['lon_3413'][df_2017_2018['key_shp']=='NW_north'],df_2017_2018['lat_3413'][df_2017_2018['key_shp']=='NW_north'],facecolors='purple')
-ax1.scatter(df_2017_2018['lon_3413'][df_2017_2018['key_shp']=='SW_lower'],df_2017_2018['lat_3413'][df_2017_2018['key_shp']=='SW_lower'],facecolors='red')
-ax1.scatter(df_2017_2018['lon_3413'][df_2017_2018['key_shp']=='SW_middle'],df_2017_2018['lat_3413'][df_2017_2018['key_shp']=='SW_middle'],facecolors='green')
-ax1.scatter(df_2017_2018['lon_3413'][df_2017_2018['key_shp']=='SW_upper'],df_2017_2018['lat_3413'][df_2017_2018['key_shp']=='SW_upper'],facecolors='k')
+ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_icecap'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_icecap'],facecolors='orange')
+ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_west'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_west'],facecolors='blue')
+ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_north'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_north'],facecolors='purple')
+ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_lower'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_lower'],facecolors='red')
+ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_middle'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_middle'],facecolors='green')
+ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_upper'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_upper'],facecolors='k')
 
 #III. Do the intersection between the mask and 2002-2003 data
 
@@ -408,7 +383,9 @@ ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_up
 plt.show()
 pdb.set_trace()
 
-#IV. Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
+#IV. From here on, work with the different periods separated by stron melting summers.
+#    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
+#    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
 
 #Let's create ~10km latitudinal (resp. longitudinal) slices for SW Greenland (resp. NW Greenland)
 #and calculate the low and high end in each slice for elevation difference:
@@ -793,7 +770,7 @@ for region in list(dict_summary.keys()):
 plt.legend()
 plt.show()
 #######################################################################
-### Inland expansion of iceslabs in 2010-2014 compared to 2002-2003 ###
+###          Inland expansion of iceslabs from 2002 to 2018         ###
 #######################################################################
 
 #Try the violin plot - Do not require any latitudinal and longitudinal averaging!
