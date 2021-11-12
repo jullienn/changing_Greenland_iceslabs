@@ -4,8 +4,168 @@ Created on Fri Nov 12 16:07:38 2021
 
 @author: jullienn
 """
-
+#Import packages
+import rasterio
+from rasterio.plot import show
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import pandas as pd
+from os import listdir
+from os.path import isfile, join
+import pickle
+from pysheds.grid import Grid
+import pdb
+import numpy as np
+from pyproj import Transformer
+import matplotlib.gridspec as gridspec
+import scipy.io
+from osgeo import gdal
 import geopandas as gpd  # Requires the pyshp package
+
+from matplotlib.colors import ListedColormap, BoundaryNorm
+
+technique='perc_2p5_97p5'
+making_down_to_up='FALSE'
+plt.rcParams.update({'font.size': 7})
+########################## Load GrIS elevation ##########################
+#Open the DEM
+grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
+#Minnor slicing on borders to enhance colorbars
+elevDem=grid.dem[:-1,:-1]              
+#Scale the colormap
+divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
+########################## Load GrIS elevation ##########################
+
+################# Load 2002-2003 flightlines coordinates ################
+path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
+
+#Open the file and read it
+f_flightlines = open(path_data+'/metadata_coord_2002_2003', "rb")
+all_2002_3_flightlines = pickle.load(f_flightlines)
+f_flightlines.close()
+################# Load 2002-2003 flightlines coordinates ################
+
+############################ Load DEM information ############################
+#Extract elevation from DEM to associated with coordinates. This piece of code
+#is from https://gis.stackexchange.com/questions/221292/retrieve-pixel-value-with-geographic-coordinate-as-input-with-gdal
+driver = gdal.GetDriverByName('GTiff')
+filename_raster = "C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif" #path to raster
+
+dataset_dem = gdal.Open(filename_raster)
+band = dataset_dem.GetRasterBand(1)
+
+cols = dataset_dem.RasterXSize
+rows = dataset_dem.RasterYSize
+
+transform_elev = dataset_dem.GetGeoTransform()
+
+xOrigin = transform_elev[0]
+yOrigin = transform_elev[3]
+pixelWidth = transform_elev[1]
+pixelHeight = -transform_elev[5]
+
+data_dem = band.ReadAsArray(0, 0, cols, rows)
+
+#Define ther zero for longitude:
+#Where lon==0 is in may09_03_15:
+    #lon[886]=23.53372773084396 and lon[887]=-40.08804568537925
+    #lat[886]=-3120053.856912824, lat[887]=-3120048.666364133
+avg_lon_zero=(23.53372773084396+-40.08804568537925)/2
+index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
+############################ Load DEM information ############################
+
+lat_all=[]
+lon_all=[]
+#elev_all=[]
+
+elevation_dictionnary = {k: {} for k in list(['2002','2003'])}
+
+for year in list(all_2002_3_flightlines.keys()):
+    
+    elevation_dictionnary[year]={k: {} for k in list(all_2002_3_flightlines[year].keys())}
+    
+    for days in list(all_2002_3_flightlines[year].keys()):
+        
+        elevation_dictionnary[year][days]={k: {} for k in list(all_2002_3_flightlines[year][days].keys())}
+        
+        for indiv_file in list(all_2002_3_flightlines[year][days].keys()):
+            if (indiv_file[0:7]=='quality'):
+                continue
+            else:
+                print(indiv_file)
+                lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
+                lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
+                #Extract the elevation:
+                lat_elev=[]
+                lon_elev=[]
+                if (days=='jun04'):
+                    lat_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][0])
+                    lon_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][1])
+                else:
+                    lat_elev=all_2002_3_flightlines[year][days][indiv_file][0]
+                    lon_elev=all_2002_3_flightlines[year][days][indiv_file][1]
+                
+                latlon_tuple=[]
+                latlon_tuple=list(zip(lon_elev,lat_elev))
+                
+                elev_indiv_file=[]
+                for indiv_coord in latlon_tuple:
+                    if (np.isnan(indiv_coord[0]) or np.isnan(indiv_coord[1])):
+                        #elev_all=np.append(elev_all,np.nan)
+                        elev_indiv_file=np.append(elev_indiv_file,np.nan)
+                    else:
+                        #The origin is top left corner!!
+                        #y will always be negative
+                        row = int((yOrigin - indiv_coord[1] ) / pixelHeight)
+                        if (indiv_coord[0]<0):
+                            # if x negative
+                            col = index_lon_zero-int((-indiv_coord[0]-0) / pixelWidth)
+                        elif (indiv_coord[0]>0):
+                            # if x positive
+                            col = index_lon_zero+int((indiv_coord[0]-0) / pixelWidth)
+                        #Read the elevation
+                        #elev_all=np.append(elev_all,data_dem[row][col])
+                        elev_indiv_file=np.append(elev_indiv_file,data_dem[row][col])
+                
+                #Store data into the dictionnary
+                elevation_dictionnary[year][days][indiv_file]=elev_indiv_file
+                
+################# Load 2002-2003 flightlines coordinates ################
+
+################### Load 2002-2003 ice lenses location ##################
+#Open the file and read it
+f_icelens_flightlines = open(path_data+'/metadata_coord_icelens_2002_2003_26022020', "rb")
+icelens_2002_3_flightlines = pickle.load(f_icelens_flightlines)
+f_icelens_flightlines.close()
+
+lat_icelens=[]
+lon_icelens=[]
+colorcode_icelens=[]
+Track_name=[]
+
+for year in list(icelens_2002_3_flightlines.keys()):
+    for days in list(icelens_2002_3_flightlines[year].keys()):
+        for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
+            print(indiv_file)
+            if (indiv_file[0:7]=='quality'):
+                print('Quality file, continue')
+                continue
+            elif (not(bool(icelens_2002_3_flightlines[year][days][indiv_file]))):
+                print('No ice lens, continue')
+                continue
+            else:
+                lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
+                lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
+                colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
+                #Create an empty vector of strings
+                Track_name=np.append(Track_name,[indiv_file for x in range(0,len(icelens_2002_3_flightlines[year][days][indiv_file][0]))])
+
+#Create a dataframe out of it
+df_2002_2003=pd.DataFrame(lat_icelens, columns =['lat_3413'])
+df_2002_2003['lon_3413']=lon_icelens
+df_2002_2003['colorcode_icelens']=colorcode_icelens
+df_2002_2003['Track_name']=Track_name
+################### Load 2002-2003 ice lenses location ##################
 
 #pdb.set_trace()
 
