@@ -485,7 +485,9 @@ list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20130423_01
                         '20180405_01_022_024','20180405_01_051_056','20180405_01_078_082',
                         '20180405_01_090_091','20180421_01_174_177','20180423_01_180_182',
                         '20180426_01_004_006','20170510_02_107_121','20180419_02_040_044',
-                        '20120418_01_005_007'])
+                        '20120418_01_005_007','20120423_01_006_007','20120423_01_137_138',
+                        '20170412_01_070_070','20170417_01_061_068','20170424_01_008_014',
+                        '20180419_02_056_072'])
 #intialize counter to 0
 count_time=0
 #II. Loop over these traces, and do the following:
@@ -712,6 +714,14 @@ print('Perform rescaling')
 
 for indiv_file in list_trace_failed:
     #pdb.set_trace()
+    
+    #Check whether rescaling have already been performed. If yes, continue
+    filename_to_check='/flash/jullienn/data/threshold_processing_output/pickles/'indiv_date[0]+'_Depth_Corrected_surf_removal.pickle'
+    pdb.set_trace()
+    
+    if (len(glob.glob(filename_to_check))>0):
+        print(indiv_trace[0],': files already existent, move on to the next date')
+        continue
     
     #Define filename
     filename_depth_corrected=indiv_file+'_Depth_Corrected_surf_removal.pickle'

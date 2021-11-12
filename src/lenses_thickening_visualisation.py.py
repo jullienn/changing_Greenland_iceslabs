@@ -70,9 +70,9 @@ plot_boolean= 'plot_boolean_SG1_cut045_th350' # can be 'plot_boolean_orig_cut045
               #'plot_boolean_SG1_cut045_th000', 'plot_boolean_SG1_cut045_th350'     
 plot_years_overlay='FALSE'
 plot_depth_corrected_single='FALSE'
-plot_depth_corrected_subplot='TRUE' #Must be true!!
+plot_depth_corrected_subplot='FALSE' #Must be true!!
 plot_boolean_subplot='TRUE' #Must be true!!
-plot_probabilistic_subplot='TRUE'
+plot_probabilistic_subplot='FALSE'
 yearly_comparison_indiv='FALSE'
 yearly_comparison_ref='TRUE'
 cumulative_comparison='FALSE'
@@ -434,11 +434,11 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 for k in (np.arange(0,30)):
     investigation_year=inv[k]
     
-    
+    #pdb.set_trace()
     #if already generated, continue
     #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
-    #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
-    filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'probabilistic_aspect00025'+'.png'
+    filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
+    #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_probabilistic_aspect00025'+'.png'
 
     if (os.path.isfile(filename_to_check)):
         print('Figure already existent, continue')
@@ -767,7 +767,12 @@ for k in (np.arange(0,30)):
             
             #fig.suptitle(str(plot_name1))
             X=dataframe[str(single_year)]['lon_appended']
-            Y=np.arange(0,100,100/dataframe[str(single_year)]['radar'].shape[0])
+            
+            if (date_track not in list_trace_failed):
+                Y=np.arange(0,100,100/dataframe[str(single_year)]['radar'].shape[0])
+            else:
+                Y=np.arange(0,20,20/dataframe[str(single_year)]['radar'].shape[0])
+                
             C=dataframe[str(single_year)]['radar'].astype(float)
             
             cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
@@ -891,22 +896,24 @@ for k in (np.arange(0,30)):
             Y=np.arange(0,20,20/dataframe[str(single_year)]['probabilistic'].shape[0])
             C=dataframe[str(single_year)]['probabilistic'].astype(float)
             
-            cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('gray_r'))#,norm=divnorm)
+            cb=ax_plotting.pcolor(X, Y, C,cmap=pyplot.get_cmap('Blues'))#,norm=divnorm)
             ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
             ax_plotting.set_aspect(0.0025) # X scale matches Y scale
             ax_plotting.set_title(date_track+' probabilistic slice')
             
             #Overlay probilistic ice slabs >= 0.5 on top of it
             prob_05=np.zeros((C.shape[0],C.shape[1]))
+            prob_05[:]=np.nan
             ind_05=C>=0.5
-            prob_05[ind_05]=C[ind_05]
-            
+            prob_05[ind_05]=1
+            ax_plotting.pcolor(X, Y, prob_05,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
+  
             ax_plotting.set_ylabel('Depth [m]')
             #ax_plotting.set_xlabel('Longitude [°]')
             
             ax_plotting.set_xlim(-47.9,-46.8)
             ax_plotting.set_ylim(20,0)
-            
+
             '''
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticklabels([])
@@ -923,7 +930,7 @@ for k in (np.arange(0,30)):
             #fig_name=[]
             #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/'+date_track+'_probabilistic_aspect00025.png'
             
-            pyplot.show()
+            #pyplot.show()
             
             ##Save the figure
             #pyplot.savefig(fig_name,dpi=2000)
@@ -971,25 +978,25 @@ for k in (np.arange(0,30)):
             
             pdb.set_trace()
     '''
-    pdb.set_trace()
+    #pdb.set_trace()
 
     pyplot.subplots_adjust(wspace=0, hspace=0.2)
     
-    fig4.set_size_inches(40, 20)
+    fig2.set_size_inches(40, 20)
     #fig2.set_size_inches(40, 20)
         
     #Create the figure name
     fig_name=[]
-    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/'+date_track+'_probabilistic_aspect00025.png'
+    #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_probabilistic_aspect00025.png'
     #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+'_depth_corrected_aspect00025.png'
-    #fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
+    fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/investigation_20102018_RCM/loc_'+str(k)+plot_boolean+'_aspect00025'+'.png'
 
     #Save the figure
     pyplot.savefig(fig_name)
     pyplot.clf()
     
     print(np.round(k/29*100),' %')
-    pdb.set_trace()
+    #pdb.set_trace()
     
 
 
