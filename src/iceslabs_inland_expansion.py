@@ -256,7 +256,7 @@ ax1.set_xlim(-650000,900000)
 ax1.set_ylim(-3360000,-650000)
 
 plt.show()
-
+pdb.set_trace()
 # compare min and max of lat/lon of the track with respect to shapefile
 from shapely.geometry import Point, Polygon
 
@@ -437,9 +437,13 @@ dict_lat_slice={}
 #Create a dictionnary to store np arrays storing slices min and max elevation for each region
 dict_lat_slices_summary={k: {} for k in list(df_20102018['key_shp'].unique())}
 
-#Fill the dict_lat_slices_summary dictionnary with zeros
+#loop over the regions, create the room for each time period in each region
 for region in list(df_20102018['key_shp'].unique()):
-    dict_lat_slices_summary[region]=np.zeros((len(lat_slices),2))*np.nan
+    dict_lat_slices_summary[region]={k: {} for k in list(['2010','2011-2012','2013-2014','2017-2018'])}
+    
+    for time_period in dict_lat_slices_summary[region].keys():
+        #Fill the dict_lat_slices_summary dictionnary with zeros
+        dict_lat_slices_summary[region][time_period]=np.zeros((len(lat_slices),2))*np.nan
 
 #Loop over each boundary of lat slices and store dataset related to slices
 for i in range(1,len(lat_slices)):
@@ -453,29 +457,35 @@ for i in range(1,len(lat_slices)):
     df_slice=df_20102018[ind_slice]
     
     #Store the associated df
-    dict_lat_slice[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice
+    dict_lat_slice[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice   
     
-    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
-    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
-        if (time_period == '2010'):
-            df_slice_period=df_slice
-    
-    
-    
-    #Identify min and max of each region and store them into a dataframe    
     #Loop over the regions present in df_slice
     for region in list(df_slice['key_shp'].unique()):
         #Select only the data belonging to this region
         df_region=df_slice[df_slice['key_shp']==region]
-        #Retreive the stored array
-        array_region_indiv=dict_lat_slices_summary[region]
-        #Store min and max of this regional slice
-        array_region_indiv[i,0]=np.min(df_region['elevation'])
-        array_region_indiv[i,1]=np.max(df_region['elevation'])
-        #Store again data into dict_lat_slices_summary
-        dict_lat_slices_summary[region]=array_region_indiv
-
-
+        
+        #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+        for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+            if (time_period == '2010'):
+                df_region_period=df_region[df_region['year']==2010]
+            elif (time_period == '2011-2012'):
+                df_region_period=df_region[(df_region['year']>=2011) & (df_region['year']<=2012)]
+            elif (time_period == '2013-2014'):
+                df_region_period=df_region[(df_region['year']>=2013) & (df_region['year']<=2014)]
+            elif (time_period == '2017-2018'):
+                df_region_period=df_region[(df_region['year']>=2017) & (df_region['year']<=2018)]
+            else:
+                print('Time period not known, break')
+                break
+            #Identify min and max of each region and store them into a dataframe
+            #Retreive the stored array
+            array_region_indiv=dict_lat_slices_summary[region][time_period]
+            #Store min and max of this regional slice
+            array_region_indiv[i,0]=np.min(df_region_period['elevation'])
+            array_region_indiv[i,1]=np.max(df_region_period['elevation'])
+            #Store again data into dict_lat_slices_summary
+            dict_lat_slices_summary[region][time_period]=array_region_indiv
+            
 #   ----- Longitudinal slices
 #Create a dictionnary where to store slices information
 dict_lon_slice={}
@@ -483,9 +493,13 @@ dict_lon_slice={}
 #Create a dictionnary to store np arrays storing slices min and max elevation for each region
 dict_lon_slices_summary={k: {} for k in list(df_20102018['key_shp'].unique())}
 
-#Fill the dict_lon_slices_summary dictionnary with zeros
+#loop over the regions, create the room for each time period in each region
 for region in list(df_20102018['key_shp'].unique()):
-    dict_lon_slices_summary[region]=np.zeros((len(lon_slices),2))*np.nan
+    dict_lon_slices_summary[region]={k: {} for k in list(['2010','2011-2012','2013-2014','2017-2018'])}
+    
+    for time_period in dict_lon_slices_summary[region].keys():
+        #Fill the dict_lon_slices_summary dictionnary with zeros
+        dict_lon_slices_summary[region][time_period]=np.zeros((len(lon_slices),2))*np.nan
 
 #Loop over each boundary of lon slices and store dataset related to slices
 for i in range(1,len(lon_slices)):
@@ -499,20 +513,35 @@ for i in range(1,len(lon_slices)):
     df_slice=df_20102018[ind_slice]
     
     #Store the associated df
-    dict_lon_slice[str(int(lon_slices[i-1]))+' to '+str(int(lon_slices[i]))]=df_slice
+    dict_lon_slice[str(int(lon_slices[i-1]))+' to '+str(int(lon_slices[i]))]=df_slice   
     
-    #Identify min and max of each region and store them into a dataframe    
     #Loop over the regions present in df_slice
     for region in list(df_slice['key_shp'].unique()):
         #Select only the data belonging to this region
         df_region=df_slice[df_slice['key_shp']==region]
-        #Retreive the stored array
-        array_region_indiv=dict_lon_slices_summary[region]
-        #Store min and max of this regional slice
-        array_region_indiv[i,0]=np.min(df_region['elevation'])
-        array_region_indiv[i,1]=np.max(df_region['elevation'])
-        #Store again data into dict_lat_slices_summary
-        dict_lon_slices_summary[region]=array_region_indiv
+        
+        #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+        for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+            if (time_period == '2010'):
+                df_region_period=df_region[df_region['year']==2010]
+            elif (time_period == '2011-2012'):
+                df_region_period=df_region[(df_region['year']>=2011) & (df_region['year']<=2012)]
+            elif (time_period == '2013-2014'):
+                df_region_period=df_region[(df_region['year']>=2013) & (df_region['year']<=2014)]
+            elif (time_period == '2017-2018'):
+                df_region_period=df_region[(df_region['year']>=2017) & (df_region['year']<=2018)]
+            else:
+                print('Time period not known, break')
+                break
+            #Identify min and max of each region and store them into a dataframe
+            #Retreive the stored array
+            array_region_indiv=dict_lon_slices_summary[region][time_period]
+            #Store min and max of this regional slice
+            array_region_indiv[i,0]=np.min(df_region_period['elevation'])
+            array_region_indiv[i,1]=np.max(df_region_period['elevation'])
+            #Store again data into dict_lat_slices_summary
+            dict_lon_slices_summary[region][time_period]=array_region_indiv
+
 #### ------------------------- 2010-2018 -------------------------------- ####
 
 pdb.set_trace()
