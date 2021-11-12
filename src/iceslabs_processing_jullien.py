@@ -715,14 +715,6 @@ print('Perform rescaling')
 for indiv_file in list_trace_failed:
     #pdb.set_trace()
     
-    #Check whether rescaling have already been performed. If yes, continue
-    filename_to_check='/flash/jullienn/data/threshold_processing_output/pickles/'+indiv_file+'_Depth_Corrected_surf_removal.pickle'
-    #pdb.set_trace()
-    
-    if (len(glob.glob(filename_to_check))>0):
-        print(indiv_file,': files already existent, move on to the next date')
-        continue
-    
     #Define filename
     filename_depth_corrected=indiv_file+'_Depth_Corrected_surf_removal.pickle'
     #Open the depth corrected file of the corresponding date
