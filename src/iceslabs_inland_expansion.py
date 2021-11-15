@@ -65,7 +65,7 @@ import geopandas as gpd  # Requires the pyshp package
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
 create_elevation_dictionaries='FALSE'
-pdb.set_trace()
+#pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
 #Open the DEM
@@ -120,7 +120,7 @@ SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_m
 SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
 SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
 ### -------------------------- Load shapefiles --------------------------- ###
-pdb.set_trace()
+#pdb.set_trace()
 
 if (create_elevation_dictionaries == 'TRUE'):
     
@@ -451,8 +451,6 @@ else:
     df_2010_2018 = pickle.load(f_20102018)
     f_20102018.close()
 
-pdb.set_trace()
-
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
 #    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
@@ -474,10 +472,10 @@ lon_slices=np.linspace(-600000,650000,int((np.abs(650000)+np.abs(-600000))/10000
 dict_lat_slice={}
 
 #Create a dictionnary to store np arrays storing slices min and max elevation for each region
-dict_lat_slices_summary={k: {} for k in list(df_20102018['key_shp'].unique())}
+dict_lat_slices_summary={k: {} for k in list(df_2010_2018['key_shp'].unique())}
 
 #loop over the regions, create the room for each time period in each region
-for region in list(df_20102018['key_shp'].unique()):
+for region in list(df_2010_2018['key_shp'].unique()):
     dict_lat_slices_summary[region]={k: {} for k in list(['2010','2011-2012','2013-2014','2017-2018'])}
     
     for time_period in dict_lat_slices_summary[region].keys():
@@ -492,8 +490,8 @@ for i in range(1,len(lat_slices)):
     high_bound=lat_slices[i]
     
     #Select all the data belonging to this slice
-    ind_slice=np.logical_and(np.array(df_20102018['lat_3413']>=low_bound),np.array(df_20102018['lat_3413']<high_bound))
-    df_slice=df_20102018[ind_slice]
+    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
+    df_slice=df_2010_2018[ind_slice]
     
     #Store the associated df
     dict_lat_slice[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice   
@@ -530,10 +528,10 @@ for i in range(1,len(lat_slices)):
 dict_lon_slice={}
 
 #Create a dictionnary to store np arrays storing slices min and max elevation for each region
-dict_lon_slices_summary={k: {} for k in list(df_20102018['key_shp'].unique())}
+dict_lon_slices_summary={k: {} for k in list(df_2010_2018['key_shp'].unique())}
 
 #loop over the regions, create the room for each time period in each region
-for region in list(df_20102018['key_shp'].unique()):
+for region in list(df_2010_2018['key_shp'].unique()):
     dict_lon_slices_summary[region]={k: {} for k in list(['2010','2011-2012','2013-2014','2017-2018'])}
     
     for time_period in dict_lon_slices_summary[region].keys():
@@ -548,8 +546,8 @@ for i in range(1,len(lon_slices)):
     high_bound=lon_slices[i]
     
     #Select all the data belonging to this slice
-    ind_slice=np.logical_and(np.array(df_20102018['lon_3413']>=low_bound),np.array(df_20102018['lon_3413']<high_bound))
-    df_slice=df_20102018[ind_slice]
+    ind_slice=np.logical_and(np.array(df_2010_2018['lon_3413']>=low_bound),np.array(df_2010_2018['lon_3413']<high_bound))
+    df_slice=df_2010_2018[ind_slice]
     
     #Store the associated df
     dict_lon_slice[str(int(lon_slices[i-1]))+' to '+str(int(lon_slices[i]))]=df_slice   
@@ -649,10 +647,10 @@ list_traces=[item for sublist in traces for item in sublist]
 #If consecutive traces, consider the suite of traces!
 
 #Create the dictionary
-dict_summary_2002_2003={k: {} for k in list(df_20102018['key_shp'].unique())}
+dict_summary_2002_2003={k: {} for k in list(df_2002_2003['key_shp'].unique())}
 
 #Fill the dict_summary_2002_2003 dictionnary with a np.nan
-for region in list(df_20102018['key_shp'].unique()):
+for region in list(df_2002_2003['key_shp'].unique()):
     dict_summary_2002_2003[region]=np.zeros((len(traces),2))*np.nan
 
 count=0
@@ -704,51 +702,40 @@ for trace in traces:
         dict_summary_2002_2003[region[0]]=array_region_indiv
 
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
-
+pdb.set_trace()
 #Create a dictionnary where to store relevant information
-dict_summary={k: {} for k in list(df_20102018['key_shp'].unique())}
+dict_summary={k: {} for k in list(df_2010_2018['key_shp'].unique())}
 
 #Loop over the regions
-for region in list(df_20102018['key_shp'].unique()):
+for region in list(df_2010_2018['key_shp'].unique()):
     
     #Continue building the dictionnary
-    dict_summary[region]={k: {} for k in list(['2002_2003','2010_2014','2017_2018'])}
+    dict_summary[region]={k: {} for k in list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])}
     
-    #Loop over the 2 time periods
+    #Loop over the 5 time periods
     
-    for time_period in list(['2002_2003','2010_2014','2017_2018']):
+    for time_period in list(['2002-2003','2010','2011-2012','2013-2014','2017-2018']):
         dict_summary[region][time_period]={k: {} for k in list(['min_elev','max_elev'])}
         
         #Take the average of low and high elevation where ice slabs have been
         #identified in this region, no matter the year in this specific time
         #period, and store relevant information
         
-        if (time_period=='2002_2003'):
+        if (time_period=='2002-2003'):
             #Retreive the corresponding matrix where data are stored
             dict_temp=dict_summary_2002_2003[region]
-        
-        elif (time_period=='2010_2014'):
-            #The dictionnary to select is different whether we are in north or south greenland
-            if (region in list(['NW_north','NW_west','NW_icecap'])):
-                dict_temp=dict_lon_slices_summary[region]
-            else:
-                dict_temp=dict_lat_slices_summary[region]
-        
-        elif (time_period=='2017_2018'):
-            #The dictionnary to select is different whether we are in north or south greenland
-            if (region in list(['NW_north','NW_west','NW_icecap'])):
-                dict_temp=dict_lon_slices_summary_20172018[region]
-            else:
-                dict_temp=dict_lat_slices_summary_20172018[region]
-        
         else:
-            print('Time period not known, break')
-            break
+            #The dictionnary to select is different whether we are in north or south greenland
+            if (region in list(['NW_north','NW_west','NW_icecap'])):
+                dict_temp=dict_lon_slices_summary[region][time_period]
+            else:
+                dict_temp=dict_lat_slices_summary[region][time_period]
         
         #Calculate and store averages
         dict_summary[region][time_period]['min_elev']=np.nanmean(dict_temp[:,0])
         dict_summary[region][time_period]['max_elev']=np.nanmean(dict_temp[:,1])
 
+pdb.set_trace()
 #Plot the inland expansion as a graph
 
 #Display the keys
