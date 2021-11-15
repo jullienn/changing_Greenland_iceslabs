@@ -64,6 +64,9 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
+create_elevation_dictionaries='FALSE'
+pdb.set_trace()
+
 ########################## Load GrIS elevation ##########################
 #Open the DEM
 grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -73,14 +76,6 @@ elevDem=grid.dem[:-1,:-1]
 divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 ########################## Load GrIS elevation ##########################
 
-################# Load 2002-2003 flightlines coordinates ################
-path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
-
-#Open the file and read it
-f_flightlines = open(path_data+'/metadata_coord_2002_2003', "rb")
-all_2002_3_flightlines = pickle.load(f_flightlines)
-f_flightlines.close()
-################# Load 2002-2003 flightlines coordinates ################
 
 ############################ Load DEM information ############################
 #Extract elevation from DEM to associated with coordinates. This piece of code
@@ -111,165 +106,11 @@ avg_lon_zero=(23.53372773084396+-40.08804568537925)/2
 index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
 ############################ Load DEM information ############################
 
-lat_all=[]
-lon_all=[]
-#elev_all=[]
-
-elevation_dictionnary = {k: {} for k in list(['2002','2003'])}
-
-for year in list(all_2002_3_flightlines.keys()):
-    
-    elevation_dictionnary[year]={k: {} for k in list(all_2002_3_flightlines[year].keys())}
-    
-    for days in list(all_2002_3_flightlines[year].keys()):
-        
-        elevation_dictionnary[year][days]={k: {} for k in list(all_2002_3_flightlines[year][days].keys())}
-        
-        for indiv_file in list(all_2002_3_flightlines[year][days].keys()):
-            if (indiv_file[0:7]=='quality'):
-                continue
-            else:
-                print(indiv_file)
-                lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
-                lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
-                #Extract the elevation:
-                lat_elev=[]
-                lon_elev=[]
-                if (days=='jun04'):
-                    lat_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][0])
-                    lon_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][1])
-                else:
-                    lat_elev=all_2002_3_flightlines[year][days][indiv_file][0]
-                    lon_elev=all_2002_3_flightlines[year][days][indiv_file][1]
-                
-                latlon_tuple=[]
-                latlon_tuple=list(zip(lon_elev,lat_elev))
-                
-                elev_indiv_file=[]
-                for indiv_coord in latlon_tuple:
-                    if (np.isnan(indiv_coord[0]) or np.isnan(indiv_coord[1])):
-                        #elev_all=np.append(elev_all,np.nan)
-                        elev_indiv_file=np.append(elev_indiv_file,np.nan)
-                    else:
-                        #The origin is top left corner!!
-                        #y will always be negative
-                        row = int((yOrigin - indiv_coord[1] ) / pixelHeight)
-                        if (indiv_coord[0]<0):
-                            # if x negative
-                            col = index_lon_zero-int((-indiv_coord[0]-0) / pixelWidth)
-                        elif (indiv_coord[0]>0):
-                            # if x positive
-                            col = index_lon_zero+int((indiv_coord[0]-0) / pixelWidth)
-                        #Read the elevation
-                        #elev_all=np.append(elev_all,data_dem[row][col])
-                        elev_indiv_file=np.append(elev_indiv_file,data_dem[row][col])
-                
-                #Store data into the dictionnary
-                elevation_dictionnary[year][days][indiv_file]=elev_indiv_file
-                
-################# Load 2002-2003 flightlines coordinates ################
-
-################### Load 2002-2003 ice lenses location ##################
-#Open the file and read it
-f_icelens_flightlines = open(path_data+'/metadata_coord_icelens_2002_2003_26022020', "rb")
-icelens_2002_3_flightlines = pickle.load(f_icelens_flightlines)
-f_icelens_flightlines.close()
-
-lat_icelens=[]
-lon_icelens=[]
-colorcode_icelens=[]
-Track_name=[]
-
-for year in list(icelens_2002_3_flightlines.keys()):
-    for days in list(icelens_2002_3_flightlines[year].keys()):
-        for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
-            print(indiv_file)
-            if (indiv_file[0:7]=='quality'):
-                print('Quality file, continue')
-                continue
-            elif (not(bool(icelens_2002_3_flightlines[year][days][indiv_file]))):
-                print('No ice lens, continue')
-                continue
-            else:
-                lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
-                lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
-                colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
-                #Create an empty vector of strings
-                Track_name=np.append(Track_name,[indiv_file for x in range(0,len(icelens_2002_3_flightlines[year][days][indiv_file][0]))])
-
-#Create a dataframe out of it
-df_2002_2003=pd.DataFrame(lat_icelens, columns =['lat_3413'])
-df_2002_2003['lon_3413']=lon_icelens
-df_2002_2003['colorcode_icelens']=colorcode_icelens
-df_2002_2003['Track_name']=Track_name
-################### Load 2002-2003 ice lenses location ##################
-
-################### Load 2010-2018 ice slabs location ##################
-
-#Load the data
-filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
-df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
-
-#Transform the coordinated from WGS84 to EPSG:3413
-#Example from: https://pyproj4.github.io/pyproj/stable/examples.html
-transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.array(df_20102018.lon),np.array(df_20102018.lat))
-
-lon_3413_20102018=points[0]
-lat_3413_20102018=points[1]
-################### Load 2010-2018 ice slabs location ##################
-
-#######################################################################
-###          Inland expansion of iceslabs from 2002 to 2018         ###
-#######################################################################
-
-### --------------------------- Load shapefile --------------------------- ###
+### -------------------------- Load shapefiles --------------------------- ###
 #from https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python
 path_IceBridgeArea_Shape='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/IceBridge Area Shapefiles/IceBridge Area Shapefiles/'
 IceBridgeArea_Shape=gpd.read_file(path_IceBridgeArea_Shape+'IceBridgeArea_Shape.shp')
-### --------------------------- Load shapefile --------------------------- ###
 
-#Prepare plot
-fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Iceslabs area overview')
-
-#Display DEM
-cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
-cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-cbar1.set_label('Elevation [m]')
-
-#Display the shapefile
-IceBridgeArea_Shape.plot(ax=ax1)
-
-#Plot all the 2002-2003 icelenses according to their condifence color
-#1. Red
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=1,facecolors='#c9662c', edgecolors='none')
-#2. Orange
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=1,facecolors='#fed976', edgecolors='none')
-#3. Green
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=1,facecolors='#238b45', edgecolors='none')
-##Purple
-#ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
-
-#Correct zoom
-ax1.set_xlim(-650000,900000)
-ax1.set_ylim(-3360000,-650000)
-
-plt.show()
-pdb.set_trace()
-# compare min and max of lat/lon of the track with respect to shapefile
-from shapely.geometry import Point, Polygon
-
-#Store lat/lon 3413
-df_20102018['lat_3413']=lat_3413_20102018
-df_20102018['lon_3413']=lon_3413_20102018
-
-#Initialise the elevation and shapefile belonging column
-df_20102018['key_shp']=np.nan
-df_20102018['elevation']=np.nan
-df_20102018['year']=np.nan
-
-#I. Load regional shapefile I have created on QGIS
 path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
 
 NW_icecap_greenland_mask=gpd.read_file(path_regional_masks+'/NW_icecap_greenland_mask_3413.shp')
@@ -278,140 +119,338 @@ NW_west_greenland_mask=gpd.read_file(path_regional_masks+'/NW_west_greenland_mas
 SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_mask_3413.shp')
 SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
 SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
+### -------------------------- Load shapefiles --------------------------- ###
+pdb.set_trace()
 
-#II. Do the intersection between the mask and 2010-2018 data and keep only the matching one
-
-#This part of code is from 'refine_location_2017_2018.py'
-#Loop over all data point to check whether it belongs to one of the four shapefile
-for i in range(0,lon_3413_20102018.size):
-    #select the point i
-    single_point=Point(lon_3413_20102018[i],lat_3413_20102018[i])
+if (create_elevation_dictionaries == 'TRUE'):
     
-    #Do the identification between the point i and the regional shapefiles
-    #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
-    check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
-    check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
-    check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
-    check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
-    check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
-    check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
-
-    #Associated the point of interest to its regional shapefile in data_iceslabs
-    if (np.sum(check_NW_icecap_greenland)>0):
-        df_20102018['key_shp'][i]='NW_icecap'
-    elif (np.sum(check_NW_north_greenland)>0):
-        df_20102018['key_shp'][i]='NW_north'
-    elif (np.sum(check_NW_west_greenland)>0):
-        df_20102018['key_shp'][i]='NW_west'
-    elif (np.sum(check_SW_lower_greenland)>0):
-        df_20102018['key_shp'][i]='SW_lower'
-    elif (np.sum(check_SW_middle_greenland)>0):
-        df_20102018['key_shp'][i]='SW_middle'
-    elif (np.sum(check_SW_upper_greenland)>0):
-        df_20102018['key_shp'][i]='SW_upper'
-    else:
-        df_20102018['key_shp'][i]='Out'
+    ################# Load 2002-2003 flightlines coordinates ################
+    path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
     
-    #Calculate the corresponding elevation
-    df_20102018['elevation'][i]=calcul_elevation(df_20102018['lon_3413'][i],df_20102018['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
-    #Add the year
-    df_20102018['year'][i]=int(df_20102018['Track_name'][i][0:4])
-
-    #Monitor the process
-    print(i/lon_3413_20102018.size*100,'%')
-
-#Display the keys
-fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Iceslabs keys')
-
-#Display DEM
-cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
-cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-cbar1.set_label('Elevation [m]')
-
-#Display the shapefile
-NW_icecap_greenland_mask.plot(ax=ax1)
-NW_north_greenland_mask.plot(ax=ax1)
-NW_west_greenland_mask.plot(ax=ax1)
-SW_lower_greenland_mask.plot(ax=ax1)
-SW_middle_greenland_mask.plot(ax=ax1)
-SW_upper_greenland_mask.plot(ax=ax1)
-
-#Display the data as a function of their belonging keys
-ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_icecap'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_icecap'],facecolors='orange')
-ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_west'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_west'],facecolors='blue')
-ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_north'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_north'],facecolors='purple')
-ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_lower'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_lower'],facecolors='red')
-ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_middle'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_middle'],facecolors='green')
-ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_upper'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_upper'],facecolors='k')
-
-#III. Do the intersection between the mask and 2002-2003 data
-
-#Initialise the shapefile belonging column
-df_2002_2003['key_shp']=np.nan
-df_2002_2003['elevation']=np.nan
-df_2002_2003['year']=np.nan
-
-#This part of code is from 'refine_location_2017_2018.py'
-#Loop over all data point to check whether it belongs to one of the four shapefile
-for i in range(0,len(df_2002_2003)):
-    #select the point i
-    single_point=Point(df_2002_2003['lon_3413'].iloc[i],df_2002_2003['lat_3413'].iloc[i])
+    #Open the file and read it
+    f_flightlines = open(path_data+'/metadata_coord_2002_2003', "rb")
+    all_2002_3_flightlines = pickle.load(f_flightlines)
+    f_flightlines.close()
+    ################# Load 2002-2003 flightlines coordinates ################
     
-    #Do the identification between the point i and the regional shapefiles
-    #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
-    check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
-    check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
-    check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
-    check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
-    check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
-    check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
-
-    #Associated the point of interest to its regional shapefile in data_iceslabs
-    if (np.sum(check_NW_icecap_greenland)>0):
-        df_2002_2003['key_shp'].iloc[i]='NW_icecap'
-    elif (np.sum(check_NW_north_greenland)>0):
-        df_2002_2003['key_shp'].iloc[i]='NW_north'
-    elif (np.sum(check_NW_west_greenland)>0):
-        df_2002_2003['key_shp'].iloc[i]='NW_west'
-    elif (np.sum(check_SW_lower_greenland)>0):
-        df_2002_2003['key_shp'].iloc[i]='SW_lower'
-    elif (np.sum(check_SW_middle_greenland)>0):
-        df_2002_2003['key_shp'].iloc[i]='SW_middle'
-    elif (np.sum(check_SW_upper_greenland)>0):
-        df_2002_2003['key_shp'].iloc[i]='SW_upper'
-    else:
-        df_2002_2003['key_shp'].iloc[i]='Out'
+    lat_all=[]
+    lon_all=[]
+    #elev_all=[]
     
-    #Calculate the corresponding elevation
-    df_2002_2003['elevation'].iloc[i]=calcul_elevation(df_2002_2003['lon_3413'].iloc[i],df_2002_2003['lat_3413'].iloc[i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+    elevation_dictionnary = {k: {} for k in list(['2002','2003'])}
     
-    #Add the year
-    if (df_2002_2003['Track_name'][i][6:8] == '02'):
-        year_to_write=2002
-    elif (df_2002_2003['Track_name'][i][6:8] == '03'):
-        year_to_write=2003
-    else:
-        print('Year not known, error')
-        break
+    for year in list(all_2002_3_flightlines.keys()):
+        
+        elevation_dictionnary[year]={k: {} for k in list(all_2002_3_flightlines[year].keys())}
+        
+        for days in list(all_2002_3_flightlines[year].keys()):
+            
+            elevation_dictionnary[year][days]={k: {} for k in list(all_2002_3_flightlines[year][days].keys())}
+            
+            for indiv_file in list(all_2002_3_flightlines[year][days].keys()):
+                if (indiv_file[0:7]=='quality'):
+                    continue
+                else:
+                    print(indiv_file)
+                    lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
+                    lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
+                    #Extract the elevation:
+                    lat_elev=[]
+                    lon_elev=[]
+                    if (days=='jun04'):
+                        lat_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][0])
+                        lon_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][1])
+                    else:
+                        lat_elev=all_2002_3_flightlines[year][days][indiv_file][0]
+                        lon_elev=all_2002_3_flightlines[year][days][indiv_file][1]
+                    
+                    latlon_tuple=[]
+                    latlon_tuple=list(zip(lon_elev,lat_elev))
+                    
+                    elev_indiv_file=[]
+                    for indiv_coord in latlon_tuple:
+                        if (np.isnan(indiv_coord[0]) or np.isnan(indiv_coord[1])):
+                            #elev_all=np.append(elev_all,np.nan)
+                            elev_indiv_file=np.append(elev_indiv_file,np.nan)
+                        else:
+                            #The origin is top left corner!!
+                            #y will always be negative
+                            row = int((yOrigin - indiv_coord[1] ) / pixelHeight)
+                            if (indiv_coord[0]<0):
+                                # if x negative
+                                col = index_lon_zero-int((-indiv_coord[0]-0) / pixelWidth)
+                            elif (indiv_coord[0]>0):
+                                # if x positive
+                                col = index_lon_zero+int((indiv_coord[0]-0) / pixelWidth)
+                            #Read the elevation
+                            #elev_all=np.append(elev_all,data_dem[row][col])
+                            elev_indiv_file=np.append(elev_indiv_file,data_dem[row][col])
+                    
+                    #Store data into the dictionnary
+                    elevation_dictionnary[year][days][indiv_file]=elev_indiv_file
+                    
+    ################# Load 2002-2003 flightlines coordinates ################
     
-    df_2002_2003['year'][i]=year_to_write
+    ################### Load 2002-2003 ice lenses location ##################
+    #Open the file and read it
+    f_icelens_flightlines = open(path_data+'/metadata_coord_icelens_2002_2003_26022020', "rb")
+    icelens_2002_3_flightlines = pickle.load(f_icelens_flightlines)
+    f_icelens_flightlines.close()
     
-    #Monitor the process
-    print(i/len(df_2002_2003)*100,'%')
+    lat_icelens=[]
+    lon_icelens=[]
+    colorcode_icelens=[]
+    Track_name=[]
+    
+    for year in list(icelens_2002_3_flightlines.keys()):
+        for days in list(icelens_2002_3_flightlines[year].keys()):
+            for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
+                print(indiv_file)
+                if (indiv_file[0:7]=='quality'):
+                    print('Quality file, continue')
+                    continue
+                elif (not(bool(icelens_2002_3_flightlines[year][days][indiv_file]))):
+                    print('No ice lens, continue')
+                    continue
+                else:
+                    lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
+                    lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
+                    colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
+                    #Create an empty vector of strings
+                    Track_name=np.append(Track_name,[indiv_file for x in range(0,len(icelens_2002_3_flightlines[year][days][indiv_file][0]))])
+    
+    #Create a dataframe out of it
+    df_2002_2003=pd.DataFrame(lat_icelens, columns =['lat_3413'])
+    df_2002_2003['lon_3413']=lon_icelens
+    df_2002_2003['colorcode_icelens']=colorcode_icelens
+    df_2002_2003['Track_name']=Track_name
+    ################### Load 2002-2003 ice lenses location ##################
+    
+    ################### Load 2010-2018 ice slabs location ##################
+    
+    #Load the data
+    filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
+    df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
+    
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.array(df_20102018.lon),np.array(df_20102018.lat))
+    
+    lon_3413_20102018=points[0]
+    lat_3413_20102018=points[1]
+    ################### Load 2010-2018 ice slabs location ##################
+    
+    #######################################################################
+    ###          Inland expansion of iceslabs from 2002 to 2018         ###
+    #######################################################################
+    
+    #Prepare plot
+    fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    fig.suptitle('Iceslabs area overview')
+    
+    #Display DEM
+    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+    cbar1.set_label('Elevation [m]')
+    
+    #Display the shapefile
+    IceBridgeArea_Shape.plot(ax=ax1)
+    
+    #Plot all the 2002-2003 icelenses according to their condifence color
+    #1. Red
+    ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=1,facecolors='#c9662c', edgecolors='none')
+    #2. Orange
+    ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=1,facecolors='#fed976', edgecolors='none')
+    #3. Green
+    ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=1,facecolors='#238b45', edgecolors='none')
+    ##Purple
+    #ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
+    
+    #Correct zoom
+    ax1.set_xlim(-650000,900000)
+    ax1.set_ylim(-3360000,-650000)
+    
+    plt.show()
+    pdb.set_trace()
+    # compare min and max of lat/lon of the track with respect to shapefile
+    from shapely.geometry import Point, Polygon
+    
+    #Store lat/lon 3413
+    df_20102018['lat_3413']=lat_3413_20102018
+    df_20102018['lon_3413']=lon_3413_20102018
+    
+    #Initialise the elevation and shapefile belonging column
+    df_20102018['key_shp']=np.nan
+    df_20102018['elevation']=np.nan
+    df_20102018['year']=np.nan
+    
+    #I. Load regional shapefile I have created on QGIS
+    #Done before the if statement
+    
+    #II. Do the intersection between the mask and 2010-2018 data and keep only the matching one
+    
+    #This part of code is from 'refine_location_2017_2018.py'
+    #Loop over all data point to check whether it belongs to one of the four shapefile
+    for i in range(0,lon_3413_20102018.size):
+        #select the point i
+        single_point=Point(lon_3413_20102018[i],lat_3413_20102018[i])
+        
+        #Do the identification between the point i and the regional shapefiles
+        #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
+        check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
+        check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
+        check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
+        check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
+        check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
+        check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
+    
+        #Associated the point of interest to its regional shapefile in data_iceslabs
+        if (np.sum(check_NW_icecap_greenland)>0):
+            df_20102018['key_shp'][i]='NW_icecap'
+        elif (np.sum(check_NW_north_greenland)>0):
+            df_20102018['key_shp'][i]='NW_north'
+        elif (np.sum(check_NW_west_greenland)>0):
+            df_20102018['key_shp'][i]='NW_west'
+        elif (np.sum(check_SW_lower_greenland)>0):
+            df_20102018['key_shp'][i]='SW_lower'
+        elif (np.sum(check_SW_middle_greenland)>0):
+            df_20102018['key_shp'][i]='SW_middle'
+        elif (np.sum(check_SW_upper_greenland)>0):
+            df_20102018['key_shp'][i]='SW_upper'
+        else:
+            df_20102018['key_shp'][i]='Out'
+        
+        #Calculate the corresponding elevation
+        df_20102018['elevation'][i]=calcul_elevation(df_20102018['lon_3413'][i],df_20102018['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+        #Add the year
+        df_20102018['year'][i]=int(df_20102018['Track_name'][i][0:4])
+    
+        #Monitor the process
+        print(i/lon_3413_20102018.size*100,'%')
+    
+    
+    #Save the dictionary into a picke file
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation'
+    outfile= open(filename_tosave, "wb" )
+    pickle.dump(df_20102018,outfile)
+    outfile.close()
+    
+    
+    #Display the keys
+    fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    fig.suptitle('Iceslabs keys')
+    
+    #Display DEM
+    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+    cbar1.set_label('Elevation [m]')
+    
+    #Display the shapefile
+    NW_icecap_greenland_mask.plot(ax=ax1)
+    NW_north_greenland_mask.plot(ax=ax1)
+    NW_west_greenland_mask.plot(ax=ax1)
+    SW_lower_greenland_mask.plot(ax=ax1)
+    SW_middle_greenland_mask.plot(ax=ax1)
+    SW_upper_greenland_mask.plot(ax=ax1)
+    
+    #Display the data as a function of their belonging keys
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_icecap'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_icecap'],facecolors='orange')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_west'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_west'],facecolors='blue')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_north'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_north'],facecolors='purple')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_lower'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_lower'],facecolors='red')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_middle'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_middle'],facecolors='green')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_upper'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_upper'],facecolors='k')
+    
+    #III. Do the intersection between the mask and 2002-2003 data
+    
+    #Initialise the shapefile belonging column
+    df_2002_2003['key_shp']=np.nan
+    df_2002_2003['elevation']=np.nan
+    df_2002_2003['year']=np.nan
+    
+    #This part of code is from 'refine_location_2017_2018.py'
+    #Loop over all data point to check whether it belongs to one of the four shapefile
+    for i in range(0,len(df_2002_2003)):
+        #select the point i
+        single_point=Point(df_2002_2003['lon_3413'].iloc[i],df_2002_2003['lat_3413'].iloc[i])
+        
+        #Do the identification between the point i and the regional shapefiles
+        #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
+        check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
+        check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
+        check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
+        check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
+        check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
+        check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
+    
+        #Associated the point of interest to its regional shapefile in data_iceslabs
+        if (np.sum(check_NW_icecap_greenland)>0):
+            df_2002_2003['key_shp'].iloc[i]='NW_icecap'
+        elif (np.sum(check_NW_north_greenland)>0):
+            df_2002_2003['key_shp'].iloc[i]='NW_north'
+        elif (np.sum(check_NW_west_greenland)>0):
+            df_2002_2003['key_shp'].iloc[i]='NW_west'
+        elif (np.sum(check_SW_lower_greenland)>0):
+            df_2002_2003['key_shp'].iloc[i]='SW_lower'
+        elif (np.sum(check_SW_middle_greenland)>0):
+            df_2002_2003['key_shp'].iloc[i]='SW_middle'
+        elif (np.sum(check_SW_upper_greenland)>0):
+            df_2002_2003['key_shp'].iloc[i]='SW_upper'
+        else:
+            df_2002_2003['key_shp'].iloc[i]='Out'
+        
+        #Calculate the corresponding elevation
+        df_2002_2003['elevation'].iloc[i]=calcul_elevation(df_2002_2003['lon_3413'].iloc[i],df_2002_2003['lat_3413'].iloc[i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
+        
+        #Add the year
+        if (df_2002_2003['Track_name'][i][6:8] == '02'):
+            year_to_write=2002
+        elif (df_2002_2003['Track_name'][i][6:8] == '03'):
+            year_to_write=2003
+        else:
+            print('Year not known, error')
+            break
+        
+        df_2002_2003['year'][i]=year_to_write
+        
+        #Monitor the process
+        print(i/len(df_2002_2003)*100,'%')
+    
+    #Only work with green slabs
+    df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
+    
+    #Display the data as a function of their belonging keys
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],facecolors='brown')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_west'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_west'],facecolors='cyan')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_north'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_north'],facecolors='pink')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_lower'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_lower'],facecolors='yellow')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_middle'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_middle'],facecolors='olive')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_upper'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_upper'],facecolors='gray')
+    
+    plt.show()
+    
+    #Save the dictionary into a picke file
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation'
+    outfile= open(filename_tosave, "wb" )
+    pickle.dump(df_2002_2003,outfile)
+    outfile.close()
+    
+    pdb.set_trace()
+else:
+    #Dictionnaries have already been created, load them
+    path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
+    
+    #Load 2002-2003
+    f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation', "rb")
+    df_2002_2003 = pickle.load(f_20022003)
+    f_20022003.close()
+    
+    #Load 2010-2018
+    f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation', "rb")
+    df_2010_2018 = pickle.load(f_20102018)
+    f_20102018.close()
 
-#Only work with green slabs
-df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
-
-#Display the data as a function of their belonging keys
-ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],facecolors='brown')
-ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_west'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_west'],facecolors='cyan')
-ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_north'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_north'],facecolors='pink')
-ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_lower'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_lower'],facecolors='yellow')
-ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_middle'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_middle'],facecolors='olive')
-ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_upper'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_upper'],facecolors='gray')
-
-plt.show()
 pdb.set_trace()
 
 #IV. From here on, work with the different periods separated by strong melting summers.
