@@ -784,22 +784,29 @@ plt.show()
 #######################################################################
 ###          Inland expansion of iceslabs from 2002 to 2018         ###
 #######################################################################
-
+pdb.set_trace()
 #Try the violin plot - Do not require any latitudinal and longitudinal averaging!
 
 import seaborn as sns
 
 sns.set_theme(style="whitegrid")
 
+#Select 2002-2003 with green ice slabs only
+df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
+
 #Set the year for plotting
-df_2002_2003_green['year']=["2002-2003" for x in range(len(df_2002_2003_green))]
-df_MacFerrin['year']=["2010-2014" for x in range(len(df_MacFerrin))]
-df_2017_2018['year']=["2017-2018" for x in range(len(df_2017_2018))]
+df_2002_2003_green['str_year']=["2002-2003" for x in range(len(df_2002_2003_green))]
+df_2010_2018.loc[df_2010_2018['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018[df_2010_2018['year']==2010]))]
+df_2010_2018.loc[df_2010_2018['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018[df_2010_2018['year']==2011]))]
+df_2010_2018.loc[df_2010_2018['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018[df_2010_2018['year']==2012]))]
+df_2010_2018.loc[df_2010_2018['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018[df_2010_2018['year']==2013]))]
+df_2010_2018.loc[df_2010_2018['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018[df_2010_2018['year']==2014]))]
+df_2010_2018.loc[df_2010_2018['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018[df_2010_2018['year']==2017]))]
+df_2010_2018.loc[df_2010_2018['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018[df_2010_2018['year']==2018]))]
 
 #Append all the dataframes together
 df_all=df_2002_2003_green
-df_all=df_all.append(df_MacFerrin)
-df_all=df_all.append(df_2017_2018)
+df_all=df_all.append(df_2010_2018)
 
 #Prepare plot
 fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
@@ -813,7 +820,7 @@ for region in df_all['key_shp'].unique():
         continue
     
     #Add 2010-2017 and 2017-2018!
-    sns.violinplot(ax=axs[i], data=df_all[df_all['key_shp']==region], x="year", y="elevation",
+    sns.violinplot(ax=axs[i], data=df_all[df_all['key_shp']==region], x="str_year", y="elevation",
                inner="quart", linewidth=1)
     sns.despine(left=True)
 
