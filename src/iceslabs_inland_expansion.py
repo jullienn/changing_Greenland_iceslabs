@@ -64,7 +64,7 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-create_elevation_dictionaries='FALSE'
+create_elevation_dictionaries='TRUE'
 #pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
@@ -229,7 +229,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     ################### Load 2010-2018 ice slabs location ##################
     
     #Load the data
-    filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
+    filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv'
     df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
     
     #Transform the coordinated from WGS84 to EPSG:3413
@@ -331,7 +331,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     
     
     #Save the dictionary into a picke file
-    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation'
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_prob00'
     outfile= open(filename_tosave, "wb" )
     pickle.dump(df_20102018,outfile)
     outfile.close()
@@ -447,7 +447,7 @@ else:
     f_20022003.close()
     
     #Load 2010-2018
-    f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation', "rb")
+    f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00', "rb")
     df_2010_2018 = pickle.load(f_20102018)
     f_20102018.close()
 

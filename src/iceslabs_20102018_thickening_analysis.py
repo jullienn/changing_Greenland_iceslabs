@@ -35,11 +35,11 @@ from pysheds.grid import Grid
 import matplotlib.colors as mcolors
 
 #Load the spatial aggregated data. All the points within a radius of 100m are averaged
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/'
-df_2010_2018_spatially_aggregated = pd.read_csv(path+'jullien_etal_20102018_spatial_aggregation_grid_1000.csv',delimiter=';',decimal=',')
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
+df_2010_2018_spatially_aggregated = pd.read_csv(path+'jullien_etal_20102018_spatial_aggregation_grid_1000_prob00.csv',delimiter=';',decimal=',')
 
 #Load all 2010-2018 data without spatial aggregation
-df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
+df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv',delimiter=',',decimal='.')
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(df_2010_2018["lon"]),np.asarray(df_2010_2018["lat"]))
@@ -215,9 +215,11 @@ df_spatially_aggregated_2018.to_csv(path_or_buf=path_to_save_indiv_excel+'jullie
 
 #Plot differences
 diff_to_plot=df_spatially_aggregated_2011-df_spatially_aggregated_2010
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2011-2010')
+fig.suptitle('Spatial aggregation, positive difference 2011-2010')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -229,7 +231,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lon_3413'],df
 #Display 2011 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2011']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2011']['lat_3413'],s=0.1,color='#d9d9d9',label='2011')
 #Display the difference between 2011 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2011['avg_lon_3413'],df_spatially_aggregated_2011['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2011['avg_lon_3413'],df_spatially_aggregated_2011['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -248,7 +250,7 @@ pdb.set_trace()
 diff_to_plot=df_spatially_aggregated_2012-df_spatially_aggregated_2011
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2012-2011')
+fig.suptitle('Spatial aggregation, positive differencee 2012-2011')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -260,7 +262,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2011']['lon_3413'],df
 #Display 2012 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2012']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2012']['lat_3413'],s=0.1,color='#d9d9d9',label='2012')
 #Display the difference between 2011 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2012['avg_lon_3413'],df_spatially_aggregated_2012['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2012['avg_lon_3413'],df_spatially_aggregated_2012['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -278,9 +280,11 @@ pdb.set_trace()
 
 
 diff_to_plot=df_spatially_aggregated_2013-df_spatially_aggregated_2012
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2013-2012')
+fig.suptitle('Spatial aggregation, positive difference 2013-2012')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -292,7 +296,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2012']['lon_3413'],df
 #Display 2013 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2013']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2013']['lat_3413'],s=0.1,color='#d9d9d9',label='2013')
 #Display the difference between 2011 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2013['avg_lon_3413'],df_spatially_aggregated_2013['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2013['avg_lon_3413'],df_spatially_aggregated_2013['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -310,9 +314,11 @@ pdb.set_trace()
 
 
 diff_to_plot=df_spatially_aggregated_2014-df_spatially_aggregated_2013
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2014-2013')
+fig.suptitle('Spatial aggregation, positive difference 2014-2013')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -324,7 +330,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2013']['lon_3413'],df
 #Display 2014 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2014']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2014']['lat_3413'],s=0.1,color='#d9d9d9',label='2014')
 #Display the difference between 2011 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2014['avg_lon_3413'],df_spatially_aggregated_2014['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2014['avg_lon_3413'],df_spatially_aggregated_2014['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -342,9 +348,11 @@ pdb.set_trace()
 
 
 diff_to_plot=df_spatially_aggregated_2017-df_spatially_aggregated_2014
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2017-2014')
+fig.suptitle('Spatial aggregation, positive difference 2017-2014')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -356,7 +364,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2014']['lon_3413'],df
 #Display 2017 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lat_3413'],s=0.1,color='#d9d9d9',label='2017')
 #Display the difference between 2011 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -374,9 +382,11 @@ pdb.set_trace()
 
 
 diff_to_plot=df_spatially_aggregated_2018-df_spatially_aggregated_2017
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2018-2017')
+fig.suptitle('Spatial aggregation, positive difference 2018-2017')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -388,7 +398,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lon_3413'],df
 #Display 2018 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2018']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2018']['lat_3413'],s=0.1,color='#d9d9d9',label='2018')
 #Display the difference between 2011 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2018['avg_lon_3413'],df_spatially_aggregated_2018['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2018['avg_lon_3413'],df_spatially_aggregated_2018['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -409,9 +419,11 @@ pdb.set_trace()
 
 #2017-2010
 diff_to_plot=df_spatially_aggregated_2017-df_spatially_aggregated_2010
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2017-2010')
+fig.suptitle('Spatial aggregation, positive difference 2017-2010')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -423,7 +435,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lon_3413'],df
 #Display 2010 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lat_3413'],s=5,color='#d9d9d9',label='2010', edgecolors='none')
 #Display the difference between 2017 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff,s=15, edgecolors='none')
+sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff,s=15, edgecolors='none')
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -440,9 +452,11 @@ pdb.set_trace()
 
 #2018-2010
 diff_to_plot=df_spatially_aggregated_2018-df_spatially_aggregated_2010
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2018-2010')
+fig.suptitle('Spatial aggregation, positive difference 2018-2010')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -454,7 +468,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2018']['lon_3413'],df
 #Display 2010 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#d9d9d9',label='2010')
 #Display the difference between 2017 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2018['avg_lon_3413'],df_spatially_aggregated_2018['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2018['avg_lon_3413'],df_spatially_aggregated_2018['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -469,9 +483,11 @@ pdb.set_trace()
 #2018-2010
 #this is the 7 years overlaping case study!!
 diff_to_plot=df_spatially_aggregated_2018-df_spatially_aggregated_2010
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2018-2010, case study')
+fig.suptitle('Spatial aggregation, positive difference 2018-2010, case study')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -483,7 +499,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2018']['lon_3413'],df
 #Display 2010 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#d9d9d9',label='2010')
 #Display the difference between 2017 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2018['avg_lon_3413'],df_spatially_aggregated_2018['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2018['avg_lon_3413'],df_spatially_aggregated_2018['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
@@ -501,9 +517,11 @@ pdb.set_trace()
 #2017-2014
 #this is the 7 years overlaping case study!!
 diff_to_plot=df_spatially_aggregated_2017-df_spatially_aggregated_2014
+pos_diff_to_plot=diff_to_plot
+pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation difference 2017-2014, case study')
+fig.suptitle('Spatial aggregation, positive difference 2017-2014, case study')
 #Display DEM
 cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
 cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
@@ -515,7 +533,7 @@ plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']['lon_3413'],df
 #Display 2010 data
 plt.scatter(df_2010_2018[df_2010_2018.Track_name.str[:4]=='2014']['lon_3413'],df_2010_2018[df_2010_2018.Track_name.str[:4]=='2014']['lat_3413'],s=0.1,color='#d9d9d9',label='2014')
 #Display the difference between 2017 and 2010 if aggregated data
-sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
+sc= ax1.scatter(df_spatially_aggregated_2017['avg_lon_3413'],df_spatially_aggregated_2017['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap='seismic_r',norm=divnorm_diff)
 cbar=fig.colorbar(sc)
 cbar.set_label('Difference in iceslabs thickness', fontsize=15)
 plt.legend()
