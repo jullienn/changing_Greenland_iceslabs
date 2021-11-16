@@ -850,6 +850,9 @@ dict_lat_slice_west={}
 #Initialize the slice summary
 slice_summary=np.zeros((len(lat_slices),5))*np.nan
 
+#Initialize the slice summary lat
+slice_lon_summary=np.zeros((len(lat_slices),5))*np.nan
+
 count_lat=0
 #Loop over each boundary of lat slices and store dataset related to slices
 for i in range(1,len(lat_slices)):
@@ -874,13 +877,37 @@ for i in range(1,len(lat_slices)):
     
     for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
         if (time_period == '2010'):
-            slice_summary[count_lat,1]=np.max(df_slice_latlon[df_slice_latlon['year']==2010]['elevation'])
+            df_under_use=df_slice_latlon[df_slice_latlon['year']==2010]
+            slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
+            
+            if (len(df_under_use)>0):
+                #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
+                slice_lon_summary[count_lat,1]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+            
         elif (time_period == '2011-2012'):
-            slice_summary[count_lat,2]=np.max(df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]['elevation'])
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]
+            slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
+            
+            if (len(df_under_use)>0):
+                #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
+                slice_lon_summary[count_lat,2]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+            
         elif (time_period == '2013-2014'):
-            slice_summary[count_lat,3]=np.max(df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]['elevation'])
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]
+            slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
+            
+            if (len(df_under_use)>0):
+                #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
+                slice_lon_summary[count_lat,3]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+            
         elif (time_period == '2017-2018'):
-            slice_summary[count_lat,4]=np.max(df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]['elevation'])
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]
+            slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
+            
+            if (len(df_under_use)>0):
+                #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
+                slice_lon_summary[count_lat,4]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+           
         else:
             print('Time period not known, break')
             break
@@ -931,8 +958,9 @@ for trace in traces:
             #Index where maximum
             ind_max=np.where(data_trace['elevation']==np.max(data_trace['elevation']))
             
-            #Identify corresponding lat of maximum elevation
+            #Identify corresponding lat and lon of maximum elevation
             lat_max=np.asarray(data_trace.iloc[ind_max]['lat_3413'])[0]
+            lon_max=np.asarray(data_trace.iloc[ind_max]['lon_3413'])[0]
             
             #Check if a maximum have already been identified here. If yes, compare
             #the two. If latter > than former, store this new max. If not, continue
@@ -942,6 +970,7 @@ for trace in traces:
                 for i in range(1,len(lat_slices)):
                     if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
                         slice_summary[i,0]=max_to_store
+                        slice_lon_summary[i,0]=lon_max
                     else:
                         continue
                         #store the coprresponding max in the corresponding slice
@@ -955,6 +984,7 @@ for trace in traces:
                         print(lat_slices[i])
                         if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
                             slice_summary[i,0]=max_to_store
+                            slice_lon_summary[i,0]=lon_max
                         else:
                             continue
                             #store the coprresponding max in the corresponding slice
