@@ -64,7 +64,7 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-create_elevation_dictionaries='TRUE'
+create_elevation_dictionaries='FALSE'
 #pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
@@ -431,7 +431,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     plt.show()
     
     #Save the dictionary into a picke file
-    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation'
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation_prob00'
     outfile= open(filename_tosave, "wb" )
     pickle.dump(df_2002_2003,outfile)
     outfile.close()
@@ -442,7 +442,7 @@ else:
     path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
     
     #Load 2002-2003
-    f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation', "rb")
+    f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00', "rb")
     df_2002_2003 = pickle.load(f_20022003)
     f_20022003.close()
     
@@ -581,7 +581,6 @@ for i in range(1,len(lon_slices)):
 
 #### ------------------------- 2010-2018 -------------------------------- ####
 
-pdb.set_trace()
 #3. Associate each slice to its belonging region.
 #   Not needed! Already present in dataframes!
 
@@ -702,7 +701,6 @@ for trace in traces:
         dict_summary_2002_2003[region[0]]=array_region_indiv
 
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
-pdb.set_trace()
 #Create a dictionnary where to store relevant information
 dict_summary={k: {} for k in list(df_2010_2018['key_shp'].unique())}
 
@@ -735,7 +733,6 @@ for region in list(df_2010_2018['key_shp'].unique()):
         dict_summary[region][time_period]['min_elev']=np.nanmean(dict_temp[:,0])
         dict_summary[region][time_period]['max_elev']=np.nanmean(dict_temp[:,1])
 
-pdb.set_trace()
 #Plot the inland expansion as a graph
 
 #Display the keys
@@ -784,7 +781,10 @@ plt.show()
 #######################################################################
 ###          Inland expansion of iceslabs from 2002 to 2018         ###
 #######################################################################
-pdb.set_trace()
+
+#######################################################################
+###  Violin plot - Inland expansion of iceslabs from 2002 to 2018   ###
+#######################################################################
 #Try the violin plot - Do not require any latitudinal and longitudinal averaging!
 
 import seaborn as sns
@@ -835,10 +835,170 @@ for region in df_all['key_shp'].unique():
     catplot is noce but did not managed to to subplots with it
     sns.catplot(data=df_2002_2003_green[df_2002_2003_green['key_shp']==region], kind="violin", x="year", y="elevation", hue="colorcode_icelens",ax = axs[i])
     '''
+#######################################################################
+###  Violin plot - Inland expansion of iceslabs from 2002 to 2018   ###
+#######################################################################   
+
+#######################################################################
+###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
+#######################################################################   
+
+### ------------------------------ 2010-2018 ----------------------------- ###
+#Create a dictionnary where to store slices information
+dict_lat_slice_west={}
+
+#Initialize the slice summary
+slice_summary=np.zeros((len(lat_slices),5))*np.nan
+
+count_lat=0
+#Loop over each boundary of lat slices and store dataset related to slices
+for i in range(1,len(lat_slices)):
     
+    #Identify low and higher end of the slice
+    low_bound=lat_slices[i-1]
+    high_bound=lat_slices[i]
+    
+    #Select all the data belonging to this lat slice
+    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
+    df_slice=df_2010_2018[ind_slice]
+    
+    #Affine data by selecting only west greenland
+    ind_slice=np.array(df_slice['lon_3413']<-50000)
+    df_slice_latlon=df_slice[ind_slice] 
+    
+    #Store the associated df
+    dict_lat_slice_west[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice_latlon
+    
+    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+    count_period=0
+    
+    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+        if (time_period == '2010'):
+            slice_summary[count_lat,1]=np.max(df_slice_latlon[df_slice_latlon['year']==2010]['elevation'])
+        elif (time_period == '2011-2012'):
+            slice_summary[count_lat,2]=np.max(df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]['elevation'])
+        elif (time_period == '2013-2014'):
+            slice_summary[count_lat,3]=np.max(df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]['elevation'])
+        elif (time_period == '2017-2018'):
+            slice_summary[count_lat,4]=np.max(df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]['elevation'])
+        else:
+            print('Time period not known, break')
+            break
+        
+        #Update count
+        count_period=count_period+1
+    
+    #Update count_lat
+    count_lat=count_lat+1
+### ------------------------------ 2010-2018 ----------------------------- ###
 
 
+### ------------------------------ 2002-2003 ----------------------------- ###
 
+#Loop over the traces
+for trace in traces:
+    
+    #Check whether we are dealing with single or consecutive traces
+    if(len(trace)>1):
+        #We are dealing with consecutive traces
+        #Select the data related to the first trace
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
+        
+        #loop over the traces and append data to each other, do not take the first one
+        for indiv_trace in list(trace[1:]):
+            #Select all the data related to this trace
+            data_trace=data_trace.append(df_2002_2003[df_2002_2003['Track_name']==indiv_trace])
+            
+    else:
+        #We are dealing with individual traces
+        #Select all the data related to this trace
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
 
+    #Now my data_trace datasets are ready to be worked with
+    #Keep only green ice slabs
+    data_trace=data_trace[data_trace['colorcode_icelens']==1]
+    
+    if (len(data_trace)<1):
+        #No green ice slabs, continue
+        continue
+    else:
+        #Check the flag: shall we store data? We are only interested in high end of ice slabs
+        if trace[0] in list(flag_high):
+            print('2002-2003 ice lens present for',trace[0])
+            #Identify the max of that trace, and assign to the corresponding lat_slice
+            max_to_store=np.max(data_trace['elevation'])
+            
+            #Index where maximum
+            ind_max=np.where(data_trace['elevation']==np.max(data_trace['elevation']))
+            
+            #Identify corresponding lat of maximum elevation
+            lat_max=np.asarray(data_trace.iloc[ind_max]['lat_3413'])[0]
+            
+            #Check if a maximum have already been identified here. If yes, compare
+            #the two. If latter > than former, store this new max. If not, continue
+            if (np.isnan(slice_summary[i,0])):
+                #No data for this slice yet, store the data
+                #Identify to which slice it belongs to
+                for i in range(1,len(lat_slices)):
+                    if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
+                        slice_summary[i,0]=max_to_store
+                    else:
+                        continue
+                        #store the coprresponding max in the corresponding slice
+            else:
+                print('Max already present')
+                #Data for this slice alreadey present check
+                if (max_to_store>slice_summary[i,0]):
+                    print('Replace max by new max')
+                    #Identify to which slice it belongs to
+                    for i in range(1,len(lat_slices)):
+                        print(lat_slices[i])
+                        if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
+                            slice_summary[i,0]=max_to_store
+                        else:
+                            continue
+                            #store the coprresponding max in the corresponding slice
+                    
+                
 
+### ------------------------------ 2002-2003 ----------------------------- ###
+
+pdb.set_trace()
+
+#Prepare plot
+fig, ax1 = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('Iceslabs inland progression')
+
+ax1.plot(slice_summary[:,0],lat_slices,'.',label='2002-2003')
+#ax1.plot(slice_summary[:,1],lat_slices,'.',label='2010')
+ax1.plot(slice_summary[:,2],lat_slices,'.',label='2011-2012')
+#ax1.plot(slice_summary[:,2],lat_slices,'.',label='2013-2014')
+ax1.plot(slice_summary[:,4],lat_slices,'.',label='2017-2018')
+
+plt.legend()
+plt.show()
+
+fig, ax1 = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('Iceslabs inland progression')
+
+ax1.plot(slice_summary[:,0],lat_slices,'.',label='2002-2003')
+#ax1.plot(slice_summary[:,1],lat_slices,'.',label='2010')
+ax1.plot(slice_summary[:,2],lat_slices,'.',label='2011-2012')
+#ax1.plot(slice_summary[:,2],lat_slices,'.',label='2013-2014')
+ax1.plot(slice_summary[:,4],lat_slices,'.',label='2017-2018')
+
+plt.legend()
+plt.show()
+
+#Prepare plot
+fig, ax1 = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('Iceslabs difference 2017-2018 minus 2011-2012')
+
+ax1.plot(slice_summary[:,1]-slice_summary[:,3],lat_slices,'.')
+
+plt.show()
+
+#######################################################################
+###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
+#######################################################################   
 
