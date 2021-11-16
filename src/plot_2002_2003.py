@@ -1005,7 +1005,7 @@ lat_3413_MacFerrin=points[1]
 
 ################### Load 2017-2018 ice slabs location ##################
 #Load the data
-filename_Jullien= 'C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/jullienetal_20102018.csv'
+filename_Jullien= 'C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv'
 #Read Jullien data thanks to https://stackoverflow.com/questions/65254535/xlrd-biffh-xlrderror-excel-xlsx-file-not-supported
 df_jullien = pd.read_csv(filename_Jullien,delimiter=';',decimal=',')
 
