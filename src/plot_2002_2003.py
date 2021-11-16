@@ -1007,7 +1007,7 @@ lat_3413_MacFerrin=points[1]
 #Load the data
 filename_Jullien= 'C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv'
 #Read Jullien data thanks to https://stackoverflow.com/questions/65254535/xlrd-biffh-xlrderror-excel-xlsx-file-not-supported
-df_jullien = pd.read_csv(filename_Jullien,delimiter=';',decimal=',')
+df_jullien = pd.read_csv(filename_Jullien,delimiter=',',decimal='.')
 
 #Keep only 2017-2018 data
 year=df_jullien.Track_name.str[:4]
@@ -1154,20 +1154,20 @@ cbar=fig.colorbar(cb, ax=[ax1], location='left')
 cbar.set_label('Elevation [m]')
 
 #Plot all the 2010-2014 icelenses
-ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.1,facecolors='cornflowerblue', edgecolors='none')
+ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.1,facecolors='cornflowerblue', edgecolors='none', label='2010-2014 ice slabs mapping by MacFerrin et al., 2019')
 
 #Plot all the 2002-2003 flightlines
-ax1.scatter(lon_all, lat_all,s=0.1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
+ax1.scatter(lon_all, lat_all,s=0.1,facecolors='lightgrey', edgecolors='none',alpha=0.1, label='2002-2003 flight lines')
 
 #Plot all the 2002-2003 icelenses according to their condifence color
 #1. Red
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=0.1,facecolors='#c9662c', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=5,facecolors='#c9662c', edgecolors='none',label='High confidence')
 #2. Orange
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=0.1,facecolors='#fed976', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=5,facecolors='#fed976', edgecolors='none',label='Medium confidence')
 #3. Green
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=0.1,facecolors='#238b45', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=5,facecolors='#238b45', edgecolors='none',label='Low confidence')
 #Purple
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=0.1,facecolors='purple', edgecolors='none')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=5,facecolors='purple', edgecolors='none',label='Bright layer - very low confidence')
 
 #Correct zoom
 ax1.set_xlim(-650000,900000)
