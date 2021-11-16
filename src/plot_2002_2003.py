@@ -1180,7 +1180,7 @@ plt.show()
 #plt.savefig(fig_name,dpi=1000)
 
 print('Done with whole GrIS plot')
-#pdb.set_trace()
+pdb.set_trace()
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
