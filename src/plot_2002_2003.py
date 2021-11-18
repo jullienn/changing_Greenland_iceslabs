@@ -1172,6 +1172,7 @@ ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_20
 #Correct zoom
 ax1.set_xlim(-650000,900000)
 ax1.set_ylim(-3360000,-650000)
+plt.legend(loc='lower right')
 plt.show()
 
 ##Save the figure

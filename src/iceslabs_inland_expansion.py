@@ -895,8 +895,7 @@ for region in df_all['key_shp'].unique():
 #######################################################################
 ###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################   
-
-### ------------------------------ 2010-2018 ----------------------------- ###
+### ------------------------------ 2002-2003 ----------------------------- ###
 #Create a dictionnary where to store slices information
 dict_lat_slice_west={}
 
@@ -905,75 +904,6 @@ slice_summary=np.zeros((len(lat_slices),5))*np.nan
 
 #Initialize the slice summary lat
 slice_lon_summary=np.zeros((len(lat_slices),5))*np.nan
-
-count_lat=0
-#Loop over each boundary of lat slices and store dataset related to slices
-for i in range(1,len(lat_slices)):
-    
-    #Identify low and higher end of the slice
-    low_bound=lat_slices[i-1]
-    high_bound=lat_slices[i]
-    
-    #Select all the data belonging to this lat slice
-    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
-    df_slice=df_2010_2018[ind_slice]
-    
-    #Affine data by selecting only west greenland
-    ind_slice=np.array(df_slice['lon_3413']<-50000)
-    df_slice_latlon=df_slice[ind_slice] 
-    
-    #Store the associated df
-    dict_lat_slice_west[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice_latlon
-    
-    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
-    count_period=0
-    
-    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
-        if (time_period == '2010'):
-            df_under_use=df_slice_latlon[df_slice_latlon['year']==2010]
-            slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
-            
-            if (len(df_under_use)>0):
-                #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
-                slice_lon_summary[count_lat,1]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
-            
-        elif (time_period == '2011-2012'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]
-            slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
-            
-            if (len(df_under_use)>0):
-                #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
-                slice_lon_summary[count_lat,2]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
-            
-        elif (time_period == '2013-2014'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]
-            slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
-            
-            if (len(df_under_use)>0):
-                #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
-                slice_lon_summary[count_lat,3]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
-            
-        elif (time_period == '2017-2018'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]
-            slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
-            
-            if (len(df_under_use)>0):
-                #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
-                slice_lon_summary[count_lat,4]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
-           
-        else:
-            print('Time period not known, break')
-            break
-        
-        #Update count
-        count_period=count_period+1
-    
-    #Update count_lat
-    count_lat=count_lat+1
-### ------------------------------ 2010-2018 ----------------------------- ###
-
-
-### ------------------------------ 2002-2003 ----------------------------- ###
 
 #Loop over the traces
 for trace in traces:
@@ -1045,6 +975,106 @@ for trace in traces:
                 
 
 ### ------------------------------ 2002-2003 ----------------------------- ###
+
+### ------------------------------ 2010-2018 ----------------------------- ###
+count_lat=0
+#Loop over each boundary of lat slices and store dataset related to slices
+for i in range(1,len(lat_slices)):
+    
+    #Identify low and higher end of the slice
+    low_bound=lat_slices[i-1]
+    high_bound=lat_slices[i]
+    
+    #Select all the data belonging to this lat slice
+    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
+    df_slice=df_2010_2018[ind_slice]
+    
+    #Affine data by selecting only west greenland
+    ind_slice=np.array(df_slice['lon_3413']<-50000)
+    df_slice_latlon=df_slice[ind_slice] 
+    
+    #Store the associated df
+    dict_lat_slice_west[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice_latlon
+    
+    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+    count_period=0
+    
+    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+        if (time_period == '2010'):
+            df_under_use=df_slice_latlon[df_slice_latlon['year']==2010]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<slice_summary[count_lat,0]):
+                slice_summary[count_lat,1]=slice_summary[count_lat,0]
+                slice_lon_summary[count_lat,1]=slice_lon_summary[count_lat,0]
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
+                    slice_lon_summary[count_lat,1]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+                
+        elif (time_period == '2011-2012'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<slice_summary[count_lat,1]):
+                slice_summary[count_lat,2]=slice_summary[count_lat,1]
+                slice_lon_summary[count_lat,2]=slice_lon_summary[count_lat,1]
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
+                    slice_lon_summary[count_lat,2]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+                
+        elif (time_period == '2013-2014'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<slice_summary[count_lat,2]):
+                slice_summary[count_lat,3]=slice_summary[count_lat,2]
+                slice_lon_summary[count_lat,3]=slice_lon_summary[count_lat,2]
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
+                    slice_lon_summary[count_lat,3]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+                
+        elif (time_period == '2017-2018'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<slice_summary[count_lat,3]):
+                slice_summary[count_lat,4]=slice_summary[count_lat,3]
+                slice_lon_summary[count_lat,4]=slice_lon_summary[count_lat,3]
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
+                    slice_lon_summary[count_lat,4]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+               
+        else:
+            print('Time period not known, break')
+            break
+        
+        #Update count
+        count_period=count_period+1
+    
+    #Update count_lat
+    count_lat=count_lat+1
+### ------------------------------ 2010-2018 ----------------------------- ###
+pdb.set_trace()
 
 
 fig, (ax1,ax2) = plt.subplots(1,2)#, gridspec_kw={'width_ratios': [1, 3]})
