@@ -1016,8 +1016,8 @@ for i in range(1,len(lat_slices)):
                 slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
                 
                 if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
-                    slice_lon_summary[count_lat,1]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,1]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0])
                 
         elif (time_period == '2011-2012'):
             df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]
@@ -1035,8 +1035,8 @@ for i in range(1,len(lat_slices)):
                 slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
                 
                 if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
-                    slice_lon_summary[count_lat,2]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,2]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0])
                 
         elif (time_period == '2013-2014'):
             df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]
@@ -1053,8 +1053,8 @@ for i in range(1,len(lat_slices)):
                 slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
                 
                 if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
-                    slice_lon_summary[count_lat,3]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,3]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0])
                 
         elif (time_period == '2017-2018'):
             df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]
@@ -1071,8 +1071,8 @@ for i in range(1,len(lat_slices)):
                 slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
                 
                 if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the first one
-                    slice_lon_summary[count_lat,4]=np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0]
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,4]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413'])[0])
                
         else:
             print('Time period not known, break')
@@ -1110,7 +1110,7 @@ plt.show()
 fig, ax1 = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs difference 2017-2018 minus 2011-2012')
 
-ax1.plot(slice_summary[:,1]-slice_summary[:,3],lat_slices,'.')
+ax1.plot(slice_summary[:,4]-slice_summary[:,2],lat_slices,'.')
 
 plt.show()
 
