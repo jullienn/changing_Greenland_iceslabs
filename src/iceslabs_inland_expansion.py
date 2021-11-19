@@ -89,7 +89,7 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
     plt.legend()
     
     ax1.set_xlim(-240000,-65000)
-    ax1.set_ylim(-2700000,-2100000)
+    ax1.set_ylim(-2650000,-2250000)
     
     #Allows to open plot in full size directly
     figManager = plt.get_current_fig_manager()
@@ -1005,9 +1005,12 @@ for i in range(1,len(lat_slices)):
             
             #If max in this slice of this time period is lower than max identified
             #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<slice_summary[count_lat,0]):
-                slice_summary[count_lat,1]=slice_summary[count_lat,0]
-                slice_lon_summary[count_lat,1]=slice_lon_summary[count_lat,0]
+            if (np.max(df_under_use['elevation'])<(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,1]=slice_summary[count_lat,0]
+                #slice_lon_summary[count_lat,1]=slice_lon_summary[count_lat,0]
+                
+                slice_summary[count_lat,1]=np.nan
+                slice_lon_summary[count_lat,1]=np.nan
             else:
                 #store the new max elevation
                 slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
@@ -1021,9 +1024,12 @@ for i in range(1,len(lat_slices)):
             
             #If max in this slice of this time period is lower than max identified
             #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<slice_summary[count_lat,1]):
-                slice_summary[count_lat,2]=slice_summary[count_lat,1]
-                slice_lon_summary[count_lat,2]=slice_lon_summary[count_lat,1]
+            if (np.max(df_under_use['elevation'])<(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,2]=slice_summary[count_lat,1]
+                #slice_lon_summary[count_lat,2]=slice_lon_summary[count_lat,1]
+                
+                slice_summary[count_lat,2]=np.nan
+                slice_lon_summary[count_lat,2]=np.nan
             else:
                 #store the new max elevation
                 slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
@@ -1037,9 +1043,11 @@ for i in range(1,len(lat_slices)):
             
             #If max in this slice of this time period is lower than max identified
             #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<slice_summary[count_lat,2]):
-                slice_summary[count_lat,3]=slice_summary[count_lat,2]
-                slice_lon_summary[count_lat,3]=slice_lon_summary[count_lat,2]
+            if (np.max(df_under_use['elevation'])<(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,3]=slice_summary[count_lat,2]
+                #slice_lon_summary[count_lat,3]=slice_lon_summary[count_lat,2]
+                slice_summary[count_lat,3]=np.nan
+                slice_lon_summary[count_lat,3]=np.nan
             else:
                 #store the new max elevation
                 slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
@@ -1053,9 +1061,11 @@ for i in range(1,len(lat_slices)):
             
             #If max in this slice of this time period is lower than max identified
             #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<slice_summary[count_lat,3]):
-                slice_summary[count_lat,4]=slice_summary[count_lat,3]
-                slice_lon_summary[count_lat,4]=slice_lon_summary[count_lat,3]
+            if (np.max(df_under_use['elevation'])<np.nanmax(slice_summary[count_lat,:])):
+                #slice_summary[count_lat,4]=slice_summary[count_lat,3]
+                #slice_lon_summary[count_lat,4]=slice_lon_summary[count_lat,3]
+                slice_summary[count_lat,4]=np.nan
+                slice_lon_summary[count_lat,4]=np.nan
             else:
                 #store the new max elevation
                 slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
@@ -1074,8 +1084,6 @@ for i in range(1,len(lat_slices)):
     #Update count_lat
     count_lat=count_lat+1
 ### ------------------------------ 2010-2018 ----------------------------- ###
-pdb.set_trace()
-
 
 fig, (ax1,ax2) = plt.subplots(1,2)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs inland progression')
@@ -1109,15 +1117,6 @@ plt.show()
 #######################################################################
 ###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################   
-
-
-
-
-
-
-
-
-
 
 pdb.set_trace()
 
@@ -1300,6 +1299,9 @@ df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
 list_high_end=list(['2002-2003','2010','2017-2018'])
 plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2010,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
 
+pdb.set_trace()
+
+'''
 list_high_end=list(['2002-2003','2011-2012','2017-2018'])
 plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2011,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
 
@@ -1317,5 +1319,18 @@ plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2013,df_spatially_a
 
 list_high_end=list(['2002-2003','2011-2012','2010'])
 plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2011,df_spatially_aggregated_2010,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
+'''
+###         This is from iceséabs_20102018_thickening_analysis.py          ###
 
-###         This is from iceséabs_20102018_thickening_analysis.py           ###
+fig, (ax1,ax2,ax3,ax4) = plt.subplots(2, 2)
+
+ax1.step(slice_lon_summary[:,4]-slice_lon_summary[:,0],lat_slices,label='2017-2018 minus 2002-2003')
+ax2.step(slice_lon_summary[:,4]-slice_lon_summary[:,1],lat_slices,label='2017-2018 minus 2010')
+ax3.step(slice_lon_summary[:,4]-slice_lon_summary[:,2],lat_slices,label='2017-2018 minus 2011-2012')
+ax4.step(slice_lon_summary[:,4]-slice_lon_summary[:,3],lat_slices,label='2017-2018 minus 2013-2014')
+
+ax1.step(slice_lon_summary[:,4],lat_slices,color='#276419',label='2017-2018')
+
+
+plt.show()
+
