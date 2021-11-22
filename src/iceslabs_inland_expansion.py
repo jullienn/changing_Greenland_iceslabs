@@ -117,7 +117,7 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-create_elevation_dictionaries='FALSE'
+create_elevation_dictionaries='TRUE'
 #pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
@@ -172,8 +172,18 @@ NW_west_greenland_mask=gpd.read_file(path_regional_masks+'/NW_west_greenland_mas
 SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_mask_3413.shp')
 SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
 SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
+
+#Load Rignot et al., 2016 Greenland drainage bassins
+path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+#Extract indiv regions and create related indiv shapefiles
+NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
+NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
+SE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SE']
+SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
+CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
+NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 ### -------------------------- Load shapefiles --------------------------- ###
-#pdb.set_trace()
 
 if (create_elevation_dictionaries == 'TRUE'):
     
@@ -325,7 +335,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     ax1.set_ylim(-3360000,-650000)
     
     plt.show()
-    pdb.set_trace()
+
     # compare min and max of lat/lon of the track with respect to shapefile
     from shapely.geometry import Point, Polygon
     
@@ -348,29 +358,29 @@ if (create_elevation_dictionaries == 'TRUE'):
     for i in range(0,lon_3413_20102018.size):
         #select the point i
         single_point=Point(lon_3413_20102018[i],lat_3413_20102018[i])
-        
+
         #Do the identification between the point i and the regional shapefiles
         #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
-        check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
-        check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
-        check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
-        check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
-        check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
-        check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
+        check_NO_rignotetal=np.asarray(NO_rignotetal.contains(single_point)).astype(int)
+        check_NE_rignotetal=np.asarray(NE_rignotetal.contains(single_point)).astype(int)
+        check_SE_rignotetal=np.asarray(SE_rignotetal.contains(single_point)).astype(int)
+        check_SW_rignotetal=np.asarray(SW_rignotetal.contains(single_point)).astype(int)
+        check_CW_rignotetal=np.asarray(CW_rignotetal.contains(single_point)).astype(int)
+        check_NW_rignotetal=np.asarray(NW_rignotetal.contains(single_point)).astype(int)
     
         #Associated the point of interest to its regional shapefile in data_iceslabs
-        if (np.sum(check_NW_icecap_greenland)>0):
-            df_20102018['key_shp'][i]='NW_icecap'
-        elif (np.sum(check_NW_north_greenland)>0):
-            df_20102018['key_shp'][i]='NW_north'
-        elif (np.sum(check_NW_west_greenland)>0):
-            df_20102018['key_shp'][i]='NW_west'
-        elif (np.sum(check_SW_lower_greenland)>0):
-            df_20102018['key_shp'][i]='SW_lower'
-        elif (np.sum(check_SW_middle_greenland)>0):
-            df_20102018['key_shp'][i]='SW_middle'
-        elif (np.sum(check_SW_upper_greenland)>0):
-            df_20102018['key_shp'][i]='SW_upper'
+        if (np.sum(check_NO_rignotetal)>0):
+            df_20102018['key_shp'][i]='NO'
+        elif (np.sum(check_NE_rignotetal)>0):
+            df_20102018['key_shp'][i]='NE'
+        elif (np.sum(check_SE_rignotetal)>0):
+            df_20102018['key_shp'][i]='SE'
+        elif (np.sum(check_SW_rignotetal)>0):
+            df_20102018['key_shp'][i]='SW'
+        elif (np.sum(check_CW_rignotetal)>0):
+            df_20102018['key_shp'][i]='CW'
+        elif (np.sum(check_NW_rignotetal)>0):
+            df_20102018['key_shp'][i]='NW'
         else:
             df_20102018['key_shp'][i]='Out'
         
@@ -382,9 +392,9 @@ if (create_elevation_dictionaries == 'TRUE'):
         #Monitor the process
         print(i/lon_3413_20102018.size*100,'%')
     
-    
+    pdb.set_trace()
     #Save the dictionary into a picke file
-    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_prob00'
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_prob00_rignotetalregions'
     outfile= open(filename_tosave, "wb" )
     pickle.dump(df_20102018,outfile)
     outfile.close()
@@ -400,20 +410,20 @@ if (create_elevation_dictionaries == 'TRUE'):
     cbar1.set_label('Elevation [m]')
     
     #Display the shapefile
-    NW_icecap_greenland_mask.plot(ax=ax1)
-    NW_north_greenland_mask.plot(ax=ax1)
-    NW_west_greenland_mask.plot(ax=ax1)
-    SW_lower_greenland_mask.plot(ax=ax1)
-    SW_middle_greenland_mask.plot(ax=ax1)
-    SW_upper_greenland_mask.plot(ax=ax1)
+    check_NO_rignotetal.plot(ax=ax1)
+    check_NE_rignotetal.plot(ax=ax1)
+    check_SE_rignotetal.plot(ax=ax1)
+    check_SW_rignotetal.plot(ax=ax1)
+    check_CW_rignotetal.plot(ax=ax1)
+    check_NW_rignotetal.plot(ax=ax1)
     
     #Display the data as a function of their belonging keys
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_icecap'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_icecap'],facecolors='orange')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_west'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_west'],facecolors='blue')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW_north'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW_north'],facecolors='purple')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_lower'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_lower'],facecolors='red')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_middle'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_middle'],facecolors='green')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW_upper'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW_upper'],facecolors='k')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NO'],df_20102018['lat_3413'][df_20102018['key_shp']=='NO'],facecolors='orange')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NE'],df_20102018['lat_3413'][df_20102018['key_shp']=='NE'],facecolors='blue')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SE'],df_20102018['lat_3413'][df_20102018['key_shp']=='SE'],facecolors='purple')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW'],facecolors='red')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='CW'],df_20102018['lat_3413'][df_20102018['key_shp']=='CW'],facecolors='green')
+    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW'],facecolors='k')
     
     #III. Do the intersection between the mask and 2002-2003 data
     
@@ -430,26 +440,26 @@ if (create_elevation_dictionaries == 'TRUE'):
         
         #Do the identification between the point i and the regional shapefiles
         #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
-        check_NW_icecap_greenland=np.asarray(NW_icecap_greenland_mask.contains(single_point)).astype(int)
-        check_NW_north_greenland=np.asarray(NW_north_greenland_mask.contains(single_point)).astype(int)
-        check_NW_west_greenland=np.asarray(NW_west_greenland_mask.contains(single_point)).astype(int)
-        check_SW_lower_greenland=np.asarray(SW_lower_greenland_mask.contains(single_point)).astype(int)
-        check_SW_middle_greenland=np.asarray(SW_middle_greenland_mask.contains(single_point)).astype(int)
-        check_SW_upper_greenland=np.asarray(SW_upper_greenland_mask.contains(single_point)).astype(int)
-    
+        check_NO_rignotetal=np.asarray(NO_rignotetal.contains(single_point)).astype(int)
+        check_NE_rignotetal=np.asarray(NE_rignotetal.contains(single_point)).astype(int)
+        check_SE_rignotetal=np.asarray(SE_rignotetal.contains(single_point)).astype(int)
+        check_SW_rignotetal=np.asarray(SW_rignotetal.contains(single_point)).astype(int)
+        check_CW_rignotetal=np.asarray(CW_rignotetal.contains(single_point)).astype(int)
+        check_NW_rignotetal=np.asarray(NW_rignotetal.contains(single_point)).astype(int)
+        
         #Associated the point of interest to its regional shapefile in data_iceslabs
-        if (np.sum(check_NW_icecap_greenland)>0):
-            df_2002_2003['key_shp'].iloc[i]='NW_icecap'
-        elif (np.sum(check_NW_north_greenland)>0):
-            df_2002_2003['key_shp'].iloc[i]='NW_north'
-        elif (np.sum(check_NW_west_greenland)>0):
-            df_2002_2003['key_shp'].iloc[i]='NW_west'
-        elif (np.sum(check_SW_lower_greenland)>0):
-            df_2002_2003['key_shp'].iloc[i]='SW_lower'
-        elif (np.sum(check_SW_middle_greenland)>0):
-            df_2002_2003['key_shp'].iloc[i]='SW_middle'
-        elif (np.sum(check_SW_upper_greenland)>0):
-            df_2002_2003['key_shp'].iloc[i]='SW_upper'
+        if (np.sum(check_NO_rignotetal)>0):
+            df_2002_2003['key_shp'].iloc[i]='NO'
+        elif (np.sum(check_NE_rignotetal)>0):
+            df_2002_2003['key_shp'].iloc[i]='NE'
+        elif (np.sum(check_SE_rignotetal)>0):
+            df_2002_2003['key_shp'].iloc[i]='SE'
+        elif (np.sum(check_SW_rignotetal)>0):
+            df_2002_2003['key_shp'].iloc[i]='SW'
+        elif (np.sum(check_CW_rignotetal)>0):
+            df_2002_2003['key_shp'].iloc[i]='CW'
+        elif (np.sum(check_NW_rignotetal)>0):
+            df_2002_2003['key_shp'].iloc[i]='NW'
         else:
             df_2002_2003['key_shp'].iloc[i]='Out'
         
@@ -474,33 +484,32 @@ if (create_elevation_dictionaries == 'TRUE'):
     df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
     
     #Display the data as a function of their belonging keys
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_icecap'],facecolors='brown')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_west'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_west'],facecolors='cyan')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW_north'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW_north'],facecolors='pink')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_lower'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_lower'],facecolors='yellow')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_middle'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_middle'],facecolors='olive')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW_upper'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW_upper'],facecolors='gray')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NO'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NO'],facecolors='brown')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NE'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NE'],facecolors='cyan')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SE'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SE'],facecolors='pink')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW'],facecolors='yellow')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='CW'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='CW'],facecolors='olive')
+    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW'],facecolors='gray')
     
     plt.show()
     
     #Save the dictionary into a picke file
-    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation_prob00'
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation_prob00_rignotetalregions'
     outfile= open(filename_tosave, "wb" )
     pickle.dump(df_2002_2003,outfile)
     outfile.close()
     
-    pdb.set_trace()
 else:
     #Dictionnaries have already been created, load them
     path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
     
     #Load 2002-2003
-    f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00', "rb")
+    f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00_rignotetalregions', "rb")
     df_2002_2003 = pickle.load(f_20022003)
     f_20022003.close()
     
     #Load 2010-2018
-    f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00', "rb")
+    f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
     df_2010_2018 = pickle.load(f_20102018)
     f_20102018.close()
 
@@ -777,7 +786,7 @@ for region in list(df_2010_2018['key_shp'].unique()):
             dict_temp=dict_summary_2002_2003[region]
         else:
             #The dictionnary to select is different whether we are in north or south greenland
-            if (region in list(['NW_north','NW_west','NW_icecap'])):
+            if (region in list(['NO'])):
                 dict_temp=dict_lon_slices_summary[region][time_period]
             else:
                 dict_temp=dict_lat_slices_summary[region][time_period]
@@ -834,7 +843,7 @@ plt.show()
 #######################################################################
 ###          Inland expansion of iceslabs from 2002 to 2018         ###
 #######################################################################
-
+pdb.set_trace()
 #######################################################################
 ###  Violin plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################
@@ -1323,9 +1332,9 @@ plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2011,df_spatially_a
 ###         This is from iceslabs_20102018_thickening_analysis.py          ###
 
 fig, ax1 = plt.subplots()
-ax1.pcolor([slice_summary[:,4]-slice_summary[:,0],lat_slices],slice_summary[:,4]-slice_summary[:,0],label='2017-2018 minus 2002-2003',color='#238b45')
-ax1.pcolor(slice_summary[:,4]-slice_summary[:,1],lat_slices,slice_summary[:,4]-slice_summary[:,1],label='2017-2018 minus 2010',color='#2b8cbe')
-ax1.pcolor(slice_summary[:,4]-slice_summary[:,2],lat_slices,label='2017-2018 minus 2011-2012',color='#c994c7')
-ax1.pcolor(slice_summary[:,4]-slice_summary[:,3],lat_slices,label='2017-2018 minus 2013-2014',color='#7a0177')
+ax1.step(slice_summary[:,4]-slice_summary[:,0],lat_slices,label='2017-2018 minus 2002-2003',color='#238b45')
+ax1.step(slice_summary[:,4]-slice_summary[:,1],lat_slices,label='2017-2018 minus 2010',color='#2b8cbe')
+ax1.step(slice_summary[:,4]-slice_summary[:,2],lat_slices,label='2017-2018 minus 2011-2012',color='#c994c7')
+ax1.step(slice_summary[:,4]-slice_summary[:,3],lat_slices,label='2017-2018 minus 2013-2014',color='#7a0177')
 plt.show()
 
