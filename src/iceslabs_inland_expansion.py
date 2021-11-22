@@ -175,7 +175,8 @@ SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_m
 
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+
 #Extract indiv regions and create related indiv shapefiles
 NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
 NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
@@ -358,7 +359,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     for i in range(0,lon_3413_20102018.size):
         #select the point i
         single_point=Point(lon_3413_20102018[i],lat_3413_20102018[i])
-
+        
         #Do the identification between the point i and the regional shapefiles
         #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
         check_NO_rignotetal=np.asarray(NO_rignotetal.contains(single_point)).astype(int)
@@ -392,7 +393,6 @@ if (create_elevation_dictionaries == 'TRUE'):
         #Monitor the process
         print(i/lon_3413_20102018.size*100,'%')
     
-    pdb.set_trace()
     #Save the dictionary into a picke file
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_prob00_rignotetalregions'
     outfile= open(filename_tosave, "wb" )
