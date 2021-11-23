@@ -117,7 +117,7 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-create_elevation_dictionaries='TRUE'
+create_elevation_dictionaries='FALSE'
 #pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
@@ -399,7 +399,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     pickle.dump(df_20102018,outfile)
     outfile.close()
     
-    
+    '''
     #Display the keys
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     fig.suptitle('Iceslabs keys')
@@ -424,7 +424,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW'],facecolors='red')
     ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='CW'],df_20102018['lat_3413'][df_20102018['key_shp']=='CW'],facecolors='green')
     ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW'],facecolors='k')
-    
+    '''
     #III. Do the intersection between the mask and 2002-2003 data
     
     #Initialise the shapefile belonging column
@@ -482,7 +482,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     
     #Only work with green slabs
     df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
-    
+    '''
     #Display the data as a function of their belonging keys
     ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NO'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NO'],facecolors='brown')
     ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NE'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NE'],facecolors='cyan')
@@ -492,7 +492,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW'],facecolors='gray')
     
     plt.show()
-    
+    '''
     #Save the dictionary into a picke file
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation_prob00_rignotetalregions'
     outfile= open(filename_tosave, "wb" )
@@ -505,11 +505,13 @@ else:
     
     #Load 2002-2003
     f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00_rignotetalregions', "rb")
+    #f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00', "rb")
     df_2002_2003 = pickle.load(f_20022003)
     f_20022003.close()
     
     #Load 2010-2018
     f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
+    #f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00', "rb")
     df_2010_2018 = pickle.load(f_20102018)
     f_20102018.close()
 
@@ -797,6 +799,8 @@ for region in list(df_2010_2018['key_shp'].unique()):
 
 #Plot the inland expansion as a graph
 
+pdb.set_trace()
+
 #Display the keys
 fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs inland progression')
@@ -1000,7 +1004,7 @@ for i in range(1,len(lat_slices)):
     
     #Affine data by selecting only west greenland
     ind_slice=np.array(df_slice['lon_3413']<-50000)
-    df_slice_latlon=df_slice[ind_slice] 
+    df_slice_latlon=df_slice[ind_slice]
     
     #Store the associated df
     dict_lat_slice_west[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice_latlon
@@ -1093,6 +1097,7 @@ for i in range(1,len(lat_slices)):
     #Update count_lat
     count_lat=count_lat+1
 ### ------------------------------ 2010-2018 ----------------------------- ###
+pdb.set_trace()
 
 fig, (ax1,ax2) = plt.subplots(1,2)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs inland progression')
@@ -1305,7 +1310,7 @@ df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
 
 
 
-list_high_end=list(['2002-2003','2010','2017-2018'])
+list_high_end=list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])
 plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2010,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
 
 pdb.set_trace()
