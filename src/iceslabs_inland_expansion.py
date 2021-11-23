@@ -76,15 +76,15 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
     
     #Add upper iceslabs
     if ('2002-2003' in list_high_end):
-        ax1.step(slice_lon_summary[:,0],lat_slices,color='#8e0152',label='2002-2003')
+        ax1.step(slice_lon_summary[:,0],lat_slices,color='#fee5d9',label='2002-2003')
     if ('2010' in list_high_end):
-        ax1.step(slice_lon_summary[:,1],lat_slices,color='#de77ae',label='2010')
+        ax1.step(slice_lon_summary[:,1],lat_slices,color='#fcae91',label='2010')
     if ('2011-2012' in list_high_end):
-        ax1.step(slice_lon_summary[:,2],lat_slices,color='#fde0ef',label='2011-2012')
+        ax1.step(slice_lon_summary[:,2],lat_slices,color='#fb6a4a',label='2011-2012')
     if ('2013-2014' in list_high_end):
-        ax1.step(slice_lon_summary[:,3],lat_slices,color='#7fbc41',label='2013-2014')
+        ax1.step(slice_lon_summary[:,3],lat_slices,color='#de2d26',label='2013-2014')
     if ('2017-2018' in list_high_end):
-        ax1.step(slice_lon_summary[:,4],lat_slices,color='#276419',label='2017-2018')
+        ax1.step(slice_lon_summary[:,4],lat_slices,color='#a50f15',label='2017-2018')
     
     plt.legend()
     
