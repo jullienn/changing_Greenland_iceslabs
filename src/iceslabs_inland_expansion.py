@@ -117,7 +117,7 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-create_elevation_dictionaries='FALSE'
+create_elevation_dictionaries='TRUE'
 #pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
@@ -293,7 +293,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     ################### Load 2010-2018 ice slabs location ##################
     
     #Load the data
-    filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv'
+    filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/low_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
     df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
     
     #Transform the coordinated from WGS84 to EPSG:3413
@@ -394,7 +394,7 @@ if (create_elevation_dictionaries == 'TRUE'):
         print(i/lon_3413_20102018.size*100,'%')
     
     #Save the dictionary into a picke file
-    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_prob00_rignotetalregions'
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_low_estimate_rignotetalregions'
     outfile= open(filename_tosave, "wb" )
     pickle.dump(df_20102018,outfile)
     outfile.close()
@@ -494,7 +494,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     plt.show()
     '''
     #Save the dictionary into a picke file
-    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation_prob00_rignotetalregions'
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation_rignotetalregions'
     outfile= open(filename_tosave, "wb" )
     pickle.dump(df_2002_2003,outfile)
     outfile.close()
@@ -515,6 +515,7 @@ else:
     df_2010_2018 = pickle.load(f_20102018)
     f_20102018.close()
 
+pdb.set_trace()
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
 #    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
@@ -1342,4 +1343,8 @@ ax1.step(slice_summary[:,4]-slice_summary[:,1],lat_slices,label='2017-2018 minus
 ax1.step(slice_summary[:,4]-slice_summary[:,2],lat_slices,label='2017-2018 minus 2011-2012',color='#c994c7')
 ax1.step(slice_summary[:,4]-slice_summary[:,3],lat_slices,label='2017-2018 minus 2013-2014',color='#7a0177')
 plt.show()
+
+
+#Boxplot of max elevation per lat slice for each region for different time periods
+#Loop over dict_lat_slices_summary
 

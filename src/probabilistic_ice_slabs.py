@@ -227,7 +227,7 @@ if (generate_excel_file=='TRUE'):
     '''
     filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
     '''
-    filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv'
+    filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
     
     #Open filename (same procedure as MacFerrin et al., 2019)
     fout = open(filename_excel_output, 'w')
@@ -343,10 +343,11 @@ if (generate_excel_file=='TRUE'):
         #Compute depth_delta_m
         depth_delta_m = np.mean(depth[1:] - depth[:-1])
         
-        #we must choose how we transform the probabilistic ice slabs into an ice content
-        #Let's choose as a first guess whre likelihood is > 0.1. We'll see later one whether this is good or not
-        #if ice slabs in one quatile, then the probability is 0,0526
-        index_prob=indiv_probability_slice>=0.04
+        #Let's transform the probabilistic ice slabs into an ice content
+        #We must derive a low end and high end of ice slabs likelihood
+        #for low end: slabs identified in 19 quantiles out of 19 => likelihood = 19/19=1
+        #for high end: slabs identified in 1 quantile out of 19 => likelihood = 1/19 = 0.05263
+        index_prob=indiv_probability_slice>=0.99
         
         #Create slice full of nans
         slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))

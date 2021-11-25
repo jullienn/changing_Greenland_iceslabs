@@ -37,7 +37,7 @@ import matplotlib.colors as mcolors
 #Load all 2010-2018 data
 #path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_files/'
 path='/home/jullienn/data/iceslabs/'
-df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob05.csv',delimiter=',',decimal='.')
+df_2010_2018 = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv',delimiter=',',decimal='.')
 
 #Select individual years and save corresponding files
 df_2010=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2010']
@@ -48,13 +48,13 @@ df_2014=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2014']
 df_2017=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2017']
 df_2018=df_2010_2018[df_2010_2018.Track_name.str[:4]=='2018']
 
-df_2010.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2010_jullienetal2021_prob05.csv',header=True)
-df_2011.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2011_jullienetal2021_prob05.csv',header=True)
-df_2012.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2012_jullienetal2021_prob05.csv',header=True)
-df_2013.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2013_jullienetal2021_prob05.csv',header=True)
-df_2014.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2014_jullienetal2021_prob05.csv',header=True)
-df_2017.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2017_jullienetal2021_prob05.csv',header=True)
-df_2018.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2018_jullienetal2021_prob05.csv',header=True)
+df_2010.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2010_jullienetal2021_low_estimate.csv',header=True)
+df_2011.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2011_jullienetal2021_low_estimate.csv',header=True)
+df_2012.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2012_jullienetal2021_low_estimate.csv',header=True)
+df_2013.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2013_jullienetal2021_low_estimate.csv',header=True)
+df_2014.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2014_jullienetal2021_low_estimate.csv',header=True)
+df_2017.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2017_jullienetal2021_low_estimate.csv',header=True)
+df_2018.to_csv(path_or_buf=path+'Ice_Layer_Output_Thicknesses_2018_jullienetal2021_low_estimate.csv',header=True)
 
 
 #Create a year column
@@ -233,7 +233,7 @@ df_spatial_aggregation=pd.DataFrame({'avg_20m_icecontent':avg_20m_icecontent,
 
 
 #Save df as excel file
-filename_to_save='jullien_etal_20102018_spatial_aggregation_grid_'+str(a)+'_prob05.xlsx'
+filename_to_save='jullien_etal_20102018_spatial_aggregation_grid_'+str(a)+'_low_estimate.xlsx'
 df_spatial_aggregation.to_excel(path+filename_to_save)
 
 print(' --- End of processing ---')
