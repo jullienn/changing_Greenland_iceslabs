@@ -117,7 +117,7 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-create_elevation_dictionaries='TRUE'
+create_elevation_dictionaries='FALSE'
 #pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
@@ -515,7 +515,6 @@ else:
     df_2010_2018 = pickle.load(f_20102018)
     f_20102018.close()
 
-pdb.set_trace()
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
 #    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
@@ -1133,9 +1132,43 @@ plt.show()
 ###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################   
 
+
+
+
+fig, ax1 = plt.subplots()
+ax1.step(slice_summary[:,4]-slice_summary[:,0],lat_slices,label='2017-2018 minus 2002-2003',color='#238b45')
+ax1.step(slice_summary[:,4]-slice_summary[:,1],lat_slices,label='2017-2018 minus 2010',color='#2b8cbe')
+ax1.step(slice_summary[:,4]-slice_summary[:,2],lat_slices,label='2017-2018 minus 2011-2012',color='#c994c7')
+ax1.step(slice_summary[:,4]-slice_summary[:,3],lat_slices,label='2017-2018 minus 2013-2014',color='#7a0177')
+plt.show()
+
+
+#Boxplot of max elevation per lat slice for each region for different time periods
+#Loop over dict_lat_slices_summary
+
+
+#######################################################################
+###     Barplot of maximum elevation of ice slabs per time period   ###
+#######################################################################
+#Barplot per regions for each elevation slice
 pdb.set_trace()
 
-###         This is from iceséabs_20102018_thickening_analysis.py           ###
+
+
+
+
+
+
+#######################################################################
+###     Barplot of maximum elevation of ice slabs per time period   ###
+#######################################################################
+
+
+#######################################################################
+###       Thickening analysis using spatially aggregated files      ###
+#######################################################################   
+
+###     This is from iceslabs_20102018_thickening_analysis.py       ###
 
 #Import librairies
 import datetime
@@ -1314,8 +1347,6 @@ df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
 list_high_end=list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])
 plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2010,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
 
-pdb.set_trace()
-
 '''
 list_high_end=list(['2002-2003','2011-2012','2017-2018'])
 plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2011,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
@@ -1335,16 +1366,8 @@ plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2013,df_spatially_a
 list_high_end=list(['2002-2003','2011-2012','2010'])
 plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2011,df_spatially_aggregated_2010,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
 '''
-###         This is from iceslabs_20102018_thickening_analysis.py          ###
+###     This is from iceslabs_20102018_thickening_analysis.py       ###
 
-fig, ax1 = plt.subplots()
-ax1.step(slice_summary[:,4]-slice_summary[:,0],lat_slices,label='2017-2018 minus 2002-2003',color='#238b45')
-ax1.step(slice_summary[:,4]-slice_summary[:,1],lat_slices,label='2017-2018 minus 2010',color='#2b8cbe')
-ax1.step(slice_summary[:,4]-slice_summary[:,2],lat_slices,label='2017-2018 minus 2011-2012',color='#c994c7')
-ax1.step(slice_summary[:,4]-slice_summary[:,3],lat_slices,label='2017-2018 minus 2013-2014',color='#7a0177')
-plt.show()
-
-
-#Boxplot of max elevation per lat slice for each region for different time periods
-#Loop over dict_lat_slices_summary
-
+#######################################################################
+###       Thickening analysis using spatially aggregated files      ###
+#######################################################################
