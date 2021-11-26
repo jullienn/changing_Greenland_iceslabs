@@ -117,7 +117,7 @@ import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-create_elevation_dictionaries='FALSE'
+create_elevation_dictionaries='TRUE'
 #pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
@@ -1132,9 +1132,6 @@ plt.show()
 ###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################   
 
-
-
-
 fig, ax1 = plt.subplots()
 ax1.step(slice_summary[:,4]-slice_summary[:,0],lat_slices,label='2017-2018 minus 2002-2003',color='#238b45')
 ax1.step(slice_summary[:,4]-slice_summary[:,1],lat_slices,label='2017-2018 minus 2010',color='#2b8cbe')
@@ -1162,8 +1159,14 @@ pdb.set_trace()
 #######################################################################
 ###     Barplot of maximum elevation of ice slabs per time period   ###
 #######################################################################
-
-
+fig, (ax1,ax2) = plt.subplots(2,2)
+ax1.bar(lat_slices,slice_lon_summary[:,4],width=10000,label='2017-2018')
+ax1.bar(lat_slices,slice_lon_summary[:,3],width=10000,label='2013-2014')
+ax1.bar(lat_slices,slice_lon_summary[:,2],width=10000,label='2012-2010')
+ax1.bar(lat_slices,slice_lon_summary[:,1],width=10000,label='2010')
+ax1.bar(lat_slices,slice_lon_summary[:,0],width=10000,label='2002-2003')
+plt.legend()
+plt.show()
 #######################################################################
 ###       Thickening analysis using spatially aggregated files      ###
 #######################################################################   

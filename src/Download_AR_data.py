@@ -300,19 +300,41 @@ if (year_to_download=='2010_2014'):
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 if (year_to_download=='2017'):
     #pdb.set_trace()
+    path_file='C:/Users/jullienn/Documents/working_environment/Extended_Greenland_iceslabs/data/2017_2018_coordinates/'
+
+    #Read text file of all the data that need to be downloaded
+    intial_data_selection = pd.read_csv(path_file+'intial_data_selection_20172018.txt', header=None)
+    intial_data_selection.columns = ["datetrack"]
     
-    #Define the folder to not download
-    to_not_download=['20170329_02','20170330_01','20170330_02','20170330_03','20170330_05',
-                 '20170403_04','20170403_06','20170406_01','20170406_02','20170407_01',
-                 '20170407_02','20170407_04','20170426_01','20170426_02','20170428_01',
-                 '20170506_02','20170510_01']
+    #Store start and end files
+    intial_data_selection['date']=[x[:11] for x in intial_data_selection["datetrack"]]
+    intial_data_selection['start']=[x[12:15] for x in intial_data_selection["datetrack"]]
+    intial_data_selection['end']=[x[16:19] for x in intial_data_selection["datetrack"]]
+    
+    #indiv filenames to download
+    indiv_filenames=[]
+    
+    #Create all the individual finlenames to be downloaded
+    for i in range(0,len(intial_data_selection['datetrack'])):
+        nb_indiv_file_to_produce=int(intial_data_selection.iloc[i]['end'])-int(intial_data_selection.iloc[i]['start'])
+        
+        for j in range(0,nb_indiv_file_to_produce+1):
+            indiv_file_nb=int(intial_data_selection.iloc[i]['start'])+j
+            if (indiv_file_nb<10):
+                fname_tosave=intial_data_selection.iloc[i]['date']+'_00'+str(indiv_file_nb)+'.mat'
+            elif ((indiv_file_nb>=10) and (indiv_file_nb<100)):
+                fname_tosave=intial_data_selection.iloc[i]['date']+'_0'+str(indiv_file_nb)+'.mat'
+            else:
+                fname_tosave=intial_data_selection.iloc[i]['date']+'_'+str(indiv_file_nb)+'.mat'
+            #Save the filename
+            indiv_filenames=np.append(indiv_filenames,fname_tosave)
     
     from ftplib import FTP
     from datetime import datetime
     
     #Set data we want to download
-    download_images='FALSE'
-    download_mat='TRUE'
+    download_images='TRUE'
+    download_mat='FALSE'
     
     start = datetime.now()
     ftp = FTP('data.cresis.ku.edu')
@@ -336,7 +358,6 @@ if (year_to_download=='2017'):
             
             #Go to folder year
             folder_year_name=[]
-            
             if (download_images=='TRUE'):
                 folder_year_name=path + folder_year + '/images/'
                 path_save=path_save + folder_year + '/images/'
@@ -354,9 +375,8 @@ if (year_to_download=='2017'):
             
             #Loop over the folders, and download all the data in this folder
             for folder in folders:
-                
-                if folder in list(to_not_download):
-                    #Not Greenland, do not bother download it
+                if (folder not in list(np.unique(intial_data_selection['date']))):
+                    #No data to be downloaded here, continue
                     continue
                 
                 if (folder == '20170322_04'):
@@ -386,26 +406,40 @@ if (year_to_download=='2017'):
                 # Print out and download the files
                 if (download_images=='TRUE'):
                     for file in files:
-                        if (os.path.isfile(path_to_save + file)):
-                            #If the file have already been downloaded, continue
-                            print(file+' have already been downloaded. Continue ...')
-                            continue
-                        
-                        print("Downloading..." + file)
-                        ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
-                    
-                if (download_mat=='TRUE'):
-                    for file in files:
-                        if (file[0:9]=='Data_2017'):
+                        #If the file is to be downloaded, check if existent. If not, download
+                        if ((file[0:15]+'.mat') in list(indiv_filenames)):
+                            #this file is to be downloaded. Is is already?
                             if (os.path.isfile(path_to_save + file)):
                                 #If the file have already been downloaded, continue
                                 print(file+' have already been downloaded. Continue ...')
                                 continue
-                            #Grab only the files starting by 'Data_2017...'
+                            #If not, download it
                             print("Downloading..." + file)
                             ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                            
                         else:
-                            print('This is a file Data_img ...')
+                            #not a file to be download
+                            print('Do not download')
+                                
+                if (download_mat=='TRUE'):
+                    for file in files:
+                        if (file[0:9]=='Data_2017'):
+                            #If the file is to be downloaded, check if existent. If not, download
+                            if (file[5:24] in list(indiv_filenames)):
+                                #this file is to be downloaded. Is is already?
+                                if (os.path.isfile(path_to_save + file)):
+                                    #If the file have already been downloaded, continue
+                                    print(file+' have already been downloaded. Continue ...')
+                                    continue
+                                #If not, download it
+                                #Grab only the files starting by 'Data_2017...'
+                                print("Downloading..." + file)
+                                ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                            else:
+                                #not a file to be download
+                                print('Do not download')
+                        else:
+                            print('Do not download')
                             #This is data starting by 'Data_img...', we do not want that
                             continue
                 
@@ -424,9 +458,34 @@ if (year_to_download=='2017'):
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 if (year_to_download=='2018'):
     #pdb.set_trace()
+    path_file='C:/Users/jullienn/Documents/working_environment/Extended_Greenland_iceslabs/data/2017_2018_coordinates/'
+
+    #Read text file of all the data that need to be downloaded
+    intial_data_selection = pd.read_csv(path_file+'intial_data_selection_20172018.txt', header=None)
+    intial_data_selection.columns = ["datetrack"]
     
-    #Define the folder to not download
-    to_not_download=['20180315_01','20180315_02','20180315_03','20180315_04']
+    #Store start and end files
+    intial_data_selection['date']=[x[:11] for x in intial_data_selection["datetrack"]]
+    intial_data_selection['start']=[x[12:15] for x in intial_data_selection["datetrack"]]
+    intial_data_selection['end']=[x[16:19] for x in intial_data_selection["datetrack"]]
+    
+    #indiv filenames to download
+    indiv_filenames=[]
+    
+    #Create all the individual finlenames to be downloaded
+    for i in range(0,len(intial_data_selection['datetrack'])):
+        nb_indiv_file_to_produce=int(intial_data_selection.iloc[i]['end'])-int(intial_data_selection.iloc[i]['start'])
+        
+        for j in range(0,nb_indiv_file_to_produce+1):
+            indiv_file_nb=int(intial_data_selection.iloc[i]['start'])+j
+            if (indiv_file_nb<10):
+                fname_tosave=intial_data_selection.iloc[i]['date']+'_00'+str(indiv_file_nb)+'.mat'
+            elif ((indiv_file_nb>=10) and (indiv_file_nb<100)):
+                fname_tosave=intial_data_selection.iloc[i]['date']+'_0'+str(indiv_file_nb)+'.mat'
+            else:
+                fname_tosave=intial_data_selection.iloc[i]['date']+'_'+str(indiv_file_nb)+'.mat'
+            #Save the filename
+            indiv_filenames=np.append(indiv_filenames,fname_tosave)
     
     from ftplib import FTP
     from datetime import datetime
@@ -451,13 +510,11 @@ if (year_to_download=='2018'):
     
     for folder_year in folders_years:
         if (folder_year == '2018_Greenland_P3'):
-            #pdb.set_trace()
             
             print('Downloading 2018 data')
             
             #Go to folder year
             folder_year_name=[]
-            
             if (download_images=='TRUE'):
                 folder_year_name=path + folder_year + '/images/'
                 path_save=path_save + folder_year + '/images/'
@@ -475,11 +532,10 @@ if (year_to_download=='2018'):
             
             #Loop over the folders, and download all the data in this folder
             for folder in folders:
-                
-                if folder in list(to_not_download):
-                    #Not Greenland, do not bother download it
+                if (folder not in list(np.unique(intial_data_selection['date']))):
+                    #No data to be downloaded here, continue
                     continue
-                
+                                
                 folder_name=[]
                 folder_name=folder_year_name + folder + '/'
                 ftp.cwd(folder_name)
@@ -503,26 +559,40 @@ if (year_to_download=='2018'):
                 # Print out and download the files
                 if (download_images=='TRUE'):
                     for file in files:
-                        if (os.path.isfile(path_to_save + file)):
-                            #If the file have already been downloaded, continue
-                            print(file+' have already been downloaded. Continue ...')
-                            continue
-                        
-                        print("Downloading..." + file)
-                        ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
-                    
-                if (download_mat=='TRUE'):
-                    for file in files:
-                        if (file[0:9]=='Data_2018'):
+                        #If the file is to be downloaded, check if existent. If not, download
+                        if ((file[0:15]+'.mat') in list(indiv_filenames)):
+                            #this file is to be downloaded. Is is already?
                             if (os.path.isfile(path_to_save + file)):
                                 #If the file have already been downloaded, continue
                                 print(file+' have already been downloaded. Continue ...')
                                 continue
-                            #Grab only the files starting by 'Data_2017...'
+                            #If not, download it
                             print("Downloading..." + file)
                             ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                            
                         else:
-                            print('This is a file Data_img ...')
+                            #not a file to be download
+                            print('Do not download')
+                                
+                if (download_mat=='TRUE'):
+                    for file in files:
+                        if (file[0:9]=='Data_2018'):
+                            #If the file is to be downloaded, check if existent. If not, download
+                            if (file[5:24] in list(indiv_filenames)):
+                                #this file is to be downloaded. Is is already?
+                                if (os.path.isfile(path_to_save + file)):
+                                    #If the file have already been downloaded, continue
+                                    print(file+' have already been downloaded. Continue ...')
+                                    continue
+                                #If not, download it
+                                #Grab only the files starting by 'Data_2018...'
+                                print("Downloading..." + file)
+                                ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
+                            else:
+                                #not a file to be download
+                                print('Do not download')
+                        else:
+                            print('Do not download')
                             #This is data starting by 'Data_img...', we do not want that
                             continue
                 
