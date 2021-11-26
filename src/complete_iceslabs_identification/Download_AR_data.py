@@ -333,8 +333,8 @@ if (year_to_download=='2017'):
     from datetime import datetime
     
     #Set data we want to download
-    download_images='TRUE'
-    download_mat='FALSE'
+    download_images='FALSE'
+    download_mat='TRUE'
     
     start = datetime.now()
     ftp = FTP('data.cresis.ku.edu')
