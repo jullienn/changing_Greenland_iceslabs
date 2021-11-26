@@ -300,7 +300,7 @@ if (year_to_download=='2010_2014'):
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 if (year_to_download=='2017'):
     #pdb.set_trace()
-    path_file='C:/Users/jullienn/Documents/working_environment/Extended_Greenland_iceslabs/data/2017_2018_coordinates/'
+    path_file='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/'
 
     #Read text file of all the data that need to be downloaded
     intial_data_selection = pd.read_csv(path_file+'intial_data_selection_20172018.txt', header=None)
@@ -458,7 +458,7 @@ if (year_to_download=='2017'):
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 if (year_to_download=='2018'):
     #pdb.set_trace()
-    path_file='C:/Users/jullienn/Documents/working_environment/Extended_Greenland_iceslabs/data/2017_2018_coordinates/'
+    path_file='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/'
 
     #Read text file of all the data that need to be downloaded
     intial_data_selection = pd.read_csv(path_file+'intial_data_selection_20172018.txt', header=None)

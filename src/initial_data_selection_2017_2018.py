@@ -104,7 +104,7 @@ index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
 
 #3. Load the 2017-2018 coordinates
 ### -------------- Load the 2017 and 2018 coordinates -------------------- ###
-path_coordinates='C:/Users/jullienn/Documents/working_environment/Extended_Greenland_iceslabs/data/2017_2018_coordinates/'
+path_coordinates='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/'
 coordinates_2017=pd.read_csv(path_coordinates+'2017_Greenland_P3.csv',dtype={'FRAME':str})
 coordinates_2018=pd.read_csv(path_coordinates+'2018_Greenland_P3.csv',dtype={'FRAME':str})
 ### -------------- Load the 2017 and 2018 coordinates -------------------- ###
@@ -123,7 +123,7 @@ list_2018_indiv=list(np.unique([x[:10] for x in coordinates_2018['FRAME']]))
 list_2017_2018=list_2017_indiv+list_2018_indiv
 
 #Define path where figures need to be saved
-path_figname='C:/Users/jullienn/Documents/working_environment/Extended_Greenland_iceslabs/data/2017_2018_coordinates/figures_selection_datatobeprocessed/'
+path_figname='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_selection_datatobeprocessed/'
 
 #Prepare the list where the filenames where data is within the iceslabs shapefile
 #interest will be saved
