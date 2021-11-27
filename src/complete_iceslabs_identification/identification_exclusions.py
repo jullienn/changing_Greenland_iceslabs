@@ -426,6 +426,8 @@ suggested_surface_pixel=[]
 #Loop over the dates of the 2017-2018 selection
 for indiv_trace in list(data_20172018):
     
+    if (not(indiv_trace[0:19]=='20170322_04_003_005')):
+        continue
     #Set radar_echo_dimensions to empty
     radar_echo_dimensions=[]
 
