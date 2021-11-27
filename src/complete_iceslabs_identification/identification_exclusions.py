@@ -413,7 +413,7 @@ plot_radar_echogram_slice='TRUE'
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 #Open, read and close the file of suggested surface picks
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/Exclusions_new_data_selection_20172018.txt','r')
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/new_data_selection_20172018.txt','r')
 data_20172018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
@@ -421,6 +421,7 @@ f.close()
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
 count=0
+suggested_surface_pixel=[]
 
 #Loop over the dates of the 2017-2018 selection
 for indiv_trace in list(data_20172018):
@@ -465,11 +466,13 @@ for indiv_trace in list(data_20172018):
             radar_echo_suite=np.concatenate((radar_echo_suite,radar_echo),axis=1)
         #time=8373
      
-    #pdb.set_trace()
     #Pick the surface
     #We can use the surface from f['Surface'][:], where the resulting is in Time
     #dimension. The time is not perfectly matching, so use where
     ind_starting_pixel=np.argmax(time_variable>surface_start[0][0])
+    
+    #Save surf pick for SURFACE_STARTING_PICKS_Suggestions.txt file
+    suggested_surface_pixel=np.append(suggested_surface_pixel,ind_starting_pixel)
     
     #Identify the surface indices
     surface_indices=kernel_function(radar_echo_suite, ind_starting_pixel)
@@ -523,12 +526,8 @@ for indiv_trace in list(data_20172018):
     png_to_save=png.from_array(slice_to_export, mode='L')
     png_to_save.save(path_save_png+indiv_trace+'_raw_slice.png')
     
-    
-    
-    
-    
-    
     count=count+1
+
 '''
                 #Plot the data
                 
