@@ -19,7 +19,7 @@ import os.path
 import os
 import csv
 
-year_to_download='2018'#'2010_2014'
+year_to_download='2017'#'2010_2014'
 
 ############################ Download old AR data #############################
 if (year_to_download=='old'):
@@ -363,7 +363,7 @@ if (year_to_download=='2017'):
                 path_save=path_save + folder_year + '/images/'
             
             if(download_mat=='TRUE'):
-                folder_year_name=path + folder_year + '/CSARP_standard/'
+                folder_year_name=path + folder_year + '/CSARP_mvdr/'
                 path_save=path_save + folder_year + '/CSARP_qlook/'
             
             #Go to folder to download
@@ -372,17 +372,18 @@ if (year_to_download=='2017'):
             # For this particular year, get folders name
             folders=[]
             folders = ftp.nlst()
-            
+                        
             #Loop over the folders, and download all the data in this folder
             for folder in folders:
                 if (folder not in list(np.unique(intial_data_selection['date']))):
                     #No data to be downloaded here, continue
                     continue
                 
-                if (folder == '20170322_04'):
-                    print('Folder 20170322_04 does not exist for .mat files, continue')
+                if (not(folder == '20170322_04')):
+                    #print('Folder 20170322_04 does not exist for .mat files, continue')
+                    print('Not folder 20170322_04, continue')
                     continue
-                                
+                
                 folder_name=[]
                 folder_name=folder_year_name + folder + '/'
                 ftp.cwd(folder_name)

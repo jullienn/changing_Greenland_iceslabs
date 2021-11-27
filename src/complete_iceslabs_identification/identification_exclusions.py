@@ -430,6 +430,7 @@ for indiv_trace in list(data_20172018):
 
     if (indiv_trace[0:11] == '20170322_04'):
         print('No data for 20170322_04, continue!')
+        pdb.set_trace()
         continue
     
     print(count/len(list(data_20172018))*100,' %')
@@ -443,7 +444,7 @@ for indiv_trace in list(data_20172018):
     for j in range(0,nb_indiv_file_to_produce+1):
         indiv_file_nb=int(indiv_trace[12:15])+j
         if (indiv_file_nb<10):
-            fname_toload='Data_'+indiv_trace[0:11]+'_00'+str(indiv_file_nb)+'.mat'
+            fname_toload='Data_'+indiv_trace[0:11]+'_00'+str(indiv_file_nb)+'_qlook.mat'
         elif ((indiv_file_nb>=10) and (indiv_file_nb<100)):
             fname_toload='Data_'+indiv_trace[0:11]+'_0'+str(indiv_file_nb)+'.mat'
         else:
@@ -508,7 +509,7 @@ for indiv_trace in list(data_20172018):
         #Mark the limits of the individual files by black vertical lines
         for index_to_mark in np.cumsum(radar_echo_dimensions):
             slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
-
+    
     #Save the image
     path_save_png='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_check_iceslabs_presence/'
 
