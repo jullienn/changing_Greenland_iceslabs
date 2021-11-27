@@ -51,7 +51,7 @@ folders_year = [ f.name for f in os.scandir(path_data) if f.is_dir() ]
 #Loop over the folder
 for folder in folders_year:
     if (not(folder in list(['2018_Greenland_P3']))):#,'2018_Greenland_P3']))):
-        print('Not 2018, continue')
+        print('Not 2017, continue')
         continue
     else:
         print('This is year ',folder)
