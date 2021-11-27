@@ -11,7 +11,7 @@ Created on Fri Nov 26 20:03:29 2021
 import scipy.io
 import rasterio
 from rasterio.plot import show
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 import numpy as np
 import h5py
 import matplotlib.colors as mcolors
@@ -22,22 +22,12 @@ import pdb
 import pickle
 import os.path
 import os
-
 from pysheds.grid import Grid
-
 import osgeo.ogr as ogr
 import osgeo.osr as osr
-
 from pyproj import Transformer
-
 import matplotlib.gridspec as gridspec
-
-
-plot_radar_echogram_slice='TRUE'
-
-#Compute the speed (Modified Robin speed):
-# self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
-v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+import png
 
 
 ##############################################################################
@@ -52,9 +42,9 @@ def _gaussian(x,mu,sigma):
 def kernel_function(traces_input,suggested_pixel):
     #pdb.set_trace()
     
+    #Compute log10
     traces = traces_input
-    #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
-    #traces = np.log10(traces)
+    traces = np.log10(traces)
     
     # We do not have the original indicies to use as a starter so we use our suggestion for surface picking start
     
@@ -71,7 +61,7 @@ def kernel_function(traces_input,suggested_pixel):
     vertical_span_mask.shape = vertical_span_mask.shape[0], 1
     
     # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
-    MASK_SEARCH_RADIUS = 40
+    MASK_SEARCH_RADIUS = 150
     
     improved_indices = np.zeros(traces.shape[1], dtype='int64')
     #pdb.set_trace()
@@ -416,6 +406,12 @@ def _export_to_8bit_array(array):
 ################### Define function for radargram display ####################
 ##############################################################################
 
+plot_radar_echogram_slice='TRUE'
+
+#Compute the speed (Modified Robin speed):
+# self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+
 #Open, read and close the file of suggested surface picks
 f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/intial_data_selection_20172018.txt','r')
 data_20172018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
@@ -424,10 +420,19 @@ f.close()
 #Define path where data are stored
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
+count=0
+
 #Loop over the dates of the 2017-2018 selection
 for indiv_trace in list(data_20172018):
-    print(indiv_trace)
-    pdb.set_trace()
+    
+    #Set radar_echo_dimensions to empty
+    radar_echo_dimensions=[]
+
+    if (indiv_trace[0:11] == '20170322_04'):
+        print('No data for 20170322_04, continue!')
+        continue
+    
+    print(count/len(list(data_20172018))*100,' %')
     
     #Define the suite of indiv file to open
     nb_indiv_file_to_produce=int(indiv_trace[16:20])-int(indiv_trace[12:15])
@@ -446,9 +451,10 @@ for indiv_trace in list(data_20172018):
 
         #Open the corresponding data
         with h5py.File(path_data_open+fname_toload, 'r') as f:
-            f.keys()
             #Select radar echogram
             radar_echo=f['Data'][:].transpose() #2017 data should be transposed
+            #Save horizontal dimension of radar slice
+            radar_echo_dimensions=np.append(radar_echo_dimensions,radar_echo.shape[1])
             
         #Append data to each other
         if (j==0):
@@ -462,30 +468,54 @@ for indiv_trace in list(data_20172018):
         else:
             radar_echo_suite=np.concatenate((radar_echo_suite,radar_echo),axis=1)
         #time=8373
-    pdb.set_trace()
     
     #Pick the surface
     #We can use the surface from f['Surface'][:], where the resulting is in Time
     #dimension. The time is not perfectly matching, so use where
-    # np.where(surf[0]>Time)[0]
-    ind_starting_pixel=np.where(surface_start[0][0]>time_variable)[1]
+    ind_starting_pixel=np.argmax(time_variable>surface_start[0][0])
     
-    surface_indices=kernel_function(radar_echo, starting_pixel)
-                    
+    #Identify the surface indices
+    surface_indices=kernel_function(radar_echo_suite, ind_starting_pixel)
+    
+    #Compute the depths
+    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+    depths = v * time_variable / 2.0
+    
     #I.d. Select the radar slice
-    #Define the uppermost and lowermost limits
-    meters_cutoff_above=0
-    meters_cutoff_below=30
-
     #Get our slice (30 meters as currently set)
-    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
-                                                    depths,
-                                                    surface_indices,
-                                                    meters_cutoff_above=meters_cutoff_above,
-                                                            meters_cutoff_below=meters_cutoff_below)
-    #Select the first 30m
-    
+    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo_suite,
+                                                                    depths,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=0,
+                                                                    meters_cutoff_below=30)
+    #Convert radar slice into log10
+    radar_slice=np.log10(radar_slice)
+
     #Plot and save the figure
+    '''
+    fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
+    ax1.set_title(indiv_trace)
+    ax1.imshow(radar_slice,cmap='gray')
+    plt.show()
+    '''
+    slice_to_export=_export_to_8bit_array(radar_slice)
+        
+    #If radar_echo_dimensions larger than 1, introduce marker to differentiate between
+    #the individual files
+    if (len(radar_echo_dimensions)>1):
+        #Get rid of the last index in radar_echo_dimensions
+        radar_echo_dimensions=radar_echo_dimensions[:-1]
+        #Mark the limits of the individual files by black vertical lines
+        for index_to_mark in np.cumsum(radar_echo_dimensions):
+            slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
+
+    #Save the image
+    path_save_png='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_check_iceslabs_presence/'
+
+    png_to_save=png.from_array(slice_to_export, mode='L')
+    png_to_save.save(path_save_png+indiv_trace+'_raw_slice.png')
+    
+    count=count+1
 '''
                 #Plot the data
                 
