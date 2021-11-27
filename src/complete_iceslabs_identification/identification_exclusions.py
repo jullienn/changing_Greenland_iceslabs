@@ -425,6 +425,9 @@ count=0
 #Loop over the dates of the 2017-2018 selection
 for indiv_trace in list(data_20172018):
     
+    if (not(indiv_trace=='20170510_02_033_034')):
+        continue
+    
     #Set radar_echo_dimensions to empty
     radar_echo_dimensions=[]
     
@@ -465,6 +468,8 @@ for indiv_trace in list(data_20172018):
             radar_echo_suite=np.concatenate((radar_echo_suite,radar_echo),axis=1)
         #time=8373
     
+    pdb.set_trace()
+    
     #Pick the surface
     #We can use the surface from f['Surface'][:], where the resulting is in Time
     #dimension. The time is not perfectly matching, so use where
@@ -486,12 +491,16 @@ for indiv_trace in list(data_20172018):
                                                                     meters_cutoff_below=30)
     #Convert radar slice into log10
     radar_slice=np.log10(radar_slice)
-
+    
+    #Where inf in radar slice, replace by nan
+    radar_slice[np.isinf(radar_slice)]=np.nan
+    
     #Plot and save the figure
     '''
     fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
     ax1.set_title(indiv_trace)
-    ax1.imshow(radar_slice,cmap='gray')
+    ax1.imshow(np.log10(radar_echo_suite),cmap='gray')
+    ax1.plot(np.arange(0,len(surface_start),1),surface_start)
     plt.show()
     '''
     slice_to_export=_export_to_8bit_array(radar_slice)
@@ -510,7 +519,7 @@ for indiv_trace in list(data_20172018):
 
     png_to_save=png.from_array(slice_to_export, mode='L')
     png_to_save.save(path_save_png+indiv_trace+'_raw_slice.png')
-    
+    pdb.set_trace()
     count=count+1
 '''
                 #Plot the data
