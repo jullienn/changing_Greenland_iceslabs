@@ -425,6 +425,9 @@ count=0
 #Loop over the dates of the 2017-2018 selection
 for indiv_trace in list(data_20172018):
     
+    if (indiv_trace[0:11]=='20170322_04'):
+        continue
+    
     #Set radar_echo_dimensions to empty
     radar_echo_dimensions=[]
     
@@ -501,9 +504,7 @@ for indiv_trace in list(data_20172018):
         #Mark the limits of the individual files by black vertical lines
         for index_to_mark in np.cumsum(radar_echo_dimensions):
             slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
-    
-    pdb.set_trace()
-    
+        
     #Plot the figure
     fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
     ax1.set_title(indiv_trace)
@@ -515,12 +516,13 @@ for indiv_trace in list(data_20172018):
     figManager.window.showMaximized()
     plt.show()
     
+    pdb.set_trace()
+
     #Save the image
     path_save_png='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_check_iceslabs_presence/'
 
     png_to_save=png.from_array(slice_to_export, mode='L')
     png_to_save.save(path_save_png+indiv_trace+'_raw_slice.png')
-    pdb.set_trace()
     count=count+1
 '''
                 #Plot the data
