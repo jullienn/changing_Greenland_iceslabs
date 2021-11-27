@@ -464,9 +464,7 @@ for indiv_trace in list(data_20172018):
         else:
             radar_echo_suite=np.concatenate((radar_echo_suite,radar_echo),axis=1)
         #time=8373
-    
-    pdb.set_trace()
-    
+        
     #Pick the surface
     #We can use the surface from f['Surface'][:], where the resulting is in Time
     #dimension. The time is not perfectly matching, so use where
@@ -503,7 +501,6 @@ for indiv_trace in list(data_20172018):
         #Mark the limits of the individual files by black vertical lines
         for index_to_mark in np.cumsum(radar_echo_dimensions):
             slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
-            radar_slice[:,int(index_to_mark)]=np.ones(radar_slice.shape[0])*0
     
     pdb.set_trace()
     
@@ -511,6 +508,11 @@ for indiv_trace in list(data_20172018):
     fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
     ax1.set_title(indiv_trace)
     ax1.imshow(radar_slice,cmap='gray')
+    ax1.vlines(np.cumsum(radar_echo_dimensions), 0, radar_slice.shape[0])
+    ax1.set_aspect(4)
+    
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
     plt.show()
     
     #Save the image
