@@ -427,11 +427,6 @@ for indiv_trace in list(data_20172018):
     
     #Set radar_echo_dimensions to empty
     radar_echo_dimensions=[]
-
-    if (indiv_trace[0:11] == '20170322_04'):
-        print('No data for 20170322_04, continue!')
-        pdb.set_trace()
-        continue
     
     print(count/len(list(data_20172018))*100,' %')
     
@@ -444,7 +439,7 @@ for indiv_trace in list(data_20172018):
     for j in range(0,nb_indiv_file_to_produce+1):
         indiv_file_nb=int(indiv_trace[12:15])+j
         if (indiv_file_nb<10):
-            fname_toload='Data_'+indiv_trace[0:11]+'_00'+str(indiv_file_nb)+'_qlook.mat'
+            fname_toload='Data_'+indiv_trace[0:11]+'_00'+str(indiv_file_nb)+'.mat'
         elif ((indiv_file_nb>=10) and (indiv_file_nb<100)):
             fname_toload='Data_'+indiv_trace[0:11]+'_0'+str(indiv_file_nb)+'.mat'
         else:
