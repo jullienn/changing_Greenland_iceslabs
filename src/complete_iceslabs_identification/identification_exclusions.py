@@ -522,6 +522,12 @@ for indiv_trace in list(data_20172018):
 
     png_to_save=png.from_array(slice_to_export, mode='L')
     png_to_save.save(path_save_png+indiv_trace+'_raw_slice.png')
+    
+    
+    
+    
+    
+    
     count=count+1
 '''
                 #Plot the data
