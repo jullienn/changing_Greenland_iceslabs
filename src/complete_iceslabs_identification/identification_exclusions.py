@@ -413,7 +413,7 @@ plot_radar_echogram_slice='TRUE'
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 #Open, read and close the file of suggested surface picks
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/intial_data_selection_20172018.txt','r')
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/Exclusions_new_data_selection_20172018.txt','r')
 data_20172018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
@@ -424,9 +424,6 @@ count=0
 
 #Loop over the dates of the 2017-2018 selection
 for indiv_trace in list(data_20172018):
-    
-    if (not(indiv_trace=='20170510_02_033_034')):
-        continue
     
     #Set radar_echo_dimensions to empty
     radar_echo_dimensions=[]
@@ -495,14 +492,7 @@ for indiv_trace in list(data_20172018):
     #Where inf in radar slice, replace by nan
     radar_slice[np.isinf(radar_slice)]=np.nan
     
-    #Plot and save the figure
-    '''
-    fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
-    ax1.set_title(indiv_trace)
-    ax1.imshow(np.log10(radar_echo_suite),cmap='gray')
-    ax1.plot(np.arange(0,len(surface_start),1),surface_start)
-    plt.show()
-    '''
+    #To export slice
     slice_to_export=_export_to_8bit_array(radar_slice)
         
     #If radar_echo_dimensions larger than 1, introduce marker to differentiate between
@@ -513,6 +503,15 @@ for indiv_trace in list(data_20172018):
         #Mark the limits of the individual files by black vertical lines
         for index_to_mark in np.cumsum(radar_echo_dimensions):
             slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
+            radar_slice[:,int(index_to_mark)]=np.ones(radar_slice.shape[0])*0
+    
+    pdb.set_trace()
+    
+    #Plot the figure
+    fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
+    ax1.set_title(indiv_trace)
+    ax1.imshow(radar_slice,cmap='gray')
+    plt.show()
     
     #Save the image
     path_save_png='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_check_iceslabs_presence/'
