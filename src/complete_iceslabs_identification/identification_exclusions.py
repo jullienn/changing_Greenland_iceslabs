@@ -425,12 +425,9 @@ count=0
 #Loop over the dates of the 2017-2018 selection
 for indiv_trace in list(data_20172018):
     
-    if (indiv_trace[0:11]=='20170322_04'):
-        continue
-    
     #Set radar_echo_dimensions to empty
     radar_echo_dimensions=[]
-    
+
     print(count/len(list(data_20172018))*100,' %')
     
     #Define the suite of indiv file to open
@@ -467,7 +464,8 @@ for indiv_trace in list(data_20172018):
         else:
             radar_echo_suite=np.concatenate((radar_echo_suite,radar_echo),axis=1)
         #time=8373
-        
+     
+    #pdb.set_trace()
     #Pick the surface
     #We can use the surface from f['Surface'][:], where the resulting is in Time
     #dimension. The time is not perfectly matching, so use where
@@ -504,7 +502,8 @@ for indiv_trace in list(data_20172018):
         #Mark the limits of the individual files by black vertical lines
         for index_to_mark in np.cumsum(radar_echo_dimensions):
             slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
-        
+    
+    '''
     #Plot the figure
     fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
     ax1.set_title(indiv_trace)
@@ -515,7 +514,7 @@ for indiv_trace in list(data_20172018):
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
     plt.show()
-    
+    '''
     pdb.set_trace()
 
     #Save the image
