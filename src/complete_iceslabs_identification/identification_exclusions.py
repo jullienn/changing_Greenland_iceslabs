@@ -250,7 +250,7 @@ import matplotlib.gridspec as gridspec
 import png
 
 obvious_identification='FALSE'
-identification_after_roll_correction='TRUE'
+identification_after_depth_correction='TRUE'
 
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
@@ -352,7 +352,7 @@ if (obvious_identification=='TRUE'):
             for index_to_mark in np.cumsum(radar_echo_dimensions):
                 slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
         
-        
+        '''
         #Plot the figure
         fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
         ax1.set_title(indiv_trace)
@@ -363,7 +363,7 @@ if (obvious_identification=='TRUE'):
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
         plt.show()
-        
+        '''
         pdb.set_trace()
     
         #Save the image
@@ -374,25 +374,24 @@ if (obvious_identification=='TRUE'):
         
         count=count+1
 
-if (identification_after_roll_correction == 'TRUE'):
-    pdb.set_trace()
+if (identification_after_depth_correction == 'TRUE'):
     count=0
     
-    #Define path of roll corrected
-    path_roll_corrected=path_data+'exported/Roll_Corrected_Picklefiles/'
+    #Define path of depth corrected
+    path_depth_corrected=path_data+'exported/Depth_Corrected_Picklefiles/'
     
     #Loop over the dates of the 2017-2018 selection
     for indiv_trace in list(data_20172018):
-            
+        #Let's work with depth corrected
         print(count/len(list(data_20172018))*100,' %')
         
-        #Define filename roll corrected
-        filename_roll_corrected=indiv_trace+'_ROLL_CORRECTED.pickle'
+        #Define filename depth corrected
+        filename_depth_corrected=indiv_trace+'_DEPTH_CORRECTED.pickle'
         
-        #Open roll corrected pickles files
-        f_roll_corrected = open(path_roll_corrected+filename_roll_corrected, "rb")
-        roll_corrected_file = pickle.load(f_roll_corrected)
-        f_roll_corrected.close()
+        #Open depth corrected pickles files
+        f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+        depth_corrected_file = pickle.load(f_depth_corrected)
+        f_depth_corrected.close()
         
         #Select the first 30m of the slice:
         
@@ -407,12 +406,12 @@ if (identification_after_roll_correction == 'TRUE'):
         
         #Identify index where time > 30 m
         ind_lower_30m=np.where(depths<30)[0]
-        roll_corrected_30m=roll_corrected_file[ind_lower_30m,:]
+        depth_corrected_30m=depth_corrected_file[ind_lower_30m,:]
 
         #Plot roll corrected pickle files
         fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
         ax1.set_title(indiv_trace+' - first 30m')
-        ax1.imshow(roll_corrected_30m,cmap='gray')
+        ax1.imshow(depth_corrected_30m,cmap='gray')
         ax1.set_aspect(4)
         
         figManager = plt.get_current_fig_manager()
