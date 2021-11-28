@@ -6,33 +6,6 @@ Created on Fri Nov 26 20:03:29 2021
 """
 #This code is inspired from 'display_raw_2010_2014.py
 
-#Import packages
-
-import scipy.io
-import rasterio
-from rasterio.plot import show
-import matplotlib.pyplot as plt
-import numpy as np
-import h5py
-import matplotlib.colors as mcolors
-import pandas as pd
-from os import listdir
-from os.path import isfile, join
-import pdb
-import pickle
-import os.path
-import os
-from pysheds.grid import Grid
-import osgeo.ogr as ogr
-import osgeo.osr as osr
-from pyproj import Transformer
-import matplotlib.gridspec as gridspec
-import png
-
-
-##############################################################################
-############# Define kernel function for surface identification ##############
-##############################################################################
 #_gaussian function taken from IceBridgeGPR_Manager_v2.py
 # Define a quick guassian function to scale the cutoff mask above
 def _gaussian(x,mu,sigma):
@@ -100,13 +73,7 @@ def kernel_function(traces_input,suggested_pixel):
     
     #pdb.set_trace()
     return improved_indices
-##############################################################################
-############# Define kernel function for surface identification ##############
-##############################################################################
 
-##############################################################################
-################## Define functions for radar slice picking ##################
-##############################################################################
 def _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths):
     #pdb.set_trace()
 
@@ -151,7 +118,6 @@ def _return_radar_slice_given_surface(traces,
             output_traces[:,i] = traces[start:end, i]
             bottom_indices[0,i]=end
     return output_traces, bottom_indices
-
 
 
 def _get_rid_of_false_surface_jumps(surface_indices):
@@ -230,149 +196,7 @@ def _get_rid_of_false_surface_jumps(surface_indices):
         jumps = improved_surface[1:] - improved_surface[:-1]
         continue
     return improved_surface
-##############################################################################
-################## Define functions for radar slice picking ##################
-##############################################################################
 
-##############################################################################
-############# Define function for depth correction of the traces #############
-##############################################################################
-#Function taken from IceBridgeGPR_Manager_v2.py
-
-def perform_depth_correction(traces_all,depths_all,surface_indices,trace_name,export, max_depth_m = 100):
-    
-    #We perform the depth correction over the first 100m below the surface, so
-    #select the 100m slice before
-    
-    #Get our slice (100 meters for depth correction)
-    traces, bottom_indices_100m = _return_radar_slice_given_surface(traces_all,
-                                                                    depths_all,
-                                                                    surface_indices,
-                                                                    meters_cutoff_above=0,
-                                                                    meters_cutoff_below=100)
-    
-    #Create an array for the depths ranging from 0 to 100m
-    depths=depths_all[np.arange(0,(np.where(np.round(depths_all)==100)[-1][-1]+1))]
-    
-    # Use array broadcasting here.
-    #pdb.set_trace()
-    depths_expanded = np.zeros(traces.shape, dtype=depths.dtype)
-    # Use array broadcasting to copy the depths into all the trace values
-    depths.shape = depths.shape[0],1
-    depths_expanded[:] = depths
-    depths.shape = depths.shape[0]
-
-    assert traces.shape == depths_expanded.shape
-    #pdb.set_trace()
-    # 1) Get the exponential curve fit
-    def exfunc(y,A,B,C):
-        return A * np.exp(B * y) + C
-
-    popt, pcov = scipy.optimize.curve_fit(exfunc, depths_expanded.flatten(), traces.flatten(),
-                                          bounds=((-np.inf, -np.inf, -np.inf),
-                                                  ( np.inf,0,0)),
-                                          max_nfev=1000000)
-
-    A,B,C = popt
-    print(popt)
-
-    # Correct the traces and normalize them.
-    # Original function is Z = A * e^(By) + C
-    # Inverse function to normalize AND get rid of heteroscedasticitiy is 0 = ((Z - C)/A * e^(-By) - 1.0) * e^(By)
-    traces_norm = ((traces - C) / A * np.exp(-B * depths_expanded) - 1.0) * np.exp(B * depths_expanded)
-    # Then divide by the standard deviation of the traces to have them normalized for variance
-    # All traces  for all tracks will have a MEAN of zero and a STDDEV of 1
-    traces_norm = traces_norm / (np.std(traces_norm))
-
-    if (export=='TRUE'):
-        ###################################################
-        ## Depth-correction and normalization PLOT
-        ###################################################
-        # We don't need to plot all the traces, just a subset (100,000 will do)
-        if traces.size > 100000:
-            # Subset to only plot 100000 (?) of the points
-            gap = int(traces.size / 100000)
-            traces_subset = traces.flatten()[::gap]
-            # Contract the variability of the points to have ~ the same variability as the original points, for display only
-            norm_subset = (traces_norm.flatten()/4.0)[::gap]
-            depths_subset = depths_expanded.flatten()[::gap]
-        else:
-            traces_subset = traces.flatten()
-            norm_subset = (traces_norm/4.0).flatten()
-            depths_subset = depths_expanded.flatten()
-
-        curve_fit_y = exfunc(depths, *popt)
-        # 2) Make a plot, save it.
-        fig = pyplot.figure(figsize=(5,3))
-        # Plot the corrected points below, in pink/red
-        pyplot.plot(depths_subset, norm_subset, "o", ms=1, color="salmon", fillstyle="full", mec="salmon")
-        pyplot.axhline(y=0,color="red",ls="--",label="corrected")
-
-        # Plot the original points atop, in blue
-        pyplot.plot(depths_subset, traces_subset, "o", ms=1, color="lightblue", fillstyle="full", mec="lightblue")
-        pyplot.plot(depths, curve_fit_y, color="blue",label="uncorrected")
-
-        ax = fig.axes[0]
-
-        equation_string = "$\Omega(y) = {0:0.3f} ".format(A) + "\cdot e^{" + "{0:0.5f}\cdot y".format(B) + "}" + "{0:0.3f}$".format(C)
-        pyplot.text(0.04,0.10,equation_string,
-                 horizontalalignment="left",
-                 verticalalignment="center",
-                 transform=ax.transAxes)
-
-        # Plot legend
-        handles, labels = ax.get_legend_handles_labels()
-        # Even thought we plotted the corrected first, put the uncorrected first in the legend
-        handles = handles[::-1]
-        labels = labels[::-1]
-        ax.legend(handles, labels, loc="upper right", fontsize="x-small", markerscale=0.70)
-
-        # Title and axis labels
-        pyplot.title(trace_name)
-        pyplot.xlabel("Depth $y$ (m)")
-        pyplot.ylabel("GPR $\Omega$ (dB)")
-
-        # Begin: Added on September 16, 2020 to fit MacFerrins' figures
-        #ax.set_xlim(0,100)
-        #ax.set_ylim(-8,2)
-        # End: Added on September 16, 2020 to fit MacFerrins' figures
-
-        pyplot.tight_layout()
-        figname = os.path.join('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/depth_correction', trace_name + "_DEPTH_CURVE_PLOT.png")
-        pyplot.savefig(figname, dpi=600)
-        print("Exported", os.path.split(figname)[1])
-        pyplot.cla()
-        pyplot.close()
-
-        #######################################
-        ### Export picklefile
-        #######################################
-        #traces_norm_inflated = self._refill_array(traces_norm, mask)
-        #
-        #f = open(self.FNAME_depth_corrected_picklefile, 'wb')
-        #pickle.dump(traces_norm_inflated, f)
-        #f.close()
-        #print("Exported", os.path.split(self.FNAME_depth_corrected_picklefile)[-1])
-        #
-        ## Save to object
-        #self.TRACES_depth_corrected = traces_norm_inflated
-
-        #######################################
-        ### Export corrected image
-        #######################################
-        #cutoff_30m = depths[(depths <= 30.0)].size
-        #traces_export = traces_norm_inflated[:cutoff_30m, :]
-        #self.export_image(traces_export,"_XDEPTHCORRECT_AFTER")
-
-    # 3) Return depth-correction parameters
-    return traces_norm
-##############################################################################
-############# Define function for depth correction of the traces #############
-##############################################################################
-
-##############################################################################
-################### Define function for radargram display ####################
-##############################################################################
 #Function taken from IceBridgeGPR_Manager_v2.py
 
 def _export_to_8bit_array(array):
@@ -402,9 +226,28 @@ def _export_to_8bit_array(array):
 
     return output_array
 
-##############################################################################
-################### Define function for radargram display ####################
-##############################################################################
+#Import packages
+
+import scipy.io
+import rasterio
+from rasterio.plot import show
+import matplotlib.pyplot as plt
+import numpy as np
+import h5py
+import matplotlib.colors as mcolors
+import pandas as pd
+from os import listdir
+from os.path import isfile, join
+import pdb
+import pickle
+import os.path
+import os
+from pysheds.grid import Grid
+import osgeo.ogr as ogr
+import osgeo.osr as osr
+from pyproj import Transformer
+import matplotlib.gridspec as gridspec
+import png
 
 obvious_identification='FALSE'
 identification_after_roll_correction='TRUE'
@@ -429,8 +272,6 @@ if (obvious_identification=='TRUE'):
     #Loop over the dates of the 2017-2018 selection
     for indiv_trace in list(data_20172018):
         
-        if (not(indiv_trace[0:19]=='20170322_04_003_005')):
-            continue
         #Set radar_echo_dimensions to empty
         radar_echo_dimensions=[]
     
@@ -511,7 +352,7 @@ if (obvious_identification=='TRUE'):
             for index_to_mark in np.cumsum(radar_echo_dimensions):
                 slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
         
-        '''
+        
         #Plot the figure
         fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
         ax1.set_title(indiv_trace)
@@ -522,7 +363,7 @@ if (obvious_identification=='TRUE'):
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
         plt.show()
-        '''
+        
         pdb.set_trace()
     
         #Save the image
@@ -534,146 +375,51 @@ if (obvious_identification=='TRUE'):
         count=count+1
 
 if (identification_after_roll_correction == 'TRUE'):
+    pdb.set_trace()
+    count=0
     
+    #Define path of roll corrected
+    path_roll_corrected=path_data+'exported/Roll_Corrected_Picklefiles/'
     
-'''
-                #Plot the data
-                
-                #Create the subplot
-                pyplot.figure(figsize=(48,40))
-                pyplot.rcParams.update({'font.size': 5})
-                fig, (ax1, ax2) = pyplot.subplots(1, 2)#, gridspec_kw={'width_ratios': [1, 3]})
-    
-                fig.suptitle(str(plot_name1))
-    
-                #Plot the radar slice
-                cb1=ax1.pcolor(np.log10(radar_echo1),cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-                ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
-                ax1.set_aspect('equal') # X scale matches Y scale
-                ax1.set_title('log10(radar echo)')
-                ax1.set_ylabel('Depth [m]')
-                ax1.set_xlabel('Horizontal distance')
-                cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-                cbar1.set_label('Signal strength')
-    
-                ax2.plot(time_echo1)
-                ax2.grid()
-                ax2.set_title('Time')
-                ax2.set_xlabel('1:length(time)')
-                ax2.set_ylabel('Time [s]')
-                
-                fig_name=[]
-                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/investigation_2012_2013_bug/'+folder_year[0:4]+'_example.png'
-                #Save the figure
-                pyplot.savefig(fig_name,dpi=500)
-                pyplot.clf()
-                    
-                #Create the subplot
-                pyplot.figure(figsize=(48,40))
-                pyplot.rcParams.update({'font.size': 5})
-                fig, (ax1, ax2, ax3) = pyplot.subplots(1, 3)#, gridspec_kw={'width_ratios': [1, 3]})
-    
-                fig.suptitle('Time variable')
-                    
-                #Subplot N°1:
-                ax1.plot(time_echo1)
-                ax1.grid()
-                ax1.set_title(str(plot_name1))
-                ax1.set_xlabel('1:length(time)')
-                ax1.set_ylabel('Time [s]')
-                    
-                #Subplot N°2:
-                ax2.plot(time_echo2)
-                ax2.grid()
-                ax2.set_title(str(plot_name2))
-                ax2.set_xlabel('1:length(time)')
-                ax2.set_ylabel('Time [s]')
-    
-                #Subplot N°1:
-                ax3.plot(time_echo3)
-                ax3.grid()
-                ax3.set_title(str(plot_name3))
-                ax3.set_xlabel('1:length(time)')
-                ax3.set_ylabel('Time [s]')
-                
-                fig_name=[]
-                fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/investigation_2012_2013_bug/'+folder_year[0:4]+'_time_example.png'
-                #Save the figure
-                pyplot.savefig(fig_name,dpi=500)
-                pyplot.clf()
-                    
-                pdb.set_trace()
-                break
-                
-                #Select the first 30m of radar echogram
-                #1. Compute the vertical resolution
-                #a. Time computation according to John Paden's email.
-                Nt = radar_echo.shape[0]
-                Time = t0 + dt*np.arange(1,Nt+1)
-                #b. Calculate the depth:
-                #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-                depths = v * Time / 2.0
-                
-                #If plot_radar_echogram_slice is set to 'TRUE', then plot the slice
-                #radar echogram of that date and save it
-                if (plot_radar_echogram_slice=='TRUE'):
-                    
-                    if (indiv_file == 'Data_20100507_01_008.mat'):
-                        suggested_pixel= 1850
-                    
-                    surface_indices=kernel_function(radar_echo, suggested_pixel)
-                    
-                    #I.d. Select the radar slice
-                    #Define the uppermost and lowermost limits
-                    meters_cutoff_above=0
-                    meters_cutoff_below=30
+    #Loop over the dates of the 2017-2018 selection
+    for indiv_trace in list(data_20172018):
+            
+        print(count/len(list(data_20172018))*100,' %')
+        
+        #Define filename roll corrected
+        filename_roll_corrected=indiv_trace+'_ROLL_CORRECTED.pickle'
+        
+        #Open roll corrected pickles files
+        f_roll_corrected = open(path_roll_corrected+filename_roll_corrected, "rb")
+        roll_corrected_file = pickle.load(f_roll_corrected)
+        f_roll_corrected.close()
+        
+        #Select the first 30m of the slice:
+        
+        #Define path data to open time variable
+        path_data_open=path_data+indiv_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+indiv_trace[0:11]+'/'
+        #Open time variable
+        with h5py.File(path_data_open+'Data_'+indiv_trace[0:15]+'.mat', 'r') as f:
+                    #Select time variable
+                    time_variable=f['Time'][:].transpose()        
+        #calculate depth
+        depths = v * time_variable / 2.0
+        
+        #Identify index where time > 30 m
+        ind_lower_30m=np.where(depths<30)[0]
+        roll_corrected_30m=roll_corrected_file[ind_lower_30m,:]
 
-                    #Get our slice (30 meters as currently set)
-                    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
-                                                                    depths,
-                                                                    surface_indices,
-                                                                    meters_cutoff_above=meters_cutoff_above,
-                                                                    meters_cutoff_below=meters_cutoff_below)
-                    
+        #Plot roll corrected pickle files
+        fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
+        ax1.set_title(indiv_trace+' - first 30m')
+        ax1.imshow(roll_corrected_30m,cmap='gray')
+        ax1.set_aspect(4)
+        
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+        plt.show()
+        
+        pdb.set_trace()
+        
 
-                    #2.If not required to go through _export_to_8bit_array as a vector
-                    #radar_slice=_export_to_8bit_array(radar_slice)
-
-                    #Generate the pick for vertical distance display
-                    ticks_yplot=np.arange(0,radar_slice.shape[0],20)
-                    
-                    #I.d. Plot the radar slice (first 30m of radar echogram)
-                    #pdb.set_trace()
-                    #Plot the data            
-                    
-                    fig=pyplot.figure(figsize=(40,10))
-                    
-                    #Change label font
-                    pyplot.rcParams.update({'font.size': 20})
-                    
-                    color_map=pyplot.pcolor(radar_slice,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
-                    pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
-                    pyplot.gca().invert_yaxis() #Imvert the y axis = avoid using flipud.
-                    pyplot.gca().set_aspect('equal') # X scale matches Y scale
-                    pyplot.ylabel('Depth [m]')
-                    pyplot.xlabel('Horizontal distance')
-                    #pyplot.clim(lowerb_plot,upperb_plot)
-                    #pyplot.yticks(ticks=ticks_yplot,labels=labels_yplot)
-                    #pyplot.xticks(fontsize=20)
-                    #pyplot.yticks(fontsize=20)
-                    #pyplot.ylim(0, 200)
-                    pyplot.title('Radar echogram slice: Data_20100507_01_008_010')
-
-                    #cbar=pyplot.colorbar()
-                    #cbar.set_label('Signal strength')
-
-                    pyplot.show()
-                    pdb.set_trace()
-                    
-                    continue
-                    
-    else:
-        print('Folder',folder_year,', continue ...')
-        continue
-    
-'''
+        
