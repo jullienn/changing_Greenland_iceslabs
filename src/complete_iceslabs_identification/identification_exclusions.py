@@ -406,7 +406,8 @@ def _export_to_8bit_array(array):
 ################### Define function for radargram display ####################
 ##############################################################################
 
-plot_radar_echogram_slice='TRUE'
+obvious_identification='FALSE'
+identification_after_roll_correction='TRUE'
 
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
@@ -420,116 +421,121 @@ f.close()
 #Define path where data are stored
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
-count=0
-suggested_surface_pixel=[]
-
-#Loop over the dates of the 2017-2018 selection
-for indiv_trace in list(data_20172018):
+if (obvious_identification=='TRUE'):
     
-    if (not(indiv_trace[0:19]=='20170322_04_003_005')):
-        continue
-    #Set radar_echo_dimensions to empty
-    radar_echo_dimensions=[]
-
-    print(count/len(list(data_20172018))*100,' %')
+    count=0
+    suggested_surface_pixel=[]
     
-    #Define the suite of indiv file to open
-    nb_indiv_file_to_produce=int(indiv_trace[16:20])-int(indiv_trace[12:15])
+    #Loop over the dates of the 2017-2018 selection
+    for indiv_trace in list(data_20172018):
+        
+        if (not(indiv_trace[0:19]=='20170322_04_003_005')):
+            continue
+        #Set radar_echo_dimensions to empty
+        radar_echo_dimensions=[]
     
-    #Define path data to open
-    path_data_open=path_data+indiv_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+indiv_trace[0:11]+'/'
+        print(count/len(list(data_20172018))*100,' %')
+        
+        #Define the suite of indiv file to open
+        nb_indiv_file_to_produce=int(indiv_trace[16:20])-int(indiv_trace[12:15])
+        
+        #Define path data to open
+        path_data_open=path_data+indiv_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+indiv_trace[0:11]+'/'
+        
+        for j in range(0,nb_indiv_file_to_produce+1):
+            indiv_file_nb=int(indiv_trace[12:15])+j
+            if (indiv_file_nb<10):
+                fname_toload='Data_'+indiv_trace[0:11]+'_00'+str(indiv_file_nb)+'.mat'
+            elif ((indiv_file_nb>=10) and (indiv_file_nb<100)):
+                fname_toload='Data_'+indiv_trace[0:11]+'_0'+str(indiv_file_nb)+'.mat'
+            else:
+                fname_toload='Data_'+indiv_trace[0:11]+'_'+str(indiv_file_nb)+'.mat'
     
-    for j in range(0,nb_indiv_file_to_produce+1):
-        indiv_file_nb=int(indiv_trace[12:15])+j
-        if (indiv_file_nb<10):
-            fname_toload='Data_'+indiv_trace[0:11]+'_00'+str(indiv_file_nb)+'.mat'
-        elif ((indiv_file_nb>=10) and (indiv_file_nb<100)):
-            fname_toload='Data_'+indiv_trace[0:11]+'_0'+str(indiv_file_nb)+'.mat'
-        else:
-            fname_toload='Data_'+indiv_trace[0:11]+'_'+str(indiv_file_nb)+'.mat'
-
-        #Open the corresponding data
-        with h5py.File(path_data_open+fname_toload, 'r') as f:
-            #Select radar echogram
-            radar_echo=f['Data'][:].transpose() #2017 data should be transposed
-            #Save horizontal dimension of radar slice
-            radar_echo_dimensions=np.append(radar_echo_dimensions,radar_echo.shape[1])
-            
-        #Append data to each other
-        if (j==0):
-            #Initialize the appended radar echogram
-            radar_echo_suite=radar_echo
-            #Retrieve the start of surface identification
+            #Open the corresponding data
             with h5py.File(path_data_open+fname_toload, 'r') as f:
                 #Select radar echogram
-                surface_start=f['Surface'][:]
-                time_variable=f['Time'][:].transpose()
-        else:
-            radar_echo_suite=np.concatenate((radar_echo_suite,radar_echo),axis=1)
-        #time=8373
-     
-    #Pick the surface
-    #We can use the surface from f['Surface'][:], where the resulting is in Time
-    #dimension. The time is not perfectly matching, so use where
-    ind_starting_pixel=np.argmax(time_variable>surface_start[0][0])
-    
-    #Save surf pick for SURFACE_STARTING_PICKS_Suggestions.txt file
-    suggested_surface_pixel=np.append(suggested_surface_pixel,ind_starting_pixel)
-    
-    #Identify the surface indices
-    surface_indices=kernel_function(radar_echo_suite, ind_starting_pixel)
-    
-    #Compute the depths
-    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
-    depths = v * time_variable / 2.0
-    
-    #I.d. Select the radar slice
-    #Get our slice (30 meters as currently set)
-    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo_suite,
-                                                                    depths,
-                                                                    surface_indices,
-                                                                    meters_cutoff_above=0,
-                                                                    meters_cutoff_below=30)
-    #Convert radar slice into log10
-    radar_slice=np.log10(radar_slice)
-    
-    #Where inf in radar slice, replace by nan
-    radar_slice[np.isinf(radar_slice)]=np.nan
-    
-    #To export slice
-    slice_to_export=_export_to_8bit_array(radar_slice)
+                radar_echo=f['Data'][:].transpose() #2017 data should be transposed
+                #Save horizontal dimension of radar slice
+                radar_echo_dimensions=np.append(radar_echo_dimensions,radar_echo.shape[1])
+                
+            #Append data to each other
+            if (j==0):
+                #Initialize the appended radar echogram
+                radar_echo_suite=radar_echo
+                #Retrieve the start of surface identification
+                with h5py.File(path_data_open+fname_toload, 'r') as f:
+                    #Select radar echogram
+                    surface_start=f['Surface'][:]
+                    time_variable=f['Time'][:].transpose()
+            else:
+                radar_echo_suite=np.concatenate((radar_echo_suite,radar_echo),axis=1)
+            #time=8373
+         
+        #Pick the surface
+        #We can use the surface from f['Surface'][:], where the resulting is in Time
+        #dimension. The time is not perfectly matching, so use where
+        ind_starting_pixel=np.argmax(time_variable>surface_start[0][0])
         
-    #If radar_echo_dimensions larger than 1, introduce marker to differentiate between
-    #the individual files
-    if (len(radar_echo_dimensions)>1):
-        #Get rid of the last index in radar_echo_dimensions
-        radar_echo_dimensions=radar_echo_dimensions[:-1]
-        #Mark the limits of the individual files by black vertical lines
-        for index_to_mark in np.cumsum(radar_echo_dimensions):
-            slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
+        #Save surf pick for SURFACE_STARTING_PICKS_Suggestions.txt file
+        suggested_surface_pixel=np.append(suggested_surface_pixel,ind_starting_pixel)
+        
+        #Identify the surface indices
+        surface_indices=kernel_function(radar_echo_suite, ind_starting_pixel)
+        
+        #Compute the depths
+        #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+        depths = v * time_variable / 2.0
+        
+        #I.d. Select the radar slice
+        #Get our slice (30 meters as currently set)
+        radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo_suite,
+                                                                        depths,
+                                                                        surface_indices,
+                                                                        meters_cutoff_above=0,
+                                                                        meters_cutoff_below=30)
+        #Convert radar slice into log10
+        radar_slice=np.log10(radar_slice)
+        
+        #Where inf in radar slice, replace by nan
+        radar_slice[np.isinf(radar_slice)]=np.nan
+        
+        #To export slice
+        slice_to_export=_export_to_8bit_array(radar_slice)
+            
+        #If radar_echo_dimensions larger than 1, introduce marker to differentiate between
+        #the individual files
+        if (len(radar_echo_dimensions)>1):
+            #Get rid of the last index in radar_echo_dimensions
+            radar_echo_dimensions=radar_echo_dimensions[:-1]
+            #Mark the limits of the individual files by black vertical lines
+            for index_to_mark in np.cumsum(radar_echo_dimensions):
+                slice_to_export[:,int(index_to_mark)]=np.ones(slice_to_export.shape[0])*0
+        
+        '''
+        #Plot the figure
+        fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
+        ax1.set_title(indiv_trace)
+        ax1.imshow(radar_slice,cmap='gray')
+        ax1.vlines(np.cumsum(radar_echo_dimensions), 0, radar_slice.shape[0])
+        ax1.set_aspect(4)
+        
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+        plt.show()
+        '''
+        pdb.set_trace()
     
-    '''
-    #Plot the figure
-    fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
-    ax1.set_title(indiv_trace)
-    ax1.imshow(radar_slice,cmap='gray')
-    ax1.vlines(np.cumsum(radar_echo_dimensions), 0, radar_slice.shape[0])
-    ax1.set_aspect(4)
+        #Save the image
+        path_save_png='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_check_iceslabs_presence/'
     
-    figManager = plt.get_current_fig_manager()
-    figManager.window.showMaximized()
-    plt.show()
-    '''
-    pdb.set_trace()
+        png_to_save=png.from_array(slice_to_export, mode='L')
+        png_to_save.save(path_save_png+indiv_trace+'_raw_slice.png')
+        
+        count=count+1
 
-    #Save the image
-    path_save_png='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_check_iceslabs_presence/'
-
-    png_to_save=png.from_array(slice_to_export, mode='L')
-    png_to_save.save(path_save_png+indiv_trace+'_raw_slice.png')
+if (identification_after_roll_correction == 'TRUE'):
     
-    count=count+1
-
+    
 '''
                 #Plot the data
                 
