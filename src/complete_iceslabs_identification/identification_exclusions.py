@@ -249,8 +249,8 @@ from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import png
 
-obvious_identification='FALSE'
-identification_after_depth_correction='TRUE'
+obvious_identification='TRUE'
+identification_after_depth_correction=''
 
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
@@ -272,6 +272,11 @@ if (obvious_identification=='TRUE'):
     #Loop over the dates of the 2017-2018 selection
     for indiv_trace in list(data_20172018):
         
+        if (not(indiv_trace)=='20180430_01_139_144'):
+            continue
+        else:
+            pdb.set_trace()
+            
         #Set radar_echo_dimensions to empty
         radar_echo_dimensions=[]
     
@@ -379,6 +384,7 @@ if (identification_after_depth_correction == 'TRUE'):
     
     #Define path of depth corrected
     path_depth_corrected=path_data+'exported/Depth_Corrected_Picklefiles/'
+    path_boolean=path_data+'exported/Boolean Array Picklefiles/'
     
     #Loop over the dates of the 2017-2018 selection
     for indiv_trace in list(data_20172018):
@@ -392,6 +398,14 @@ if (identification_after_depth_correction == 'TRUE'):
         f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
         depth_corrected_file = pickle.load(f_depth_corrected)
         f_depth_corrected.close()
+        
+        
+        #Define the boolean filename
+        filename_boolean=indiv_trace+'_SG1_CUTOFF_-0.45_THRESHOLD_000.pickle'
+        #Open boolean pickles files
+        f_boolean = open(path_boolean+filename_boolean, "rb")
+        boolean_file = pickle.load(f_boolean)
+        f_boolean.close()
         
         #Select the first 30m of the slice:
         
@@ -409,15 +423,17 @@ if (identification_after_depth_correction == 'TRUE'):
         depth_corrected_30m=depth_corrected_file[ind_lower_30m,:]
 
         #Plot roll corrected pickle files
-        fig, (ax1) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
+        fig, (ax1,ax2) = plt.subplots(2,1)#, gridspec_kw={'width_ratios': [1, 3]})
         ax1.set_title(indiv_trace+' - first 30m')
         ax1.imshow(depth_corrected_30m,cmap='gray')
         ax1.set_aspect(4)
         
+        ax2.imshow(boolean_file,cmap='gray_r')
+        ax2.set_aspect(4)
+        
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
         plt.show()
-        
         pdb.set_trace()
         
 
