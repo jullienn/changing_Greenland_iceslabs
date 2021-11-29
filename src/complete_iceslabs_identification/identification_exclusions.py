@@ -389,6 +389,10 @@ if (identification_after_depth_correction == 'TRUE'):
     #Loop over the dates of the 2017-2018 selection
     for indiv_trace in list(data_20172018):
         
+        if (indiv_trace[0:4]=='2017'):
+            print('2017, continue')
+            continue
+        
         #Let's work with depth corrected
         print(count/len(list(data_20172018))*100,' %')
         
