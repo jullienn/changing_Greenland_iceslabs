@@ -257,7 +257,7 @@ identification_after_depth_correction='TRUE'
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 #Open, read and close the file of suggested surface picks
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/new_data_selection_20172018.txt','r')
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/exclusions/datetrack_20172018.txt','r')
 data_20172018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
