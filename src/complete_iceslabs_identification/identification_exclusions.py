@@ -444,5 +444,64 @@ if (identification_after_depth_correction == 'TRUE'):
         plt.show()
         pdb.set_trace()
         
+#Generate exclusion files according to logboog of exclusions
+path_excel='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/'
+excel_exclusions=pd.read_csv(path_excel+'logbook_2017_2018_data_processing.csv',sep=';',skiprows=1)
 
-        
+
+#Extract datetrack
+datetrack_to_export=excel_exclusions['datetrack_tobeprocessed']
+#Get rid of dates that have been deleted
+datetrack_to_export=datetrack_to_export[~datetrack_to_export.isnull()]
+#Save the exclusion file
+filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/exclusions/datetrack_20172018.txt'
+f_log = open(filename_flog, "a")
+for i in range(0,len(datetrack_to_export)):
+    f_log.write(str(datetrack_to_export.iloc[i])+'\n')
+f_log.close()
+
+
+#Extract obvisous exclusions dataframe
+obvious_exclusions_to_export=excel_exclusions[['datetrack_tobeprocessed','Obvious_exclusions']]
+#Get rid of dates that have been deleted
+obvious_exclusions_to_export=obvious_exclusions_to_export[~obvious_exclusions_to_export['datetrack_tobeprocessed'].isnull()]
+#Replace NaNs by empty
+obvious_exclusions_to_export = obvious_exclusions_to_export.replace(np.nan, '', regex=True)
+#Save the exclusion file
+filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/exclusions/obvious_exclusions_20172018.txt'
+f_log = open(filename_flog, "a")
+for i in range(0,len(obvious_exclusions_to_export['datetrack_tobeprocessed'])):
+    f_log.write(str(obvious_exclusions_to_export['datetrack_tobeprocessed'].iloc[i])+' '+str(obvious_exclusions_to_export['Obvious_exclusions'].iloc[i])+'\n')
+f_log.close()
+
+
+#Extract Deletion_ablation_zone
+ablation_zone_exclusions_to_export=excel_exclusions[['datetrack_tobeprocessed','Deletion_ablation_zone']]
+#Get rid of dates that have been deleted
+ablation_zone_exclusions_to_export=ablation_zone_exclusions_to_export[~ablation_zone_exclusions_to_export['datetrack_tobeprocessed'].isnull()]
+#Replace NaNs by empty
+ablation_zone_exclusions_to_export = ablation_zone_exclusions_to_export.replace(np.nan, '', regex=True)
+#Save the exclusion file
+filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/exclusions/ablation_zone_exclusions_20172018.txt'
+f_log = open(filename_flog, "a")
+for i in range(0,len(ablation_zone_exclusions_to_export['datetrack_tobeprocessed'])):
+    f_log.write(str(ablation_zone_exclusions_to_export['datetrack_tobeprocessed'].iloc[i])+' '+str(ablation_zone_exclusions_to_export['Deletion_ablation_zone'].iloc[i])+'\n')
+f_log.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
