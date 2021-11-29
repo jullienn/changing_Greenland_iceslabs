@@ -249,8 +249,8 @@ from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import png
 
-obvious_identification='TRUE'
-identification_after_depth_correction=''
+obvious_identification='FALSE'
+identification_after_depth_correction='TRUE'
 
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
@@ -388,6 +388,7 @@ if (identification_after_depth_correction == 'TRUE'):
     
     #Loop over the dates of the 2017-2018 selection
     for indiv_trace in list(data_20172018):
+        
         #Let's work with depth corrected
         print(count/len(list(data_20172018))*100,' %')
         
@@ -418,10 +419,13 @@ if (identification_after_depth_correction == 'TRUE'):
         #calculate depth
         depths = v * time_variable / 2.0
         
+        #Reset depths to 0
+        depths=depths-depths[0]
+        
         #Identify index where time > 30 m
         ind_lower_30m=np.where(depths<30)[0]
         depth_corrected_30m=depth_corrected_file[ind_lower_30m,:]
-
+        
         #Plot roll corrected pickle files
         fig, (ax1,ax2) = plt.subplots(2,1)#, gridspec_kw={'width_ratios': [1, 3]})
         ax1.set_title(indiv_trace+' - first 30m')
