@@ -395,7 +395,7 @@ if (identification_after_depth_correction == 'TRUE'):
             print('2017, continue')
             continue
         '''
-        if (count_display<103):
+        if (count_display<140):
             count_display=count_display+1
             continue
         
