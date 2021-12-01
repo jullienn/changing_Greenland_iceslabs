@@ -382,6 +382,7 @@ if (obvious_identification=='TRUE'):
 
 if (identification_after_depth_correction == 'TRUE'):
     count=0
+    count_display=0
     
     #Define path of depth corrected
     path_depth_corrected=path_data+'exported/Depth_Corrected_Picklefiles/'
@@ -394,6 +395,10 @@ if (identification_after_depth_correction == 'TRUE'):
             print('2017, continue')
             continue
         '''
+        if (count_display<103):
+            count_display=count_display+1
+            continue
+        
         #Let's work with depth corrected
         print(count/len(list(data_20172018))*100,' %')
         
