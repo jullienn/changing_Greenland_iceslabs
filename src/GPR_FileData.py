@@ -134,7 +134,7 @@ ICEBRIDGE_EXPORT_FOLDER = os.path.join(ICEBRIDGE_DATA_FOLDER, "exported")
 
 
 # TODO: Fix Folder Names
-ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\jullienn\Documents\working_environment\iceslabs_MacFerrin\data\2018_Greenland_P3\images'
+ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\jullienn\Documents\working_environment\iceslabs_MacFerrin\data\2017_Greenland_P3\images'
 #ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER = r'C:\Users\Nicolas Jullien\Documents\PhD\iceslabs_processing\iceslabs_MacFerrin\data\2017_Greenland_P3\images'
 
 # TODO: Fix Folder Names
@@ -151,7 +151,7 @@ ICEBRIDGE_EXCLUSIONS_16M = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\EXCLUSI
 ICEBRIDGE_EXCLUSIONS_DRY_FIRN = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\dry_firn_removal.txt")
 ICEBRIDGE_EXCLUSIONS_OBVIOUS = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\obvious_exclusions.txt")
 ICEBRIDGE_EXCLUSIONS_ABLATION = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\exclusions_ablation_zone.txt")
-ICEBRIDGE_EXCLUSIONS_FAIL_ROLL = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\fail_roll_correction_exclusions.txt")
+ICEBRIDGE_EXCLUSIONS_FAIL_ROLL = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\exclusions_fail_roll_correction.txt")
 ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "\Sample Depths_Picklefiles")
 ICEBRIDGE_ROLL_CORRECTED_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "Roll_Corrected_Picklefiles")
 ICEBRIDGE_ROLL_CORRECTION_OUTPUT_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\ROLL_CORRECTION_PARAMETERS.csv")
@@ -159,5 +159,5 @@ ICEBRIDGE_DEPTH_CORRECTED_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLD
 ICEBRIDGE_DEPTH_CORRECTION_OUTPUT_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\DEPTH_CORRECTION_PARAMETERS.csv")
 ICEBRIDGE_VALIDATION_OUTPUT_CSV_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\Validation_Outputs.csv")
 ICEBRIDGE_BOOLEAN_RESULTS_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "Boolean Array Picklefiles")
-ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE = os.path.join(ICEBRIDGE_EXPORT_FOLDER,"txt\Ice_Layer_Output_Thicknesses_2018.csv")
+ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE = os.path.join(ICEBRIDGE_EXPORT_FOLDER,"txt\Ice_Layer_Output_Thicknesses_2017.csv")
 ICEBRIDGE_SMOOTHED_ICE_LAYER_SHAPEFILE = os.path.join(ICEBRIDGE_EXPORT_FOLDER,"txt\IceBridge_out.shp")
