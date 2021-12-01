@@ -492,6 +492,12 @@ list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20130423_01
 count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:   
+    pdb.set_trace()
+    
+    #We want to process only 2017
+    if (not(indiv_trace[0][0:4]=='2017')):
+        print(indiv_trace[0],' not 2017, continue')
+        continue
     
     #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
@@ -655,7 +661,10 @@ for indiv_trace in datetrack_toread:
     #5. Ice slabs processing with custom threshold
     #6. Create picklefile of iceslabs
     #7. Create excel files of summary data.
-    
+
+pdb.set_trace()
+#Stop here for 2017-2017 exclusion of dry firn
+
 ##############################################################################
 ################# Perform rescaling for date who have failed #################
 ##############################################################################
