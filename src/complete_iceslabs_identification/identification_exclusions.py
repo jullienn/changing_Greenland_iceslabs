@@ -253,18 +253,6 @@ obvious_identification='FALSE'
 identification_after_depth_correction='FALSE'
 generate_exclusion_files='TRUE'
 
-#Compute the speed (Modified Robin speed):
-# self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
-v= 299792458 / (1.0 + (0.734*0.873/1000.0))
-
-#Open, read and close the file of suggested surface picks
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/exclusions/datetrack_20172018.txt','r')
-data_20172018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
-f.close()
-
-#Define path where data are stored
-path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-
 if (generate_exclusion_files=='TRUE'):
         
     #Generate exclusion files according to logboog of exclusions
@@ -324,6 +312,19 @@ if (generate_exclusion_files=='TRUE'):
     for i in range(0,len(fail_roll_correction_to_export['datetrack_tobeprocessed'])):
         f_log.write(str(fail_roll_correction_to_export['datetrack_tobeprocessed'].iloc[i])+' '+str(fail_roll_correction_to_export['Exclusions_1st_run'].iloc[i])+'\n')
     f_log.close()
+
+
+#Compute the speed (Modified Robin speed):
+# self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+
+#Open, read and close the file of suggested surface picks
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/exclusions/datetrack_20172018.txt','r')
+data_20172018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+f.close()
+
+#Define path where data are stored
+path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
 
 if (obvious_identification=='TRUE'):
