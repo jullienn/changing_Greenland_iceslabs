@@ -96,11 +96,9 @@ if (generate_probability_iceslabs_files=='TRUE'):
     #II. Loop over these datetracks, and perform probability calculation:
     for indiv_trace in datetrack_toread:
         
-        pdb.set_trace()
-    
         #We want to process only 2017
-        if (not(indiv_trace[0][0:4]=='2017')):
-            print(indiv_trace[0],' not 2017, continue')
+        if (not(indiv_trace[0][0:4]=='2018')):
+            print(indiv_trace[0],' not 2018, continue')
             continue    
         
         #If pickle files have already been created, do not process and continue

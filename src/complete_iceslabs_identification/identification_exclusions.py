@@ -248,10 +248,12 @@ import osgeo.osr as osr
 from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import png
+import glob
 
 obvious_identification='FALSE'
 identification_after_depth_correction='FALSE'
-generate_exclusion_files='TRUE'
+generate_exclusion_files='FALSE'
+identification_dry_firn_exclusions='TRUE'
 
 if (generate_exclusion_files=='TRUE'):
         
@@ -512,10 +514,97 @@ if (identification_after_depth_correction == 'TRUE'):
         plt.show()
         pdb.set_trace()
         
+if (identification_dry_firn_exclusions == 'TRUE'):
+    count=0
+    count_display=0
+    
+    #Define path of depth corrected
+    path_depth_corrected=path_data+'exported/Depth_Corrected_Picklefiles/'
+    path_probability='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_iceslabs_probability/pickles/'
+    path_probability_old='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/figures_iceslabs_probability/old_version/pickles/'
+
+    #Loop over the dates of the 2017-2018 selection
+    for indiv_trace in list(data_20172018):
+        '''
+        if (indiv_trace[0:4]=='2017'):
+            print('2017, continue')
+            continue
+        '''
+        
+        if (count_display<74):
+            count_display=count_display+1
+            continue
+        
+        #Let's work with depth corrected
+        print(count/len(list(data_20172018))*100,' %')
+        
+        #Define filename depth corrected
+        filename_depth_corrected=indiv_trace+'_DEPTH_CORRECTED.pickle'
+        
+        #Open depth corrected pickles files
+        f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+        depth_corrected_file = pickle.load(f_depth_corrected)
+        f_depth_corrected.close()
+        
+        
+        #Define the probability filename
+        filename_probability=indiv_trace+'_probability_iceslabs_presence.pickle'
+        #Open probability pickles files
+        f_probability = open(path_probability+filename_probability, "rb")
+        probability_file = pickle.load(f_probability)
+        f_probability.close()
+
+        #Define the old probability filename
+        filename_probability_old=indiv_trace+'_probability_iceslabs_presence.pickle'
+        
+        #Check if old probability file exist            
+        if (len(glob.glob(path_probability_old+filename_probability_old))>0):
+            #Open old probability pickles files
+            f_probability_old = open(path_probability_old+filename_probability_old, "rb")
+            probability_old_file = pickle.load(f_probability_old)
+            f_probability_old.close()
+        
+        #Select the first 30m of the slice:
+        
+        #Define path data to open time variable
+        path_data_open=path_data+indiv_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+indiv_trace[0:11]+'/'
+        #Open time variable
+        with h5py.File(path_data_open+'Data_'+indiv_trace[0:15]+'.mat', 'r') as f:
+                    #Select time variable
+                    time_variable=f['Time'][:].transpose()        
+        #calculate depth
+        depths = v * time_variable / 2.0
+        
+        #Reset depths to 0
+        depths=depths-depths[0]
+        
+        #Identify index where time > 30 m
+        ind_lower_30m=np.where(depths<30)[0]
+        depth_corrected_30m=depth_corrected_file[ind_lower_30m,:]
+        
+        #Plot roll corrected pickle files
+        fig, (ax1,ax2,ax3) = plt.subplots(3,1)#, gridspec_kw={'width_ratios': [1, 3]})
+        ax1.set_title(indiv_trace+' - depth corrected 30m')
+        ax1.imshow(depth_corrected_30m,cmap='gray')
+        ax1.set_aspect(4)
+        
+        ax2.set_title(indiv_trace+' - probability')
+        ax2.imshow(probability_file,cmap='gray_r')
+        ax2.set_aspect(4)
+        
+        if (len(glob.glob(path_probability_old+filename_probability_old))>0):
+            ax3.set_title(indiv_trace+' - OLD probability')
+            ax3.imshow(probability_old_file,cmap='gray_r')
+            ax3.set_aspect(4)
+        
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+        plt.show()
+        pdb.set_trace()
+        
 
 
-
-
+        count=count+1
 
 
 
