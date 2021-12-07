@@ -252,8 +252,8 @@ import glob
 
 obvious_identification='FALSE'
 identification_after_depth_correction='FALSE'
-identification_dry_firn_exclusions='TRUE'
-generate_exclusion_files='FALSE'
+identification_dry_firn_exclusions='FALSE'
+generate_exclusion_files='TRUE'
 
 if (generate_exclusion_files=='TRUE'):
         
@@ -545,7 +545,7 @@ if (identification_dry_firn_exclusions == 'TRUE'):
             continue
         '''
         
-        if (count_display<74):
+        if (count_display<118):
             count_display=count_display+1
             continue
         
