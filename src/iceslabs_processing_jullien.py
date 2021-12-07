@@ -495,8 +495,8 @@ count_time=0
 for indiv_trace in datetrack_toread:
         
     #We want to process only 2017
-    if (not(indiv_trace[0][0:4]=='2018')):
-        print(indiv_trace[0],' not 2018, continue')
+    if (not(indiv_trace[0][0:4]=='2017')):
+        print(indiv_trace[0],' not 2017, continue')
         continue
     
     #pdb.set_trace()
@@ -663,7 +663,7 @@ for indiv_trace in datetrack_toread:
     #7. Create excel files of summary data.
 
 print('End 2018 processing')
-pdb.set_trace()
+
 #Stop here for 2017-2017 exclusion of dry firn
 
 ##############################################################################
@@ -724,6 +724,11 @@ print('Perform rescaling')
 
 for indiv_file in list_trace_failed:
     #pdb.set_trace()
+    
+    #We want to process only 2017
+    if (not(indiv_file[0:4]=='2017')):
+        print(indiv_file,' not 2017, continue')
+        continue
     
     #Define filename
     filename_depth_corrected=indiv_file+'_Depth_Corrected_surf_removal.pickle'
