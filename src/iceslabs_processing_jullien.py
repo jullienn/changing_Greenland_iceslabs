@@ -662,7 +662,7 @@ for indiv_trace in datetrack_toread:
     #6. Create picklefile of iceslabs
     #7. Create excel files of summary data.
 
-print('End 2018 processing')
+print('End of 2017-2018 processing')
 
 #Stop here for 2017-2017 exclusion of dry firn
 
