@@ -252,8 +252,8 @@ import glob
 
 obvious_identification='FALSE'
 identification_after_depth_correction='FALSE'
-generate_exclusion_files='FALSE'
 identification_dry_firn_exclusions='TRUE'
+generate_exclusion_files='FALSE'
 
 if (generate_exclusion_files=='TRUE'):
         
@@ -313,6 +313,20 @@ if (generate_exclusion_files=='TRUE'):
     f_log = open(filename_flog, "a")
     for i in range(0,len(fail_roll_correction_to_export['datetrack_tobeprocessed'])):
         f_log.write(str(fail_roll_correction_to_export['datetrack_tobeprocessed'].iloc[i])+' '+str(fail_roll_correction_to_export['Exclusions_1st_run'].iloc[i])+'\n')
+    f_log.close()
+    
+    
+    #Extract dry_firn_and_other_exclusions
+    fail_dry_firn_to_export=excel_exclusions[['datetrack_tobeprocessed','dry_firn_and_other_exclusions']]
+    #Get rid of dates that have been deleted
+    fail_dry_firn_to_export=fail_dry_firn_to_export[~fail_dry_firn_to_export['datetrack_tobeprocessed'].isnull()]
+    #Replace NaNs by empty
+    fail_dry_firn_to_export = fail_dry_firn_to_export.replace(np.nan, '', regex=True)
+    #Save the exclusion file
+    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/exclusions/dry_firn_and_other_exclusions_20172018.txt'
+    f_log = open(filename_flog, "a")
+    for i in range(0,len(fail_dry_firn_to_export['datetrack_tobeprocessed'])):
+        f_log.write(str(fail_dry_firn_to_export['datetrack_tobeprocessed'].iloc[i])+' '+str(fail_dry_firn_to_export['dry_firn_and_other_exclusions'].iloc[i])+'\n')
     f_log.close()
 
 
