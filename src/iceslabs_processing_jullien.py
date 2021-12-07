@@ -494,9 +494,9 @@ count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:
         
-    #We want to process only 2017
-    if (not(indiv_trace[0][0:4]=='2017')):
-        print(indiv_trace[0],' not 2017, continue')
+    #We want to process only 2017 and 2018
+    if (not(indiv_trace[0][0:4] in list(['2017','2018']))):
+        print(indiv_trace[0],' not 2017 nor 2018, continue')
         continue
     
     #pdb.set_trace()
@@ -725,9 +725,9 @@ print('Perform rescaling')
 for indiv_file in list_trace_failed:
     #pdb.set_trace()
     
-    #We want to process only 2017
-    if (not(indiv_file[0:4]=='2017')):
-        print(indiv_file,' not 2017, continue')
+    #We want to process only 2017 and 2018
+    if (not(indiv_file[0:4] in list(['2017','2018']))):
+        print(indiv_file,' not 2017 nor 2018, continue')
         continue
     
     #Define filename
