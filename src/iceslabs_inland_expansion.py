@@ -96,6 +96,57 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
     figManager.window.showMaximized()
     
     plt.show()
+    
+
+def plot_fig1(df_all,flightlines_20022003,flightlines_20102018):
+
+    #Set the divnorm for elevation plotting
+    divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
+    
+    #prepare the figure
+    fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    fig.suptitle('')
+    #Display DEM
+    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+    cbar1.set_label('Elevation [m]')
+    
+    #Display 2010-2018 flightlines
+    plt.scatter(flightlines_20102018['lon_3413'],flightlines_20102018['lat_3413'],s=0.1,color='#bdbdbd',label='2002-2003')
+
+    #Display 2002-2003 flightlines
+    plt.scatter(flightlines_20022003['lon_3413'],flightlines_20022003['lat_3413'],s=0.1,color='#737373',label='2002-2003')
+
+    #Display 2010-2018 iceslabs
+    plt.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#3690c0',label='2010-2014')
+    plt.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=0.1,color='#3690c0')
+    plt.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=0.1,color='#3690c0')
+    plt.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=0.1,color='#3690c0')
+    plt.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=0.1,color='#3690c0')
+    plt.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=0.1,color='#a6bddb',label='2017-2018')
+    plt.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=0.1,color='#a6bddb')
+    
+    #Display 2002-2003 iceslabs
+    plt.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=0.1,color='#0570b0',label='2002-2003')
+    
+    '''
+    ax1.set_xlim(-240000,-65000)
+    ax1.set_ylim(-2650000,-2250000)
+    '''
+    '''
+    #Allows to open plot in full size directly
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+    '''
+    plt.legend()
+    
+    #Save the figure
+    plt.savefig('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/figures/fig1.png',dpi=2000)
+    plt.close(fig)
+
+
+
+
 
 #Import packages
 import rasterio
@@ -116,8 +167,9 @@ from osgeo import gdal
 import geopandas as gpd  # Requires the pyshp package
 
 from matplotlib.colors import ListedColormap, BoundaryNorm
+from shapely.geometry import Point, Polygon
 
-create_elevation_dictionaries='TRUE'
+create_elevation_dictionaries='FALSE'
 #pdb.set_trace()
 
 ########################## Load GrIS elevation ##########################
@@ -338,7 +390,6 @@ if (create_elevation_dictionaries == 'TRUE'):
     plt.show()
 
     # compare min and max of lat/lon of the track with respect to shapefile
-    from shapely.geometry import Point, Polygon
     
     #Store lat/lon 3413
     df_20102018['lat_3413']=lat_3413_20102018
@@ -799,8 +850,6 @@ for region in list(df_2010_2018['key_shp'].unique()):
 
 #Plot the inland expansion as a graph
 
-pdb.set_trace()
-
 #Display the keys
 fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs inland progression')
@@ -847,7 +896,7 @@ plt.show()
 #######################################################################
 ###          Inland expansion of iceslabs from 2002 to 2018         ###
 #######################################################################
-pdb.set_trace()
+
 #######################################################################
 ###  Violin plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################
@@ -1097,7 +1146,6 @@ for i in range(1,len(lat_slices)):
     #Update count_lat
     count_lat=count_lat+1
 ### ------------------------------ 2010-2018 ----------------------------- ###
-pdb.set_trace()
 
 fig, (ax1,ax2) = plt.subplots(1,2)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs inland progression')
@@ -1139,27 +1187,132 @@ ax1.step(slice_summary[:,4]-slice_summary[:,2],lat_slices,label='2017-2018 minus
 ax1.step(slice_summary[:,4]-slice_summary[:,3],lat_slices,label='2017-2018 minus 2013-2014',color='#7a0177')
 plt.show()
 
+#Display Fig.1
+
+#Load 2002-2003 flightlines
+################# Load 2002-2003 flightlines coordinates ################
+path_20022003_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
+
+#Open the file and read it
+f_flightlines = open(path_20022003_flightlines+'/metadata_coord_2002_2003', "rb")
+all_2002_3_flightlines = pickle.load(f_flightlines)
+f_flightlines.close()
+
+#Define empty datasets
+lat_all=[]
+lon_all=[]
+
+for year in list(all_2002_3_flightlines.keys()):
+    for days in list(all_2002_3_flightlines[year].keys()):
+        for indiv_file in list(all_2002_3_flightlines[year][days].keys()):
+            if (indiv_file[0:7]=='quality'):
+                continue
+            else:
+                print(indiv_file)
+                lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
+                lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
+
+#Create a dataframe with 2002-2003 flightlines
+flightlines_20022003=pd.DataFrame(lat_all,columns=['lat_3413'])
+flightlines_20022003['lon_3413']=lon_all
+
+################# Load 2002-2003 flightlines coordinates ################
+check_belonging_GrIS = 'TRUE'
+
+if (check_belonging_GrIS == 'TRUE'):
+    #Load 2010-2018 flightlines
+    path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
+    
+    #flightlines_2010=pd.read_csv(path_flightlines+'2010_Greenland_P3.csv',decimal='.',sep=',')
+    flightlines_2011=pd.read_csv(path_flightlines+'2011_Greenland_P3.csv',decimal='.',sep=',')
+    flightlines_2012=pd.read_csv(path_flightlines+'2012_Greenland_P3.csv',decimal='.',sep=',')
+    flightlines_2013=pd.read_csv(path_flightlines+'2013_Greenland_P3.csv',decimal='.',sep=',')
+    flightlines_2014=pd.read_csv(path_flightlines+'2014_Greenland_P3.csv',decimal='.',sep=',')
+    flightlines_2017=pd.read_csv(path_flightlines+'2017_Greenland_P3.csv',decimal='.',sep=',')
+    flightlines_2018=pd.read_csv(path_flightlines+'2018_Greenland_P3.csv',decimal='.',sep=',')
+    
+    #Append all the flightlines together
+    flightlines_20102018=flightlines_2011
+    #all_flightlines=all_flightlines.append(flightlines_2011)
+    flightlines_20102018=flightlines_20102018.append(flightlines_2012)
+    flightlines_20102018=flightlines_20102018.append(flightlines_2013)
+    flightlines_20102018=flightlines_20102018.append(flightlines_2014)
+    flightlines_20102018=flightlines_20102018.append(flightlines_2017)
+    flightlines_20102018=flightlines_20102018.append(flightlines_2018)
+    
+    #Transform the coordinated from WGS84 to EPSG:3413
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.asarray(flightlines_20102018["LON"]),np.asarray(flightlines_20102018["LAT"]))
+    
+    #Store lat/lon in 3413
+    flightlines_20102018['lon_3413']=points[0]
+    flightlines_20102018['lat_3413']=points[1]
+    
+    '''
+    #Clip data to Rignot wt al., 2018 GrIS mask. If do not belong to, to not consider
+    #Load Rignot et al., 2016 Greenland drainage bassins
+    path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
+    GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
+    GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
+
+    #Create empty dataframe
+    flightlines_20102018_GrIS=pd.DataFrame()
+        
+    count=0
+    for i in range(0,len(flightlines_20102018)):
+        print(count/len(flightlines_20102018)*100,' %')
+    
+        #select the point i
+        single_point=Point(flightlines_20102018.iloc[i]['LON'],flightlines_20102018.iloc[i]['LAT'])
+        
+        #Do the identification between the point i and the regional shapefiles
+        #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
+        check_GrIS=np.asarray(GrIS_mask.contains(single_point)).astype(int)
+        
+        #The point belongs to the GrIS, keep it
+        if (np.sum(check_GrIS)>0):
+            flightlines_20102018_GrIS[i]=flightlines_20102018[i]
+        
+        count=count+1
+        
+    #Save the generated file! Do that with 2002-2003 also?
+    path_save='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
+    flightlines_20102018_GrIS.to_csv(path_save+'flightlines_20102018_GrIS.csv')
+    
+    
+    pdb.set_trace()
+    '''
+else:
+    #Load the data
+    print('Data loaded')
+    
+#15h20-16h05
+#16h32-17h55
+
+#8h35-
+
+pdb.set_trace()
+
+plot_fig1(df_all,flightlines_20022003,flightlines_20102018)
+
+'''
+#Todo:
+    1. Create 2010 flightlines
+    1. Run and create GrIS 2010-2018 flightlines
+    2. Change corresponding in code to load this new restricted datatset
+    3. Code to create shapefile around low end and high end probability ice slabs
+'''
+
+
 
 #Boxplot of max elevation per lat slice for each region for different time periods
 #Loop over dict_lat_slices_summary
-
 
 #######################################################################
 ###     Barplot of maximum elevation of ice slabs per time period   ###
 #######################################################################
 #Barplot per regions for each elevation slice
-pdb.set_trace()
-
-
-
-
-
-
-
-#######################################################################
-###     Barplot of maximum elevation of ice slabs per time period   ###
-#######################################################################
-fig, (ax1,ax2) = plt.subplots(2,2)
+fig, (ax1) = plt.subplots()
 ax1.bar(lat_slices,slice_lon_summary[:,4],width=10000,label='2017-2018')
 ax1.bar(lat_slices,slice_lon_summary[:,3],width=10000,label='2013-2014')
 ax1.bar(lat_slices,slice_lon_summary[:,2],width=10000,label='2012-2010')
@@ -1167,6 +1320,14 @@ ax1.bar(lat_slices,slice_lon_summary[:,1],width=10000,label='2010')
 ax1.bar(lat_slices,slice_lon_summary[:,0],width=10000,label='2002-2003')
 plt.legend()
 plt.show()
+#######################################################################
+###     Barplot of maximum elevation of ice slabs per time period   ###
+#######################################################################
+
+fig, (ax1) = plt.subplots()
+ax1.bar(lat_slices,slice_lon_summary[:,4],width=10000)
+plt.show()
+
 #######################################################################
 ###       Thickening analysis using spatially aggregated files      ###
 #######################################################################   
