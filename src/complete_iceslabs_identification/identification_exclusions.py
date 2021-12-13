@@ -252,8 +252,8 @@ import glob
 
 obvious_identification='FALSE'
 identification_after_depth_correction='FALSE'
-identification_dry_firn_exclusions='FALSE'
-generate_exclusion_files='TRUE'
+identification_dry_firn_exclusions='TRUE'
+generate_exclusion_files='FALSE'
 
 if (generate_exclusion_files=='TRUE'):
         
@@ -539,13 +539,13 @@ if (identification_dry_firn_exclusions == 'TRUE'):
 
     #Loop over the dates of the 2017-2018 selection
     for indiv_trace in list(data_20172018):
+        
         '''
         if (indiv_trace[0:4]=='2017'):
             print('2017, continue')
             continue
         '''
-        
-        if (count_display<118):
+        if (count_display<18):
             count_display=count_display+1
             continue
         

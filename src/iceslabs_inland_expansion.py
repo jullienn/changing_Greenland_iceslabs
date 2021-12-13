@@ -1195,6 +1195,11 @@ plt.show()
 #16h32-17h55
 
 #8h35-12h05
+#13h20-
+
+#What I have done:
+    #1. Code extract 2010_flightlines.py to generate the file of flightlines for 2010 data. Code lauched, running ...
+    #2. Code aggregate_20022018_flightlines.py where I aggregate all the flightlines from 2002-2003 to 2010-2018 together that belong to the GrIS mask fropm Rignot et al., 2016. An excel file is the output.
 
 pdb.set_trace()
 

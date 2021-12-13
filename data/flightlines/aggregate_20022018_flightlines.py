@@ -91,8 +91,6 @@ path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_
 GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
 GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
 
-pdb.set_trace()
-
 #Create empty dataframe
 flightlines_20022018_GrIS=pd.DataFrame(columns=list(flightlines_20022018.keys()))
     
