@@ -37,7 +37,6 @@ for year in list(all_2002_3_flightlines.keys()):
                 lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
                 lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
 
-pdb.set_trace()
 #Create a dataframe with 2002-2003 flightlines
 flightlines_20022003=pd.DataFrame(lat_all,columns=['lat_3413'])
 flightlines_20022003['lon_3413']=lon_all
@@ -55,7 +54,7 @@ flightlines_20022003['LAT']=points[1]
 #path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
 path_flightlines='/flash/jullienn/flightlines/data/'
 
-#flightlines_2010=pd.read_csv(path_flightlines+'2010_Greenland_P3.csv',decimal='.',sep=',')
+flightlines_2010=pd.read_csv(path_flightlines+'2010_Greenland_P3.csv',decimal='.',sep=',')
 flightlines_2011=pd.read_csv(path_flightlines+'2011_Greenland_P3.csv',decimal='.',sep=',')
 flightlines_2012=pd.read_csv(path_flightlines+'2012_Greenland_P3.csv',decimal='.',sep=',')
 flightlines_2013=pd.read_csv(path_flightlines+'2013_Greenland_P3.csv',decimal='.',sep=',')
@@ -64,9 +63,8 @@ flightlines_2017=pd.read_csv(path_flightlines+'2017_Greenland_P3.csv',decimal='.
 flightlines_2018=pd.read_csv(path_flightlines+'2018_Greenland_P3.csv',decimal='.',sep=',')
 
 #Append all the flightlines together
-#flightlines_20102018=flightlines_2010
-flightlines_20102018=flightlines_2011
-#flightlines_20102018=flightlines_20102018.append(flightlines_2011)
+flightlines_20102018=flightlines_2010
+flightlines_20102018=flightlines_20102018.append(flightlines_2011)
 flightlines_20102018=flightlines_20102018.append(flightlines_2012)
 flightlines_20102018=flightlines_20102018.append(flightlines_2013)
 flightlines_20102018=flightlines_20102018.append(flightlines_2014)
