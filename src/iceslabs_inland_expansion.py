@@ -1195,7 +1195,7 @@ plt.show()
 #16h32-17h55
 
 #8h35-12h05
-#13h20-
+#13h20-19h20
 
 #What I have done:
     #1. Code extract 2010_flightlines.py to generate the file of flightlines for 2010 data. Code lauched, running ...

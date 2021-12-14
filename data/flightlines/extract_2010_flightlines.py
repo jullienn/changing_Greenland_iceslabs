@@ -32,7 +32,8 @@ if (year_to_download=='2010'):
     download_mat='TRUE'
     
     #Load the data that have already been downloaded
-    f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/datetrack_20102018.txt','r')
+    #f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/datetrack_20102018.txt','r')
+    f = open('/flash/jullienn/data/threshold_processing/datetrack_20102018.txt','r')
     lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
     f.close()
         
@@ -110,9 +111,12 @@ if (year_to_download=='2010'):
                 
                 if (download_mat=='TRUE'):
                     #Define the paths
-                    path_data_there='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/' + folder_year + '/' + 'CSARP_qlook/' + folder
-                    path_to_save='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/' + '2010_Greenland_P3_flightlines/' + 'CSARP_qlook/' + folder
-                                        
+                    #path_data_there='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/' + folder_year + '/' + 'CSARP_qlook/' + folder
+                    #path_to_save='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/' + '2010_Greenland_P3_flightlines/' + 'CSARP_qlook/' + folder
+                    
+                    path_data_there='/flash/jullienn/data/threshold_processing/' + folder_year + '/' + 'CSARP_qlook/' + folder
+                    path_to_save='/flash/jullienn/flightlines/data/2010_Greenland_P3_flightlines/' + 'CSARP_qlook/' + folder
+                    
                     #Create the directory to store the data
                     #this is from: https://thispointer.com/how-to-create-a-directory
                     #-in-python/#:~:text=Python%27s%20OS%20module%20provides%20an%20
@@ -154,7 +158,7 @@ if (year_to_download=='2010'):
                             coordinates_2010=coordinates_2010.append(temp_coordinates_2010)
                             
                             #Delete the file
-                            os.remove(path_to_save+'/Data_'+file[5:20]+'.mat')
+                            #os.remove(path_to_save+'/Data_'+file[5:20]+'.mat')
                         
         else:
             print('Not 2010, continue')
@@ -166,6 +170,8 @@ if (year_to_download=='2010'):
     print('Aggregation of 2010 coordinates done for ' + str(diff.seconds) + 's')
 
 #Save the lat/lon dataframe as csv file
-coordinates_2010.to_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/2010_Greenland_P3.csv')
+#coordinates_2010.to_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/2010_Greenland_P3.csv')
+coordinates_2010.to_csv('/flash/jullienn/flightlines/data/2010_Greenland_P3.csv')
+
 print('--- End of processing ---')
 ########################## Download 2010-2014 AR data #########################

@@ -15,10 +15,11 @@ import geopandas as gpd
 from shapely.geometry import Point, Polygon
 
 ################# Load 2002-2003 flightlines coordinates ################
-path_20022003_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
+#path_20022003_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/'
+path_20022003_flightlines='/flash/jullienn/flightlines/data/'
 
 #Open the file and read it
-f_flightlines = open(path_20022003_flightlines+'/metadata_coord_2002_2003', "rb")
+f_flightlines = open(path_20022003_flightlines+'metadata_coord_2002_2003', "rb")
 all_2002_3_flightlines = pickle.load(f_flightlines)
 f_flightlines.close()
 
@@ -51,7 +52,8 @@ flightlines_20022003['LAT']=points[1]
 ################# Load 2002-2003 flightlines coordinates ################
 
 ################# Load 2010-2018 flightlines coordinates ################
-path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
+#path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
+path_flightlines='/flash/jullienn/flightlines/data/'
 
 #flightlines_2010=pd.read_csv(path_flightlines+'2010_Greenland_P3.csv',decimal='.',sep=',')
 flightlines_2011=pd.read_csv(path_flightlines+'2011_Greenland_P3.csv',decimal='.',sep=',')
@@ -87,7 +89,8 @@ flightlines_20022018=flightlines_20022003.append(flightlines_20102018)
 ################# Keep 2002-2018 flightlines only in GrIS ################
 #Clip data to Rignot wt al., 2018 GrIS mask. If do not belong to, to not consider
 #Load Rignot et al., 2016 Greenland drainage bassins
-path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
+#path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
+path_rignotetal2016_GrIS='/flash/jullienn/flightlines/data/GRE_IceSheet_IMBIE2/'
 GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
 GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
 
@@ -113,7 +116,7 @@ for i in range(0,len(flightlines_20022018)):
 ################# Keep 2002-2018 flightlines only in GrIS ################
 
 #Save the generated file!
-path_save='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
+path_save='/flash/jullienn/flightlines/data/'
 flightlines_20022018_GrIS.to_csv(path_save+'flightlines_20022018_GrIS.csv')
 
 
