@@ -98,25 +98,33 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
     plt.show()
     
 
-def plot_fig1(df_all,flightlines_20022003,flightlines_20102018):
-
-    #Set the divnorm for elevation plotting
-    divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
+def plot_fig1(df_all,flightlines_20022018):
+    '''
+    #Open GrIS mask from Rignot et al., 2016
+    path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
+    GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1_EPSG3413.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
+    GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
+    '''
     
     #prepare the figure
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     fig.suptitle('')
-    #Display DEM
-    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
-    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-    cbar1.set_label('Elevation [m]')
     
+    #Display GrIS drainage bassins
+    NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
+    NE_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+    SE_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+    SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+    CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+    NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+    
+    '''
     #Display 2010-2018 flightlines
     plt.scatter(flightlines_20102018['lon_3413'],flightlines_20102018['lat_3413'],s=0.1,color='#bdbdbd',label='2002-2003')
-
-    #Display 2002-2003 flightlines
-    plt.scatter(flightlines_20022003['lon_3413'],flightlines_20022003['lat_3413'],s=0.1,color='#737373',label='2002-2003')
-
+    '''
+    #Display 2002-2018 flightlines
+    plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.1,color='#737373',label='2002-2003')
+    
     #Display 2010-2018 iceslabs
     plt.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#3690c0',label='2010-2014')
     plt.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=0.1,color='#3690c0')
@@ -128,7 +136,158 @@ def plot_fig1(df_all,flightlines_20022003,flightlines_20102018):
     
     #Display 2002-2003 iceslabs
     plt.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=0.1,color='#0570b0',label='2002-2003')
+    plt.show()
     
+    #8h55 + 5min - 9h50 10h55
+    #Panel B
+    
+    #Define panel names
+    labels = ['NE', 'NO', 'NW', 'CW', 'SW']
+    
+    #Stack data for barplot
+    dplot_20022003=[dict_summary['NE']['2002-2003']['max_elev'],dict_summary['NO']['2002-2003']['max_elev'],
+                    dict_summary['NW']['2002-2003']['max_elev'],dict_summary['CW']['2002-2003']['max_elev'],
+                    dict_summary['SW']['2002-2003']['max_elev']]
+    
+    dplot_2010=[dict_summary['NE']['2010']['max_elev'],dict_summary['NO']['2010']['max_elev'],
+                dict_summary['NW']['2010']['max_elev'],dict_summary['CW']['2010']['max_elev'],
+                dict_summary['SW']['2010']['max_elev']]
+    
+    dplot_20112012=[dict_summary['NE']['2011-2012']['max_elev'],dict_summary['NO']['2011-2012']['max_elev'],
+                    dict_summary['NW']['2011-2012']['max_elev'],dict_summary['CW']['2011-2012']['max_elev'],
+                    dict_summary['SW']['2011-2012']['max_elev']]
+    
+    dplot_20132014=[dict_summary['NE']['2013-2014']['max_elev'],dict_summary['NO']['2013-2014']['max_elev'],
+                    dict_summary['NW']['2013-2014']['max_elev'],dict_summary['CW']['2013-2014']['max_elev'],
+                    dict_summary['SW']['2013-2014']['max_elev']]
+    
+    dplot_20172018=[dict_summary['NE']['2017-2018']['max_elev'],dict_summary['NO']['2017-2018']['max_elev'],
+                    dict_summary['NW']['2017-2018']['max_elev'],dict_summary['CW']['2017-2018']['max_elev'],
+                    dict_summary['SW']['2017-2018']['max_elev']]
+    
+    #Stack data for maximum elevation difference calculation
+    max_elev_diff_NE=[dict_summary['NE']['2002-2003']['max_elev'],dict_summary['NE']['2010']['max_elev'],
+                      dict_summary['NE']['2011-2012']['max_elev'],dict_summary['NE']['2013-2014']['max_elev'],
+                      dict_summary['NE']['2017-2018']['max_elev']]
+    
+    max_elev_diff_NO=[dict_summary['NO']['2002-2003']['max_elev'],dict_summary['NO']['2010']['max_elev'],
+                      dict_summary['NO']['2011-2012']['max_elev'],dict_summary['NO']['2013-2014']['max_elev'],
+                      dict_summary['NO']['2017-2018']['max_elev']]
+    
+    max_elev_diff_NW=[dict_summary['NW']['2002-2003']['max_elev'],dict_summary['NW']['2010']['max_elev'],
+                      dict_summary['NW']['2011-2012']['max_elev'],dict_summary['NW']['2013-2014']['max_elev'],
+                      dict_summary['NW']['2017-2018']['max_elev']]
+    
+    max_elev_diff_CW=[dict_summary['CW']['2002-2003']['max_elev'],dict_summary['CW']['2010']['max_elev'],
+                      dict_summary['CW']['2011-2012']['max_elev'],dict_summary['CW']['2013-2014']['max_elev'],
+                      dict_summary['CW']['2017-2018']['max_elev']]
+    
+    max_elev_diff_SW=[dict_summary['SW']['2002-2003']['max_elev'],dict_summary['SW']['2010']['max_elev'],
+                      dict_summary['SW']['2011-2012']['max_elev'],dict_summary['SW']['2013-2014']['max_elev'],
+                      dict_summary['SW']['2017-2018']['max_elev']]
+
+    #Barplot inspired from https://stackoverflow.com/questions/10369681/how-to-plot-bar-graphs-with-same-x-coordinates-side-by-side-dodged
+    #Arguments for barplot
+    width = 0.1# the width of the bars: can also be len(x) sequence
+    N=5 #Number of regions
+    ind= np.arange(N) #Position of regions
+        
+    fig, ax = plt.subplots()
+    ax.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef')
+    ax.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1')
+    ax.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6')
+    ax.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd')
+    ax.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c')
+    ax.set_xticks(ind + 2*width)
+    ax.set_xticklabels(labels)
+    ax.set_ylim(1000,2000)
+    
+    ax.text(ind[0],np.nanmax(max_elev_diff_NE)+50,str(int(np.round(np.nanmax(max_elev_diff_NE)-np.nanmin(max_elev_diff_NE))))+' m')
+    ax.text(ind[1],np.nanmax(max_elev_diff_NO)+50,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
+    ax.text(ind[2],np.nanmax(max_elev_diff_NW)+50,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
+    ax.text(ind[3],np.nanmax(max_elev_diff_CW)+50,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
+    ax.text(ind[4],np.nanmax(max_elev_diff_SW)+50,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
+    
+    ax.set_ylabel('Elevation [m]')
+    ax.set_title('Maximum iceslabs elevation per region per time period')
+    ax.legend()
+    plt.show()
+    
+    pdb.set_trace()
+        
+    #Panel C
+    
+    #Generate shapefile from iceslabs data. This si from https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
+    #We do 2011-2012
+    from scipy.spatial import ConvexHull
+    
+    df_time_period=df_all[df_all['str_year']=='2011-2012']
+    df_time_period_region=df_time_period[df_time_period['key_shp']=='SW']
+    #Stack lat and lon together
+    points_20112012=np.column_stack((df_time_period_region['lon_3413'],df_time_period_region['lat_3413']))
+    
+    
+    
+    from shapely import geometry
+    from shapely.ops import unary_union
+
+    poly = geometry.Polygon([[p[0], p[1]] for p in points_20112012]) #from https://stackoverflow.com/questions/30457089/how-to-create-a-shapely-polygon-from-a-list-of-shapely-points
+    
+    print(poly.wkt)
+    
+    p = gpd.GeoSeries(poly)
+    p.plot()
+    plt.show()
+
+    plt.plot(*poly.exterior.xy) #from https://stackoverflow.com/questions/55522395/how-do-i-plot-shapely-polygons-and-objects-using-matplotlib
+    
+    hull1 = poly.convex_hull
+    patch1 = PolygonPatch(hull1, alpha=0.5, zorder=2)
+    ax1.add_patch(patch1)
+    
+    from descartes.patch import PolygonPatch
+    hull1 = poly.convex_hull
+    patch1 = PolygonPatch(hull1, alpha=0.5, zorder=2)
+    ax1.add_patch(patch1)
+    
+    
+    #Loop over each region and do the hull for each region of the IS
+    for region in list(np.unique(df_time_period['key_shp'])):
+        
+        if (region == 'Out'):
+            #do not compute, continue
+            continue
+        #Select the corresponding region
+        df_time_period_region=df_time_period[df_time_period['key_shp']==region]
+        #Stack lat and lon together
+        points_20112012=np.column_stack((df_time_period_region['lon_3413'],df_time_period_region['lat_3413']))
+        #Create the hull
+        hull_20112012 = ConvexHull(points_20112012)
+        
+        #plt.plot(points_20112012[:,0], points_20112012[:,1], 'o')
+        for simplex in hull_20112012.simplices:
+            plt.plot(points_20112012[simplex, 0], points_20112012[simplex, 1], 'k-')
+    
+    #We do 2017-2018
+    df_time_period=df_all[df_all['str_year']=='2017-2018']
+    #Loop over each region and do the hull for each region of the IS
+    for region in list(np.unique(df_time_period['key_shp'])):
+        
+        if (region == 'Out'):
+            #do not compute, continue
+            continue
+        #Select the corresponding region
+        df_time_period_region=df_time_period[df_time_period['key_shp']==region]
+        #Stack lat and lon together
+        points_20172018=np.column_stack((df_time_period_region['lon_3413'],df_time_period_region['lat_3413']))
+        #Create the hull
+        hull_20172018 = ConvexHull(points_20172018)
+        
+        #plt.plot(points_20172018[:,0], points_20172018[:,1], 'o')
+        for simplex in hull_20172018.simplices:
+            plt.plot(points_20172018[simplex, 0], points_20172018[simplex, 1], 'r-')
+            
+
     '''
     ax1.set_xlim(-240000,-65000)
     ax1.set_ylim(-2650000,-2250000)
@@ -575,7 +734,7 @@ else:
 
 #1. Create the latitudinal (resp. longitudinal) slices
 ############ Is this grid to change?? This is about 10km width but not even whether north or south!
-lat_slices=np.linspace(-2800000,-1490000,int((np.abs(-2800000)-np.abs(-1490000))/10000))
+lat_slices=np.linspace(-3000000,-1150000,int((np.abs(-3000000)-np.abs(-1150000))/10000))
 lon_slices=np.linspace(-600000,650000,int((np.abs(650000)+np.abs(-600000))/10000))
 
 #2. Select and store all the data belonging to the lon/lat slices in a dictionnary.
@@ -1189,17 +1348,20 @@ plt.show()
 
 #Display Fig.1
 
-#8h35-12h05
-#13h20-19h20
+path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
+flightlines_20022018=pd.read_csv(path_flightlines+'2018_Greenland_P3.csv',decimal='.',sep=',')
 
-#What I have done:
-    #1. Code extract 2010_flightlines.py to generate the file of flightlines for 2010 data. Code lauched, running ...
-    #2. Code aggregate_20022018_flightlines.py where I aggregate all the flightlines from 2002-2003 to 2010-2018 together that belong to the GrIS mask fropm Rignot et al., 2016. An excel file is the output.
+#Transform the coordinates from WGS84 to EPSG:3413
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(flightlines_20022018["LAT"]))
+
+#Store lat/lon in 3413
+flightlines_20022018['lon_3413']=points[0]
+flightlines_20022018['lat_3413']=points[1]
+
+plot_fig1(df_all,flightlines_20022018)
 
 pdb.set_trace()
-
-plot_fig1(df_all,flightlines_20022003,flightlines_20102018)
-
 '''
 #Todo:
     1. Create 2010 flightlines
