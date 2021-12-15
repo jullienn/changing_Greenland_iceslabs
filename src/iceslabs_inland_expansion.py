@@ -212,62 +212,137 @@ def plot_fig1(df_all,flightlines_20022018):
     ax.set_title('Maximum iceslabs elevation per region per time period')
     ax.legend()
     plt.show()
-    
-    pdb.set_trace()
         
     #Panel C
     
+    #prepare the figure
+    figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    figc.suptitle('')
+    
+    #Display GrIS drainage bassins
+    NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+    NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+    
+    #Load convex hull mask over which convex hull must be computed
+    path_convexhull_masks='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/shapefiles/'
+    
+    dictionnaries_convexhullmasks = {k: {} for k in list(['NE','NO','NW','CW','SW'])}
+    dictionnaries_convexhullmasks['NE']={k: {} for k in list(['NE_CH_1','NE_CH_2','NE_CH_3','NE_CH_4'])}
+    dictionnaries_convexhullmasks['NO']={k: {} for k in list(['NO_CH_1','NO_CH_2','NO_CH_3','NO_CH_4','NO_CH_5','NO_CH_6','NO_CH_7'])}
+    dictionnaries_convexhullmasks['NW']={k: {} for k in list(['NW_CH_1','NW_CH_2','NW_CH_3','NW_CH_4','NW_CH_5'])}
+    dictionnaries_convexhullmasks['CW']={k: {} for k in list(['CW_CH_1'])}
+    dictionnaries_convexhullmasks['SW']={k: {} for k in list(['SW_CH_1'])}
+    
+    for indiv_region in dictionnaries_convexhullmasks.keys():
+        for indiv_file in dictionnaries_convexhullmasks[indiv_region].keys():
+            print('convex_hull_'+indiv_file[0:2]+indiv_file[5:8]+'.shp')
+            if (indiv_region == 'CW'):
+                dictionnaries_convexhullmasks[indiv_region][indiv_file]=CW_rignotetal
+            elif (indiv_region == 'SW'):
+                dictionnaries_convexhullmasks[indiv_region][indiv_file]=SW_rignotetal
+            else:
+                dictionnaries_convexhullmasks[indiv_region][indiv_file]=gpd.read_file(path_convexhull_masks+'convex_hull_'+indiv_file[0:2]+indiv_file[5:8]+'.shp')
+    
     #Generate shapefile from iceslabs data. This si from https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
-    #We do 2011-2012
     from scipy.spatial import ConvexHull
-    
-    df_time_period=df_all[df_all['str_year']=='2011-2012']
-    df_time_period_region=df_time_period[df_time_period['key_shp']=='SW']
-    #Stack lat and lon together
-    points_20112012=np.column_stack((df_time_period_region['lon_3413'],df_time_period_region['lat_3413']))
-    
-    
-    
     from shapely import geometry
     from shapely.ops import unary_union
-
-    poly = geometry.Polygon([[p[0], p[1]] for p in points_20112012]) #from https://stackoverflow.com/questions/30457089/how-to-create-a-shapely-polygon-from-a-list-of-shapely-points
-    
-    print(poly.wkt)
-    
-    p = gpd.GeoSeries(poly)
-    p.plot()
-    plt.show()
-
-    plt.plot(*poly.exterior.xy) #from https://stackoverflow.com/questions/55522395/how-do-i-plot-shapely-polygons-and-objects-using-matplotlib
-    
-    hull1 = poly.convex_hull
-    patch1 = PolygonPatch(hull1, alpha=0.5, zorder=2)
-    ax1.add_patch(patch1)
-    
     from descartes.patch import PolygonPatch
-    hull1 = poly.convex_hull
-    patch1 = PolygonPatch(hull1, alpha=0.5, zorder=2)
-    ax1.add_patch(patch1)
-    
-    
-    #Loop over each region and do the hull for each region of the IS
-    for region in list(np.unique(df_time_period['key_shp'])):
         
-        if (region == 'Out'):
-            #do not compute, continue
-            continue
-        #Select the corresponding region
-        df_time_period_region=df_time_period[df_time_period['key_shp']==region]
-        #Stack lat and lon together
-        points_20112012=np.column_stack((df_time_period_region['lon_3413'],df_time_period_region['lat_3413']))
-        #Create the hull
-        hull_20112012 = ConvexHull(points_20112012)
-        
-        #plt.plot(points_20112012[:,0], points_20112012[:,1], 'o')
-        for simplex in hull_20112012.simplices:
-            plt.plot(points_20112012[simplex, 0], points_20112012[simplex, 1], 'k-')
+    #Prepare for convex hull intersection
+    df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
+    df_all['coords'] = df_all['coords'].apply(Point)
     
+    #Set summary_area
+    summary_area={k: {} for k in list(['2011-2012','2017-2018'])}
+    
+    #Loop over time period
+    for time_period in list(['2011-2012','2017-2018']):
+        print(time_period)
+        #Set color for plotting
+        if (time_period == '2017-2018'):
+            col_year='#fc9272'
+            set_alpha=0.5
+        elif(time_period == '2011-2012'):
+            col_year='#cb181d'
+            set_alpha=1
+        else:
+            print('Time period not known')
+            break
+        
+        #Select data of the corresponding time period
+        df_time_period=df_all[df_all['str_year']==time_period]
+        
+        #Set summary_area
+        summary_area[time_period]={k: {} for k in list(['NE','NO','NW','CW','SW'])}
+    
+        #Loop over each region and do the hull for each region of the IS
+        for region in list(np.unique(df_time_period['key_shp'])):
+            print('   ',region)
+            #Select the corresponding region
+            df_time_period_region=df_time_period[df_time_period['key_shp']==region]
+            #Select point coordinates
+            points = gpd.GeoDataFrame(df_time_period_region, geometry='coords', crs="EPSG:3413")
+
+            if (region in list(['SE','Out'])):
+                #do not compute, continue
+                continue
+            #reset area region to 0
+            area_region=0
+            
+            # Perform spatial join to match points and polygons
+            for convex_hull_mask in dictionnaries_convexhullmasks[region].keys():
+                print('      ',convex_hull_mask)
+                pointInPolys = gpd.tools.sjoin(points, dictionnaries_convexhullmasks[region][convex_hull_mask], op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+                #Keep only matched point
+                if (region in list(['CW','SW'])):
+                    pnt_matched = points[pointInPolys.SUBREGION1==region]
+                else:
+                    pnt_matched = points[pointInPolys.id==1]
+                
+                if (len(pnt_matched)>1):
+                    #Data in it, do the convex hull
+                    #Stack lat and lon together and create the convex hull
+                    poly = geometry.Polygon([[p[0], p[1]] for p in np.column_stack((pnt_matched['lon_3413'],pnt_matched['lat_3413']))]) #from https://stackoverflow.com/questions/30457089/how-to-create-a-shapely-polygon-from-a-list-of-shapely-points
+                    hull1 = poly.convex_hull
+                    patch1 = PolygonPatch(hull1, alpha=set_alpha, zorder=2,color=col_year)
+                    ax1c.add_patch(patch1)
+                    
+                    #Update area_region
+                    area_region=area_region+poly.area
+            
+            #Store total area per region and per time period
+            summary_area[time_period][region]=area_region
+    
+    #Display area change on the figure
+    for region in list(['NE','NO','NW','CW','SW']):
+        if (region =='NE'):
+            polygon_for_text=NE_rignotetal
+        elif(region =='NO'):
+            polygon_for_text=NO_rignotetal
+        elif(region =='NW'):
+            polygon_for_text=NW_rignotetal
+        elif(region =='CW'):
+            polygon_for_text=CW_rignotetal
+        elif(region =='SW'):
+            polygon_for_text=SW_rignotetal
+        else:
+            print('Region not knwon')
+        
+        #Compute and display relative change
+        ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,str((int((summary_area['2017-2018'][region]-summary_area['2011-2012'][region])/summary_area['2011-2012'][region]*100)))+' %')
+    
+    pdb.set_trace()
+
+
+    
+    
+
+    '''
     #We do 2017-2018
     df_time_period=df_all[df_all['str_year']=='2017-2018']
     #Loop over each region and do the hull for each region of the IS
@@ -286,7 +361,7 @@ def plot_fig1(df_all,flightlines_20022018):
         #plt.plot(points_20172018[:,0], points_20172018[:,1], 'o')
         for simplex in hull_20172018.simplices:
             plt.plot(points_20172018[simplex, 0], points_20172018[simplex, 1], 'r-')
-            
+    '''     
 
     '''
     ax1.set_xlim(-240000,-65000)

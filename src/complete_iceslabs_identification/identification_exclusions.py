@@ -252,8 +252,8 @@ import glob
 
 obvious_identification='FALSE'
 identification_after_depth_correction='FALSE'
-identification_dry_firn_exclusions='FALSE'
-generate_exclusion_files='TRUE'
+identification_dry_firn_exclusions='TRUE'
+generate_exclusion_files='FALSE'
 
 if (generate_exclusion_files=='TRUE'):
         
@@ -329,7 +329,6 @@ if (generate_exclusion_files=='TRUE'):
         f_log.write(str(fail_dry_firn_to_export['datetrack_tobeprocessed'].iloc[i])+' '+str(fail_dry_firn_to_export['dry_firn_and_other_exclusions'].iloc[i])+'\n')
     f_log.close()
 
-pdb.set_trace()
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
@@ -544,11 +543,11 @@ if (identification_dry_firn_exclusions == 'TRUE'):
         if (indiv_trace[0:4]=='2017'):
             print('2017, continue')
             continue
-        '''
+        
         if (count_display<90):
             count_display=count_display+1
             continue
-        
+        '''
         #Let's work with depth corrected
         print(count/len(list(data_20172018))*100,' %')
         
@@ -619,10 +618,6 @@ if (identification_dry_firn_exclusions == 'TRUE'):
 
 
         count=count+1
-
-
-
-
 
 
 
