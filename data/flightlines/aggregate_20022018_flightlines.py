@@ -14,6 +14,11 @@ from pyproj import Transformer
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 
+#Load Rignot et al., 2016 Greenland drainage bassins
+path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
+GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1_EPSG3413.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
+GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
+
 ################# Load 2002-2003 flightlines coordinates ################
 path_20022003_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/'
 #path_20022003_flightlines='/flash/jullienn/flightlines/data/'
@@ -40,14 +45,11 @@ for year in list(all_2002_3_flightlines.keys()):
 #Create a dataframe with 2002-2003 flightlines
 flightlines_20022003=pd.DataFrame(lat_all,columns=['lat_3413'])
 flightlines_20022003['lon_3413']=lon_all
-
-#Transform the coordinated from EPSG:3413 to WGS84
-transformer = Transformer.from_crs("EPSG:3413","EPSG:4326",always_xy=True)
-points=transformer.transform(np.asarray(flightlines_20022003["lon_3413"]),np.asarray(flightlines_20022003["lat_3413"]))
-
-#Store lat/lon in WGS84
-flightlines_20022003['LON']=points[0]
-flightlines_20022003['LAT']=points[1]
+flightlines_20022003['coords'] = list(zip(flightlines_20022003['lon_3413'],flightlines_20022003['lat_3413']))
+flightlines_20022003['coords'] = flightlines_20022003['coords'].apply(Point)
+points = gpd.GeoDataFrame(flightlines_20022003, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+flightlines_20022003_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 ################# Load 2002-2003 flightlines coordinates ################
 
 ################# Load 2010-2018 flightlines coordinates ################
@@ -61,128 +63,98 @@ flightlines_2013=pd.read_csv(path_flightlines+'2013_Greenland_P3.csv',decimal='.
 flightlines_2014=pd.read_csv(path_flightlines+'2014_Greenland_P3.csv',decimal='.',sep=',')
 flightlines_2017=pd.read_csv(path_flightlines+'2017_Greenland_P3.csv',decimal='.',sep=',')
 flightlines_2018=pd.read_csv(path_flightlines+'2018_Greenland_P3.csv',decimal='.',sep=',')
-
-#Append all the flightlines together
-flightlines_20102018=flightlines_2010
-flightlines_20102018=flightlines_20102018.append(flightlines_2011)
-flightlines_20102018=flightlines_20102018.append(flightlines_2012)
-flightlines_20102018=flightlines_20102018.append(flightlines_2013)
-flightlines_20102018=flightlines_20102018.append(flightlines_2014)
-flightlines_20102018=flightlines_20102018.append(flightlines_2017)
-flightlines_20102018=flightlines_20102018.append(flightlines_2018)
-
-#Transform the coordinates from WGS84 to EPSG:3413
-transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.asarray(flightlines_20102018["LON"]),np.asarray(flightlines_20102018["LAT"]))
-
-#Store lat/lon in 3413
-flightlines_20102018['lon_3413']=points[0]
-flightlines_20102018['lat_3413']=points[1]
 ################# Load 2010-2018 flightlines coordinates ################
 
+################ Transform 2010-2018 coordinates into EPSG:3413 ###############
+#Transform the coordinates from WGS84 to EPSG:3413
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+
+#2010
+points=transformer.transform(np.asarray(flightlines_2010["LON"]),np.asarray(flightlines_2010["LAT"]))
+flightlines_2010['lon_3413']=points[0]
+flightlines_2010['lat_3413']=points[1]
+flightlines_2010['coords'] = list(zip(flightlines_2010['lon_3413'],flightlines_2010['lat_3413']))
+flightlines_2010['coords'] = flightlines_2010['coords'].apply(Point)
+points = gpd.GeoDataFrame(flightlines_2010, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+flightlines_2010_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+
+#2011
+points=transformer.transform(np.asarray(flightlines_2011["LON"]),np.asarray(flightlines_2011["LAT"]))
+flightlines_2011['lon_3413']=points[0]
+flightlines_2011['lat_3413']=points[1]
+flightlines_2011['coords'] = list(zip(flightlines_2011['lon_3413'],flightlines_2011['lat_3413']))
+flightlines_2011['coords'] = flightlines_2011['coords'].apply(Point)
+points = gpd.GeoDataFrame(flightlines_2011, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+flightlines_2011_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+
+#2012
+points=transformer.transform(np.asarray(flightlines_2012["LON"]),np.asarray(flightlines_2012["LAT"]))
+flightlines_2012['lon_3413']=points[0]
+flightlines_2012['lat_3413']=points[1]
+flightlines_2012['coords'] = list(zip(flightlines_2012['lon_3413'],flightlines_2012['lat_3413']))
+flightlines_2012['coords'] = flightlines_2012['coords'].apply(Point)
+points = gpd.GeoDataFrame(flightlines_2012, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+flightlines_2012_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+
+#2013
+points=transformer.transform(np.asarray(flightlines_2013["LON"]),np.asarray(flightlines_2013["LAT"]))
+flightlines_2013['lon_3413']=points[0]
+flightlines_2013['lat_3413']=points[1]
+flightlines_2013['coords'] = list(zip(flightlines_2013['lon_3413'],flightlines_2013['lat_3413']))
+flightlines_2013['coords'] = flightlines_2013['coords'].apply(Point)
+points = gpd.GeoDataFrame(flightlines_2013, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+flightlines_2013_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+
+#2014
+points=transformer.transform(np.asarray(flightlines_2014["LON"]),np.asarray(flightlines_2014["LAT"]))
+flightlines_2014['lon_3413']=points[0]
+flightlines_2014['lat_3413']=points[1]
+flightlines_2014['coords'] = list(zip(flightlines_2014['lon_3413'],flightlines_2014['lat_3413']))
+flightlines_2014['coords'] = flightlines_2014['coords'].apply(Point)
+points = gpd.GeoDataFrame(flightlines_2014, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+flightlines_2014_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+
+#2017
+points=transformer.transform(np.asarray(flightlines_2017["LON"]),np.asarray(flightlines_2017["LAT"]))
+flightlines_2017['lon_3413']=points[0]
+flightlines_2017['lat_3413']=points[1]
+flightlines_2017['coords'] = list(zip(flightlines_2017['lon_3413'],flightlines_2017['lat_3413']))
+flightlines_2017['coords'] = flightlines_2017['coords'].apply(Point)
+points = gpd.GeoDataFrame(flightlines_2017, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+flightlines_2017_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+
+#2018
+points=transformer.transform(np.asarray(flightlines_2018["LON"]),np.asarray(flightlines_2018["LAT"]))
+flightlines_2018['lon_3413']=points[0]
+flightlines_2018['lat_3413']=points[1]
+flightlines_2018['coords'] = list(zip(flightlines_2018['lon_3413'],flightlines_2018['lat_3413']))
+flightlines_2018['coords'] = flightlines_2018['coords'].apply(Point)
+points = gpd.GeoDataFrame(flightlines_2018, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+flightlines_2018_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+################ Transform 2010-2018 coordinates into EPSG:3413 ###############
+
+#Append all the flightlines together
+flightlines_20102018_GrIS=flightlines_2010_GrIS
+flightlines_20102018_GrIS=flightlines_20102018_GrIS.append(flightlines_2011_GrIS)
+flightlines_20102018_GrIS=flightlines_20102018_GrIS.append(flightlines_2012_GrIS)
+flightlines_20102018_GrIS=flightlines_20102018_GrIS.append(flightlines_2013_GrIS)
+flightlines_20102018_GrIS=flightlines_20102018_GrIS.append(flightlines_2014_GrIS)
+flightlines_20102018_GrIS=flightlines_20102018_GrIS.append(flightlines_2017_GrIS)
+flightlines_20102018_GrIS=flightlines_20102018_GrIS.append(flightlines_2018_GrIS)
+
 ################# Aggregate 2002-2003 and 2010-2018 together ################
-flightlines_20022018=flightlines_20022003.append(flightlines_20102018)
+flightlines_20022018_GrIS=flightlines_20022003_GrIS.append(flightlines_20102018_GrIS)
 ################# Aggregate 2002-2003 and 2010-2018 together ################
-
-################# Keep 2002-2018 flightlines only in GrIS ################
-#Clip data to Rignot wt al., 2018 GrIS mask. If do not belong to, to not consider
-#Load Rignot et al., 2016 Greenland drainage bassins
-path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
-#path_rignotetal2016_GrIS='/flash/jullienn/flightlines/data/GRE_IceSheet_IMBIE2/'
-GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
-GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
-
-#Create empty dataframe
-flightlines_20022018_GrIS=pd.DataFrame(columns=list(flightlines_20022018.keys()))
-
-pdb.set_trace()
-
-
-
-
-import numpy as np
-import cudf
-import cuspatial
-
-points = np.column_stack((flightlines_20022018['LON'],flightlines_20022018['LAT']))
-polygon=GrIS_mask.geometry[0]
-
-x_pnt = points[:,0]
-y_pnt = points[:,1]
-x_poly =polygon[:,0]
-y_poly = polygon[:,1]
-result = cuspatial.point_in_polygon(
-    x_pnt,
-    y_pnt,
-    cudf.Series([0], index=['geom']),
-    cudf.Series([0], name='r_pos', dtype='int32'), 
-    x_poly, 
-    y_poly,
-)
-
-
-
-result = cuspatial.point_in_polygon(
-    [0, -8, 6.0],                             # test_points_x
-    [0, -8, 6.0],                             # test_points_y
-    cudf.Series([0, 1], index=['nyc', 'hudson river']), # poly_offsets
-    [0, 3],                                   # ring_offsets
-    [-10, 5, 5, -10, 0, 10, 10, 0],           # poly_points_x
-    [-10, -10, 5, 5, 0, 0, 10, 10],           # poly_points_y
-)
-
-
-
-# Generate random points
-N=10000
-lat = np.random.uniform(23,51,N)
-lon = np.random.uniform(-126,-64,N)
-
-
-# Create geodataframe from numpy arrays
-flightlines_20022018['coords'] = list(zip(flightlines_20022018['LON'],flightlines_20022018['LAT']))
-flightlines_20022018['coords'] = flightlines_20022018['coords'].apply(Point)
-points = gpd.GeoDataFrame(flightlines_20022018, geometry='coords', crs="EPSG:4326")
-
-
-# Open the shapefile
-counties = gpd.GeoDataFrame.from_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1.shp',rows=slice(1,2,1))
-
-
-# Perform spatial join to match points and polygons
-pointInPolys = gpd.tools.sjoin(points, counties, op="within", how='left')
-
-
-import matplotlib.path as mpltPath
-from time import time
-
-# Matplotlib mplPath
-start_time = time()
-path = mpltPath.Path(GrIS_mask)
-inside2 = path.contains_points(np.column_stack((flightlines_20022018['LON'],flightlines_20022018['LAT'])))
-print("Matplotlib contains_points Elapsed time: " + str(time()-start_time))
-
-
-count=0
-for i in range(0,len(flightlines_20022018)):
-    print(count/len(flightlines_20022018)*100,' %')
-
-    #select the point i
-    single_point=Point(flightlines_20022018.iloc[i]['LON'],flightlines_20022018.iloc[i]['LAT'])
-    
-    #Do the identification between the point i and the regional shapefiles
-    #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
-    check_GrIS=np.asarray(GrIS_mask.contains(single_point)).astype(int)
-    
-    #The point belongs to the GrIS, keep it
-    if (np.sum(check_GrIS)>0):
-        flightlines_20022018_GrIS=flightlines_20022018_GrIS.append(flightlines_20022018.iloc[i])
-    
-    count=count+1
-################# Keep 2002-2018 flightlines only in GrIS ################
 
 #Save the generated file!
-path_save='/flash/jullienn/flightlines/data/'
+path_save='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
 flightlines_20022018_GrIS.to_csv(path_save+'flightlines_20022018_GrIS.csv')
 
 
