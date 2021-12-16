@@ -327,15 +327,17 @@ def plot_fig1(df_all,flightlines_20022018):
         if (time_period == '2017-2018'):
             col_year='#fc9272'
             set_alpha=0.2
+            #Select data of the corresponding time period
+            df_time_period=df_all[df_all['str_year']=='2011-2012'].append(df_all[df_all['str_year']=='2017-2018'])
+            
         elif(time_period == '2011-2012'):
             col_year='#cb181d'
             set_alpha=1
+            #Select data of the corresponding time period
+            df_time_period=df_all[df_all['str_year']==time_period]
         else:
             print('Time period not known')
             break
-        
-        #Select data of the corresponding time period
-        df_time_period=df_all[df_all['str_year']==time_period]
         
         #Set summary_area
         summary_area[time_period]={k: {} for k in list(['NE','NO','NW','CW','SW'])}
@@ -365,27 +367,26 @@ def plot_fig1(df_all,flightlines_20022018):
                     pnt_matched = points[pointInPolys.id==1]
                 
                 if (len(pnt_matched)>1):
-                    pdb.set_trace()
-
-                    #this function is from https://gist.github.com/dwyerk/10561690
-                    concave_hull, edge_points= alpha_shape(pnt_matched, 0.0001)
                     
-                    p = gpd.GeoSeries(concave_hull)
-                    pts = gpd(pnt_matched)
-                    p.plot(ax=ax1c)
-                    pnt_matched.plot()
+                    #this function is from https://gist.github.com/dwyerk/10561690
+                    concave_hull, edge_points= alpha_shape(pnt_matched, 0.00001)
+                    patch1 = PolygonPatch(concave_hull, zorder=2, alpha=set_alpha,color=col_year)
+                    ax1c.add_patch(patch1)
+                    #ax1c.scatter(pnt_matched.lon_3413,pnt_matched.lat_3413,zorder=3)
                     plt.show()           
                     
-
+                    #Update area_region
+                    area_region=area_region+concave_hull.area #IS THAT CORRECT???
+                    
+                    '''
+                    Version Nb1: poor resolution
                     #Data in it, do the convex hull
                     #Stack lat and lon together and create the convex hull
                     poly = geometry.Polygon([[p[0], p[1]] for p in np.column_stack((pnt_matched['lon_3413'],pnt_matched['lat_3413']))]) #from https://stackoverflow.com/questions/30457089/how-to-create-a-shapely-polygon-from-a-list-of-shapely-points
                     hull1 = poly.convex_hull
                     patch1 = PolygonPatch(hull1, alpha=set_alpha, zorder=2,color=col_year)
                     ax1c.add_patch(patch1)
-                    
-                    #Update area_region
-                    area_region=area_region+poly.area
+                    '''
                     
                     '''
                     #This work, does the correct thing (concaave hull) but takes ages to run, maybe try running on the cluster?
@@ -400,25 +401,10 @@ def plot_fig1(df_all,flightlines_20022018):
                     ax.add_patch(PolygonPatch(alpha_shape, alpha=0.2))
                     plt.show()
                     '''
-                    
-
-                    
-                    
-                    
-                    
-                    fig, ax = plt.subplots()
-                    patch = PolygonPatch(concave_hull.envelope, fc='#999999', ec='#000000', fill=True, zorder=-1)
-                    ax.add_patch(patch)  
-                    
-                    #from descartes import PolygonPatch
-
-
-                    
-                    
-                    
+            
             #Store total area per region and per time period
             summary_area[time_period][region]=area_region
-    
+
     #Display area change on the figure
     for region in list(['NE','NO','NW','CW','SW']):
         if (region =='NE'):
