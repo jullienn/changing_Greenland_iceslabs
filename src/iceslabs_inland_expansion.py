@@ -325,7 +325,7 @@ def plot_fig1(df_all,flightlines_20022018):
         print(time_period)
         #Set color for plotting
         if (time_period == '2017-2018'):
-            col_year='#fc9272'
+            col_year='#756bb1'
             set_alpha=0.2
             #Select data of the corresponding time period
             df_time_period=df_all[df_all['str_year']=='2011-2012'].append(df_all[df_all['str_year']=='2017-2018'])
@@ -424,7 +424,7 @@ def plot_fig1(df_all,flightlines_20022018):
         ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,str((int((summary_area['2017-2018'][region]-summary_area['2011-2012'][region])/summary_area['2011-2012'][region]*100)))+' %')
     
     #Plot data
-    ax1c.scatter(df_all.lon_3413,df_all.lat_3413,s=0.1)
+    #ax1c.scatter(df_all.lon_3413,df_all.lat_3413,s=0.1,zorder=3)
     pdb.set_trace()
 
 
