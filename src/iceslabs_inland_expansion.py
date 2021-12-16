@@ -143,48 +143,70 @@ def plot_fig1(df_all,flightlines_20022018):
     
     #Define panel names
     labels = ['NE', 'NO', 'NW', 'CW', 'SW']
+
+    #Stack max_elev_mean data for barplot
+    dplot_20022003=[dict_summary['NE']['2002-2003']['max_elev_median'],dict_summary['NO']['2002-2003']['max_elev_median'],
+                    dict_summary['NW']['2002-2003']['max_elev_median'],dict_summary['CW']['2002-2003']['max_elev_median'],
+                    dict_summary['SW']['2002-2003']['max_elev_median']]
     
-    #Stack data for barplot
-    dplot_20022003=[dict_summary['NE']['2002-2003']['max_elev'],dict_summary['NO']['2002-2003']['max_elev'],
-                    dict_summary['NW']['2002-2003']['max_elev'],dict_summary['CW']['2002-2003']['max_elev'],
-                    dict_summary['SW']['2002-2003']['max_elev']]
+    dplot_2010=[dict_summary['NE']['2010']['max_elev_median'],dict_summary['NO']['2010']['max_elev_median'],
+                dict_summary['NW']['2010']['max_elev_median'],dict_summary['CW']['2010']['max_elev_median'],
+                dict_summary['SW']['2010']['max_elev_median']]
     
-    dplot_2010=[dict_summary['NE']['2010']['max_elev'],dict_summary['NO']['2010']['max_elev'],
-                dict_summary['NW']['2010']['max_elev'],dict_summary['CW']['2010']['max_elev'],
-                dict_summary['SW']['2010']['max_elev']]
+    dplot_20112012=[dict_summary['NE']['2011-2012']['max_elev_median'],dict_summary['NO']['2011-2012']['max_elev_median'],
+                    dict_summary['NW']['2011-2012']['max_elev_median'],dict_summary['CW']['2011-2012']['max_elev_median'],
+                    dict_summary['SW']['2011-2012']['max_elev_median']]
     
-    dplot_20112012=[dict_summary['NE']['2011-2012']['max_elev'],dict_summary['NO']['2011-2012']['max_elev'],
-                    dict_summary['NW']['2011-2012']['max_elev'],dict_summary['CW']['2011-2012']['max_elev'],
-                    dict_summary['SW']['2011-2012']['max_elev']]
+    dplot_20132014=[dict_summary['NE']['2013-2014']['max_elev_median'],dict_summary['NO']['2013-2014']['max_elev_median'],
+                    dict_summary['NW']['2013-2014']['max_elev_median'],dict_summary['CW']['2013-2014']['max_elev_median'],
+                    dict_summary['SW']['2013-2014']['max_elev_median']]
     
-    dplot_20132014=[dict_summary['NE']['2013-2014']['max_elev'],dict_summary['NO']['2013-2014']['max_elev'],
-                    dict_summary['NW']['2013-2014']['max_elev'],dict_summary['CW']['2013-2014']['max_elev'],
-                    dict_summary['SW']['2013-2014']['max_elev']]
+    dplot_20172018=[dict_summary['NE']['2017-2018']['max_elev_median'],dict_summary['NO']['2017-2018']['max_elev_median'],
+                    dict_summary['NW']['2017-2018']['max_elev_median'],dict_summary['CW']['2017-2018']['max_elev_median'],
+                    dict_summary['SW']['2017-2018']['max_elev_median']]
     
-    dplot_20172018=[dict_summary['NE']['2017-2018']['max_elev'],dict_summary['NO']['2017-2018']['max_elev'],
-                    dict_summary['NW']['2017-2018']['max_elev'],dict_summary['CW']['2017-2018']['max_elev'],
-                    dict_summary['SW']['2017-2018']['max_elev']]
+    #Stack max_elev_mean data for barplot
+    dplotstd_20022003=[dict_summary['NE']['2002-2003']['max_elev_std'],dict_summary['NO']['2002-2003']['max_elev_std'],
+                    dict_summary['NW']['2002-2003']['max_elev_std'],dict_summary['CW']['2002-2003']['max_elev_std'],
+                    dict_summary['SW']['2002-2003']['max_elev_std']]
+    
+    dplotstd_2010=[dict_summary['NE']['2010']['max_elev_std'],dict_summary['NO']['2010']['max_elev_std'],
+                dict_summary['NW']['2010']['max_elev_std'],dict_summary['CW']['2010']['max_elev_std'],
+                dict_summary['SW']['2010']['max_elev_std']]
+    
+    dplotstd_20112012=[dict_summary['NE']['2011-2012']['max_elev_std'],dict_summary['NO']['2011-2012']['max_elev_std'],
+                    dict_summary['NW']['2011-2012']['max_elev_std'],dict_summary['CW']['2011-2012']['max_elev_std'],
+                    dict_summary['SW']['2011-2012']['max_elev_std']]
+    
+    dplotstd_20132014=[dict_summary['NE']['2013-2014']['max_elev_std'],dict_summary['NO']['2013-2014']['max_elev_std'],
+                    dict_summary['NW']['2013-2014']['max_elev_std'],dict_summary['CW']['2013-2014']['max_elev_std'],
+                    dict_summary['SW']['2013-2014']['max_elev_std']]
+    
+    dplotstd_20172018=[dict_summary['NE']['2017-2018']['max_elev_std'],dict_summary['NO']['2017-2018']['max_elev_std'],
+                    dict_summary['NW']['2017-2018']['max_elev_std'],dict_summary['CW']['2017-2018']['max_elev_std'],
+                    dict_summary['SW']['2017-2018']['max_elev_std']]
+    
     
     #Stack data for maximum elevation difference calculation
-    max_elev_diff_NE=[dict_summary['NE']['2002-2003']['max_elev'],dict_summary['NE']['2010']['max_elev'],
-                      dict_summary['NE']['2011-2012']['max_elev'],dict_summary['NE']['2013-2014']['max_elev'],
-                      dict_summary['NE']['2017-2018']['max_elev']]
+    max_elev_diff_NE=[dict_summary['NE']['2002-2003']['max_elev_median'],dict_summary['NE']['2010']['max_elev_median'],
+                      dict_summary['NE']['2011-2012']['max_elev_median'],dict_summary['NE']['2013-2014']['max_elev_median'],
+                      dict_summary['NE']['2017-2018']['max_elev_median']]
     
-    max_elev_diff_NO=[dict_summary['NO']['2002-2003']['max_elev'],dict_summary['NO']['2010']['max_elev'],
-                      dict_summary['NO']['2011-2012']['max_elev'],dict_summary['NO']['2013-2014']['max_elev'],
-                      dict_summary['NO']['2017-2018']['max_elev']]
+    max_elev_diff_NO=[dict_summary['NO']['2002-2003']['max_elev_median'],dict_summary['NO']['2010']['max_elev_median'],
+                      dict_summary['NO']['2011-2012']['max_elev_median'],dict_summary['NO']['2013-2014']['max_elev_median'],
+                      dict_summary['NO']['2017-2018']['max_elev_median']]
     
-    max_elev_diff_NW=[dict_summary['NW']['2002-2003']['max_elev'],dict_summary['NW']['2010']['max_elev'],
-                      dict_summary['NW']['2011-2012']['max_elev'],dict_summary['NW']['2013-2014']['max_elev'],
-                      dict_summary['NW']['2017-2018']['max_elev']]
+    max_elev_diff_NW=[dict_summary['NW']['2002-2003']['max_elev_median'],dict_summary['NW']['2010']['max_elev_median'],
+                      dict_summary['NW']['2011-2012']['max_elev_median'],dict_summary['NW']['2013-2014']['max_elev_median'],
+                      dict_summary['NW']['2017-2018']['max_elev_median']]
     
-    max_elev_diff_CW=[dict_summary['CW']['2002-2003']['max_elev'],dict_summary['CW']['2010']['max_elev'],
-                      dict_summary['CW']['2011-2012']['max_elev'],dict_summary['CW']['2013-2014']['max_elev'],
-                      dict_summary['CW']['2017-2018']['max_elev']]
+    max_elev_diff_CW=[dict_summary['CW']['2002-2003']['max_elev_median'],dict_summary['CW']['2010']['max_elev_median'],
+                      dict_summary['CW']['2011-2012']['max_elev_median'],dict_summary['CW']['2013-2014']['max_elev_median'],
+                      dict_summary['CW']['2017-2018']['max_elev_median']]
     
-    max_elev_diff_SW=[dict_summary['SW']['2002-2003']['max_elev'],dict_summary['SW']['2010']['max_elev'],
-                      dict_summary['SW']['2011-2012']['max_elev'],dict_summary['SW']['2013-2014']['max_elev'],
-                      dict_summary['SW']['2017-2018']['max_elev']]
+    max_elev_diff_SW=[dict_summary['SW']['2002-2003']['max_elev_median'],dict_summary['SW']['2010']['max_elev_median'],
+                      dict_summary['SW']['2011-2012']['max_elev_median'],dict_summary['SW']['2013-2014']['max_elev_median'],
+                      dict_summary['SW']['2017-2018']['max_elev_median']]
 
     #Barplot inspired from https://stackoverflow.com/questions/10369681/how-to-plot-bar-graphs-with-same-x-coordinates-side-by-side-dodged
     #Arguments for barplot
@@ -193,11 +215,11 @@ def plot_fig1(df_all,flightlines_20022018):
     ind= np.arange(N) #Position of regions
         
     fig, ax = plt.subplots()
-    ax.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef')
-    ax.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1')
-    ax.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6')
-    ax.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd')
-    ax.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c')
+    ax.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef', yerr= dplotstd_20022003) #yerr=men_std
+    ax.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
+    ax.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
+    ax.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd', yerr= dplotstd_20132014)
+    ax.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c', yerr= dplotstd_20172018)
     ax.set_xticks(ind + 2*width)
     ax.set_xticklabels(labels)
     ax.set_ylim(1000,2000)
@@ -209,7 +231,7 @@ def plot_fig1(df_all,flightlines_20022018):
     ax.text(ind[4],np.nanmax(max_elev_diff_SW)+50,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
     
     ax.set_ylabel('Elevation [m]')
-    ax.set_title('Maximum iceslabs elevation per region per time period')
+    ax.set_title('Median of ice slabs maximum elevation per slice for each region')
     ax.legend()
     plt.show()
         
@@ -266,7 +288,7 @@ def plot_fig1(df_all,flightlines_20022018):
         #Set color for plotting
         if (time_period == '2017-2018'):
             col_year='#fc9272'
-            set_alpha=0.5
+            set_alpha=0.2
         elif(time_period == '2011-2012'):
             col_year='#cb181d'
             set_alpha=1
@@ -336,6 +358,8 @@ def plot_fig1(df_all,flightlines_20022018):
         #Compute and display relative change
         ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,str((int((summary_area['2017-2018'][region]-summary_area['2011-2012'][region])/summary_area['2011-2012'][region]*100)))+' %')
     
+    #Plot data
+    ax1c.scatter(df_all.lon_3413,df_all.lat_3413,s=0.1)
     pdb.set_trace()
 
 
@@ -1062,9 +1086,9 @@ for region in list(df_2010_2018['key_shp'].unique()):
     #Loop over the 5 time periods
     
     for time_period in list(['2002-2003','2010','2011-2012','2013-2014','2017-2018']):
-        dict_summary[region][time_period]={k: {} for k in list(['min_elev','max_elev'])}
+        dict_summary[region][time_period]={k: {} for k in list(['max_elev_mean','max_elev_median','max_elev_std'])}
         
-        #Take the average of low and high elevation where ice slabs have been
+        #Take the average, median and std dev of high elevation where ice slabs have been
         #identified in this region, no matter the year in this specific time
         #period, and store relevant information
         
@@ -1079,11 +1103,12 @@ for region in list(df_2010_2018['key_shp'].unique()):
                 dict_temp=dict_lat_slices_summary[region][time_period]
         
         #Calculate and store averages
-        dict_summary[region][time_period]['min_elev']=np.nanmean(dict_temp[:,0])
-        dict_summary[region][time_period]['max_elev']=np.nanmean(dict_temp[:,1])
+        dict_summary[region][time_period]['max_elev_mean']=np.nanmean(dict_temp[:,1])
+        dict_summary[region][time_period]['max_elev_median']=np.nanmedian(dict_temp[:,1])
+        dict_summary[region][time_period]['max_elev_std']=np.nanstd(dict_temp[:,1])
 
+'''
 #Plot the inland expansion as a graph
-
 #Display the keys
 fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs inland progression')
@@ -1127,6 +1152,7 @@ for region in list(dict_summary.keys()):
     
 plt.legend()
 plt.show()
+'''
 #######################################################################
 ###          Inland expansion of iceslabs from 2002 to 2018         ###
 #######################################################################

@@ -54,7 +54,6 @@ flightlines_20022003_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 
 ################# Load 2010-2018 flightlines coordinates ################
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-#path_flightlines='/flash/jullienn/flightlines/data/'
 
 flightlines_2010=pd.read_csv(path_flightlines+'2010_Greenland_P3.csv',decimal='.',sep=',')
 flightlines_2011=pd.read_csv(path_flightlines+'2011_Greenland_P3.csv',decimal='.',sep=',')
