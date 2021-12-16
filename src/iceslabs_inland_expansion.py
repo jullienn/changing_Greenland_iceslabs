@@ -4,6 +4,44 @@ Created on Fri Nov 12 16:07:38 2021
 
 @author: jullienn
 """
+from scipy.spatial import Delaunay
+from shapely.ops import cascaded_union, polygonize
+from shapely.geometry import  MultiLineString
+
+def alpha_shape(points, alpha):
+    #This function is from https://gist.github.com/dwyerk/10561690
+    """
+    Compute the alpha shape (concave hull) of a set
+    of points.
+    @param points: Iterable container of points.
+    @param alpha: alpha value to influence the
+        gooeyness of the border. Smaller numbers
+        don't fall inward as much as larger numbers.
+        Too large, and you lose everything!
+    """
+    if len(points) < 4:
+        # When you have a triangle, there is no sense
+        # in computing an alpha shape.
+        return geometry.MultiPoint(list(points)).convex_hull
+
+    coords = np.array([p.coords[:][0] for p in points.coords])
+    tri = Delaunay(coords)
+    triangles = coords[tri.vertices]
+    a = ((triangles[:,0,0] - triangles[:,1,0]) ** 2 + (triangles[:,0,1] - triangles[:,1,1]) ** 2) ** 0.5
+    b = ((triangles[:,1,0] - triangles[:,2,0]) ** 2 + (triangles[:,1,1] - triangles[:,2,1]) ** 2) ** 0.5
+    c = ((triangles[:,2,0] - triangles[:,0,0]) ** 2 + (triangles[:,2,1] - triangles[:,0,1]) ** 2) ** 0.5
+    s = ( a + b + c ) / 2.0
+    areas = (s*(s-a)*(s-b)*(s-c)) ** 0.5
+    circums = a * b * c / (4.0 * areas)
+    filtered = triangles[circums < (1.0 / alpha)]
+    edge1 = filtered[:,(0,1)]
+    edge2 = filtered[:,(1,2)]
+    edge3 = filtered[:,(2,0)]
+    edge_points = np.unique(np.concatenate((edge1,edge2,edge3)), axis = 0).tolist()
+    m = MultiLineString(edge_points)
+    triangles = list(polygonize(m))
+    
+    return cascaded_union(triangles), edge_points
 
 ##############################################################################
 ############### Define function for discrete colorbar display ###############
@@ -54,11 +92,11 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     fig.suptitle('Spatial aggregation, positive difference '+str(np.unique(df_recent['year'])[0])+'-'+str(np.unique(df_old['year'])[0]))
     #Display DEM
-    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.2,norm=divnorm)
+    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.2)#,norm=divnorm)
     cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
     cbar1.set_label('Elevation [m]')
     # Make the norm for difference plotting
-    divnorm_diff = mcolors.DivergingNorm(vmin=0, vcenter=5, vmax=10)
+    #divnorm_diff = mcolors.DivergingNorm(vmin=0, vcenter=5, vmax=10)
     '''
     #Display 2017 and 2018 data
     plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lat_3413'],s=0.1,color='#737373')
@@ -70,7 +108,7 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
     '''
     
     #Display the difference between 2011 and 2010 if aggregated data
-    sc= ax1.scatter(df_recent['avg_lon_3413'],df_recent['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap=discrete_cmap(10,'Blues'),norm=divnorm_diff)
+    sc= ax1.scatter(df_recent['avg_lon_3413'],df_recent['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap=discrete_cmap(10,'Blues'))#,norm=divnorm_diff)
     cbar=fig.colorbar(sc)
     cbar.set_label('Difference in iceslabs thickness', fontsize=15)
     
@@ -123,7 +161,7 @@ def plot_fig1(df_all,flightlines_20022018):
     plt.scatter(flightlines_20102018['lon_3413'],flightlines_20102018['lat_3413'],s=0.1,color='#bdbdbd',label='2002-2003')
     '''
     #Display 2002-2018 flightlines
-    plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.1,color='#737373',label='2002-2003')
+    #plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.01,color='#d9d9d9',label='flightlines')#,label='2002-2003')
     
     #Display 2010-2018 iceslabs
     plt.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#3690c0',label='2010-2014')
@@ -136,9 +174,9 @@ def plot_fig1(df_all,flightlines_20022018):
     
     #Display 2002-2003 iceslabs
     plt.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=0.1,color='#0570b0',label='2002-2003')
+    plt.legend()
     plt.show()
-    
-    #8h55 + 5min - 9h50 10h55
+        
     #Panel B
     
     #Define panel names
@@ -327,6 +365,18 @@ def plot_fig1(df_all,flightlines_20022018):
                     pnt_matched = points[pointInPolys.id==1]
                 
                 if (len(pnt_matched)>1):
+                    pdb.set_trace()
+
+                    #this function is from https://gist.github.com/dwyerk/10561690
+                    concave_hull, edge_points= alpha_shape(pnt_matched, 0.0001)
+                    
+                    p = gpd.GeoSeries(concave_hull)
+                    pts = gpd(pnt_matched)
+                    p.plot(ax=ax1c)
+                    pnt_matched.plot()
+                    plt.show()           
+                    
+
                     #Data in it, do the convex hull
                     #Stack lat and lon together and create the convex hull
                     poly = geometry.Polygon([[p[0], p[1]] for p in np.column_stack((pnt_matched['lon_3413'],pnt_matched['lat_3413']))]) #from https://stackoverflow.com/questions/30457089/how-to-create-a-shapely-polygon-from-a-list-of-shapely-points
@@ -336,7 +386,36 @@ def plot_fig1(df_all,flightlines_20022018):
                     
                     #Update area_region
                     area_region=area_region+poly.area
-            
+                    
+                    '''
+                    #This work, does the correct thing (concaave hull) but takes ages to run, maybe try running on the cluster?
+                    #Alpha shape
+                    import alphashape
+                    
+                    #From https://pypi.org/project/alphashape/
+                    alpha_shape = alphashape.alphashape(np.column_stack((points.lon_3413[0:10000],points.lat_3413[0:10000])))
+                    
+                    fig, ax = plt.subplots()
+                    ax.scatter(*zip(*np.column_stack((points.lon_3413[0:10000],points.lat_3413[0:10000]))))
+                    ax.add_patch(PolygonPatch(alpha_shape, alpha=0.2))
+                    plt.show()
+                    '''
+                    
+
+                    
+                    
+                    
+                    
+                    fig, ax = plt.subplots()
+                    patch = PolygonPatch(concave_hull.envelope, fc='#999999', ec='#000000', fill=True, zorder=-1)
+                    ax.add_patch(patch)  
+                    
+                    #from descartes import PolygonPatch
+
+
+                    
+                    
+                    
             #Store total area per region and per time period
             summary_area[time_period][region]=area_region
     
@@ -436,7 +515,7 @@ grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_A
 #Minnor slicing on borders to enhance colorbars
 elevDem=grid.dem[:-1,:-1]              
 #Scale the colormap
-divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
+#divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 ########################## Load GrIS elevation ##########################
 
 
@@ -624,7 +703,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     fig.suptitle('Iceslabs area overview')
     
     #Display DEM
-    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5)#,norm=divnorm)
     cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
     cbar1.set_label('Elevation [m]')
     
@@ -1450,8 +1529,9 @@ plt.show()
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-flightlines_20022018=pd.read_csv(path_flightlines+'2018_Greenland_P3.csv',decimal='.',sep=',')
+flightlines_20022018=pd.read_csv(path_flightlines+'2010_Greenland_P3.csv',decimal='.',sep=',')#,low_memory=False)
 
+'''
 #Transform the coordinates from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(flightlines_20022018["LAT"]))
@@ -1459,6 +1539,7 @@ points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(
 #Store lat/lon in 3413
 flightlines_20022018['lon_3413']=points[0]
 flightlines_20022018['lat_3413']=points[1]
+'''
 
 plot_fig1(df_all,flightlines_20022018)
 
@@ -1527,7 +1608,7 @@ grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_A
 #Minnor slicing on borders to enhance colorbars
 elevDem=grid.dem[:-1,:-1]              
 #Scale the colormap
-divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
+#divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 ########################## Load GrIS elevation ##########################
 
 '''
