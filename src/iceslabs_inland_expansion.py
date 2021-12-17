@@ -472,15 +472,15 @@ def plot_fig1(df_all,flightlines_20022018):
 
 
 #Import packages
-import rasterio
-from rasterio.plot import show
+#import rasterio
+#from rasterio.plot import show
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import pandas as pd
 from os import listdir
 from os.path import isfile, join
 import pickle
-from pysheds.grid import Grid
+#from pysheds.grid import Grid
 import pdb
 import numpy as np
 from pyproj import Transformer
@@ -494,7 +494,7 @@ from shapely.geometry import Point, Polygon
 
 create_elevation_dictionaries='FALSE'
 #pdb.set_trace()
-
+'''
 ########################## Load GrIS elevation ##########################
 #Open the DEM
 grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
@@ -503,7 +503,7 @@ elevDem=grid.dem[:-1,:-1]
 #Scale the colormap
 #divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
 ########################## Load GrIS elevation ##########################
-
+'''
 
 ############################ Load DEM information ############################
 #Extract elevation from DEM to associated with coordinates. This piece of code
@@ -1515,7 +1515,7 @@ plt.show()
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-flightlines_20022018=pd.read_csv(path_flightlines+'2010_Greenland_P3.csv',decimal='.',sep=',')#,low_memory=False)
+flightlines_20022018=pd.read_csv(path_flightlines+'2011_Greenland_P3.csv',decimal='.',sep=',')#,low_memory=False)
 
 '''
 #Transform the coordinates from WGS84 to EPSG:3413
