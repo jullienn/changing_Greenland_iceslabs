@@ -135,8 +135,84 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
     
     plt.show()
     
+def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plot):
+    from descartes.patch import PolygonPatch
 
-def plot_fig1(df_all,flightlines_20022018):
+    #Prepare for convex hull intersection
+    df_in_use['coords'] = list(zip(df_in_use['lon_3413'],df_in_use['lat_3413']))
+    df_in_use['coords'] = df_in_use['coords'].apply(Point)
+    
+    #Set summary_area
+    summary_area={k: {} for k in list(['2011-2012','2017-2018'])}
+    
+    #Loop over time period
+    for time_period in list(['2011-2012','2017-2018']):
+        print(time_period)
+        #Set color for plotting
+        if (time_period == '2017-2018'):
+            col_year='#756bb1'
+            set_alpha=0.2
+            #Select data of the corresponding time period
+            df_time_period=df_in_use[df_in_use['str_year']=='2011-2012'].append(df_in_use[df_in_use['str_year']=='2017-2018'])
+            
+        elif(time_period == '2011-2012'):
+            col_year='#cb181d'
+            set_alpha=1
+            #Select data of the corresponding time period
+            df_time_period=df_in_use[df_in_use['str_year']==time_period]
+        else:
+            print('Time period not known')
+            break
+        
+        #Set summary_area
+        summary_area[time_period]={k: {} for k in list(['NE','NO','NW','CW','SW'])}
+                
+        #Loop over each region and do the hull for each region of the IS
+        for region in list(np.unique(df_time_period['key_shp'])):
+            print('   ',region)
+            #Select the corresponding region
+            df_time_period_region=df_time_period[df_time_period['key_shp']==region]
+            #Select point coordinates
+            points = gpd.GeoDataFrame(df_time_period_region, geometry='coords', crs="EPSG:3413")
+
+            if (region in list(['SE','Out'])):
+                #do not compute, continue
+                continue
+            #reset area region to 0
+            area_region=0
+            
+            # Perform spatial join to match points and polygons
+            for convex_hull_mask in dictionnaries_convexhullmasks[region].keys():
+                print('      ',convex_hull_mask)
+                pointInPolys = gpd.tools.sjoin(points, dictionnaries_convexhullmasks[region][convex_hull_mask], op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+                #Keep only matched point
+                if (region in list(['CW','SW'])):
+                    pnt_matched = points[pointInPolys.SUBREGION1==region]
+                else:
+                    pnt_matched = points[pointInPolys.id==1]
+                
+                if (len(pnt_matched)>1):
+                    #pdb.set_trace()
+                    #this function is from https://gist.github.com/dwyerk/10561690
+                    concave_hull, edge_points= alpha_shape(pnt_matched, 0.00002) #0.00005 is a bit too aggresive, 0.00001 is a bit generous     
+                    
+                    if (do_plot=='TRUE'):
+                        patch1 = PolygonPatch(concave_hull, zorder=2, alpha=set_alpha,color=col_year)
+                        ax1c.add_patch(patch1)
+                        ax1c.scatter(pnt_matched.lon_3413,pnt_matched.lat_3413,zorder=3)
+                        plt.show()
+                    
+                    #Update area_region
+                    area_region=area_region+concave_hull.area #IS THAT CORRECT???
+                    
+            #Store total area per region and per time period
+            summary_area[time_period][region]=area_region  
+            
+    return summary_area
+
+
+def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
+
     '''
     #Open GrIS mask from Rignot et al., 2016
     path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
@@ -269,24 +345,11 @@ def plot_fig1(df_all,flightlines_20022018):
     ax.text(ind[4],np.nanmax(max_elev_diff_SW)+50,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
     
     ax.set_ylabel('Elevation [m]')
-    ax.set_title('Median of ice slabs maximum elevation per slice for each region')
+    ax.set_title('Median of ice slabs maximum elevation per slice')
     ax.legend()
     plt.show()
         
     #Panel C
-    
-    #prepare the figure
-    figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    figc.suptitle('')
-    
-    #Display GrIS drainage bassins
-    NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-    NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-    
     #Load convex hull mask over which convex hull must be computed
     path_convexhull_masks='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/shapefiles/'
     
@@ -311,99 +374,55 @@ def plot_fig1(df_all,flightlines_20022018):
     from scipy.spatial import ConvexHull
     from shapely import geometry
     from shapely.ops import unary_union
-    from descartes.patch import PolygonPatch
-        
-    #Prepare for convex hull intersection
-    df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
-    df_all['coords'] = df_all['coords'].apply(Point)
-    
-    #Set summary_area
-    summary_area={k: {} for k in list(['2011-2012','2017-2018'])}
-    
-    #Loop over time period
-    for time_period in list(['2011-2012','2017-2018']):
-        print(time_period)
-        #Set color for plotting
-        if (time_period == '2017-2018'):
-            col_year='#756bb1'
-            set_alpha=0.2
-            #Select data of the corresponding time period
-            df_time_period=df_all[df_all['str_year']=='2011-2012'].append(df_all[df_all['str_year']=='2017-2018'])
-            
-        elif(time_period == '2011-2012'):
-            col_year='#cb181d'
-            set_alpha=1
-            #Select data of the corresponding time period
-            df_time_period=df_all[df_all['str_year']==time_period]
-        else:
-            print('Time period not known')
-            break
-        
-        #Set summary_area
-        summary_area[time_period]={k: {} for k in list(['NE','NO','NW','CW','SW'])}
-    
-        #Loop over each region and do the hull for each region of the IS
-        for region in list(np.unique(df_time_period['key_shp'])):
-            print('   ',region)
-            #Select the corresponding region
-            df_time_period_region=df_time_period[df_time_period['key_shp']==region]
-            #Select point coordinates
-            points = gpd.GeoDataFrame(df_time_period_region, geometry='coords', crs="EPSG:3413")
 
-            if (region in list(['SE','Out'])):
-                #do not compute, continue
-                continue
-            #reset area region to 0
-            area_region=0
-            
-            # Perform spatial join to match points and polygons
-            for convex_hull_mask in dictionnaries_convexhullmasks[region].keys():
-                print('      ',convex_hull_mask)
-                pointInPolys = gpd.tools.sjoin(points, dictionnaries_convexhullmasks[region][convex_hull_mask], op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-                #Keep only matched point
-                if (region in list(['CW','SW'])):
-                    pnt_matched = points[pointInPolys.SUBREGION1==region]
-                else:
-                    pnt_matched = points[pointInPolys.id==1]
-                
-                if (len(pnt_matched)>1):
-                    
-                    #this function is from https://gist.github.com/dwyerk/10561690
-                    concave_hull, edge_points= alpha_shape(pnt_matched, 0.00001)
-                    patch1 = PolygonPatch(concave_hull, zorder=2, alpha=set_alpha,color=col_year)
-                    ax1c.add_patch(patch1)
-                    #ax1c.scatter(pnt_matched.lon_3413,pnt_matched.lat_3413,zorder=3)
-                    plt.show()           
-                    
-                    #Update area_region
-                    area_region=area_region+concave_hull.area #IS THAT CORRECT???
-                    
-                    '''
-                    Version Nb1: poor resolution
-                    #Data in it, do the convex hull
-                    #Stack lat and lon together and create the convex hull
-                    poly = geometry.Polygon([[p[0], p[1]] for p in np.column_stack((pnt_matched['lon_3413'],pnt_matched['lat_3413']))]) #from https://stackoverflow.com/questions/30457089/how-to-create-a-shapely-polygon-from-a-list-of-shapely-points
-                    hull1 = poly.convex_hull
-                    patch1 = PolygonPatch(hull1, alpha=set_alpha, zorder=2,color=col_year)
-                    ax1c.add_patch(patch1)
-                    '''
-                    
-                    '''
-                    #This work, does the correct thing (concaave hull) but takes ages to run, maybe try running on the cluster?
-                    #Alpha shape
-                    import alphashape
-                    
-                    #From https://pypi.org/project/alphashape/
-                    alpha_shape = alphashape.alphashape(np.column_stack((points.lon_3413[0:10000],points.lat_3413[0:10000])))
-                    
-                    fig, ax = plt.subplots()
-                    ax.scatter(*zip(*np.column_stack((points.lon_3413[0:10000],points.lat_3413[0:10000]))))
-                    ax.add_patch(PolygonPatch(alpha_shape, alpha=0.2))
-                    plt.show()
-                    '''
-            
-            #Store total area per region and per time period
-            summary_area[time_period][region]=area_region
+    #prepare the figure
+    figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    figc.suptitle('')
+    
+    #Display GrIS drainage bassins
+    NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+    NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+    
+    #Calculate concave hull with df_all dataset
+    do_plot='TRUE'
+    df_all_summary=concave_hull_computation(df_all,dictionnaries_convexhullmasks,ax1c,do_plot)
+    pdb.set_trace()
+    
+    #Extract low and high end areas
+    #do_plot='FALSE'
+    #prepare the figure
+    figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    figc.suptitle('')
+    
+    #Display GrIS drainage bassins
+    NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+    NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+    
+    low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot)
+    pdb.set_trace()
+
+    #prepare the figure
+    figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+    figc.suptitle('')
+    
+    #Display GrIS drainage bassins
+    NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+    NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+    NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+    
+    high_end_summary=concave_hull_computation(df_2010_2018_high,dictionnaries_convexhullmasks,ax1c,do_plot)
+    pdb.set_trace()
 
     #Display area change on the figure
     for region in list(['NE','NO','NW','CW','SW']):
@@ -888,7 +907,17 @@ else:
     #f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00', "rb")
     df_2010_2018 = pickle.load(f_20102018)
     f_20102018.close()
+    
+    #Load 2010-2018 high estimate
+    f_20102018_high = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
+    df_2010_2018_high = pickle.load(f_20102018_high)
+    f_20102018_high.close()
 
+    #Load 2010-2018 low estimate
+    f_20102018_low = open(path_df_with_elevation+'df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
+    df_2010_2018_low = pickle.load(f_20102018_low)
+    f_20102018_low.close()
+    
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
 #    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
@@ -1244,6 +1273,24 @@ df_2010_2018.loc[df_2010_2018['year']==2014,'str_year']=["2013-2014" for x in ra
 df_2010_2018.loc[df_2010_2018['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018[df_2010_2018['year']==2017]))]
 df_2010_2018.loc[df_2010_2018['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018[df_2010_2018['year']==2018]))]
 
+#Set the year for plotting in high estimate
+df_2010_2018_high.loc[df_2010_2018_high['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2010]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2011]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2012]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2013]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2014]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2017]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2018]))]
+
+#Set the year for plotting in high estimates
+df_2010_2018_low.loc[df_2010_2018_low['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2010]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2011]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2012]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2013]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2014]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2017]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2018]))]
+
 #Append all the dataframes together
 df_all=df_2002_2003_green
 df_all=df_all.append(df_2010_2018)
@@ -1527,17 +1574,9 @@ flightlines_20022018['lon_3413']=points[0]
 flightlines_20022018['lat_3413']=points[1]
 '''
 
-plot_fig1(df_all,flightlines_20022018)
+plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high)
 
 pdb.set_trace()
-'''
-#Todo:
-    1. Create 2010 flightlines
-    1. Run and create GrIS 2010-2018 flightlines
-    2. Change corresponding in code to load this new restricted datatset
-    3. Code to create shapefile around low end and high end probability ice slabs
-'''
-
 
 
 #Boxplot of max elevation per lat slice for each region for different time periods
