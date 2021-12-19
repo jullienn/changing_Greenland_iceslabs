@@ -180,7 +180,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
 
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
-    plot_save='FALSE'
+    plot_save='TRUE'
     '''
     #Open GrIS mask from Rignot et al., 2016
     path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
@@ -218,16 +218,29 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     
     #Display 2002-2003 iceslabs
     plt.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=0.1,color='#0570b0',label='2002-2003')
+    
     ax1.set_xlabel('Easting [m]')
     ax1.set_ylabel('Northing [m]')
+    
+    #Custom legend myself
+    from matplotlib.lines import Line2D
+    legend_elements = [Line2D([0], [0], marker='o', color='w', label='2010-2014',
+                        markerfacecolor='#3690c0', markersize=5),
+                       Line2D([0], [0], marker='o', color='w', label='2017-2018',
+                        markerfacecolor='#a6bddb', markersize=5),
+                       Line2D([0], [0], marker='o', color='w', label='2002-2003',
+                        markerfacecolor='#0570b0', markersize=5)]
+    
+    ax1.legend(handles=legend_elements,loc='upper right')
     plt.legend()
     plt.show()
     
+    '''
     if (plot_save == 'TRUE'):
         #Save the figure
-        plt.savefig('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/figures/fig1_panel_a.png',dpi=2000)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1_panel_a.png',dpi=2000)
         plt.close(fig)
-        
+    ''' 
     #Panel B
     
     #Define panel names
@@ -311,7 +324,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     ax.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c', yerr= dplotstd_20172018)
     ax.set_xticks(ind + 2*width)
     ax.set_xticklabels(labels)
-    ax.set_ylim(1000,2000)
+    ax.set_ylim(1000,2050)
     
     ax.text(ind[0],np.nanmax(max_elev_diff_NE)+50,str(int(np.round(np.nanmax(max_elev_diff_NE)-np.nanmin(max_elev_diff_NE))))+' m')
     ax.text(ind[1],np.nanmax(max_elev_diff_NO)+50,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
@@ -321,13 +334,25 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     
     ax.set_ylabel('Elevation [m]')
     ax.set_title('Median of ice slabs maximum elevation per slice')
-    ax.legend()
+    
+    #Custom legend myself
+    from matplotlib.patches import Patch
+    legend_elements = [Patch(facecolor='#c6dbef', alpha=0.5,label='2002-2003'),
+                       Patch(facecolor='#9ecae1', alpha=0.5,label='2010'),
+                       Patch(facecolor='#6baed6', alpha=0.5,label='2011-2012'),
+                       Patch(facecolor='#3182bd', alpha=0.5,label='2013-2014'),
+                       Patch(facecolor='#08519c', alpha=0.5,label='2017-2018'),
+                       Line2D([0], [0], color='k', lw=2, label='Standard deviation around the mean')]
+    
+    ax.legend(handles=legend_elements,loc='upper center')
+    plt.legend()
     plt.show()
     
     if (plot_save == 'TRUE'):
         #Save the figure
-        plt.savefig('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/figures/fig1_panel_b.png',dpi=2000)
-        plt.close(fig)
+        pdb.set_trace()
+        #plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1_panel_b.png',dpi=2000)
+        #plt.close(fig)
         
     #Panel C
     #Load convex hull mask over which convex hull must be computed
@@ -336,7 +361,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     dictionnaries_convexhullmasks = {k: {} for k in list(['NE','NO','NW','CW','SW'])}
     dictionnaries_convexhullmasks['NE']={k: {} for k in list(['NE_CH_1','NE_CH_2','NE_CH_3','NE_CH_4'])}
     dictionnaries_convexhullmasks['NO']={k: {} for k in list(['NO_CH_1','NO_CH_2','NO_CH_3','NO_CH_4','NO_CH_5','NO_CH_6','NO_CH_7'])}
-    dictionnaries_convexhullmasks['NW']={k: {} for k in list(['NW_CH_1','NW_CH_2','NW_CH_3','NW_CH_4','NW_CH_5'])}
+    dictionnaries_convexhullmasks['NW']={k: {} for k in list(['NW_CH_1','NW_CH_2','NW_CH_3','NW_CH_4','NW_CH_5','NW_CH_6'])}
     dictionnaries_convexhullmasks['CW']={k: {} for k in list(['CW_CH_1'])}
     dictionnaries_convexhullmasks['SW']={k: {} for k in list(['SW_CH_1'])}
     
@@ -391,9 +416,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
         low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
         high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
         
-        #Display region name
-        ax1c.text(polygon_for_text.centroid.x+10000,polygon_for_text.centroid.y+20000,region)
-
+        #Display region name on panel a 
+        ax1.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y+20000,region)
+        
+        #Display region name on panel c
+        ax1c.text(polygon_for_text.centroid.x+25000,polygon_for_text.centroid.y+20000,region)
+        
         #Compute and display relative change
         ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
     
@@ -402,7 +430,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     
     pdb.set_trace()
 
-    from matplotlib.patches import Patch
     #Custom legend myself
     legend_elements = [Patch(facecolor='#3182bd', alpha=0.5,label='2011-2012'),
                        Patch(facecolor='#de2d26', alpha=0.5,label='2017-2018')]
@@ -414,8 +441,9 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     
     if (plot_save == 'TRUE'):
         #Save the figure
-        plt.savefig('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/figures/fig1_panels_c.png',dpi=2000)
-        plt.close(fig)
+        pdb.set_trace()
+        #plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1_panels_c.png',dpi=2000)
+        #plt.close(fig)
 
 
 
