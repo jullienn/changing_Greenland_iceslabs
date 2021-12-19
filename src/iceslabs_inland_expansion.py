@@ -93,7 +93,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
     summary_area={k: {} for k in list(['2011-2012','2017-2018'])}
     
     #Loop over time period
-    for time_period in list(['2011-2012','2017-2018']):
+    for time_period in list(['2017-2018','2011-2012']):
         print(time_period)
         #Set color for plotting
         if (time_period == '2017-2018'):
@@ -102,7 +102,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
                 set_alpha=0.2
             elif(input_file=='high_end'):
                 col_year='#de2d26'
-                set_alpha=0.2
+                set_alpha=0.5
             else:
                 print('Input file not known, break')
             #Select data of the corresponding time period
@@ -114,7 +114,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
                 set_alpha=0.2
             elif(input_file=='high_end'):
                 col_year='#3182bd'
-                set_alpha=0.2
+                set_alpha=0.5
             else:
                 print('Input file not known, break')
             #Select data of the corresponding time period
@@ -172,7 +172,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
                     
                     #Update area_region
                     area_region=area_region+concave_hull.area #IS THAT CORRECT???
-                    
+            
             #Store total area per region and per time period
             summary_area[time_period][region]=area_region  
             
@@ -180,7 +180,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
 
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
-
+    plot_save='FALSE'
     '''
     #Open GrIS mask from Rignot et al., 2016
     path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
@@ -218,8 +218,15 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     
     #Display 2002-2003 iceslabs
     plt.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=0.1,color='#0570b0',label='2002-2003')
+    ax1.set_xlabel('Easting [m]')
+    ax1.set_ylabel('Northing [m]')
     plt.legend()
     plt.show()
+    
+    if (plot_save == 'TRUE'):
+        #Save the figure
+        plt.savefig('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/figures/fig1_panel_a.png',dpi=2000)
+        plt.close(fig)
         
     #Panel B
     
@@ -316,6 +323,11 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     ax.set_title('Median of ice slabs maximum elevation per slice')
     ax.legend()
     plt.show()
+    
+    if (plot_save == 'TRUE'):
+        #Save the figure
+        plt.savefig('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/figures/fig1_panel_b.png',dpi=2000)
+        plt.close(fig)
         
     #Panel C
     #Load convex hull mask over which convex hull must be computed
@@ -378,53 +390,32 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
         
         low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
         high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
+        
+        #Display region name
+        ax1c.text(polygon_for_text.centroid.x+10000,polygon_for_text.centroid.y+20000,region)
 
         #Compute and display relative change
-        ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,'['+str(low_end_change)+':'+str(high_end_change)+'] %')
+        ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+    
+    ax1c.set_xlabel('Easting [m]')
+    ax1c.set_ylabel('Northing [m]')
+    
+    pdb.set_trace()
+
+    from matplotlib.patches import Patch
+    #Custom legend myself
+    legend_elements = [Patch(facecolor='#3182bd', alpha=0.5,label='2011-2012'),
+                       Patch(facecolor='#de2d26', alpha=0.5,label='2017-2018')]
+    ax1c.legend(handles=legend_elements,loc='upper right')
+    plt.legend()
     
     #Plot data
     #ax1c.scatter(df_all.lon_3413,df_all.lat_3413,s=0.1,zorder=3)
-    pdb.set_trace()
-
-
     
-    
-
-    '''
-    #We do 2017-2018
-    df_time_period=df_all[df_all['str_year']=='2017-2018']
-    #Loop over each region and do the hull for each region of the IS
-    for region in list(np.unique(df_time_period['key_shp'])):
-        
-        if (region == 'Out'):
-            #do not compute, continue
-            continue
-        #Select the corresponding region
-        df_time_period_region=df_time_period[df_time_period['key_shp']==region]
-        #Stack lat and lon together
-        points_20172018=np.column_stack((df_time_period_region['lon_3413'],df_time_period_region['lat_3413']))
-        #Create the hull
-        hull_20172018 = ConvexHull(points_20172018)
-        
-        #plt.plot(points_20172018[:,0], points_20172018[:,1], 'o')
-        for simplex in hull_20172018.simplices:
-            plt.plot(points_20172018[simplex, 0], points_20172018[simplex, 1], 'r-')
-    '''     
-
-    '''
-    ax1.set_xlim(-240000,-65000)
-    ax1.set_ylim(-2650000,-2250000)
-    '''
-    '''
-    #Allows to open plot in full size directly
-    figManager = plt.get_current_fig_manager()
-    figManager.window.showMaximized()
-    '''
-    plt.legend()
-    
-    #Save the figure
-    plt.savefig('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/figures/fig1.png',dpi=2000)
-    plt.close(fig)
+    if (plot_save == 'TRUE'):
+        #Save the figure
+        plt.savefig('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/figures/fig1_panels_c.png',dpi=2000)
+        plt.close(fig)
 
 
 
