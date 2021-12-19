@@ -143,8 +143,15 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
                     #this function is from https://gist.github.com/dwyerk/10561690
                     concave_hull, edge_points= alpha_shape(pnt_matched, 0.00002) #0.00005 is a bit too aggresive, 0.00001 is a bit generous     
                     
-                    if (convex_hull_mask=='NO_CH_6' and time_period=='2011-2012'):
-                        pdb.set_trace()
+                    alpha_play=0.00002
+                    while (len(concave_hull.bounds)==0):
+                        print('Empty alpha! Iterate until fit is made')
+                        #Could not match a poylgon with specified alpha. Decrease alpha until poylgon can be matched
+                        #update alpha_play
+                        alpha_play=alpha_play/2
+                        print(alpha_play)
+                        concave_hull, edge_points= alpha_shape(pnt_matched, alpha_play) #0.00005 is a bit too aggresive, 0.00001 is a bit generous
+                        
                     if (do_plot=='TRUE'):
                         patch1 = PolygonPatch(concave_hull, zorder=2, alpha=set_alpha,color=col_year)
                         ax1c.add_patch(patch1)
@@ -339,7 +346,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     #Calculate concave hull with df_all dataset
     do_plot='TRUE'
     df_all_summary=concave_hull_computation(df_all,dictionnaries_convexhullmasks,ax1c,do_plot)
-    pdb.set_trace()
     
     #Extract low and high end areas
     #do_plot='FALSE'
@@ -356,8 +362,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
     
     low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot)
-    pdb.set_trace()
-
+    
     #prepare the figure
     figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     figc.suptitle('')

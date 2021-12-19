@@ -15,10 +15,7 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
     
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     fig.suptitle('Spatial aggregation, positive difference '+str(np.unique(df_recent['year'])[0])+'-'+str(np.unique(df_old['year'])[0]))
-    #Display DEM
-    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.2)#,norm=divnorm)
-    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-    cbar1.set_label('Elevation [m]')
+    
     # Make the norm for difference plotting
     #divnorm_diff = mcolors.DivergingNorm(vmin=0, vcenter=5, vmax=10)
     '''
@@ -66,6 +63,10 @@ def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon
 #Import librairies
 import datetime
 from scipy import spatial
+import pandas as pd
+from pyproj import Transformer
+import numpy as np
+import pdb
 
 #Load the spatial aggregated data. All the points within a radius of 100m are averaged
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
@@ -81,39 +82,7 @@ points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2
 df_2010_2018_csv['lon_3413']=points[0]
 df_2010_2018_csv['lat_3413']=points[1]
 
-#Visualize the spatial aggregation process
-########################## Load GrIS elevation ##########################
-#Open the DEM
-grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
-#Minnor slicing on borders to enhance colorbars
-elevDem=grid.dem[:-1,:-1]              
-#Scale the colormap
-#divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
-########################## Load GrIS elevation ##########################
-
-'''
-fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation illustration')
-#Display DEM
-cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
-cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-cbar1.set_label('Elevation [m]')
-#Display 2010-2018 data
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#525252',label='2010-2014')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2011']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2011']['lat_3413'],s=0.1,color='#525252')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2012']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2012']['lat_3413'],s=0.1,color='#525252')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2013']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2013']['lat_3413'],s=0.1,color='#525252')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2014']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2014']['lat_3413'],s=0.1,color='#525252')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lat_3413'],s=0.1,color='#d9d9d9',label='2017-2018')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2018']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2018']['lat_3413'],s=0.1,color='#d9d9d9')
-#Display the aggregation data
-plt.scatter(df_2010_2018_spatially_aggregated['avg_lon_3413'],df_2010_2018_spatially_aggregated['avg_lat_3413'],color='green',label='2010-2018 spatially aggregated')
-plt.legend()
-plt.show()
-'''
-
 #Loop over the keys and create 1 dataframe per year. Where no data for this particular year, store a nan
-
 #Create empty arrays
 nan_array=np.zeros((1,7))
 nan_array[:]=np.nan
@@ -236,8 +205,73 @@ df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
                                           columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
 
 
-
 list_high_end=list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])
+pdb.set_trace()
+
+#Plot 2010, 2011, 2012, 2013, 2014 ,2017 2018, select overlapping case study: use clean and clear ice slabs tramsects
+
+#CHOOSE LOC1, loc 2, loc 3, loc 6, 15, 17, 23
+
+investigation_year={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
+                    2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
+                    2012:'empty',
+                    2013:'empty',
+                    2014:['Data_20140421_01_009.mat','Data_20140421_01_010.mat','Data_20140421_01_011.mat','Data_20140421_01_012.mat','Data_20140421_01_013.mat'],
+                    2017:['Data_20170424_01_008.mat','Data_20170424_01_009.mat','Data_20170424_01_010.mat','Data_20170424_01_011.mat','Data_20170424_01_012.mat','Data_20170424_01_013.mat','Data_20170424_01_014.mat'],
+                    2018:'empty'}
+inv[1]=investigation_year
+
+
+#Very good candidate for ice slabs filling!!
+investigation_year={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
+                    2011:['Data_20110411_01_116.mat','Data_20110411_01_117.mat','Data_20110411_01_118.mat'],
+                    2012:['Data_20120428_01_125.mat','Data_20120428_01_126.mat'],
+                    2013:'empty',
+                    2014:['Data_20140408_11_024.mat','Data_20140408_11_025.mat','Data_20140408_11_026.mat'],
+                    2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
+                    2018:'empty'}
+inv[2]=investigation_year
+
+#This one is collocated with FS1, 2, 3.
+investigation_year={2010:'empty',
+                    2011:'empty',
+                    2012:['Data_20120423_01_137.mat','Data_20120423_01_138.mat'],
+                    2013:['Data_20130409_01_010.mat','Data_20130409_01_011.mat','Data_20130409_01_012.mat'],
+                    2014:'empty',
+                    2017:'empty',
+                    2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
+inv[3]=investigation_year
+
+df_2010_2018_csv
+
+
+fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+fig.suptitle('Spatial aggregation, positive difference '+str(np.unique(df_recent['year'])[0])+'-'+str(np.unique(df_old['year'])[0]))
+
+
+#Display 2017 and 2018 data
+plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lat_3413'],s=0.1,color='#737373')
+plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2018']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2018']['lat_3413'],s=0.1,color='#737373',label='2017-2018 ice slabs')
+
+#Display 2011 and 2012 data
+plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2011']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2011']['lat_3413'],s=0.1,color='#969696')
+plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2012']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2012']['lat_3413'],s=0.1,color='#969696',label='2011-2012 ice slabs')
+
+
+
+
+
+
+
+pdb.set_trace()
+
+
+
+
+
+
+
+
 plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2010,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
 
 '''
