@@ -355,9 +355,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
     NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
     
-    #Calculate convex hull and extract low and high end areas
+    #Calculate concave hull and extract low and high end areas
     do_plot='TRUE'
     high_end_summary=concave_hull_computation(df_2010_2018_high,dictionnaries_convexhullmasks,ax1c,do_plot,'high_end')
+    do_plot='FALSE'
     low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot,'low_end')
     
     #Display area change on the figure
