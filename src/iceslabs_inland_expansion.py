@@ -82,7 +82,7 @@ def calcul_elevation(lon,lat,data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_z
     return elevation
 
     
-def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plot):
+def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plot,input_file):
     from descartes.patch import PolygonPatch
 
     #Prepare for convex hull intersection
@@ -97,14 +97,26 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
         print(time_period)
         #Set color for plotting
         if (time_period == '2017-2018'):
-            col_year='#756bb1'
-            set_alpha=0.2
+            if (input_file=='low_end'):
+                col_year='#fee0d2'
+                set_alpha=0.2
+            elif(input_file=='high_end'):
+                col_year='#de2d26'
+                set_alpha=0.2
+            else:
+                print('Input file not known, break')
             #Select data of the corresponding time period
             df_time_period=df_in_use[df_in_use['str_year']=='2011-2012'].append(df_in_use[df_in_use['str_year']=='2017-2018'])
             
         elif(time_period == '2011-2012'):
-            col_year='#cb181d'
-            set_alpha=1
+            if (input_file=='low_end'):
+                col_year='#deebf7'
+                set_alpha=0.2
+            elif(input_file=='high_end'):
+                col_year='#3182bd'
+                set_alpha=0.2
+            else:
+                print('Input file not known, break')
             #Select data of the corresponding time period
             df_time_period=df_in_use[df_in_use['str_year']==time_period]
         else:
@@ -155,7 +167,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
                     if (do_plot=='TRUE'):
                         patch1 = PolygonPatch(concave_hull, zorder=2, alpha=set_alpha,color=col_year)
                         ax1c.add_patch(patch1)
-                        ax1c.scatter(pnt_matched.lon_3413,pnt_matched.lat_3413,zorder=3)
+                        #ax1c.scatter(pnt_matched.lon_3413,pnt_matched.lat_3413,zorder=3)
                         plt.show()
                     
                     #Update area_region
@@ -333,7 +345,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
 
     #prepare the figure
     figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    figc.suptitle('')
+    figc.suptitle('GrIS ice slabs extent - high estimate')
     
     #Display GrIS drainage bassins
     NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
@@ -343,41 +355,11 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
     NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
     
-    #Calculate concave hull with df_all dataset
+    #Calculate convex hull and extract low and high end areas
     do_plot='TRUE'
-    df_all_summary=concave_hull_computation(df_all,dictionnaries_convexhullmasks,ax1c,do_plot)
+    high_end_summary=concave_hull_computation(df_2010_2018_high,dictionnaries_convexhullmasks,ax1c,do_plot,'high_end')
+    low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot,'low_end')
     
-    #Extract low and high end areas
-    #do_plot='FALSE'
-    #prepare the figure
-    figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    figc.suptitle('')
-    
-    #Display GrIS drainage bassins
-    NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-    NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-    
-    low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot)
-    
-    #prepare the figure
-    figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    figc.suptitle('')
-    
-    #Display GrIS drainage bassins
-    NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-    NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-    
-    high_end_summary=concave_hull_computation(df_2010_2018_high,dictionnaries_convexhullmasks,ax1c,do_plot)
-    pdb.set_trace()
-
     #Display area change on the figure
     for region in list(['NE','NO','NW','CW','SW']):
         if (region =='NE'):
@@ -391,10 +373,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
         elif(region =='SW'):
             polygon_for_text=SW_rignotetal
         else:
-            print('Region not knwon')
+            print('Region not known')
         
+        low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
+        high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
+
         #Compute and display relative change
-        ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,str((int((summary_area['2017-2018'][region]-summary_area['2011-2012'][region])/summary_area['2011-2012'][region]*100)))+' %')
+        ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,'['+str(low_end_change)+':'+str(high_end_change)+'] %')
     
     #Plot data
     #ax1c.scatter(df_all.lon_3413,df_all.lat_3413,s=0.1,zorder=3)
