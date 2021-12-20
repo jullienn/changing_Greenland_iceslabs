@@ -291,9 +291,6 @@ plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2017][0][5:20]
 #Define the longitudinal sampling
 lon_divide=np.arange(-120600,-68200,(120600-68200)/20)
 
-#Create empty dictionnary for storing data
-dict_sampling={k: {} for k in list([2010,2011,2012,2013,2014,2017,2018])}
-
 #Create empty dataframe for storing data
 df_sampling=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
 
@@ -304,9 +301,6 @@ for year in loc1.keys():
     
     #Select data for the trace
     df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[year][0][5:20]+'_'+loc1[year][-1][17:20]]
-    
-    #Update dictionnary preparation
-    dict_sampling[year]={k: {} for k in list([str(lon_divide[0])+':'+str(lon_divide[1])])}
     
     #Set bound_nb to 0
     bound_nb=0
@@ -321,9 +315,6 @@ for year in loc1.keys():
         ind_slice=np.logical_and(np.array(df_trace['lon_3413']>=low_bound),np.array(df_trace['lon_3413']<high_bound))
         df_select=df_trace[ind_slice]
         
-        #Compute and store average and stddev in this longitudinal slice
-        dict_sampling[year][str(low_bound)+':'+str(high_bound)]=[np.nanmean(df_select['20m_ice_content_m']),np.nanstd(df_select['20m_ice_content_m'])]
-
         #Fill in dictionnary
         df_temp=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
         df_temp['20m_ice_content_m']=np.asarray(df_select['20m_ice_content_m'])
