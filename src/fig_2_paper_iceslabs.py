@@ -6,6 +6,18 @@ Created on Sun Dec 19 12:14:06 2021
 """
 def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv):
     
+    #Define empty dictionnary for longitudinal slice definition
+    df_for_lon=pd.DataFrame(columns=list(df_2010_2018_csv.keys()))
+
+    #Loop over the years
+    for year in dictionnary_case_study.keys():
+        if (dictionnary_case_study[year] == 'empty'):
+            continue  
+        #Select data for the trace
+        df_for_lon_temp=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        #Append data to each other
+        df_for_lon=df_for_lon.append(df_for_lon_temp)
+    
     #Desired number of slices
     desired_nb=20
     
@@ -21,7 +33,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv):
         df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
         
         #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
-        lon_divide=np.arange(np.floor(np.min(df_trace['lon_3413'])),(np.floor(np.max(df_trace['lon_3413']))+1)+(np.abs(np.floor(np.min(df_trace['lon_3413'])))-np.abs(np.floor(np.max(df_trace['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_trace['lon_3413'])))-np.abs(np.floor(np.max(df_trace['lon_3413']))+1))/desired_nb)
+        lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
         
         #Set bound_nb to 0
         bound_nb=0
