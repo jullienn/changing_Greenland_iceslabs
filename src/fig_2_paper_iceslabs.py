@@ -289,10 +289,13 @@ plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2017][0][5:20]
             s=0.1,color='#737373')
 
 #Define the longitudinal sampling
-lon_divide=np.arange(-120600,-68200,(120600-68200)/10)
+lon_divide=np.arange(-120600,-68200,(120600-68200)/20)
 
 #Create empty dictionnary for storing data
 dict_sampling={k: {} for k in list([2010,2011,2012,2013,2014,2017,2018])}
+
+#Create empty dataframe for storing data
+df_sampling=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
 
 #Loop over the years
 for year in loc1.keys():
@@ -304,7 +307,9 @@ for year in loc1.keys():
     
     #Update dictionnary preparation
     dict_sampling[year]={k: {} for k in list([str(lon_divide[0])+':'+str(lon_divide[1])])}
-
+    
+    #Set bound_nb to 0
+    bound_nb=0
     #Loop over the lon divide
     for i in range(1,len(lon_divide)):
         
@@ -318,47 +323,36 @@ for year in loc1.keys():
         
         #Compute and store average and stddev in this longitudinal slice
         dict_sampling[year][str(low_bound)+':'+str(high_bound)]=[np.nanmean(df_select['20m_ice_content_m']),np.nanstd(df_select['20m_ice_content_m'])]
+
+        #Fill in dictionnary
+        df_temp=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
+        df_temp['20m_ice_content_m']=np.asarray(df_select['20m_ice_content_m'])
+        df_temp['Track_name']=np.asarray([df_select['Track_name'].unique()]*len(df_select))
+        df_temp['year']=np.asarray([year]*len(df_select))
+        df_temp['low_bound']=np.asarray([str(low_bound)]*len(df_select))
+        df_temp['high_bound']=np.asarray([str(high_bound)]*len(df_select))
+        df_temp['bound_nb']=np.asarray([str(bound_nb)]*len(df_select))
+        df_temp['mean']=np.asarray([np.nanmean(df_select['20m_ice_content_m'])]*len(df_select))
+        df_temp['stddev']=np.asarray([np.nanstd(df_select['20m_ice_content_m'])]*len(df_select))
+        
+        #Append dictionnary
+        df_sampling=df_sampling.append(df_temp)
+        
+        #Update bound_nb
+        bound_nb=bound_nb+1
     
-    
-pdb.set_trace()
-    
-#Arguments for boxplots
-width = 0.1# the width of the bars: can also be len(x) sequence
-nb_years=7 #Number of years
-nb_slices=len(lon_divide) #number of slices in sampling
-ind= np.arange(N) #Position of regions
-    
+
+
+import seaborn as sns
+
+sns.set_theme(style="whitegrid")
 fig, ax = plt.subplots()
-ax.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef', yerr= dplotstd_20022003) #yerr=men_std
-ax.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
-ax.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
-ax.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd', yerr= dplotstd_20132014)
-ax.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c', yerr= dplotstd_20172018)
-ax.set_xticks(ind + 2*width)
-ax.set_xticklabels(labels)
-ax.set_ylim(1000,2050)
-
-ax.text(ind[0],np.nanmax(max_elev_diff_NE)+50,str(int(np.round(np.nanmax(max_elev_diff_NE)-np.nanmin(max_elev_diff_NE))))+' m')
-ax.text(ind[1],np.nanmax(max_elev_diff_NO)+50,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
-ax.text(ind[2],np.nanmax(max_elev_diff_NW)+50,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
-ax.text(ind[3],np.nanmax(max_elev_diff_CW)+50,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
-ax.text(ind[4],np.nanmax(max_elev_diff_SW)+50,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
-
-ax.set_ylabel('Elevation [m]')
-ax.set_title('Median of ice slabs maximum elevation per slice')
-
+ax = sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",
+                 data=df_sampling, palette="Set3")
 
 plt.show()
 
-
-
-
 pdb.set_trace()
-
-
-
-
-
 
 
 
