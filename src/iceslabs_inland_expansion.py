@@ -229,7 +229,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
                        Line2D([0], [0], marker='o', color='w', label='2017-2018',
                         markerfacecolor='#a6bddb', markersize=5),
                        Line2D([0], [0], marker='o', color='w', label='2002-2003',
-                        markerfacecolor='#0570b0', markersize=5)]
+                        markerfacecolor='#0570b0', markersize=15)]
     
     ax1.legend(handles=legend_elements,loc='upper right')
     plt.legend()
@@ -421,10 +421,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
         
         #Display region name on panel c
         ax1c.text(polygon_for_text.centroid.x+25000,polygon_for_text.centroid.y+20000,region)
-        
+        '''
         #Compute and display relative change
         ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
-    
+        '''
     ax1c.set_xlabel('Easting [m]')
     ax1c.set_ylabel('Northing [m]')
     
@@ -433,7 +433,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     #Custom legend myself
     legend_elements = [Patch(facecolor='#3182bd', alpha=0.5,label='2011-2012'),
                        Patch(facecolor='#de2d26', alpha=0.5,label='2017-2018')]
-    ax1c.legend(handles=legend_elements,loc='upper right')
+    ax1c.legend(handles=legend_elements,loc='best')
     plt.legend()
     
     #Plot data

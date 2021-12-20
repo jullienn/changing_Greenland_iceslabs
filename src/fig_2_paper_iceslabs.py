@@ -67,6 +67,30 @@ import pandas as pd
 from pyproj import Transformer
 import numpy as np
 import pdb
+import matplotlib.pyplot as plt
+import geopandas as gpd
+### -------------------------- Load shapefiles --------------------------- ###
+path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
+
+NW_icecap_greenland_mask=gpd.read_file(path_regional_masks+'/NW_icecap_greenland_mask_3413.shp')
+NW_north_greenland_mask=gpd.read_file(path_regional_masks+'/NW_north_greenland_mask_3413.shp')
+NW_west_greenland_mask=gpd.read_file(path_regional_masks+'/NW_west_greenland_mask_3413.shp')
+SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_mask_3413.shp')
+SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
+SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
+
+#Load Rignot et al., 2016 Greenland drainage bassins
+path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+
+#Extract indiv regions and create related indiv shapefiles
+NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
+NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
+SE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SE']
+SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
+CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
+NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
+### -------------------------- Load shapefiles --------------------------- ###
 
 #Load the spatial aggregated data. All the points within a radius of 100m are averaged
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
@@ -206,7 +230,7 @@ df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
 
 
 list_high_end=list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])
-pdb.set_trace()
+
 
 #Plot 2010, 2011, 2012, 2013, 2014 ,2017 2018, select overlapping case study: use clean and clear ice slabs tramsects
 
@@ -237,23 +261,94 @@ loc3={2010:'empty',
       2017:'empty',
       2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 
-df_2010_2018_csv
-
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Spatial aggregation, positive difference '+str(np.unique(df_recent['year'])[0])+'-'+str(np.unique(df_old['year'])[0]))
+
+#Display GrIS drainage bassins
+NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
+NE_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+SE_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+
+plt.scatter(df_spatially_aggregated_2010['avg_lon_3413'],df_spatially_aggregated_2010['avg_lat_3413'],c=df_spatially_aggregated_2010['avg_20m_icecontent'],s=0.2)
+
+#Display
+plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2010][0][5:20]+'_'+loc1[2010][2][17:20]]['lon_3413'],
+            df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2010][0][5:20]+'_'+loc1[2010][2][17:20]]['lat_3413'],
+            s=0.1,color='#737373')
+plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2011][0][5:20]+'_'+loc1[2011][2][17:20]]['lon_3413'],
+            df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2011][0][5:20]+'_'+loc1[2011][2][17:20]]['lat_3413'],
+            s=0.1,color='#737373')
+plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2014][0][5:20]+'_'+loc1[2014][2][17:20]]['lon_3413'],
+            df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2014][0][5:20]+'_'+loc1[2014][2][17:20]]['lat_3413'],
+            s=0.1,color='#737373')
+plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2017][0][5:20]+'_'+loc1[2017][2][17:20]]['lon_3413'],
+            df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2017][0][5:20]+'_'+loc1[2017][2][17:20]]['lat_3413'],
+            s=0.1,color='#737373')
+
+#Define the longitudinal sampling
+lon_divide=np.arange(-120600,-68200,(120600-68200)/10)
+
+#Create empty dictionnary for storing data
+dict_sampling={k: {} for k in list([2010,2011,2012,2013,2014,2017,2018])}
+
+#Loop over the years
+for year in loc1.keys():
+    if (loc1[year] == 'empty'):
+        continue
+    
+    #Select data for the trace
+    df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[year][0][5:20]+'_'+loc1[year][-1][17:20]]
+    
+    #Update dictionnary preparation
+    dict_sampling[year]={k: {} for k in list([str(lon_divide[0])+':'+str(lon_divide[1])])}
+
+    #Loop over the lon divide
+    for i in range(1,len(lon_divide)):
+        
+        #Identify low and higher end of the slice
+        low_bound=lon_divide[i-1]
+        high_bound=lon_divide[i]
+
+        #Select all the data belonging to this lon slice
+        ind_slice=np.logical_and(np.array(df_trace['lon_3413']>=low_bound),np.array(df_trace['lon_3413']<high_bound))
+        df_select=df_trace[ind_slice]
+        
+        #Compute and store average and stddev in this longitudinal slice
+        dict_sampling[year][str(low_bound)+':'+str(high_bound)]=[np.nanmean(df_select['20m_ice_content_m']),np.nanstd(df_select['20m_ice_content_m'])]
+    
+    
+pdb.set_trace()
+    
+#Arguments for boxplots
+width = 0.1# the width of the bars: can also be len(x) sequence
+nb_years=7 #Number of years
+nb_slices=len(lon_divide) #number of slices in sampling
+ind= np.arange(N) #Position of regions
+    
+fig, ax = plt.subplots()
+ax.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef', yerr= dplotstd_20022003) #yerr=men_std
+ax.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
+ax.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
+ax.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd', yerr= dplotstd_20132014)
+ax.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c', yerr= dplotstd_20172018)
+ax.set_xticks(ind + 2*width)
+ax.set_xticklabels(labels)
+ax.set_ylim(1000,2050)
+
+ax.text(ind[0],np.nanmax(max_elev_diff_NE)+50,str(int(np.round(np.nanmax(max_elev_diff_NE)-np.nanmin(max_elev_diff_NE))))+' m')
+ax.text(ind[1],np.nanmax(max_elev_diff_NO)+50,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
+ax.text(ind[2],np.nanmax(max_elev_diff_NW)+50,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
+ax.text(ind[3],np.nanmax(max_elev_diff_CW)+50,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
+ax.text(ind[4],np.nanmax(max_elev_diff_SW)+50,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
+
+ax.set_ylabel('Elevation [m]')
+ax.set_title('Median of ice slabs maximum elevation per slice')
 
 
-#Display 2017 and 2018 data
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lat_3413'],s=0.1,color='#737373')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2018']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2018']['lat_3413'],s=0.1,color='#737373',label='2017-2018 ice slabs')
-
-#Display 2011 and 2012 data
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2011']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2011']['lat_3413'],s=0.1,color='#969696')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2012']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2012']['lat_3413'],s=0.1,color='#969696',label='2011-2012 ice slabs')
-
-
-
+plt.show()
 
 
 
