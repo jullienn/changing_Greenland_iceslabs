@@ -4,11 +4,11 @@ Created on Sun Dec 19 12:14:06 2021
 
 @author: jullienn
 """
-def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv):
+def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation):
     
     #Define empty dictionnary for longitudinal slice definition
     df_for_lon=pd.DataFrame(columns=list(df_2010_2018_csv.keys()))
-
+    
     #Loop over the years
     for year in dictionnary_case_study.keys():
         if (dictionnary_case_study[year] == 'empty'):
@@ -24,14 +24,30 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv):
     #Create empty dataframe for storing data
     df_sampling=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
     
+    #Create empty matrix for storing elevation data
+    max_elev_per_trace=np.zeros((len(dictionnary_case_study.keys()),2))
+    index_max_elev=0
+    
     #Loop over the years
     for year in dictionnary_case_study.keys():
         if (dictionnary_case_study[year] == 'empty'):
+            #Update line for max elevation storing
+            index_max_elev=index_max_elev+1
             continue
+
+        #Select elevation data for the trace
+        df_trace_elevation=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        
+        #Pick up max elevation of this trace
+        max_elev_per_trace[index_max_elev,0]=int(df_trace_elevation['Track_name'].unique()[0][0:4])
+        max_elev_per_trace[index_max_elev,1]=np.nanmax(df_trace_elevation['elevation'])
+        #Update line for max elevation storing
+        index_max_elev=index_max_elev+1
+        
         
         #Select data for the trace
         df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
-        
+
         #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
         lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
         
@@ -64,18 +80,55 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv):
             
             #Update bound_nb
             bound_nb=bound_nb+1
+        
+    #Set order to display data
+    order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int)))
     
-    #plot data
-    fig, ax = plt.subplots()
+    #plot thickness data
+    fig, axes = plt.subplots(2,1)
     fig.suptitle('Case study')
-    ax = sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",
-                     data=df_sampling, palette="Set3")
+    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette="Set3", ax=axes[0],order=order_plot.astype(str))
+    axes[0].set_ylabel('Ice slabs thickness [m]')
+    axes[0].set_xlabel('Bound number')
+    #https://stackoverflow.com/questions/16834861/create-own-colormap-using-matplotlib-and-plot-color-scale
+    import matplotlib.colors
     
+    '''
+    '#c6dbef',label='2002-2003'
+    '#9ecae1',label='2010'
+    '#6baed6',label='2011-2012'
+    '#3182bd',label='2013-2014'
+    '#08519c',label='2017-2018'
+    '''    
+    #this is from https://stackoverflow.com/questions/16834861/create-own-colormap-using-matplotlib-and-plot-color-scale
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ['#9ecae1','#6baed6','#3182bd','#08519c'])
+
+    #This is from https://stackoverflow.com/questions/53360879/create-a-discrete-colorbar-in-matplotlib
+    norm = matplotlib.colors.BoundaryNorm(np.asarray([2010,2012,2014,2018]), cmap.N)
+    
+    #Get rid of NaNs
+    max_elev_per_trace_toplot=max_elev_per_trace[~np.isnan(max_elev_per_trace[:,1])]
+
+    #Get rid of zeros
+    max_elev_per_trace_toplot=max_elev_per_trace_toplot[~(max_elev_per_trace_toplot==0)].reshape(np.sum((~(max_elev_per_trace[:,0]==0))*1),2)
+    
+    print(max_elev_per_trace)
+    
+    print(max_elev_per_trace_toplot)
+    
+    #Plot maximum elevation data
+    cbar=axes[1].scatter(max_elev_per_trace_toplot[:,1],np.ones(len(max_elev_per_trace_toplot)),c=max_elev_per_trace_toplot[:,0],vmin=2010,vmax=2018,cmap=cmap)#,norm=norm)
+    #plt.clim(2010,2018)
+    
+    axes[1].set_xlabel('Maximum ice slabs elevation [m]')
+    fig.colorbar(cbar, ax=axes[1], orientation='vertical')
     plt.show()
+    
+    print('End plotting fig 2')
     
     return
 
-def plot_thickness_high_end(df_2010_2018,df_recent,df_old,elevDem,grid,slice_lon_summary,lat_slices,list_high_end):
+def plot_thickness_high_end(df_2010_2018,df_recent,df_old,slice_lon_summary,lat_slices,list_high_end):
     
     #Plot differences
     diff_to_plot=df_recent-df_old
@@ -138,6 +191,7 @@ import numpy as np
 import pdb
 import matplotlib.pyplot as plt
 import geopandas as gpd
+import pickle
 import seaborn as sns
 sns.set_theme(style="whitegrid")
 
@@ -333,6 +387,37 @@ loc3={2010:'empty',
       2017:'empty',
       2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 
+loc6={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+      2011:'empty',
+      2012:'empty',
+      2013:'empty',
+      2014:'empty',
+      2017:'empty',
+      2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+
+loc15={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+       2011:'empty',
+       2012:'empty',
+       2013:'empty',
+       2014:'empty',
+       2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
+       2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+
+loc17={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+       2011:'empty',
+       2012:'empty',
+       2013:'empty',
+       2014:'empty',
+       2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
+       2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+
+loc23={2010:'empty',
+       2011:'empty',
+       2012:['Data_20120412_01_095.mat'],
+       2013:'empty',
+       2014:'empty',
+       2017:'empty',
+       2018:['Data_20180421_01_174.mat','Data_20180421_01_175.mat','Data_20180421_01_176.mat','Data_20180421_01_177.mat']}
 
 fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
 
@@ -360,15 +445,29 @@ plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2017][0][5:20]
             df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2017][0][5:20]+'_'+loc1[2017][2][17:20]]['lat_3413'],
             s=0.1,color='#737373')
 
+#Load 2010-2018 elevation dataset
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
+f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
+df_2010_2018_elevation = pickle.load(f_20102018)
+f_20102018.close()
 
-plot_thickness_evolution(loc1,df_2010_2018_csv)
+plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation)
 
+plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation)
 
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation)
+
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation)
+
+plot_thickness_evolution(loc15,df_2010_2018_csv,df_2010_2018_elevation)
+
+plot_thickness_evolution(loc17,df_2010_2018_csv,df_2010_2018_elevation)
+
+plot_thickness_evolution(loc23,df_2010_2018_csv,df_2010_2018_elevation)
 
 pdb.set_trace()
 
-
-plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2010,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
+plot_thickness_high_end(df_2010_2018_elevation,df_spatially_aggregated_2017,df_spatially_aggregated_2010,slice_lon_summary,lat_slices,list_high_end)
 
 '''
 list_high_end=list(['2002-2003','2011-2012','2017-2018'])
