@@ -35,7 +35,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     ax1.add_patch(rect)
     
     #Add number of case study on fig localisation
-    ax1.text(x-10000,y-10000,str(casestudy_nb))
+    ax1.text(x-30000,y-15000,str(casestudy_nb),color='r')
         
     #Desired number of slices
     desired_nb=20
@@ -102,60 +102,50 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         
     #Set order to display data
     order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int)))
+    
+    #Define palette plot
+    #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
+    my_pal = {2010: "#ffffcc", 2011: "#d9f0a3", 2012:"#addd8e", 2013:"#78c679", 2014:"#41ab5d", 2017:"#238443" ,2018:"#005a32"}
 
     #plot thickness data
-    axt.set_title('Case study nb'+str(casestudy_nb))
-    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette="flare", ax=axt,order=order_plot.astype(str))
+    axt.set_title(str(casestudy_nb))
+    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette=my_pal, ax=axt,order=order_plot.astype(str))
+    
+    #Get rid of legend
+    axt.legend_.remove()
     axt.set_xlabel('')
     axt.set_ylabel('')
-
-
+        
+    '''
     #https://stackoverflow.com/questions/16834861/create-own-colormap-using-matplotlib-and-plot-color-scale
     import matplotlib.colors
     
-    '''
+    
     '#c6dbef',label='2002-2003'
     '#9ecae1',label='2010'
     '#6baed6',label='2011-2012'
     '#3182bd',label='2013-2014'
     '#08519c',label='2017-2018'
-    '''    
+    
     #this is from https://stackoverflow.com/questions/16834861/create-own-colormap-using-matplotlib-and-plot-color-scale
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ['#9ecae1','#6baed6','#3182bd','#08519c'])
 
     #This is from https://stackoverflow.com/questions/53360879/create-a-discrete-colorbar-in-matplotlib
     norm = matplotlib.colors.BoundaryNorm(np.asarray([2010,2012,2014,2018]), cmap.N)
-    
-    #Get rid of NaNs
-    max_elev_per_trace_toplot=max_elev_per_trace[~np.isnan(max_elev_per_trace[:,1])]
-
+    '''
     #Get rid of zeros
-    max_elev_per_trace_toplot=max_elev_per_trace_toplot[~(max_elev_per_trace_toplot==0)].reshape(np.sum((~(max_elev_per_trace[:,0]==0))*1),2)
+    max_elev_per_trace_toplot=max_elev_per_trace
+    max_elev_per_trace_toplot[(max_elev_per_trace_toplot==0)]=np.nan
     
     #Plot maximum elevation data
-    cbar=axe.scatter(max_elev_per_trace_toplot[:,1],np.ones(len(max_elev_per_trace_toplot)),c=max_elev_per_trace_toplot[:,0],vmin=2010,vmax=2018,cmap=cmap)#,norm=norm)
-    #plt.clim(2010,2018)
-    axe.set_yticklabels([])
-    #axe.grid(visible=None)
+    axe.scatter(max_elev_per_trace_toplot[:,0],max_elev_per_trace_toplot[:,1],c='k',s=20)
+    axe.set_xlim(2009.5,2018.5)
     
-    pdb.set_trace()
-    #fig.colorbar(cbar, ax=axe, orientation='horizontal')
-
-    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+    #Set y tick to the right
+    axe.yaxis.set_label_position("right")
+    axe.yaxis.tick_right()
+    axe.set_xticklabels([])
     
-    #This is from https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_inset_locator.html
-    
-    axins1 = inset_axes(axe,
-                        width="30%",  # width = 50% of parent_bbox width
-                        height="30%",
-                        loc='')#,  # height : 5%)
-    
-    fig.colorbar(cbar, cax=axins1, orientation="horizontal")
-    axins1.xaxis.set_ticks_position("bottom")
-
-
-
-
     plt.show()
     
     print('End plotting fig 2')
@@ -228,6 +218,8 @@ import geopandas as gpd
 import pickle
 import matplotlib.patches as patches
 import matplotlib as mpl
+import matplotlib.gridspec as gridspec
+from matplotlib.patches import Patch
 import seaborn as sns
 sns.set_theme(style="whitegrid")
 
@@ -480,32 +472,28 @@ loc8={2010:['Data_20100517_02_001.mat','Data_20100517_02_002.mat'],
 '''
 
 
-
-#fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-
-import matplotlib.gridspec as gridspec
-
 fig = plt.figure()
 #fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
-gs = gridspec.GridSpec(24, 10)
+gs = gridspec.GridSpec(25, 20)
 gs.update(wspace=0.1)
-gs.update(wspace=0.001)
-ax1 = plt.subplot(gs[0:24, 0:2])
+#gs.update(wspace=0.001)
+ax1 = plt.subplot(gs[0:20, 0:2])
+ax_legend = plt.subplot(gs[20:25, 0:2])
 
-ax2t = plt.subplot(gs[0:3, 2:10])
-ax2e = plt.subplot(gs[3:4, 2:10])
+ax2t = plt.subplot(gs[0:5, 3:18])
+ax2e = plt.subplot(gs[0:5, 18:20])
 
-ax3t = plt.subplot(gs[5:8, 2:10])
-ax3e = plt.subplot(gs[8:9, 2:10])
+ax3t = plt.subplot(gs[5:10, 3:18])
+ax3e = plt.subplot(gs[5:10, 18:20])
 
-ax4t = plt.subplot(gs[10:13, 2:10])
-ax4e = plt.subplot(gs[13:14, 2:10])
+ax4t = plt.subplot(gs[10:15, 3:18])
+ax4e = plt.subplot(gs[10:15, 18:20])
 
-ax5t = plt.subplot(gs[15:18, 2:10])
-ax5e = plt.subplot(gs[18:19, 2:10])
+ax5t = plt.subplot(gs[15:20, 3:18])
+ax5e = plt.subplot(gs[15:20, 18:20])
 
-ax6t = plt.subplot(gs[20:23, 2:10])
-ax6e = plt.subplot(gs[23:24, 2:10])
+ax6t = plt.subplot(gs[20:25, 3:18])
+ax6e = plt.subplot(gs[20:25, 18:20])
 
 #Display GrIS drainage bassins
 NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
@@ -530,17 +518,39 @@ plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,a
 
 plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=3)
 
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=6)
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=4)
 
-plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=8)
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=5)
 
 #Finalize plot
 ax4t.set_ylabel('Ice thickness [m]')
+ax4e.set_ylabel('Maximum elevation [m]')
+ax6t.set_xlabel('Longitudinal binning')
+ax6e.set_xlabel('Time [year]')
+ax6e.set_xticklabels(['','2010','2015'])
+ax6e.legend_.remove()
 
-ax6e.set_xlabel('Maximum ice slabs elevation [m]')
-
-ax1.set_xlim(-570000,-44000)
+ax1.set_xlim(-580000,-44000)
 ax1.set_ylim(-2650000,-1290000)
+ax1.set_xlabel('Easting [m]')
+ax1.set_ylabel('Northing [m]')
+
+#Custom legend myself
+legend_elements = [Patch(facecolor='#ffffcc',label='2010'),
+                   Patch(facecolor='#d9f0a3',label='2011'),
+                   Patch(facecolor='#addd8e',label='2012'),
+                   Patch(facecolor='#78c679',label='2013'),
+                   Patch(facecolor='#41ab5d',label='2014'),
+                   Patch(facecolor='#238443',label='2017'),
+                   Patch(facecolor='#005a32',label='2018')]
+
+ax_legend.legend(handles=legend_elements)
+plt.legend()
+
+#Get rid of axis in legend axis
+ax_legend.axis('off')
+ax_legend.set_title('Legend')
+plt.show()
 
 pdb.set_trace()
 
