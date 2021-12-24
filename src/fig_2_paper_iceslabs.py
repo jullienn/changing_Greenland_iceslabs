@@ -4,7 +4,7 @@ Created on Sun Dec 19 12:14:06 2021
 
 @author: jullienn
 """
-def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation):
+def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,axe,custom_angle,offset_x,offset_y,casestudy_nb):
     
     #Define empty dictionnary for longitudinal slice definition
     df_for_lon=pd.DataFrame(columns=list(df_2010_2018_csv.keys()))
@@ -17,7 +17,26 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         df_for_lon_temp=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
         #Append data to each other
         df_for_lon=df_for_lon.append(df_for_lon_temp)
+                
+        #Display data
+        ax1.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lon_3413'],
+                    df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lat_3413'],
+                    s=0.1,color='#737373')
+
+    #Display rectangle around data    
+    x=(np.min(df_for_lon.lon_3413)-offset_x)
+    y=(np.min(df_for_lon.lat_3413)-offset_y)
+    width=10000
+    height=np.sqrt(np.power(abs(np.min(df_for_lon.lon_3413))-abs(np.max(df_for_lon.lon_3413)),2)+np.power(abs(np.min(df_for_lon.lat_3413))-abs(np.max(df_for_lon.lat_3413)),2))+2*offset_x
+    #This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
+    # Create a Rectangle patch
+    rect = patches.Rectangle((x,y),width,height, angle=custom_angle, linewidth=1, edgecolor='blue', facecolor='none')
+    # Add the patch to the Axes
+    ax1.add_patch(rect)
     
+    #Add number of case study on fig localisation
+    ax1.text(x-10000,y-10000,str(casestudy_nb))
+        
     #Desired number of slices
     desired_nb=20
     
@@ -83,13 +102,14 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         
     #Set order to display data
     order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int)))
-    
+
     #plot thickness data
-    fig, axes = plt.subplots(2,1)
-    fig.suptitle('Case study')
-    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette="Set3", ax=axes[0],order=order_plot.astype(str))
-    axes[0].set_ylabel('Ice slabs thickness [m]')
-    axes[0].set_xlabel('Bound number')
+    axt.set_title('Case study nb'+str(casestudy_nb))
+    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette="flare", ax=axt,order=order_plot.astype(str))
+    axt.set_xlabel('')
+    axt.set_ylabel('')
+
+
     #https://stackoverflow.com/questions/16834861/create-own-colormap-using-matplotlib-and-plot-color-scale
     import matplotlib.colors
     
@@ -112,16 +132,30 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Get rid of zeros
     max_elev_per_trace_toplot=max_elev_per_trace_toplot[~(max_elev_per_trace_toplot==0)].reshape(np.sum((~(max_elev_per_trace[:,0]==0))*1),2)
     
-    print(max_elev_per_trace)
-    
-    print(max_elev_per_trace_toplot)
-    
     #Plot maximum elevation data
-    cbar=axes[1].scatter(max_elev_per_trace_toplot[:,1],np.ones(len(max_elev_per_trace_toplot)),c=max_elev_per_trace_toplot[:,0],vmin=2010,vmax=2018,cmap=cmap)#,norm=norm)
+    cbar=axe.scatter(max_elev_per_trace_toplot[:,1],np.ones(len(max_elev_per_trace_toplot)),c=max_elev_per_trace_toplot[:,0],vmin=2010,vmax=2018,cmap=cmap)#,norm=norm)
     #plt.clim(2010,2018)
+    axe.set_yticklabels([])
+    #axe.grid(visible=None)
     
-    axes[1].set_xlabel('Maximum ice slabs elevation [m]')
-    fig.colorbar(cbar, ax=axes[1], orientation='vertical')
+    pdb.set_trace()
+    #fig.colorbar(cbar, ax=axe, orientation='horizontal')
+
+    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+    
+    #This is from https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_inset_locator.html
+    
+    axins1 = inset_axes(axe,
+                        width="30%",  # width = 50% of parent_bbox width
+                        height="30%",
+                        loc='')#,  # height : 5%)
+    
+    fig.colorbar(cbar, cax=axins1, orientation="horizontal")
+    axins1.xaxis.set_ticks_position("bottom")
+
+
+
+
     plt.show()
     
     print('End plotting fig 2')
@@ -192,6 +226,8 @@ import pdb
 import matplotlib.pyplot as plt
 import geopandas as gpd
 import pickle
+import matplotlib.patches as patches
+import matplotlib as mpl
 import seaborn as sns
 sns.set_theme(style="whitegrid")
 
@@ -360,7 +396,7 @@ list_high_end=list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])
 
 #Plot 2010, 2011, 2012, 2013, 2014 ,2017 2018, select overlapping case study: use clean and clear ice slabs tramsects
 
-#CHOOSE LOC1, loc 2, loc 3, loc 6, 15, 17, 23
+#CHOOSE LOC1, loc 2, loc 3, loc 15, loc 23
 
 loc1={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
       2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
@@ -387,39 +423,89 @@ loc3={2010:'empty',
       2017:'empty',
       2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 
-loc6={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+'''
+#in 2017 overestimation of ice content
+loc4={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
       2011:'empty',
       2012:'empty',
       2013:'empty',
       2014:'empty',
-      2017:'empty',
+      2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
       2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+'''
+'''
+#Only 2 years in SW, do not display it
+loc5={2010:'empty',
+      2011:'empty',
+      2012:['Data_20120412_01_095.mat'],
+      2013:'empty',
+      2014:'empty',
+      2017:'empty',
+      2018:['Data_20180421_01_174.mat','Data_20180421_01_175.mat','Data_20180421_01_176.mat','Data_20180421_01_177.mat']}
+'''
+loc6={2010:'empty',
+      2011:['Data_20110516_01_009.mat','Data_20110516_01_010.mat'],
+      2012:'empty',
+      2013:['Data_20130402_01_008.mat'],
+      2014:'empty',
+      2017:['Data_20170412_01_075.mat','Data_20170412_01_076.mat'],
+      2018:'empty'}
 
-loc15={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
-       2011:'empty',
-       2012:'empty',
-       2013:'empty',
-       2014:'empty',
-       2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
-       2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+'''
+#loc7 is in NE but is curved
+loc7={2010:'empty',
+      2011:'empty',
+      2012:'empty',
+      2013:'empty',
+      2014:['Data_20140508_03_019.mat','Data_20140508_03_020.mat','Data_20140508_03_021.mat','Data_20140508_03_022.mat','Data_20140508_03_023.mat','Data_20140508_03_024.mat'],
+      2017:['Data_20170328_01_095.mat','Data_20170328_01_096.mat','Data_20170328_01_097.mat','Data_20170328_01_098.mat','Data_20170328_01_099.mat','Data_20170328_01_100.mat','Data_20170328_01_101.mat'],
+      2018:'empty'}
+'''
 
-loc17={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
-       2011:'empty',
-       2012:'empty',
-       2013:'empty',
-       2014:'empty',
-       2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
-       2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+loc8={2010:['Data_20100517_02_001.mat','Data_20100517_02_002.mat'],
+      2011:['Data_20110502_01_171.mat'],
+      2012:['Data_20120516_01_002.mat'],
+      2013:['Data_20130419_01_004.mat','Data_20130419_01_005.mat'],
+      2014:['Data_20140507_03_007.mat','Data_20140507_03_008.mat'], #test with 20140514_02_087_089 and 20140515_02_173_175 also
+      2017:['Data_20170417_01_171.mat','Data_20170417_01_172.mat','Data_20170417_01_173.mat','Data_20170417_01_174.mat'],
+      2018:'empty'}
 
-loc23={2010:'empty',
-       2011:'empty',
-       2012:['Data_20120412_01_095.mat'],
-       2013:'empty',
-       2014:'empty',
-       2017:'empty',
-       2018:['Data_20180421_01_174.mat','Data_20180421_01_175.mat','Data_20180421_01_176.mat','Data_20180421_01_177.mat']}
+'''
+20100517_02_001_002, 20100519_01_005_005
+20110509_01_177_177, 20110502_01_171_171
+20120516_01_002_002, 20120330_01_124_125, 20120516_01_115_115
+20130419_01_004_005
+20140507_03_007_008, 20140514_02_087_089, #20140519_02_002_004 diverging at the start. do not consider 20140429_02_160_161
+20170417_01_171_174
+'''
 
-fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+
+
+#fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+
+import matplotlib.gridspec as gridspec
+
+fig = plt.figure()
+#fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
+gs = gridspec.GridSpec(24, 10)
+gs.update(wspace=0.1)
+gs.update(wspace=0.001)
+ax1 = plt.subplot(gs[0:24, 0:2])
+
+ax2t = plt.subplot(gs[0:3, 2:10])
+ax2e = plt.subplot(gs[3:4, 2:10])
+
+ax3t = plt.subplot(gs[5:8, 2:10])
+ax3e = plt.subplot(gs[8:9, 2:10])
+
+ax4t = plt.subplot(gs[10:13, 2:10])
+ax4e = plt.subplot(gs[13:14, 2:10])
+
+ax5t = plt.subplot(gs[15:18, 2:10])
+ax5e = plt.subplot(gs[18:19, 2:10])
+
+ax6t = plt.subplot(gs[20:23, 2:10])
+ax6e = plt.subplot(gs[23:24, 2:10])
 
 #Display GrIS drainage bassins
 NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
@@ -429,21 +515,7 @@ SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
 CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
 NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
 
-plt.scatter(df_spatially_aggregated_2010['avg_lon_3413'],df_spatially_aggregated_2010['avg_lat_3413'],c=df_spatially_aggregated_2010['avg_20m_icecontent'],s=0.2)
-
-#Display
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2010][0][5:20]+'_'+loc1[2010][2][17:20]]['lon_3413'],
-            df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2010][0][5:20]+'_'+loc1[2010][2][17:20]]['lat_3413'],
-            s=0.1,color='#737373')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2011][0][5:20]+'_'+loc1[2011][2][17:20]]['lon_3413'],
-            df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2011][0][5:20]+'_'+loc1[2011][2][17:20]]['lat_3413'],
-            s=0.1,color='#737373')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2014][0][5:20]+'_'+loc1[2014][2][17:20]]['lon_3413'],
-            df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2014][0][5:20]+'_'+loc1[2014][2][17:20]]['lat_3413'],
-            s=0.1,color='#737373')
-plt.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2017][0][5:20]+'_'+loc1[2017][2][17:20]]['lon_3413'],
-            df_2010_2018_csv[df_2010_2018_csv['Track_name']==loc1[2017][0][5:20]+'_'+loc1[2017][2][17:20]]['lat_3413'],
-            s=0.1,color='#737373')
+#plt.scatter(df_spatially_aggregated_2010['avg_lon_3413'],df_spatially_aggregated_2010['avg_lat_3413'],c=df_spatially_aggregated_2010['avg_20m_icecontent'],s=0.2)
 
 #Load 2010-2018 elevation dataset
 path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
@@ -451,21 +523,31 @@ f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rign
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
-plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation)
+#Plot data
+plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb=1)
 
-plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation)
+plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,ax3e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=2)
 
-plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation)
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=3)
 
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation)
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=6)
 
-plot_thickness_evolution(loc15,df_2010_2018_csv,df_2010_2018_elevation)
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=8)
 
-plot_thickness_evolution(loc17,df_2010_2018_csv,df_2010_2018_elevation)
+#Finalize plot
+ax4t.set_ylabel('Ice thickness [m]')
 
-plot_thickness_evolution(loc23,df_2010_2018_csv,df_2010_2018_elevation)
+ax6e.set_xlabel('Maximum ice slabs elevation [m]')
+
+ax1.set_xlim(-570000,-44000)
+ax1.set_ylim(-2650000,-1290000)
 
 pdb.set_trace()
+
+'''
+#NW but requires additional coding + turning trace
+plot_thickness_evolution(loc7,df_2010_2018_csv,df_2010_2018_elevation,ax1,custom_angle=-90,offset_x=10000,offset_y=-5000)
+'''
 
 plot_thickness_high_end(df_2010_2018_elevation,df_spatially_aggregated_2017,df_spatially_aggregated_2010,slice_lon_summary,lat_slices,list_high_end)
 
