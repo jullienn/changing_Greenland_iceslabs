@@ -68,7 +68,12 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
 
         #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
-        lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
+        #lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
+        
+        #Lon divide every 4km. I have compared between 2500, 3000, 4000 and 5000m. Nest trade off between visualisation and overaggrrgation seemed to be 4000m
+        km_bin_desired=4000
+        lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])).astype(int),np.floor(np.max(df_for_lon['lon_3413'])).astype(int)+1+km_bin_desired,km_bin_desired)
+        #27/12: 15h10-   -12 min
         
         #Set bound_nb to 0
         bound_nb=0
@@ -99,16 +104,19 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             
             #Update bound_nb
             bound_nb=bound_nb+1
-        
+    
     #Set order to display data
-    order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int)))
+    #order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int)))
+    
+    #set order_plot so that it matches the maximum number of longitudinal sections in any of the analyzed case
+    order_plot=np.arange(0,18,1)
     
     #Define palette plot
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     my_pal = {2010: "#ffffcc", 2011: "#d9f0a3", 2012:"#addd8e", 2013:"#78c679", 2014:"#41ab5d", 2017:"#238443" ,2018:"#005a32"}
 
     #plot thickness data
-    axt.set_title(str(casestudy_nb))
+    axt.set_title(str(casestudy_nb))    
     sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette=my_pal, ax=axt,order=order_plot.astype(str))
     
     #Get rid of legend
@@ -150,7 +158,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axe.set_xticklabels([])
     
     plt.show()
-    
+        
     print('End plotting fig 2')
     
     return
@@ -529,7 +537,6 @@ plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,a
 #Finalize plot
 ax4t.set_ylabel('Ice thickness [m]')
 ax4e.set_ylabel('Maximum elevation [m]')
-ax6t.set_xlabel('Longitudinal binning')
 ax6e.set_xlabel('Time [year]')
 ax6e.set_xticklabels(['','2010','2015'])
 
@@ -537,6 +544,10 @@ ax1.set_xlim(-580000,-44000)
 ax1.set_ylim(-2650000,-1290000)
 ax1.set_xlabel('Easting [m]')
 ax1.set_ylabel('Northing [m]')
+
+#Display distance as longitude [km]
+ax6t.set_xticklabels(np.arange(0,18*4,4))
+ax6t.set_xlabel('Longitude [km]')
 
 #Custom legend myself
 legend_elements = [Patch(facecolor='#ffffcc',label='2010'),
