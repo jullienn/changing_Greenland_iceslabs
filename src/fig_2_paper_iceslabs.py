@@ -223,6 +223,7 @@ from matplotlib.patches import Patch
 import seaborn as sns
 sns.set_theme(style="whitegrid")
 
+
 ### -------------------------- Load shapefiles --------------------------- ###
 path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
 
