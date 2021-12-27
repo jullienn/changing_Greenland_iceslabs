@@ -22,7 +22,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         ax1.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lon_3413'],
                     df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lat_3413'],
                     s=0.1,color='#737373')
-
+            
     #Display rectangle around data    
     x=(np.min(df_for_lon.lon_3413)-offset_x)
     y=(np.min(df_for_lon.lat_3413)-offset_y)
@@ -74,7 +74,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         km_bin_desired=4000
         lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])).astype(int),np.floor(np.max(df_for_lon['lon_3413'])).astype(int)+1+km_bin_desired,km_bin_desired)
         #27/12: 15h10-   -12 min
-        
+                
         #Set bound_nb to 0
         bound_nb=0
         #Loop over the lon divide
@@ -530,7 +530,7 @@ plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,a
 
 plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=3)
 
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=4)
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb=4)
 
 plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=5)
 
