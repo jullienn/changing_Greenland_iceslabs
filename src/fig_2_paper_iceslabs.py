@@ -136,9 +136,12 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Get rid of zeros
     max_elev_per_trace_toplot=max_elev_per_trace
     max_elev_per_trace_toplot[(max_elev_per_trace_toplot==0)]=np.nan
+        
+    #list date color
+    my_pal_list = ["#ffffcc","#d9f0a3","#addd8e","#78c679","#41ab5d","#238443","#005a32"]
     
     #Plot maximum elevation data
-    axe.scatter(max_elev_per_trace_toplot[:,0],max_elev_per_trace_toplot[:,1],c='k',s=20)
+    axe.scatter(max_elev_per_trace_toplot[:,0],max_elev_per_trace_toplot[:,1],s=20,c=my_pal_list)
     axe.set_xlim(2009.5,2018.5)
     
     #Set y tick to the right
@@ -529,7 +532,6 @@ ax4e.set_ylabel('Maximum elevation [m]')
 ax6t.set_xlabel('Longitudinal binning')
 ax6e.set_xlabel('Time [year]')
 ax6e.set_xticklabels(['','2010','2015'])
-ax6e.legend_.remove()
 
 ax1.set_xlim(-580000,-44000)
 ax1.set_ylim(-2650000,-1290000)
@@ -552,6 +554,8 @@ plt.legend()
 ax_legend.axis('off')
 ax_legend.set_title('Legend')
 plt.show()
+ax6e.legend_.remove()
+
 
 pdb.set_trace()
 
