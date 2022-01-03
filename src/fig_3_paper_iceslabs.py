@@ -77,8 +77,8 @@ investigation_year={2010:'empty',
 '''
 #Define paths
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-#path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
-path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
+path_probabilistic='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
 
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
@@ -94,7 +94,7 @@ for single_year in investigation_year.keys():
         print('No data for year '+str(single_year)+', continue')
         continue
     
-    ###1. Load the mask and depth_corrected files:
+    ###1. Load the depth_corrected and probabilistic files:
     start_date_track=investigation_year[single_year][0]
     end_date_track=investigation_year[single_year][-1]
     date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
@@ -109,42 +109,29 @@ for single_year in investigation_year.keys():
     '''
     
     '''
-    #Define filename depth corrected data
+    #Define filename of depth corrected and probabilistic data
     if (date_track not in list_trace_failed):
         filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
     else:
         filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal_rescaled.pickle'
-    
-    #Define probailistic filename
-    filename_probabilistic=date_track+'_probability_iceslabs_presence.pickle'
-    
-    #Open probabilistic file
-    f_probabilistic = open(path_probabilistic+filename_probabilistic, "rb")
-    probabilistic_file = pickle.load(f_probabilistic)
-    f_probabilistic.close() 
     '''
     
-    #Define depth corrected filename
-    #filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
-    filename_depth_corrected=date_track+'_probability_iceslabs_presence.pickle'
-
-    #Open the depth corrected file
+    filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
+    filename_probabilistic=date_track+'_probability_iceslabs_presence.pickle'
+    
+    #Open files
     f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
     radar = pickle.load(f_depth_corrected)
     f_depth_corrected.close()
     
-    #Create the title for the figures
-    file_for_title=filename_depth_corrected
-    file_for_title=file_for_title.partition("_")[2]
-    file_for_title=file_for_title.partition("_")[2]
-    file_for_title=file_for_title.partition("_")[2]
-    file_for_title=file_for_title.partition("_")[2]
-    file_for_title=file_for_title.partition(".pickle")[0]
+    f_probabilistic = open(path_probabilistic+filename_probabilistic, "rb")
+    probabilistic_file = pickle.load(f_probabilistic)
+    f_probabilistic.close() 
     
     ###2. Load the latitude and longitude
     lat_appended=[]
     lon_appended=[]
-
+    
     for indiv_file_load in investigation_year[single_year]:
         print(indiv_file_load)
         
@@ -153,7 +140,7 @@ for single_year in investigation_year.keys():
 
         # If 20180421_01_007, different path
         if (indiv_file_load=='Data_20180421_01_007.mat'):
-            path_raw_data='C:/Users/jullienn/Documents/working_environment/'
+            path_raw_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/2018_Greenland_P3/'
         
         #Load data
         if (single_year>=2014):
@@ -185,9 +172,7 @@ for single_year in investigation_year.keys():
         lat_appended=np.flipud(lat_appended)
         lon_appended=np.flipud(lon_appended)
         radar=np.fliplr(radar)
-        '''
         probabilistic_file=np.fliplr(probabilistic_file)
-        '''
     
     #Calculate the depth from the time
     #########################################################################
@@ -219,7 +204,9 @@ for single_year in investigation_year.keys():
     dataframe[str(single_year)]={'lat_appended':lat_appended,
                                  'lon_appended':lon_appended,
                                  'depth':depth,
-                                 'radar':radar}
+                                 'radar':radar,
+                                 'probabilistic':probabilistic_file}
+pdb.set_trace()
 
 #Prepare figure
 fig, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7,1)#, gridspec_kw={'width_ratios': [1, 3]})
