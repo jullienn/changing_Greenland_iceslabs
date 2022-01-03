@@ -7,7 +7,7 @@ Created on Sun Nov 28 12:56:32 2021
 Code adapted from lenses_thickening_visualisation.py
 """
 
-def plot_thickness(dictionnary_case_study,df_2010_2018_csv,axt):
+def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
     #Define empty dictionnary for longitudinal slice definition
@@ -31,9 +31,6 @@ def plot_thickness(dictionnary_case_study,df_2010_2018_csv,axt):
     
     #Loop over the years
     for year in dictionnary_case_study.keys():
-        if (str(year) in list(['2010','2011'])):
-            print('Not on the transect, continue')
-            continue
         
         #Select data for the trace
         df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
@@ -74,15 +71,128 @@ def plot_thickness(dictionnary_case_study,df_2010_2018_csv,axt):
             
             #Update bound_nb
             bound_nb=bound_nb+1
+            
+        ######################################################################
+        ###                       Display radargrams                       ###
+        ######################################################################
+        
+        date_track=dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]
+
+        '''
+        #Calculate distances (in m)
+        distances=compute_distances(dataframe[str(single_year)]['lon_appended'],dataframe[str(single_year)]['lat_appended'])
+        '''
+        #Reset depths to 0
+        dataframe[str(year)]['depth']=dataframe[str(year)]['depth']-dataframe[str(year)]['depth'][0]
+        
+        #Select radar slice
+        depth_corrected_file=dataframe[str(year)]['radar']
+        
+        #Identify index where time < 20 m
+        ind_lower_20m=np.where(dataframe[str(year)]['depth']<20)[0]
+        depth_corrected_20m=depth_corrected_file[ind_lower_20m,:]
+        
+        #Identify axis for plotting
+        if (year==2010):
+            ax_plotting=ax1r
+            color_toplot="#ffffcc"
+        elif (year==2011):
+            ax_plotting=ax2r
+            color_toplot="#d9f0a3"
+        elif (year==2012):
+            ax_plotting=ax3r
+            color_toplot="#addd8e"
+        elif (year==2013):
+            ax_plotting=ax4r
+            color_toplot="#78c679"
+        elif (year==2014):
+            ax_plotting=ax5r
+            color_toplot="#41ab5d"
+        elif (year==2017):
+            ax_plotting=ax6r
+            color_toplot="#238443"
+        elif (year==2018):
+            ax_plotting=ax7r
+            color_toplot="#005a32"
+        else:
+            print('Year not existing')
+        
+        X=dataframe[str(year)]['lon_appended']
+        Y=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
+        C=dataframe[str(year)]['radar']
+                
+        cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
+        ax_plotting.set_ylim(20,0)
+        ax_plotting.set_xlim(-47.5,-46.6)
+        
+        ######################################################################
+        ###                       Display radargrams                       ###
+        ######################################################################      
+        
+        #Display radar trace on map with mask applied on data
+        ax8map.scatter(dataframe[str(year)]['lon_appended'][dataframe[str(year)]['mask']],dataframe[str(year)]['lat_appended'][dataframe[str(year)]['mask']],c=color_toplot,s=0.5)
+        
+        ##########################################################################
+        ###                        Extract ice content                         ###
+        ##########################################################################
+
+        if (str(year) in list(['2010','2011'])):
+            continue
+        else:
+            #Extract ice content
+            indiv_probability_slice=dataframe[str(year)]['probabilistic']
+            
+            #Compute depth_delta_m
+            depth_delta_m = np.mean(dataframe[str(year)]['depth'][1:] - dataframe[str(year)]['depth'][:-1])
+            
+            #Let's transform the probabilistic ice slabs into an ice content
+            #We must derive a low end and high end of ice slabs likelihood
+            #for low end: slabs identified in 19 quantiles out of 19 => likelihood = 19/19=1
+            #for high end: slabs identified in 1 quantile out of 19 => likelihood = 1/19 = 0.05263
+            index_prob=indiv_probability_slice>=0.1579 # >3/19
+            
+            #Create slice full of nans
+            slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
+            
+            #fill in slice_for_calculation by ones where likelihood >= 0.5
+            slice_for_calculation[index_prob]=1
     
+            # Number of pixels times the thickness of each pixel
+            ice_content_m = np.sum(slice_for_calculation, axis=0) * depth_delta_m
+            
+            #Moving window to average results
+            ice_content_m_avg= np.round(np.convolve(ice_content_m, np.ones(50)/50, mode='same'))
+            
+            #Store total ice content
+            dataframe[str(year)]['ice_content']=ice_content_m_avg
+            
+            #Plot data
+            ax9l.plot(X,ice_content_m_avg,label=str(year),color=color_toplot)
+            plt.legend()
+            ax9l.set_xlim(-47.427,-46.5655)
+            plt.show()
+    
+        ##########################################################################
+        ###                        Extract ice content                         ###
+        ##########################################################################   
+    
+    pdb.set_trace()
+    #Keep only data from 2012 onwards as 2010, 2011 are not desired
+    df_sampling_plot=df_sampling[df_sampling['year']==2012]
+    df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2013])
+    df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2014])
+    df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2017])
+    df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2018])
+
     #Set order to display data
-    order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int))+1)
+    order_plot=np.arange(np.min(np.asarray(df_sampling_plot['bound_nb']).astype(int)),np.max(np.asarray(df_sampling_plot['bound_nb']).astype(int))+1)
     #Define palette plot
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     my_pal = {2010: "#ffffcc", 2011: "#d9f0a3", 2012:"#addd8e", 2013:"#78c679", 2014:"#41ab5d", 2017:"#238443" ,2018:"#005a32"}
     
     #plot thickness data
-    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette=my_pal, ax=axt,order=order_plot.astype(str))
+    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling_plot, palette=my_pal, ax=axt,order=order_plot.astype(str))
     
     #Set y tick to the right
     axt.yaxis.set_label_position("right")
@@ -362,125 +472,14 @@ SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black')
 CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black') 
 
 #Plot thickness change for that case study on axis ax11t
-plot_thickness(investigation_year,df_2010_2018_csv,ax11t)
+plot_thickness(investigation_year,dataframe,df_2010_2018_csv,ax11t)
 
 #Finalize axis ax11t
 ax11t.set_xticklabels(np.arange(0,10*4,4))
 ax11t.set_xlabel('Longitude [km]')
 ax11t.set_ylabel('Ice slabs thickness [m]')
 
-pdb.set_trace()
-
 #Display the radargrams, map and shallowest and deepest slab
-for single_year in investigation_year.keys():
-    
-    print(str(single_year))
-    
-    #If no data, continue
-    if (investigation_year[single_year]=='empty'):
-        print('No data for year '+str(single_year)+', continue')
-        continue
-    
-    start_date_track=investigation_year[single_year][0]
-    end_date_track=investigation_year[single_year][-1]
-    date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
-    
-    '''
-    #Calculate distances (in m)
-    distances=compute_distances(dataframe[str(single_year)]['lon_appended'],dataframe[str(single_year)]['lat_appended'])
-    '''
-        
-    #Reset depths to 0
-    dataframe[str(single_year)]['depth']=dataframe[str(single_year)]['depth']-dataframe[str(single_year)]['depth'][0]
-    
-    #Select radar slice
-    depth_corrected_file=dataframe[str(single_year)]['radar']
-    
-    #Identify index where time < 20 m
-    ind_lower_20m=np.where(dataframe[str(single_year)]['depth']<20)[0]
-    depth_corrected_20m=depth_corrected_file[ind_lower_20m,:]
-    
-    #Identify axis for plotting
-    if (single_year==2010):
-        ax_plotting=ax1r
-        color_toplot="#ffffcc"
-    elif (single_year==2011):
-        ax_plotting=ax2r
-        color_toplot="#d9f0a3"
-    elif (single_year==2012):
-        ax_plotting=ax3r
-        color_toplot="#addd8e"
-    elif (single_year==2013):
-        ax_plotting=ax4r
-        color_toplot="#78c679"
-    elif (single_year==2014):
-        ax_plotting=ax5r
-        color_toplot="#41ab5d"
-    elif (single_year==2017):
-        ax_plotting=ax6r
-        color_toplot="#238443"
-    elif (single_year==2018):
-        ax_plotting=ax7r
-        color_toplot="#005a32"
-    else:
-        print('Year not existing')
-    
-    #ax_plotting.set_aspect(4)    
-    X=dataframe[str(single_year)]['lon_appended']
-    Y=np.arange(0,100,100/dataframe[str(single_year)]['radar'].shape[0])
-    C=dataframe[str(single_year)]['radar']
-            
-    cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
-    ax_plotting.set_ylim(20,0)
-    plt.show()
-    ax_plotting.set_xlim(-48,-47.5)
-    
-    #Display radar trace on map with mask applied on data
-    ax8map.scatter(dataframe[str(single_year)]['lon_appended'][dataframe[str(single_year)]['mask']],dataframe[str(single_year)]['lat_appended'][dataframe[str(single_year)]['mask']],c=color_toplot,s=0.1)
-    
-    ##########################################################################
-    ###                        Extract ice content                         ###
-    ##########################################################################
-
-    #Extract ice content
-    indiv_probability_slice=dataframe[str(single_year)]['probabilistic']
-    
-    #Compute depth_delta_m
-    depth_delta_m = np.mean(dataframe[str(single_year)]['depth'][1:] - dataframe[str(single_year)]['depth'][:-1])
-    
-    #Let's transform the probabilistic ice slabs into an ice content
-    #We must derive a low end and high end of ice slabs likelihood
-    #for low end: slabs identified in 19 quantiles out of 19 => likelihood = 19/19=1
-    #for high end: slabs identified in 1 quantile out of 19 => likelihood = 1/19 = 0.05263
-    index_prob=indiv_probability_slice>=0.1579 # >3/19
-    
-    #Create slice full of nans
-    slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
-    
-    #fill in slice_for_calculation by ones where likelihood >= 0.5
-    slice_for_calculation[index_prob]=1
-
-    # Number of pixels times the thickness of each pixel
-    ice_content_m = np.sum(slice_for_calculation, axis=0) * depth_delta_m
-    
-    #Moving window to average results
-    ice_content_m_avg= np.round(np.convolve(ice_content_m, np.ones(50)/50, mode='same'))
-    
-    #Store total ice content
-    dataframe[str(single_year)]['ice_content']=ice_content_m_avg
-    
-    ##########################################################################
-    ###                        Extract ice content                         ###
-    ##########################################################################   
-    
-    if (str(single_year) in list(['2010','2011'])):
-        continue
-    else:
-        ax9l.plot(X,ice_content_m_avg,label=str(single_year),color=color_toplot)
-        plt.legend()
-        ax9l.set_xlim(-47.427,-46.5655)
-        plt.show()
  
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
