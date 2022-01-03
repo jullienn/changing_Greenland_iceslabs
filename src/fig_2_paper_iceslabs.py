@@ -70,10 +70,9 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
         #lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
         
-        #Lon divide every 4km. I have compared between 2500, 3000, 4000 and 5000m. Nest trade off between visualisation and overaggrrgation seemed to be 4000m
+        #Lon divide every 4km. I have compared between 2500, 3000, 4000 and 5000m. Best trade off between visualisation and overaggrgation seems to be 4000m
         km_bin_desired=4000
         lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])).astype(int),np.floor(np.max(df_for_lon['lon_3413'])).astype(int)+1+km_bin_desired,km_bin_desired)
-        #27/12: 15h10-   -12 min
                 
         #Set bound_nb to 0
         bound_nb=0
