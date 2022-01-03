@@ -371,7 +371,7 @@ ax11t.set_ylabel('Ice slabs thickness [m]')
 
 pdb.set_trace()
 
-#Display the data        
+#Display the radargrams, map and shallowest and deepest slab
 for single_year in investigation_year.keys():
     
     print(str(single_year))
@@ -434,7 +434,7 @@ for single_year in investigation_year.keys():
     ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
     ax_plotting.set_ylim(20,0)
     plt.show()
-    ax_plotting.set_xlim(-48,-46.5655)
+    ax_plotting.set_xlim(-48,-44.5)
     
     #Display radar trace on map with mask applied on data
     ax8map.scatter(dataframe[str(single_year)]['lon_appended'][dataframe[str(single_year)]['mask']],dataframe[str(single_year)]['lat_appended'][dataframe[str(single_year)]['mask']],c=color_toplot,s=0.1)
