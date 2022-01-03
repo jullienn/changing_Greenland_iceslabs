@@ -162,7 +162,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     my_pal_list = ["#ffffcc","#d9f0a3","#addd8e","#78c679","#41ab5d","#238443","#005a32"]
     
     #Plot maximum elevation data
-    axe.scatter(max_elev_per_trace_toplot[:,0],max_elev_per_trace_toplot[:,1],s=20,c=my_pal_list)
+    axe.scatter(max_elev_per_trace_toplot[:,0],max_elev_per_trace_toplot[:,1],s=20,c=my_pal_list,edgecolors='k')
     axe.set_xlim(2009.5,2018.5)
     
     #Set y tick to the right
