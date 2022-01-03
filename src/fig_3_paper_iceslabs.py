@@ -7,12 +7,117 @@ Created on Sun Nov 28 12:56:32 2021
 Code adapted from lenses_thickening_visualisation.py
 """
 
+def plot_thickness(dictionnary_case_study,df_2010_2018_csv,axt):
+    #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
+    
+    #Define empty dictionnary for longitudinal slice definition
+    df_for_lon=pd.DataFrame(columns=list(df_2010_2018_csv.keys()))
+    
+    #Loop over the years
+    for year in dictionnary_case_study.keys():
+        if (str(year) in list(['2010','2011'])):
+            print('Not on the transect, continue')
+            continue
+        #Select data for the trace
+        df_for_lon_temp=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        #Append data to each other
+        df_for_lon=df_for_lon.append(df_for_lon_temp)
+    
+    #Desired number of longitudinal slices
+    desired_nb=20
+    
+    #Create empty dataframe for storing data
+    df_sampling=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
+    
+    #Loop over the years
+    for year in dictionnary_case_study.keys():
+        if (str(year) in list(['2010','2011'])):
+            print('Not on the transect, continue')
+            continue
+        
+        #Select data for the trace
+        df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+
+        #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
+        #lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
+        
+        #Lon divide every 4km. I have compared between 2500, 3000, 4000 and 5000m. Best trade off between visualisation and overaggrgation seems to be 4000m
+        km_bin_desired=4000
+        lon_divide=np.arange(-110240,np.floor(np.max(df_for_lon['lon_3413'])).astype(int)+1+km_bin_desired,km_bin_desired)
+        
+        #Set bound_nb to 0
+        bound_nb=0
+        #Loop over the lon divide
+        for i in range(1,len(lon_divide)):
+            
+            #Identify low and higher end of the slice
+            low_bound=lon_divide[i-1]
+            high_bound=lon_divide[i]
+    
+            #Select all the data belonging to this lon slice
+            ind_slice=np.logical_and(np.array(df_trace['lon_3413']>=low_bound),np.array(df_trace['lon_3413']<high_bound))
+            df_select=df_trace[ind_slice]
+            
+            #Fill in dictionnary
+            df_temp=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
+            df_temp['20m_ice_content_m']=np.asarray(df_select['20m_ice_content_m'])
+            df_temp['Track_name']=np.asarray([df_select['Track_name'].unique()]*len(df_select))
+            df_temp['year']=np.asarray([year]*len(df_select))
+            df_temp['low_bound']=np.asarray([str(low_bound)]*len(df_select))
+            df_temp['high_bound']=np.asarray([str(high_bound)]*len(df_select))
+            df_temp['bound_nb']=np.asarray([str(bound_nb)]*len(df_select))
+            df_temp['mean']=np.asarray([np.nanmean(df_select['20m_ice_content_m'])]*len(df_select))
+            df_temp['stddev']=np.asarray([np.nanstd(df_select['20m_ice_content_m'])]*len(df_select))
+            
+            #Append dictionnary
+            df_sampling=df_sampling.append(df_temp)
+            
+            #Update bound_nb
+            bound_nb=bound_nb+1
+    
+    #Set order to display data
+    order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int))+1)
+    #Define palette plot
+    #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
+    my_pal = {2010: "#ffffcc", 2011: "#d9f0a3", 2012:"#addd8e", 2013:"#78c679", 2014:"#41ab5d", 2017:"#238443" ,2018:"#005a32"}
+    
+    #plot thickness data
+    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette=my_pal, ax=axt,order=order_plot.astype(str))
+    
+    #Set y tick to the right
+    axt.yaxis.set_label_position("right")
+    axt.yaxis.tick_right()
+    #axt.set_xticklabels([])
+    
+    #Get rid of legend
+    axt.legend_.remove()
+    axt.set_xlabel('')
+    axt.set_ylabel('')
+
+
 import pickle
 import scipy.io
 import numpy as np
 import pdb
 import h5py
 import matplotlib.pyplot as plt
+import pandas as pd
+import geopandas as gpd
+import matplotlib.gridspec as gridspec
+from pyproj import Transformer
+import seaborn as sns
+sns.set_theme(style="whitegrid")
+
+
+### -------------------------- Load shapefiles --------------------------- ###
+#Load Rignot et al., 2016 Greenland drainage bassins
+path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+
+#Extract indiv regions and create related indiv shapefiles
+SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
+CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
+### -------------------------- Load shapefiles --------------------------- ###
 
 #Best continuity between overlap through 2012-2018
 investigation_year={2010:['Data_20100515_01_007.mat','Data_20100515_01_008.mat','Data_20100515_01_009.mat'],
@@ -78,6 +183,7 @@ investigation_year={2010:'empty',
 #Define paths
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
+path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
 path_probabilistic='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
 
 #Compute the speed (Modified Robin speed):
@@ -117,12 +223,17 @@ for single_year in investigation_year.keys():
     '''
     
     filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
+    filename_mask=date_track+'_mask.pickle'
     filename_probabilistic=date_track+'_probability_iceslabs_presence.pickle'
     
     #Open files
     f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
     radar = pickle.load(f_depth_corrected)
     f_depth_corrected.close()
+    
+    f_mask = open(path_mask+filename_mask, "rb")
+    mask = pickle.load(f_mask)
+    f_mask.close()
     
     f_probabilistic = open(path_probabilistic+filename_probabilistic, "rb")
     probabilistic_file = pickle.load(f_probabilistic)
@@ -172,6 +283,7 @@ for single_year in investigation_year.keys():
         lat_appended=np.flipud(lat_appended)
         lon_appended=np.flipud(lon_appended)
         radar=np.fliplr(radar)
+        mask=np.flipud(mask)
         probabilistic_file=np.fliplr(probabilistic_file)
     
     #Calculate the depth from the time
@@ -205,16 +317,61 @@ for single_year in investigation_year.keys():
                                  'lon_appended':lon_appended,
                                  'depth':depth,
                                  'radar':radar,
+                                 'mask':mask,
                                  'probabilistic':probabilistic_file}
+
+
+#Load all 2010-2018 data without spatial aggregation
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
+df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv',delimiter=',',decimal='.')
+#Transform the coordinated from WGS84 to EPSG:3413
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2010_2018_csv["lat"]))
+
+#Store lat/lon in 3413
+df_2010_2018_csv['lon_3413']=points[0]
+df_2010_2018_csv['lat_3413']=points[1]
+
+#Load 2010-2018 elevation dataset
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
+f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
+df_2010_2018_elevation = pickle.load(f_20102018)
+f_20102018.close()
+
+#Plot
+fig = plt.figure()
+gs = gridspec.GridSpec(35, 20)
+gs.update(wspace=0.1)
+#gs.update(wspace=0.001)
+
+ax1r = plt.subplot(gs[0:5, 0:10])
+ax2r = plt.subplot(gs[5:10, 0:10])
+ax3r = plt.subplot(gs[10:15, 0:10])
+ax4r = plt.subplot(gs[15:20, 0:10])
+ax5r = plt.subplot(gs[20:25, 0:10])
+ax6r = plt.subplot(gs[25:30, 0:10])
+ax7r = plt.subplot(gs[30:35, 0:10])
+
+ax8map = plt.subplot(gs[0:5, 10:20])
+ax9l = plt.subplot(gs[5:15, 10:20])
+ax10m = plt.subplot(gs[15:25, 10:20])
+ax11t = plt.subplot(gs[25:35, 10:20])
+
+#Display GrIS drainage bassins on the map subplot
+SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black') 
+CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black') 
+
+#Plot thickness change for that case study on axis ax11t
+plot_thickness(investigation_year,df_2010_2018_csv,ax11t)
+
+#Finalize axis ax11t
+ax11t.set_xticklabels(np.arange(0,10*4,4))
+ax11t.set_xlabel('Longitude [km]')
+ax11t.set_ylabel('Ice slabs thickness [m]')
+
 pdb.set_trace()
 
-#Prepare figure
-fig, (ax1,ax2,ax3,ax4,ax5,ax6,ax7) = plt.subplots(7,1)#, gridspec_kw={'width_ratios': [1, 3]})
-
-#Prepare figure of ice content
-fig2, (ax20) = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
-
-#Display the data!            
+#Display the data        
 for single_year in investigation_year.keys():
     
     print(str(single_year))
@@ -239,53 +396,55 @@ for single_year in investigation_year.keys():
     #Select radar slice
     depth_corrected_file=dataframe[str(single_year)]['radar']
     
-    #Identify index where time > 30 m
-    ind_lower_30m=np.where(dataframe[str(single_year)]['depth']<20)[0]
-    depth_corrected_30m=depth_corrected_file[ind_lower_30m,:]
+    #Identify index where time < 20 m
+    ind_lower_20m=np.where(dataframe[str(single_year)]['depth']<20)[0]
+    depth_corrected_20m=depth_corrected_file[ind_lower_20m,:]
     
     #Identify axis for plotting
     if (single_year==2010):
-        ax_plotting=ax1
+        ax_plotting=ax1r
+        color_toplot="#ffffcc"
     elif (single_year==2011):
-        ax_plotting=ax2
+        ax_plotting=ax2r
+        color_toplot="#d9f0a3"
     elif (single_year==2012):
-        ax_plotting=ax3
+        ax_plotting=ax3r
+        color_toplot="#addd8e"
     elif (single_year==2013):
-        ax_plotting=ax4
+        ax_plotting=ax4r
+        color_toplot="#78c679"
     elif (single_year==2014):
-        ax_plotting=ax5
+        ax_plotting=ax5r
+        color_toplot="#41ab5d"
     elif (single_year==2017):
-        ax_plotting=ax6
+        ax_plotting=ax6r
+        color_toplot="#238443"
     elif (single_year==2018):
-        ax_plotting=ax7
+        ax_plotting=ax7r
+        color_toplot="#005a32"
     else:
         print('Year not existing')
-    
     
     #ax_plotting.set_aspect(4)    
     X=dataframe[str(single_year)]['lon_appended']
     Y=np.arange(0,100,100/dataframe[str(single_year)]['radar'].shape[0])
-    C=dataframe[str(single_year)]['radar'].astype(float)
+    C=dataframe[str(single_year)]['radar']
             
-    cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray_r'))#,norm=divnorm)
-    ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.
-    #ax_plotting.set_aspect(0.0025) # X scale matches Y scale
-    ax_plotting.set_title(str(single_year)+' - Depth corrected')
-    
-    ax_plotting.set_ylabel('Depth [m]')
-    #ax_plotting.set_ylim(20,0)
+    cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
+    ax_plotting.set_ylim(20,0)
     plt.show()
-    #ax_plotting.set_xlabel('Longitude [°]]')
     ax_plotting.set_xlim(-48,-46.5655)
     
-    
+    #Display radar trace on map with mask applied on data
+    ax8map.scatter(dataframe[str(single_year)]['lon_appended'][dataframe[str(single_year)]['mask']],dataframe[str(single_year)]['lat_appended'][dataframe[str(single_year)]['mask']],c=color_toplot,s=0.1)
     
     ##########################################################################
     ###                        Extract ice content                         ###
     ##########################################################################
 
     #Extract ice content
-    indiv_probability_slice=dataframe[str(single_year)]['radar']
+    indiv_probability_slice=dataframe[str(single_year)]['probabilistic']
     
     #Compute depth_delta_m
     depth_delta_m = np.mean(dataframe[str(single_year)]['depth'][1:] - dataframe[str(single_year)]['depth'][:-1])
@@ -318,18 +477,18 @@ for single_year in investigation_year.keys():
     if (str(single_year) in list(['2010','2011'])):
         continue
     else:
-        ax20.plot(X,ice_content_m_avg,label=str(single_year))
+        ax9l.plot(X,ice_content_m_avg,label=str(single_year),color=color_toplot)
         plt.legend()
-        ax20.set_xlim(-47.427,-46.5655)
+        ax9l.set_xlim(-47.427,-46.5655)
         plt.show()
  
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 plt.show()
 
-
-
-
+#Finalize map plot
+ax8map.set_xlim(-48.25,-46.10)
+ax8map.set_ylim(66.8,67)
 
 
 

@@ -116,7 +116,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     #Add number of case study on fig localisation
     axt.text(17.3,15,str(casestudy_nb),color='k')
-        
+    
     #Associate the constant related to the number of year to be plotted
     if (len(df_sampling.year.unique())==3):
         cons=1/20
