@@ -113,11 +113,25 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Define palette plot
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     my_pal = {2010: "#ffffcc", 2011: "#d9f0a3", 2012:"#addd8e", 2013:"#78c679", 2014:"#41ab5d", 2017:"#238443" ,2018:"#005a32"}
-
-    #plot thickness data
-    axt.set_title(str(casestudy_nb))    
-    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling, palette=my_pal, ax=axt,order=order_plot.astype(str))
     
+    #Add number of case study on fig localisation
+    axt.text(17.3,15,str(casestudy_nb),color='k')
+        
+    #Associate the constant related to the number of year to be plotted
+    if (len(df_sampling.year.unique())==3):
+        cons=1/20
+    elif (len(df_sampling.year.unique())==4):
+        cons=1/15
+    elif (len(df_sampling.year.unique())==5):
+        cons=1/12
+    elif (len(df_sampling.year.unique())==6):
+        cons=1/10
+    else:
+        print('Number of year not defined, do it!')
+        
+    #plot thickness data
+    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",width=cons*7.5,data=df_sampling, palette=my_pal, ax=axt,order=order_plot.astype(str))
+        
     #Get rid of legend
     axt.legend_.remove()
     axt.set_xlabel('')
