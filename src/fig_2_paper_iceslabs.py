@@ -176,58 +176,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     return
 
-def plot_thickness_high_end(df_2010_2018,df_recent,df_old,slice_lon_summary,lat_slices,list_high_end):
-    
-    #Plot differences
-    diff_to_plot=df_recent-df_old
-    pos_diff_to_plot=diff_to_plot
-    pos_diff_to_plot[pos_diff_to_plot.avg_20m_icecontent<0]=np.nan
-    
-    fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    fig.suptitle('Spatial aggregation, positive difference '+str(np.unique(df_recent['year'])[0])+'-'+str(np.unique(df_old['year'])[0]))
-    
-    # Make the norm for difference plotting
-    #divnorm_diff = mcolors.DivergingNorm(vmin=0, vcenter=5, vmax=10)
-    '''
-    #Display 2017 and 2018 data
-    plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2017']['lat_3413'],s=0.1,color='#737373')
-    plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2018']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2018']['lat_3413'],s=0.1,color='#737373',label='2017-2018 ice slabs')
-    
-    #Display 2011 and 2012 data
-    plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2011']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2011']['lat_3413'],s=0.1,color='#969696')
-    plt.scatter(df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2012']['lon_3413'],df_2010_2018_csv[df_2010_2018_csv.Track_name.str[:4]=='2012']['lat_3413'],s=0.1,color='#969696',label='2011-2012 ice slabs')
-    '''
-    
-    #Display the difference between 2011 and 2010 if aggregated data
-    sc= ax1.scatter(df_recent['avg_lon_3413'],df_recent['avg_lat_3413'],c=pos_diff_to_plot['avg_20m_icecontent'],cmap=discrete_cmap(10,'Blues'))#,norm=divnorm_diff)
-    cbar=fig.colorbar(sc)
-    cbar.set_label('Difference in iceslabs thickness', fontsize=15)
-    
-    #Add upper iceslabs
-    if ('2002-2003' in list_high_end):
-        ax1.step(slice_lon_summary[:,0],lat_slices,color='#fee5d9',label='2002-2003')
-    if ('2010' in list_high_end):
-        ax1.step(slice_lon_summary[:,1],lat_slices,color='#fcae91',label='2010')
-    if ('2011-2012' in list_high_end):
-        ax1.step(slice_lon_summary[:,2],lat_slices,color='#fb6a4a',label='2011-2012')
-    if ('2013-2014' in list_high_end):
-        ax1.step(slice_lon_summary[:,3],lat_slices,color='#de2d26',label='2013-2014')
-    if ('2017-2018' in list_high_end):
-        ax1.step(slice_lon_summary[:,4],lat_slices,color='#a50f15',label='2017-2018')
-    
-    plt.legend()
-    
-    ax1.set_xlim(-240000,-65000)
-    ax1.set_ylim(-2650000,-2250000)
-    
-    #Allows to open plot in full size directly
-    figManager = plt.get_current_fig_manager()
-    figManager.window.showMaximized()
-    
-    plt.show()
-    
-
-
 ###     This is from iceslabs_20102018_thickening_analysis.py       ###
 
 #Import librairies
@@ -586,26 +534,4 @@ pdb.set_trace()
 '''
 #NW but requires additional coding + turning trace
 plot_thickness_evolution(loc7,df_2010_2018_csv,df_2010_2018_elevation,ax1,custom_angle=-90,offset_x=10000,offset_y=-5000)
-'''
-
-plot_thickness_high_end(df_2010_2018_elevation,df_spatially_aggregated_2017,df_spatially_aggregated_2010,slice_lon_summary,lat_slices,list_high_end)
-
-'''
-list_high_end=list(['2002-2003','2011-2012','2017-2018'])
-plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2011,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
-
-list_high_end=list(['2002-2003','2011-2012','2017-2018'])
-plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2012,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
-
-list_high_end=list(['2002-2003','2013-2014','2017-2018'])
-plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2013,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
-
-list_high_end=list(['2002-2003','2013-2014','2017-2018'])
-plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2017,df_spatially_aggregated_2014,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
-
-list_high_end=list(['2002-2003','2013-2014','2011-2012'])
-plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2013,df_spatially_aggregated_2012,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
-
-list_high_end=list(['2002-2003','2011-2012','2010'])
-plot_thickness_high_end(df_2010_2018,df_spatially_aggregated_2011,df_spatially_aggregated_2010,elevDem,grid,slice_lon_summary,lat_slices,list_high_end)
 '''
