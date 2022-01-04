@@ -91,7 +91,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             df_temp=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
             df_temp['20m_ice_content_m']=np.asarray(df_select['20m_ice_content_m'])
             df_temp['Track_name']=np.asarray([df_select['Track_name'].unique()]*len(df_select))
-            df_temp['year']=np.asarray([str(year)]*len(df_select))
+            df_temp['year']=np.asarray([year]*len(df_select))
             df_temp['low_bound']=np.asarray([str(low_bound)]*len(df_select))
             df_temp['high_bound']=np.asarray([str(high_bound)]*len(df_select))
             df_temp['bound_nb']=np.asarray([bound_nb]*len(df_select))
@@ -103,10 +103,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             
             #Update bound_nb
             bound_nb=bound_nb+1
-        
-    #Define palette plot
-    #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-    my_pal = {'2010': "#ffffcc", '2011': "#d9f0a3", '2012':"#addd8e", '2013':"#78c679", '2014':"#41ab5d", '2017':"#238443" ,'2018':"#005a32"}
     
     #Add number of case study on fig localisation
     axt.text(17.3,15,str(casestudy_nb),color='k')
@@ -131,29 +127,51 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #old method
     sns.lineplot(data=df_sampling, x="bound_nb", y="20m_ice_content_m", hue="year", ax=axt, palette=my_pal, ci=None)
     '''
-    
-    # Plot the median
-    sns.lineplot(data=df_sampling, x="bound_nb", y="20m_ice_content_m", hue="year", ax=axt, palette=my_pal, estimator='mean',ci=None)
-    
-    #Loop over the years
-    for indiv_year in df_sampling.year.unique():
-        #Get data for that specific year
-        df_sampling_year=df_sampling[df_sampling.year==indiv_year]
+
+    #Define palette for time periods
+    #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
+    my_pal = {'2010': "#f7fcb9", '2011-2012': "#addd8e", '2013-2014':"#41ab5d",'2017-2018':"#006837"}
+
+    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+        #Get data for that specific time period
+        if (time_period == '2010'):
+            df_sampling_year=df_sampling[df_sampling['year']==2010]
+        elif (time_period == '2011-2012'):
+            df_sampling_year=df_sampling[(df_sampling['year']>=2011) & (df_sampling['year']<=2012)]
+        elif (time_period == '2013-2014'):
+            df_sampling_year=df_sampling[(df_sampling['year']>=2013) & (df_sampling['year']<=2014)]
+        elif (time_period == '2017-2018'):
+            df_sampling_year=df_sampling[(df_sampling['year']>=2017) & (df_sampling['year']<=2018)]
+        else:
+            print('Time period not known, break')
+            break
         
-        #IQR range display is from https://stackoverflow.com/questions/61888674/can-you-plot-interquartile-range-as-the-error-band-on-a-seaborn-lineplot
-        df_sampling_stats = df_sampling_year.groupby(['bound_nb']).describe()
-        
-        #Get index for IQR display
-        index_plot = df_sampling_stats.index
-        
-        #Get median and IQR
-        medians = df_sampling_stats[('20m_ice_content_m', '50%')]
-        medians.name = '20m_ice_content_m'
-        quartiles1 = df_sampling_stats[('20m_ice_content_m', '25%')]
-        quartiles3 = df_sampling_stats[('20m_ice_content_m', '75%')]
-        
-        #Display IQR
-        axt.fill_between(index_plot, quartiles1, quartiles3, alpha=0.3,color=my_pal[indiv_year])
+        if (len(df_sampling_year)==0):
+            #No data in this time period, continue
+            continue
+        else:
+            
+            #Create a time period column
+            df_sampling_year['time_period']=np.asarray([time_period]*len(df_sampling_year))
+            
+            # Plot the median
+            sns.lineplot(data=df_sampling_year, x="bound_nb", y="20m_ice_content_m", hue="time_period", ax=axt, palette=my_pal, estimator='median',ci=None)
+            
+            #IQR range display is from https://stackoverflow.com/questions/61888674/can-you-plot-interquartile-range-as-the-error-band-on-a-seaborn-lineplot
+            df_sampling_stats = df_sampling_year.groupby(['bound_nb']).describe()
+            
+            #Get index for IQR display
+            index_plot = df_sampling_stats.index
+            
+            #Get median and IQR
+            medians = df_sampling_stats[('20m_ice_content_m', '50%')]
+            medians.name = '20m_ice_content_m'
+            quartiles1 = df_sampling_stats[('20m_ice_content_m', '25%')]
+            quartiles3 = df_sampling_stats[('20m_ice_content_m', '75%')]
+            
+            #Display IQR
+            axt.fill_between(index_plot, quartiles1, quartiles3, alpha=0.3,color=my_pal[time_period])
 
     #Set limits so that the different case study match between each other longitudinal-wise
     axt.set_xlim(0,18)
