@@ -38,8 +38,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
         #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
         #lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
         
-        #Lon divide every 4km. I have compared between 2500, 3000, 4000 and 5000m. Best trade off between visualisation and overaggrgation seems to be 4000m
-        km_bin_desired=4000
+        #Lon divide every 3km.
+        km_bin_desired=3000
         lon_divide=np.arange(-110240,np.floor(np.max(df_for_lon['lon_3413'])).astype(int)+1+km_bin_desired,km_bin_desired)
         
         #Set bound_nb to 0
@@ -96,15 +96,22 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
         if (year==2010):
             ax_plotting=ax1r
             color_toplot="#ffffcc"
+            ax1r.set_xlabel('Longitude [°]')
         elif (year==2011):
             ax_plotting=ax2r
             color_toplot="#d9f0a3"
+            ax2r.set_xlabel('Latitude [°]')
         elif (year==2012):
             ax_plotting=ax3r
             color_toplot="#addd8e"
+            ax_plotting.axvline(x=-47.11,zorder=1)
+            ax_plotting.axvline(x=-47.02,zorder=1)
         elif (year==2013):
             ax_plotting=ax4r
             color_toplot="#78c679"
+            ax4r.set_xlabel('Depth [m]')
+            ax_plotting.axvline(x=-47.11,zorder=1)
+            ax_plotting.axvline(x=-47.02,zorder=1)
         elif (year==2014):
             ax_plotting=ax5r
             color_toplot="#41ab5d"
@@ -114,17 +121,28 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
         elif (year==2018):
             ax_plotting=ax7r
             color_toplot="#005a32"
+            ax_plotting.axvline(x=-47.11,zorder=1)
+            ax_plotting.axvline(x=-47.02,zorder=1)
         else:
             print('Year not existing')
         
-        X=dataframe[str(year)]['lon_appended']
+        
+        if (year==2011):
+            X=dataframe[str(year)]['lat_appended']
+        else:
+            X=dataframe[str(year)]['lon_appended']
+        
         Y=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
         C=dataframe[str(year)]['radar']
                 
-        cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+        cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray'),zorder=-1)#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
         ax_plotting.set_ylim(20,0)
-        ax_plotting.set_xlim(-47.5,-46.6)
+        
+        if (year==2011):
+            ax_plotting.set_xlim(66.75,67.3)
+        else:
+            ax_plotting.set_xlim(-47.5,-46.6)
         
         ######################################################################
         ###                       Display radargrams                       ###
@@ -132,6 +150,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
         
         #Display radar trace on map with mask applied on data
         ax8map.scatter(dataframe[str(year)]['lon_appended'][dataframe[str(year)]['mask']],dataframe[str(year)]['lat_appended'][dataframe[str(year)]['mask']],c=color_toplot,s=0.5)
+        #Set x tick to the top
+        ax8map.xaxis.tick_top()
         
         ##########################################################################
         ###                        Extract ice content                         ###
@@ -170,14 +190,13 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
             #Plot data
             ax9l.plot(X,ice_content_m_avg,label=str(year),color=color_toplot)
             plt.legend()
-            ax9l.set_xlim(-47.427,-46.5655)
+            ax9l.set_xlim(-47.11,-47.02)
             plt.show()
     
         ##########################################################################
         ###                        Extract ice content                         ###
         ##########################################################################   
     
-    pdb.set_trace()
     #Keep only data from 2012 onwards as 2010, 2011 are not desired
     df_sampling_plot=df_sampling[df_sampling['year']==2012]
     df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2013])
@@ -192,7 +211,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
     my_pal = {2010: "#ffffcc", 2011: "#d9f0a3", 2012:"#addd8e", 2013:"#78c679", 2014:"#41ab5d", 2017:"#238443" ,2018:"#005a32"}
     
     #plot thickness data
-    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling_plot, palette=my_pal, ax=axt,order=order_plot.astype(str))
+    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling_plot, palette=my_pal, ax=axt)#,order=order_plot.astype(str))
     
     #Set y tick to the right
     axt.yaxis.set_label_position("right")
@@ -454,13 +473,13 @@ gs = gridspec.GridSpec(35, 20)
 gs.update(wspace=0.1)
 #gs.update(wspace=0.001)
 
-ax1r = plt.subplot(gs[0:5, 0:10])
-ax2r = plt.subplot(gs[5:10, 0:10])
-ax3r = plt.subplot(gs[10:15, 0:10])
-ax4r = plt.subplot(gs[15:20, 0:10])
-ax5r = plt.subplot(gs[20:25, 0:10])
-ax6r = plt.subplot(gs[25:30, 0:10])
-ax7r = plt.subplot(gs[30:35, 0:10])
+ax1r = plt.subplot(gs[0:4, 0:10])
+ax2r = plt.subplot(gs[7:11, 0:10])
+ax3r = plt.subplot(gs[14:18, 0:10])
+ax4r = plt.subplot(gs[18:22, 0:10])
+ax5r = plt.subplot(gs[22:26, 0:10])
+ax6r = plt.subplot(gs[26:30, 0:10])
+ax7r = plt.subplot(gs[30:34, 0:10])
 
 ax8map = plt.subplot(gs[0:5, 10:20])
 ax9l = plt.subplot(gs[5:15, 10:20])
@@ -471,23 +490,30 @@ ax11t = plt.subplot(gs[25:35, 10:20])
 SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black') 
 CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black') 
 
-#Plot thickness change for that case study on axis ax11t
+#Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
 plot_thickness(investigation_year,dataframe,df_2010_2018_csv,ax11t)
 
 #Finalize axis ax11t
-ax11t.set_xticklabels(np.arange(0,10*4,4))
+#ax11t.set_xticklabels(np.arange(0,10*2,2))
 ax11t.set_xlabel('Longitude [km]')
 ax11t.set_ylabel('Ice slabs thickness [m]')
+
+#Finalize radargrams plot
+ax7r.set_xlabel('Longitude [°]')
 
 #Display the radargrams, map and shallowest and deepest slab
  
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
-plt.show()
 
 #Finalize map plot
-ax8map.set_xlim(-48.25,-46.10)
-ax8map.set_ylim(66.8,67)
+ax8map.set_xlim(-48.05,-46.25)
+ax8map.set_ylim(66.75,67.3)
+ax8map.set_xlabel('Longitude [°]')
+ax8map.set_ylabel('Latitude [°]')
+ax8map.xaxis.set_label_position("top")
+
+plt.show()
 
 
 
