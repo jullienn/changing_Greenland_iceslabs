@@ -158,6 +158,13 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Set limits so that the different case study match between each other longitudinal-wise
     axt.set_xlim(0,18)
     '''
+    #If one wants to come back to boxplot, uncomment this section
+    #Set order to display data
+    #order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int)))
+
+    #set order_plot so that it matches the maximum number of longitudinal sections in any of the analyzed case
+    order_plot=np.arange(0,18,1)
+    
     #plot thickness data
     sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",width=cons*7.5,data=df_sampling, palette=my_pal, ax=axt,order=order_plot.astype(str))
     '''
