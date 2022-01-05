@@ -136,51 +136,53 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
 
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-    my_pal = {'2010': "#f7fcb9", '2011-2012': "#addd8e", '2013-2014':"#41ab5d",'2017-2018':"#006837"}
-
+    my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
+    
     #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
     for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+        
         #Get data for that specific time period
         if (time_period == '2010'):
-            df_sampling_year=df_sampling[df_sampling['year']==2010]
+            df_trace_year=df_for_elev[df_for_elev['year']==2010]
         elif (time_period == '2011-2012'):
-            df_sampling_year=df_sampling[(df_sampling['year']>=2011) & (df_sampling['year']<=2012)]
+            df_trace_year=df_for_elev[(df_for_elev['year']>=2011) & (df_for_elev['year']<=2012)]
         elif (time_period == '2013-2014'):
-            df_sampling_year=df_sampling[(df_sampling['year']>=2013) & (df_sampling['year']<=2014)]
+            df_trace_year=df_for_elev[(df_for_elev['year']>=2013) & (df_for_elev['year']<=2014)]
         elif (time_period == '2017-2018'):
-            df_sampling_year=df_sampling[(df_sampling['year']>=2017) & (df_sampling['year']<=2018)]
+            df_trace_year=df_for_elev[(df_for_elev['year']>=2017) & (df_for_elev['year']<=2018)]
         else:
             print('Time period not known, break')
             break
         
-        if (len(df_sampling_year)==0):
+        if (len(df_trace_year)==0):
             #No data in this time period, continue
             continue
         else:
             
+            #Sort df_trace_year from low to high elevations
+            df_trace_year_sorted=df_trace_year.sort_values(by=['elevation'])
+
+            '''
+            #Moving window to average results
+            df_trace_year_sorted['ice_content_m_avg']= np.convolve(df_trace_year_sorted['20m_ice_content_m'], np.ones(50)/50, mode='same')
+            '''
+                        
+            df_trace_year_sorted['ice_content_m_q025']=df_trace_year_sorted.rolling(50, win_type=None,center=True).quantile(quantile=0.25)['20m_ice_content_m']            
+            df_trace_year_sorted['ice_content_m_q050']=df_trace_year_sorted.rolling(50, win_type=None,center=True).quantile(quantile=0.50)['20m_ice_content_m']
+            df_trace_year_sorted['ice_content_m_q075']=df_trace_year_sorted.rolling(50, win_type=None,center=True).quantile(quantile=0.75)['20m_ice_content_m']
+
             #Create a time period column
-            df_sampling_year['time_period']=np.asarray([time_period]*len(df_sampling_year))
+            df_trace_year_sorted['time_period']=np.asarray([time_period]*len(df_trace_year_sorted))
             
             # Plot the median
-            sns.lineplot(data=df_sampling_year, x="bound_nb", y="20m_ice_content_m", hue="time_period", ax=axt, palette=my_pal, estimator='median',ci=None)
-            
-            #IQR range display is from https://stackoverflow.com/questions/61888674/can-you-plot-interquartile-range-as-the-error-band-on-a-seaborn-lineplot
-            df_sampling_stats = df_sampling_year.groupby(['bound_nb']).describe()
-            
-            #Get index for IQR display
-            index_plot = df_sampling_stats.index
-            
-            #Get median and IQR
-            medians = df_sampling_stats[('20m_ice_content_m', '50%')]
-            medians.name = '20m_ice_content_m'
-            quartiles1 = df_sampling_stats[('20m_ice_content_m', '25%')]
-            quartiles3 = df_sampling_stats[('20m_ice_content_m', '75%')]
-            
+            sns.lineplot(data=df_trace_year_sorted, x="elevation", y="ice_content_m_q050", hue="time_period", ax=axt, palette=my_pal, estimator='median',ci=None)
+            #sns.lineplot(data=df_trace_year_sorted, x="elevation", y="20m_ice_content_m", hue="time_period", ax=axt, estimator='median',ci=None)
+
             #Display IQR
-            axt.fill_between(index_plot, quartiles1, quartiles3, alpha=0.3,color=my_pal[time_period])
+            axt.fill_between(df_trace_year_sorted['elevation'], df_trace_year_sorted['ice_content_m_q025'], df_trace_year_sorted['ice_content_m_q075'], alpha=0.3,color=my_pal[time_period])
     
     #Set limits so that the different case study match between each other longitudinal-wise
-    axt.set_xlim(0,22)
+    #axt.set_xlim(0,22)
     '''
     #If one wants to come back to boxplot, uncomment this section
     #Set order to display data
@@ -255,7 +257,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.patches import Patch
 import seaborn as sns
 sns.set_theme(style="whitegrid")
-
+from scipy import signal
 
 ### -------------------------- Load shapefiles --------------------------- ###
 path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
@@ -588,10 +590,10 @@ ax1.set_ylabel('Northing [m]')
 ax7t.set_xlabel('Elevation [m]')
 
 #Custom legend myself
-legend_elements = [Patch(facecolor='#f7fcb9',label='2010'),
-                   Patch(facecolor='#addd8e',label='2011-2012'),
-                   Patch(facecolor='#41ab5d',label='2013-2014'),
-                   Patch(facecolor='#006837',label='2017-2018')]
+legend_elements = [Patch(facecolor='#fdd49e',label='2010'),
+                   Patch(facecolor='#fc8d59',label='2011-2012'),
+                   Patch(facecolor='#d7301f',label='2013-2014'),
+                   Patch(facecolor='#7f0000',label='2017-2018')]
 
 ax_legend.legend(handles=legend_elements)
 plt.legend()
