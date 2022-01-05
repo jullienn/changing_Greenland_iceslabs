@@ -6,28 +6,28 @@ Created on Sun Dec 19 12:14:06 2021
 """
 def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,axe,custom_angle,offset_x,offset_y,casestudy_nb):
     
-    #Define empty dictionnary for longitudinal slice definition
-    df_for_lon=pd.DataFrame(columns=list(df_2010_2018_csv.keys()))
+    #Define empty dictionnary for elevation slice definition
+    df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
     
     #Loop over the years
     for year in dictionnary_case_study.keys():
         if (dictionnary_case_study[year] == 'empty'):
             continue  
         #Select data for the trace
-        df_for_lon_temp=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        df_for_elev_temp=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
         #Append data to each other
-        df_for_lon=df_for_lon.append(df_for_lon_temp)
+        df_for_elev=df_for_elev.append(df_for_elev_temp)
                 
         #Display data
-        ax1.scatter(df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lon_3413'],
-                    df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lat_3413'],
+        ax1.scatter(df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lon_3413'],
+                    df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lat_3413'],
                     s=0.1,color='#737373')
             
     #Display rectangle around data    
-    x=(np.min(df_for_lon.lon_3413)-offset_x)
-    y=(np.min(df_for_lon.lat_3413)-offset_y)
+    x=(np.min(df_for_elev.lon_3413)-offset_x)
+    y=(np.min(df_for_elev.lat_3413)-offset_y)
     width=10000
-    height=np.sqrt(np.power(abs(np.min(df_for_lon.lon_3413))-abs(np.max(df_for_lon.lon_3413)),2)+np.power(abs(np.min(df_for_lon.lat_3413))-abs(np.max(df_for_lon.lat_3413)),2))+2*offset_x
+    height=np.sqrt(np.power(abs(np.min(df_for_elev.lon_3413))-abs(np.max(df_for_elev.lon_3413)),2)+np.power(abs(np.min(df_for_elev.lat_3413))-abs(np.max(df_for_elev.lat_3413)),2))+2*offset_x
     #This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
     # Create a Rectangle patch
     rect = patches.Rectangle((x,y),width,height, angle=custom_angle, linewidth=1, edgecolor='blue', facecolor='none')
@@ -36,9 +36,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     #Add number of case study on fig localisation
     ax1.text(x-30000,y-15000,str(casestudy_nb),color='r')
-        
-    #Desired number of slices
-    desired_nb=20
     
     #Create empty dataframe for storing data
     df_sampling=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
@@ -63,28 +60,35 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         #Update line for max elevation storing
         index_max_elev=index_max_elev+1
         
-        
         #Select data for the trace
-        df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
-
+        df_trace=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        
+        '''
+        #Desired number of slices
+        desired_nb=20
         #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
         #lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
         
         #Lon divide every 4km. I have compared between 2500, 3000, 4000 and 5000m. Best trade off between visualisation and overaggrgation seems to be 4000m
         km_bin_desired=4000
         lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])).astype(int),np.floor(np.max(df_for_lon['lon_3413'])).astype(int)+1+km_bin_desired,km_bin_desired)
+        '''
+
+        #Define elevation binning
+        elev_bin_desired=20
+        elev_divide=np.arange(np.floor(np.min(df_for_elev['elevation'])).astype(int),np.floor(np.max(df_for_elev['elevation'])).astype(int)+1+elev_bin_desired,elev_bin_desired)
                 
         #Set bound_nb to 0
         bound_nb=0
-        #Loop over the lon divide
-        for i in range(1,len(lon_divide)):
+        #Loop over the elev_divide
+        for i in range(1,len(elev_divide)):
             
             #Identify low and higher end of the slice
-            low_bound=lon_divide[i-1]
-            high_bound=lon_divide[i]
+            low_bound=elev_divide[i-1]
+            high_bound=elev_divide[i]
     
-            #Select all the data belonging to this lon slice
-            ind_slice=np.logical_and(np.array(df_trace['lon_3413']>=low_bound),np.array(df_trace['lon_3413']<high_bound))
+            #Select all the data belonging to this elev slice
+            ind_slice=np.logical_and(np.array(df_trace['elevation']>=low_bound),np.array(df_trace['elevation']<high_bound))
             df_select=df_trace[ind_slice]
             
             #Fill in dictionnary
@@ -105,8 +109,9 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             bound_nb=bound_nb+1
     
     #Add number of case study on fig localisation
-    axt.text(17.3,15,str(casestudy_nb),color='k')
+    axt.text(21.75,15,str(casestudy_nb),color='k')
     
+    '''
     #Associate the constant related to the number of year to be plotted
     if (len(df_sampling.year.unique())==3):
         cons=1/20
@@ -118,7 +123,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         cons=1/10
     else:
         print('Number of year not defined, do it!')
-            
+    '''
+          
     #Reset index so that each row has its own index. If not done, plot cannot be created, this error pops out 'ValueError: cannot reindex from a duplicate axis'
     df_sampling.index = np.arange(0,len(df_sampling))
         
@@ -172,9 +178,9 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             
             #Display IQR
             axt.fill_between(index_plot, quartiles1, quartiles3, alpha=0.3,color=my_pal[time_period])
-
+    
     #Set limits so that the different case study match between each other longitudinal-wise
-    axt.set_xlim(0,18)
+    axt.set_xlim(0,22)
     '''
     #If one wants to come back to boxplot, uncomment this section
     #Set order to display data
@@ -274,9 +280,7 @@ CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 ### -------------------------- Load shapefiles --------------------------- ###
 
-#Load the spatial aggregated data. All the points within a radius of 100m are averaged
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
-df_2010_2018_spatially_aggregated = pd.read_csv(path+'jullien_etal_20102018_spatial_aggregation_grid_1000_prob00.csv',delimiter=';',decimal=',')
 
 #Load all 2010-2018 data without spatial aggregation
 df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv',delimiter=',',decimal='.')
@@ -287,6 +291,10 @@ points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2
 #Store lat/lon in 3413
 df_2010_2018_csv['lon_3413']=points[0]
 df_2010_2018_csv['lat_3413']=points[1]
+
+'''
+#Load the spatial aggregated data. All the points within a radius of 100m are averaged
+df_2010_2018_spatially_aggregated = pd.read_csv(path+'jullien_etal_20102018_spatial_aggregation_grid_1000_prob00.csv',delimiter=';',decimal=',')
 
 #Loop over the keys and create 1 dataframe per year. Where no data for this particular year, store a nan
 #Create empty arrays
@@ -412,7 +420,7 @@ df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
 
 
 list_high_end=list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])
-
+'''
 
 #Plot 2010, 2011, 2012, 2013, 2014 ,2017 2018, select overlapping case study: use clean and clear ice slabs tramsects
 
@@ -549,6 +557,7 @@ f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rign
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
+
 #Plot data
 plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb=1)
 
@@ -566,8 +575,8 @@ plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,a
 #Finalize plot
 ax4t.set_ylabel('Ice thickness [m]')
 ax4e.set_ylabel('Maximum elevation [m]')
-ax6e.set_xlabel('Time [year]')
-ax6e.set_xticklabels(['','2010','2015'])
+ax7e.set_xlabel('Time [year]')
+ax7e.set_xticklabels(['','2010','2015'])
 
 ax1.set_xlim(-580000,-44000)
 ax1.set_ylim(-2650000,-1290000)
@@ -575,8 +584,8 @@ ax1.set_xlabel('Easting [m]')
 ax1.set_ylabel('Northing [m]')
 
 #Display distance as longitude [km]
-ax6t.set_xticklabels(np.arange(0,18*4,8))
-ax6t.set_xlabel('Longitude [km]')
+#ax6t.set_xticklabels(np.arange(0,25*20,8))
+ax7t.set_xlabel('Elevation [m]')
 
 #Custom legend myself
 legend_elements = [Patch(facecolor='#f7fcb9',label='2010'),
