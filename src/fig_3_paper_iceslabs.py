@@ -261,7 +261,6 @@ investigation_year={2010:['Data_20100515_01_007.mat','Data_20100515_01_008.mat',
                     2014:['Data_20140416_05_035.mat','Data_20140416_05_036.mat','Data_20140416_05_037.mat'],
                     2017:['Data_20170502_01_171.mat','Data_20170502_01_172.mat','Data_20170502_01_173.mat'],
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
-
 '''
 #Best absolute closest point for each year, without any overlapping consideration
 20180426_01_004_006

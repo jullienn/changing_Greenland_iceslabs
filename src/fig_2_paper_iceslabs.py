@@ -499,14 +499,21 @@ loc8={2010:['Data_20100517_02_001.mat','Data_20100517_02_002.mat'],
 20170417_01_171_174
 '''
 
+loc9={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
+      2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
+      2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
+      2013:['Data_20130405_01_165.mat','Data_20130405_01_166.mat','Data_20130405_01_167.mat'],
+      2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
+      2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
+      2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 
 fig = plt.figure()
 #fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
-gs = gridspec.GridSpec(25, 20)
+gs = gridspec.GridSpec(30, 20)
 gs.update(wspace=0.1)
 #gs.update(wspace=0.001)
-ax1 = plt.subplot(gs[0:20, 0:2])
-ax_legend = plt.subplot(gs[20:25, 0:2])
+ax1 = plt.subplot(gs[0:25, 0:2])
+ax_legend = plt.subplot(gs[25:30, 0:2])
 
 ax2t = plt.subplot(gs[0:5, 3:18])
 ax2e = plt.subplot(gs[0:5, 18:20])
@@ -522,6 +529,9 @@ ax5e = plt.subplot(gs[15:20, 18:20])
 
 ax6t = plt.subplot(gs[20:25, 3:18])
 ax6e = plt.subplot(gs[20:25, 18:20])
+
+ax7t = plt.subplot(gs[25:30, 3:18])
+ax7e = plt.subplot(gs[25:30, 18:20])
 
 #Display GrIS drainage bassins
 NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
@@ -540,15 +550,18 @@ df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
 #Plot data
-plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb=1)
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb=1)
 
-plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,ax3e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=2)
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,ax3e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=2)
 
-plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=3)
+plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb=3)
 
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb=4)
+plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=4)
 
-plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=5)
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=5)
+
+plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,ax7e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=6)
+
 
 #Finalize plot
 ax4t.set_ylabel('Ice thickness [m]')
@@ -566,13 +579,10 @@ ax6t.set_xticklabels(np.arange(0,18*4,8))
 ax6t.set_xlabel('Longitude [km]')
 
 #Custom legend myself
-legend_elements = [Patch(facecolor='#ffffcc',label='2010'),
-                   Patch(facecolor='#d9f0a3',label='2011'),
-                   Patch(facecolor='#addd8e',label='2012'),
-                   Patch(facecolor='#78c679',label='2013'),
-                   Patch(facecolor='#41ab5d',label='2014'),
-                   Patch(facecolor='#238443',label='2017'),
-                   Patch(facecolor='#005a32',label='2018')]
+legend_elements = [Patch(facecolor='#f7fcb9',label='2010'),
+                   Patch(facecolor='#addd8e',label='2011-2012'),
+                   Patch(facecolor='#41ab5d',label='2013-2014'),
+                   Patch(facecolor='#006837',label='2017-2018')]
 
 ax_legend.legend(handles=legend_elements)
 plt.legend()
@@ -581,7 +591,7 @@ plt.legend()
 ax_legend.axis('off')
 ax_legend.set_title('Legend')
 plt.show()
-ax6e.legend_.remove()
+#ax6e.legend_.remove()
 
 
 '''
