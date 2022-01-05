@@ -4,7 +4,7 @@ Created on Sun Dec 19 12:14:06 2021
 
 @author: jullienn
 """
-def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,axe,custom_angle,offset_x,offset_y,casestudy_nb):
+def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,custom_angle,offset_x,offset_y,casestudy_nb):
     
     #Define empty dictionnary for elevation slice definition
     df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
@@ -109,8 +109,9 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             bound_nb=bound_nb+1
     
     #Add number of case study on fig localisation
-    axt.text(21.75,15,str(casestudy_nb),color='k')
+    #axt.text(np.round(np.max(df_for_elev['elevation'])).astype(int),14,str(casestudy_nb),color='k')
     
+    axt.text(0.9925, 0.9,str(casestudy_nb), ha='center', va='center', transform=axt.transAxes)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     '''
     #Associate the constant related to the number of year to be plotted
     if (len(df_sampling.year.unique())==3):
@@ -220,18 +221,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Get rid of zeros
     max_elev_per_trace_toplot=max_elev_per_trace
     max_elev_per_trace_toplot[(max_elev_per_trace_toplot==0)]=np.nan
-        
-    #list date color
-    my_pal_list = ["#ffffcc","#d9f0a3","#addd8e","#78c679","#41ab5d","#238443","#005a32"]
-    
-    #Plot maximum elevation data
-    axe.scatter(max_elev_per_trace_toplot[:,0],max_elev_per_trace_toplot[:,1],s=20,c=my_pal_list,edgecolors='k')
-    axe.set_xlim(2009.5,2018.5)
-    
-    #Set y tick to the right
-    axe.yaxis.set_label_position("right")
-    axe.yaxis.tick_right()
-    axe.set_xticklabels([])
     
     plt.show()
         
@@ -519,29 +508,18 @@ loc9={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
 
 fig = plt.figure()
 #fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
-gs = gridspec.GridSpec(30, 20)
-gs.update(wspace=0.1)
+gs = gridspec.GridSpec(40, 20)
+gs.update(wspace=0.001)
 #gs.update(wspace=0.001)
 ax1 = plt.subplot(gs[0:25, 0:2])
-ax_legend = plt.subplot(gs[25:30, 0:2])
+ax_legend = plt.subplot(gs[35:40, 0:2])
 
-ax2t = plt.subplot(gs[0:5, 3:18])
-ax2e = plt.subplot(gs[0:5, 18:20])
-
-ax3t = plt.subplot(gs[5:10, 3:18])
-ax3e = plt.subplot(gs[5:10, 18:20])
-
-ax4t = plt.subplot(gs[10:15, 3:18])
-ax4e = plt.subplot(gs[10:15, 18:20])
-
-ax5t = plt.subplot(gs[15:20, 3:18])
-ax5e = plt.subplot(gs[15:20, 18:20])
-
-ax6t = plt.subplot(gs[20:25, 3:18])
-ax6e = plt.subplot(gs[20:25, 18:20])
-
-ax7t = plt.subplot(gs[25:30, 3:18])
-ax7e = plt.subplot(gs[25:30, 18:20])
+ax2t = plt.subplot(gs[0:5, 3:20])
+ax3t = plt.subplot(gs[7:12, 3:20])
+ax4t = plt.subplot(gs[14:19, 3:20])
+ax5t = plt.subplot(gs[21:26, 3:20])
+ax6t = plt.subplot(gs[28:33, 3:20])
+ax7t = plt.subplot(gs[35:40, 3:20])
 
 #Display GrIS drainage bassins
 NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
@@ -561,32 +539,28 @@ f_20102018.close()
 
 
 #Plot data
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb=1)
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb=1)
 
-plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,ax3e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=2)
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=2)
 
-plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb=3)
+plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb=3)
 
-plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=4)
+plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=4)
 
-plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=5)
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=5)
 
-plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,ax7e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=6)
+plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=6)
 
 
 #Finalize plot
-ax4t.set_ylabel('Ice thickness [m]')
-ax4e.set_ylabel('Maximum elevation [m]')
-ax7e.set_xlabel('Time [year]')
-ax7e.set_xticklabels(['','2010','2015'])
 
 ax1.set_xlim(-580000,-44000)
 ax1.set_ylim(-2650000,-1290000)
 ax1.set_xlabel('Easting [m]')
 ax1.set_ylabel('Northing [m]')
 
-#Display distance as longitude [km]
-#ax6t.set_xticklabels(np.arange(0,25*20,8))
+#Display distance as Elevation [m]
+ax7t.set_ylabel('Column ice thickness [m]')
 ax7t.set_xlabel('Elevation [m]')
 
 #Custom legend myself
@@ -602,7 +576,7 @@ plt.legend()
 ax_legend.axis('off')
 ax_legend.set_title('Legend')
 plt.show()
-#ax6e.legend_.remove()
+ax7t.legend_.remove()
 
 
 '''
