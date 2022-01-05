@@ -36,105 +36,10 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     #Add number of case study on fig localisation
     ax1.text(x-30000,y-15000,str(casestudy_nb),color='r')
-    
-    #Create empty dataframe for storing data
-    df_sampling=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
-    
-    #Create empty matrix for storing elevation data
-    max_elev_per_trace=np.zeros((len(dictionnary_case_study.keys()),2))
-    index_max_elev=0
-    
-    #Loop over the years
-    for year in dictionnary_case_study.keys():
-        if (dictionnary_case_study[year] == 'empty'):
-            #Update line for max elevation storing
-            index_max_elev=index_max_elev+1
-            continue
 
-        #Select elevation data for the trace
-        df_trace_elevation=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
-        
-        #Pick up max elevation of this trace
-        max_elev_per_trace[index_max_elev,0]=int(df_trace_elevation['Track_name'].unique()[0][0:4])
-        max_elev_per_trace[index_max_elev,1]=np.nanmax(df_trace_elevation['elevation'])
-        #Update line for max elevation storing
-        index_max_elev=index_max_elev+1
-        
-        #Select data for the trace
-        df_trace=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
-        
-        '''
-        #Desired number of slices
-        desired_nb=20
-        #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
-        #lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
-        
-        #Lon divide every 4km. I have compared between 2500, 3000, 4000 and 5000m. Best trade off between visualisation and overaggrgation seems to be 4000m
-        km_bin_desired=4000
-        lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])).astype(int),np.floor(np.max(df_for_lon['lon_3413'])).astype(int)+1+km_bin_desired,km_bin_desired)
-        '''
-
-        #Define elevation binning
-        elev_bin_desired=20
-        elev_divide=np.arange(np.floor(np.min(df_for_elev['elevation'])).astype(int),np.floor(np.max(df_for_elev['elevation'])).astype(int)+1+elev_bin_desired,elev_bin_desired)
-                
-        #Set bound_nb to 0
-        bound_nb=0
-        #Loop over the elev_divide
-        for i in range(1,len(elev_divide)):
-            
-            #Identify low and higher end of the slice
-            low_bound=elev_divide[i-1]
-            high_bound=elev_divide[i]
-    
-            #Select all the data belonging to this elev slice
-            ind_slice=np.logical_and(np.array(df_trace['elevation']>=low_bound),np.array(df_trace['elevation']<high_bound))
-            df_select=df_trace[ind_slice]
-            
-            #Fill in dictionnary
-            df_temp=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
-            df_temp['20m_ice_content_m']=np.asarray(df_select['20m_ice_content_m'])
-            df_temp['Track_name']=np.asarray([df_select['Track_name'].unique()]*len(df_select))
-            df_temp['year']=np.asarray([year]*len(df_select))
-            df_temp['low_bound']=np.asarray([str(low_bound)]*len(df_select))
-            df_temp['high_bound']=np.asarray([str(high_bound)]*len(df_select))
-            df_temp['bound_nb']=np.asarray([bound_nb]*len(df_select))
-            df_temp['mean']=np.asarray([np.nanmean(df_select['20m_ice_content_m'])]*len(df_select))
-            df_temp['stddev']=np.asarray([np.nanstd(df_select['20m_ice_content_m'])]*len(df_select))
-            
-            #Append dictionnary
-            df_sampling=df_sampling.append(df_temp)
-            
-            #Update bound_nb
-            bound_nb=bound_nb+1
-    
-    #Add number of case study on fig localisation
-    #axt.text(np.round(np.max(df_for_elev['elevation'])).astype(int),14,str(casestudy_nb),color='k')
-    
+    #Add number of case study on fig localisation    
     axt.text(0.9925, 0.9,str(casestudy_nb), ha='center', va='center', transform=axt.transAxes)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    '''
-    #Associate the constant related to the number of year to be plotted
-    if (len(df_sampling.year.unique())==3):
-        cons=1/20
-    elif (len(df_sampling.year.unique())==4):
-        cons=1/15
-    elif (len(df_sampling.year.unique())==5):
-        cons=1/12
-    elif (len(df_sampling.year.unique())==6):
-        cons=1/10
-    else:
-        print('Number of year not defined, do it!')
-    '''
-          
-    #Reset index so that each row has its own index. If not done, plot cannot be created, this error pops out 'ValueError: cannot reindex from a duplicate axis'
-    df_sampling.index = np.arange(0,len(df_sampling))
-        
-    '''
-    # Plot the mean/median?
-    #old method
-    sns.lineplot(data=df_sampling, x="bound_nb", y="20m_ice_content_m", hue="year", ax=axt, palette=my_pal, ci=None)
-    '''
-
+    
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
@@ -182,50 +87,13 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             #Display IQR
             axt.fill_between(df_trace_year_sorted['elevation'], df_trace_year_sorted['ice_content_m_q025'], df_trace_year_sorted['ice_content_m_q075'], alpha=0.3,color=my_pal[time_period])
     
-    #Set limits so that the different case study match between each other longitudinal-wise
-    #axt.set_xlim(0,22)
-    '''
-    #If one wants to come back to boxplot, uncomment this section
-    #Set order to display data
-    #order_plot=np.arange(np.min(np.asarray(df_sampling['bound_nb']).astype(int)),np.max(np.asarray(df_sampling['bound_nb']).astype(int)))
-
-    #set order_plot so that it matches the maximum number of longitudinal sections in any of the analyzed case
-    order_plot=np.arange(0,18,1)
-    
-    #plot thickness data
-    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",width=cons*7.5,data=df_sampling, palette=my_pal, ax=axt,order=order_plot.astype(str))
-    '''
-    
     #Get rid of legend
     axt.legend_.remove()
     axt.set_xlabel('')
     axt.set_ylabel('')
-        
-    '''
-    #https://stackoverflow.com/questions/16834861/create-own-colormap-using-matplotlib-and-plot-color-scale
-    import matplotlib.colors
-    
-    
-    '#c6dbef',label='2002-2003'
-    '#9ecae1',label='2010'
-    '#6baed6',label='2011-2012'
-    '#3182bd',label='2013-2014'
-    '#08519c',label='2017-2018'
-    
-    #this is from https://stackoverflow.com/questions/16834861/create-own-colormap-using-matplotlib-and-plot-color-scale
-    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ['#9ecae1','#6baed6','#3182bd','#08519c'])
-
-    #This is from https://stackoverflow.com/questions/53360879/create-a-discrete-colorbar-in-matplotlib
-    norm = matplotlib.colors.BoundaryNorm(np.asarray([2010,2012,2014,2018]), cmap.N)
-    '''
-    #Get rid of zeros
-    max_elev_per_trace_toplot=max_elev_per_trace
-    max_elev_per_trace_toplot[(max_elev_per_trace_toplot==0)]=np.nan
-    
     plt.show()
         
     print('End plotting fig 2')
-    
     return
 
 ###     This is from iceslabs_20102018_thickening_analysis.py       ###
