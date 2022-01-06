@@ -179,15 +179,22 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
     return summary_area
 
 
-def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all):
-    plot_save='TRUE'
+def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):
+    convex_hull_computation='FALSE'
+    likelihood_display='TRUE'
+    
+    
+    panel_a_save='FALSE'
+    panel_b_save='FALSE'
+    panel_c_save='TRUE'
+    
     '''
     #Open GrIS mask from Rignot et al., 2016
     path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
     GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1_EPSG3413.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
     GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
     '''
-    
+    # -------------------------------- PANEL A --------------------------------
     #prepare the figure
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     fig.suptitle('')
@@ -240,17 +247,14 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
     
-    '''
-    if (plot_save == 'TRUE'):
+    
+    if (panel_a_save == 'TRUE'):
         #Save the figure
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=1000)
-    '''
-    plt.close(fig)
+        plt.close(fig)
+    # -------------------------------- PANEL A --------------------------------
     
-    pdb.set_trace()
-    
-    #Panel B
-    
+    # -------------------------------- PANEL B --------------------------------    
     #Define panel names
     labels = ['NE', 'NO', 'NW', 'CW', 'SW']
 
@@ -345,6 +349,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     
     #Custom legend myself
     from matplotlib.patches import Patch
+    from matplotlib.lines import Line2D
+    
     legend_elements = [Patch(facecolor='#c6dbef', alpha=0.5,label='2002-2003'),
                        Patch(facecolor='#9ecae1', alpha=0.5,label='2010'),
                        Patch(facecolor='#6baed6', alpha=0.5,label='2011-2012'),
@@ -356,106 +362,150 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     plt.legend()
     plt.show()
     
-    if (plot_save == 'TRUE'):
+    if (panel_b_save == 'TRUE'):
         #Save the figure
-        pdb.set_trace()
-        #plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1_panel_b.png',dpi=2000)
-        #plt.close(fig)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_b.png',dpi=1000)
+        plt.close(fig)
+    # -------------------------------- PANEL B --------------------------------    
+
+    # -------------------------------- PANELS C -------------------------------        
+    if (convex_hull_computation=='TRUE'):
+        #Panel C
+        #Load convex hull mask over which convex hull must be computed
+        path_convexhull_masks='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/shapefiles/'
         
-    #Panel C
-    #Load convex hull mask over which convex hull must be computed
-    path_convexhull_masks='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/shapefiles/'
+        dictionnaries_convexhullmasks = {k: {} for k in list(['NE','NO','NW','CW','SW'])}
+        dictionnaries_convexhullmasks['NE']={k: {} for k in list(['NE_CH_1','NE_CH_2','NE_CH_3','NE_CH_4'])}
+        dictionnaries_convexhullmasks['NO']={k: {} for k in list(['NO_CH_1','NO_CH_2','NO_CH_3','NO_CH_4','NO_CH_5','NO_CH_6','NO_CH_7'])}
+        dictionnaries_convexhullmasks['NW']={k: {} for k in list(['NW_CH_1','NW_CH_2','NW_CH_3','NW_CH_4','NW_CH_5','NW_CH_6'])}
+        dictionnaries_convexhullmasks['CW']={k: {} for k in list(['CW_CH_1'])}
+        dictionnaries_convexhullmasks['SW']={k: {} for k in list(['SW_CH_1'])}
+        
+        for indiv_region in dictionnaries_convexhullmasks.keys():
+            for indiv_file in dictionnaries_convexhullmasks[indiv_region].keys():
+                print('convex_hull_'+indiv_file[0:2]+indiv_file[5:8]+'.shp')
+                if (indiv_region == 'CW'):
+                    dictionnaries_convexhullmasks[indiv_region][indiv_file]=CW_rignotetal
+                elif (indiv_region == 'SW'):
+                    dictionnaries_convexhullmasks[indiv_region][indiv_file]=SW_rignotetal
+                else:
+                    dictionnaries_convexhullmasks[indiv_region][indiv_file]=gpd.read_file(path_convexhull_masks+'convex_hull_'+indiv_file[0:2]+indiv_file[5:8]+'.shp')
+        
+        #Generate shapefile from iceslabs data. This si from https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
+        from scipy.spatial import ConvexHull
+        from shapely import geometry
+        from shapely.ops import unary_union
     
-    dictionnaries_convexhullmasks = {k: {} for k in list(['NE','NO','NW','CW','SW'])}
-    dictionnaries_convexhullmasks['NE']={k: {} for k in list(['NE_CH_1','NE_CH_2','NE_CH_3','NE_CH_4'])}
-    dictionnaries_convexhullmasks['NO']={k: {} for k in list(['NO_CH_1','NO_CH_2','NO_CH_3','NO_CH_4','NO_CH_5','NO_CH_6','NO_CH_7'])}
-    dictionnaries_convexhullmasks['NW']={k: {} for k in list(['NW_CH_1','NW_CH_2','NW_CH_3','NW_CH_4','NW_CH_5','NW_CH_6'])}
-    dictionnaries_convexhullmasks['CW']={k: {} for k in list(['CW_CH_1'])}
-    dictionnaries_convexhullmasks['SW']={k: {} for k in list(['SW_CH_1'])}
-    
-    for indiv_region in dictionnaries_convexhullmasks.keys():
-        for indiv_file in dictionnaries_convexhullmasks[indiv_region].keys():
-            print('convex_hull_'+indiv_file[0:2]+indiv_file[5:8]+'.shp')
-            if (indiv_region == 'CW'):
-                dictionnaries_convexhullmasks[indiv_region][indiv_file]=CW_rignotetal
-            elif (indiv_region == 'SW'):
-                dictionnaries_convexhullmasks[indiv_region][indiv_file]=SW_rignotetal
+        #prepare the figure
+        figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
+        figc.suptitle('GrIS ice slabs extent - high estimate')
+        
+        #Display GrIS drainage bassins
+        NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+        NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+        SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+        SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+        CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+        NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+        
+        #Calculate concave hull and extract low and high end areas
+        do_plot='TRUE'
+        high_end_summary=concave_hull_computation(df_2010_2018_high,dictionnaries_convexhullmasks,ax1c,do_plot,'high_end')
+        do_plot='FALSE'
+        low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot,'low_end')
+        
+        #Display area change on the figure
+        for region in list(['NE','NO','NW','CW','SW']):
+            if (region =='NE'):
+                polygon_for_text=NE_rignotetal
+            elif(region =='NO'):
+                polygon_for_text=NO_rignotetal
+            elif(region =='NW'):
+                polygon_for_text=NW_rignotetal
+            elif(region =='CW'):
+                polygon_for_text=CW_rignotetal
+            elif(region =='SW'):
+                polygon_for_text=SW_rignotetal
             else:
-                dictionnaries_convexhullmasks[indiv_region][indiv_file]=gpd.read_file(path_convexhull_masks+'convex_hull_'+indiv_file[0:2]+indiv_file[5:8]+'.shp')
-    
-    #Generate shapefile from iceslabs data. This si from https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
-    from scipy.spatial import ConvexHull
-    from shapely import geometry
-    from shapely.ops import unary_union
-
-    #prepare the figure
-    figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    figc.suptitle('GrIS ice slabs extent - high estimate')
-    
-    #Display GrIS drainage bassins
-    NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-    NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-    NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-    
-    #Calculate concave hull and extract low and high end areas
-    do_plot='TRUE'
-    high_end_summary=concave_hull_computation(df_2010_2018_high,dictionnaries_convexhullmasks,ax1c,do_plot,'high_end')
-    do_plot='FALSE'
-    low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot,'low_end')
-    
-    #Display area change on the figure
-    for region in list(['NE','NO','NW','CW','SW']):
-        if (region =='NE'):
-            polygon_for_text=NE_rignotetal
-        elif(region =='NO'):
-            polygon_for_text=NO_rignotetal
-        elif(region =='NW'):
-            polygon_for_text=NW_rignotetal
-        elif(region =='CW'):
-            polygon_for_text=CW_rignotetal
-        elif(region =='SW'):
-            polygon_for_text=SW_rignotetal
-        else:
-            print('Region not known')
+                print('Region not known')
+            
+            low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
+            high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
+            
+            #Display region name on panel a 
+            ax1.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y+20000,region)
+            
+            #Display region name on panel c
+            ax1c.text(polygon_for_text.centroid.x+25000,polygon_for_text.centroid.y+20000,region)
+            '''
+            #Compute and display relative change
+            ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+            '''
+        ax1c.set_xlabel('Easting [m]')
+        ax1c.set_ylabel('Northing [m]')
         
-        low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
-        high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
-        
-        #Display region name on panel a 
-        ax1.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y+20000,region)
-        
-        #Display region name on panel c
-        ax1c.text(polygon_for_text.centroid.x+25000,polygon_for_text.centroid.y+20000,region)
-        '''
-        #Compute and display relative change
-        ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
-        '''
-    ax1c.set_xlabel('Easting [m]')
-    ax1c.set_ylabel('Northing [m]')
-    
-    pdb.set_trace()
-
-    #Custom legend myself
-    legend_elements = [Patch(facecolor='#3182bd', alpha=0.5,label='2011-2012'),
-                       Patch(facecolor='#de2d26', alpha=0.5,label='2017-2018')]
-    ax1c.legend(handles=legend_elements,loc='best')
-    plt.legend()
-    
-    #Plot data
-    #ax1c.scatter(df_all.lon_3413,df_all.lat_3413,s=0.1,zorder=3)
-    
-    if (plot_save == 'TRUE'):
-        #Save the figure
         pdb.set_trace()
-        #plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1_panels_c.png',dpi=2000)
-        #plt.close(fig)
+    
+        #Custom legend myself
+        legend_elements = [Patch(facecolor='#3182bd', alpha=0.5,label='2011-2012'),
+                           Patch(facecolor='#de2d26', alpha=0.5,label='2017-2018')]
+        ax1c.legend(handles=legend_elements,loc='best')
+        plt.legend()
+        
+        #Plot data
+        #ax1c.scatter(df_all.lon_3413,df_all.lat_3413,s=0.1,zorder=3)
+        
+        if (plot_save == 'TRUE'):
+            #Save the figure
+            pdb.set_trace()
+            #plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1_panels_c.png',dpi=2000)
+            #plt.close(fig)
 
+    if (likelihood_display=='TRUE'):
+        
+        pdb.set_trace()
+        
+        #prepare the figure
+        figc, (ax1c) = plt.subplots(1, 1)
+        
+        #Display GrIS drainage bassins
+        NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+        NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+        SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+        SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+        CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
+        NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
+        
+        pdb.set_trace()
+        #Plot from 2011-2012
+        flightlines_20022018
+        
+        
+        plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
+                    df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lat_3413'],
+                    c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['likelihood'],
+                    s=0.1,cmap=plt.get_cmap('Blues'),label='blabla')
+        plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
+                    df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
+                    c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
+                    s=0.1,cmap=plt.get_cmap('Blues'),label='blabla')
+        
+        #Plot from 2017-2018
+        plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
+                    df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lat_3413'],
+                    c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['likelihood'],
+                    s=0.1,cmap=plt.get_cmap('Reds'),label='blabla')
+        plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
+                    df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
+                    c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
+                    s=0.1,cmap=plt.get_cmap('Reds'),label='blabla')
+        plt.show()
+        pdb.set_trace()
+        
+        cbar = plt.colorbar(lik)
+        cbar.set_label('Columnal average likelihood')
 
-
-
+    # -------------------------------- PANELS C -------------------------------        
 
 #Import packages
 #import rasterio
@@ -907,6 +957,18 @@ points=transformer.transform(np.asarray(df_firn_aquifer_all["LONG"]),np.asarray(
 #Store lat/lon in 3413
 df_firn_aquifer_all['lon_3413']=points[0]
 df_firn_aquifer_all['lat_3413']=points[1]
+
+
+#Load columnal likelihood file likelihood
+path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate_and_columnal_likelihood/'
+df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
+#Transform miege coordinates from WGS84 to EPSG:3413
+points=transformer.transform(np.asarray(df_thickness_likelihood_20102018["lon"]),np.asarray(df_thickness_likelihood_20102018["lat"]))
+
+#Store lat/lon in 3413
+df_thickness_likelihood_20102018['lon_3413']=points[0]
+df_thickness_likelihood_20102018['lat_3413']=points[1]
+
 
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
@@ -1563,7 +1625,7 @@ points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(
 flightlines_20022018['lon_3413']=points[0]
 flightlines_20022018['lat_3413']=points[1]
 
-plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all)
+plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018)
 
 pdb.set_trace()
 
