@@ -19,7 +19,7 @@ import os.path
 import os
 import csv
 
-year_to_download='2017'#'2010_2014'
+year_to_download='2018'#'2010_2014'
 
 ############################ Download old AR data #############################
 if (year_to_download=='old'):
@@ -303,7 +303,7 @@ if (year_to_download=='2017'):
     path_file='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/'
 
     #Read text file of all the data that need to be downloaded
-    intial_data_selection = pd.read_csv(path_file+'intial_data_selection_20172018.txt', header=None)
+    intial_data_selection = pd.read_csv(path_file+'current_intial_data_selection_20172018.txt', header=None)
     intial_data_selection.columns = ["datetrack"]
     
     #Store start and end files
@@ -378,12 +378,12 @@ if (year_to_download=='2017'):
                 if (folder not in list(np.unique(intial_data_selection['date']))):
                     #No data to be downloaded here, continue
                     continue
-                
+                '''
                 if (not(folder == '20170322_04')):
                     #print('Folder 20170322_04 does not exist for .mat files, continue')
                     print('Not folder 20170322_04, continue')
                     continue
-                
+                '''
                 folder_name=[]
                 folder_name=folder_year_name + folder + '/'
                 ftp.cwd(folder_name)
@@ -462,7 +462,7 @@ if (year_to_download=='2018'):
     path_file='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/'
 
     #Read text file of all the data that need to be downloaded
-    intial_data_selection = pd.read_csv(path_file+'intial_data_selection_20172018.txt', header=None)
+    intial_data_selection = pd.read_csv(path_file+'current_intial_data_selection_20172018.txt', header=None)
     intial_data_selection.columns = ["datetrack"]
     
     #Store start and end files
@@ -492,8 +492,8 @@ if (year_to_download=='2018'):
     from datetime import datetime
     
     #Set data we want to download
-    download_images='FALSE'
-    download_mat='TRUE'
+    download_images='TRUE'
+    download_mat='FALSE'
     
     start = datetime.now()
     ftp = FTP('data.cresis.ku.edu')

@@ -16,7 +16,7 @@ import pdb
 import numpy as np
 
 #Here choose mat files or jpg files
-to_delete_is='jpg' #can either be 'jpg' of 'mat'
+to_delete_is='mat' #can either be 'jpg' of 'mat'
 
 #Open excel file with refined 2017 data
 data2017_to_be_kept='data_2017_toberun.txt'

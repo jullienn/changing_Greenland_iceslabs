@@ -68,8 +68,8 @@ import time
 import os.path
 import glob
 
-generate_probability_iceslabs_files='TRUE'
-generate_excel_file='FALSE'
+generate_probability_iceslabs_files='FALSE'
+generate_excel_file='TRUE'
 
 #Identify all the datetraces to process
 '''
@@ -200,7 +200,7 @@ if (generate_probability_iceslabs_files=='TRUE'):
 
 if (generate_excel_file=='TRUE'):
     print('Generate excel file')
-
+    pdb.set_trace()
     ##############################################################################
     ###              Generate en excel file of ice slabs thickness             ###
     ##############################################################################
@@ -218,8 +218,8 @@ if (generate_excel_file=='TRUE'):
     v= 299792458 / (1.0 + (0.734*0.873/1000.0))
     
     #Define path where data are stored
-    '''
-    path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research\RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+    
+    path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
     path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
     
@@ -227,16 +227,16 @@ if (generate_excel_file=='TRUE'):
     path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'
     path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
     path_data='/flash/jullienn/data/threshold_processing/'
-    
-    #Define filename
     '''
-    filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021.csv'
+    #Define filename
+    
+    filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv'
     '''
     filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
-    
+    '''
     #Open filename (same procedure as MacFerrin et al., 2019)
     fout = open(filename_excel_output, 'w')
-    header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
+    header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m,likelihood\n"
     fout.write(header)
     
     #Loop over the traces
@@ -347,6 +347,9 @@ if (generate_excel_file=='TRUE'):
             
         #Compute depth_delta_m
         depth_delta_m = np.mean(depth[1:] - depth[:-1])
+        
+        pdb.set_trace()
+        #Compute likelihood!!
         
         #Let's transform the probabilistic ice slabs into an ice content
         #We must derive a low end and high end of ice slabs likelihood

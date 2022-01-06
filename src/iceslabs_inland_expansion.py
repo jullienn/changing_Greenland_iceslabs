@@ -191,6 +191,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     #prepare the figure
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     fig.suptitle('')
+    fig.set_size_inches(40,20)
     
     #Display GrIS drainage bassins
     NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
@@ -205,8 +206,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     plt.scatter(flightlines_20102018['lon_3413'],flightlines_20102018['lat_3413'],s=0.1,color='#bdbdbd',label='2002-2003')
     '''
     #Display 2002-2018 flightlines
-    #plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.01,color='#d9d9d9',label='flightlines')#,label='2002-2003')
-    
+    plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.001,color='#d9d9d9',label='flightlines')#,label='2002-2003')
+
     #Display 2010-2018 iceslabs
     plt.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#3690c0',label='2010-2014')
     plt.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=0.1,color='#3690c0')
@@ -221,26 +222,27 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     
     ax1.set_xlabel('Easting [m]')
     ax1.set_ylabel('Northing [m]')
+
+    # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
+    lgnd = plt.legend(loc="lower right", scatterpoints=1, fontsize=10)
+    lgnd.legendHandles[0]._sizes = [30]
+    lgnd.legendHandles[1]._sizes = [30]
+    lgnd.legendHandles[2]._sizes = [30]
+    lgnd.legendHandles[3]._sizes = [30]
     
-    #Custom legend myself
-    from matplotlib.lines import Line2D
-    legend_elements = [Line2D([0], [0], marker='o', color='w', label='2010-2014',
-                        markerfacecolor='#3690c0', markersize=5),
-                       Line2D([0], [0], marker='o', color='w', label='2017-2018',
-                        markerfacecolor='#a6bddb', markersize=5),
-                       Line2D([0], [0], marker='o', color='w', label='2002-2003',
-                        markerfacecolor='#0570b0', markersize=15)]
+    ax1.set_xlim(-645000,855000)
+    ax1.set_ylim(-3330000,-785000)
     
-    ax1.legend(handles=legend_elements,loc='upper right')
-    plt.legend()
-    plt.show()
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
     
-    '''
     if (plot_save == 'TRUE'):
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1_panel_a.png',dpi=2000)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=2000)
         plt.close(fig)
-    ''' 
+    
+    pdb.set_trace()
+    
     #Panel B
     
     #Define panel names
@@ -876,7 +878,7 @@ else:
     f_20102018_low = open(path_df_with_elevation+'df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
     df_2010_2018_low = pickle.load(f_20102018_low)
     f_20102018_low.close()
-    
+
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
 #    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
@@ -1521,9 +1523,9 @@ plt.show()
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-flightlines_20022018=pd.read_csv(path_flightlines+'2011_Greenland_P3.csv',decimal='.',sep=',')#,low_memory=False)
+flightlines_20022018=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS.csv',decimal='.',sep=',')#,low_memory=False)
+#flightlines_20022018_GrIS
 
-'''
 #Transform the coordinates from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(flightlines_20022018["LAT"]))
@@ -1531,7 +1533,6 @@ points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(
 #Store lat/lon in 3413
 flightlines_20022018['lon_3413']=points[0]
 flightlines_20022018['lat_3413']=points[1]
-'''
 
 plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high)
 
