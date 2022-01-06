@@ -179,7 +179,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
     return summary_area
 
 
-def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
+def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all):
     plot_save='TRUE'
     '''
     #Open GrIS mask from Rignot et al., 2016
@@ -206,7 +206,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     plt.scatter(flightlines_20102018['lon_3413'],flightlines_20102018['lat_3413'],s=0.1,color='#bdbdbd',label='2002-2003')
     '''
     #Display 2002-2018 flightlines
-    plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.001,color='#d9d9d9',label='flightlines')#,label='2002-2003')
+    plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.001,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
+    
+    #Display firn aquifers
+    plt.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=0.1,color='#238b45',label='Firn aquifers')
 
     #Display 2010-2018 iceslabs
     plt.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=0.1,color='#3690c0',label='2010-2014')
@@ -229,6 +232,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     lgnd.legendHandles[1]._sizes = [30]
     lgnd.legendHandles[2]._sizes = [30]
     lgnd.legendHandles[3]._sizes = [30]
+    lgnd.legendHandles[4]._sizes = [30]
     
     ax1.set_xlim(-645000,855000)
     ax1.set_ylim(-3330000,-785000)
@@ -238,7 +242,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high):
     
     if (plot_save == 'TRUE'):
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=2000)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=1000)
         plt.close(fig)
     
     pdb.set_trace()
@@ -878,6 +882,29 @@ else:
     f_20102018_low = open(path_df_with_elevation+'df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
     df_2010_2018_low = pickle.load(f_20102018_low)
     f_20102018_low.close()
+
+#Load Miege firn aquifer
+path_firn_aquifer='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/firn_aquifers_miege/'
+df_firn_aquifer_2010 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2010.csv',delimiter=',',decimal='.')
+df_firn_aquifer_2011 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2011.csv',delimiter=',',decimal='.')
+df_firn_aquifer_2012 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2012.csv',delimiter=',',decimal='.')
+df_firn_aquifer_2013 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2013.csv',delimiter=',',decimal='.')
+df_firn_aquifer_2014 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2014.csv',delimiter=',',decimal='.')
+
+#Append all the miege aquifer files to each other
+df_firn_aquifer_all=df_firn_aquifer_2010
+df_firn_aquifer_all=df_firn_aquifer_all.append(df_firn_aquifer_2011)
+df_firn_aquifer_all=df_firn_aquifer_all.append(df_firn_aquifer_2012)
+df_firn_aquifer_all=df_firn_aquifer_all.append(df_firn_aquifer_2013)
+df_firn_aquifer_all=df_firn_aquifer_all.append(df_firn_aquifer_2014)
+
+#Transform miege coordinates from WGS84 to EPSG:3413
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+points=transformer.transform(np.asarray(df_firn_aquifer_all["LONG"]),np.asarray(df_firn_aquifer_all["LAT"]))
+
+#Store lat/lon in 3413
+df_firn_aquifer_all['lon_3413']=points[0]
+df_firn_aquifer_all['lat_3413']=points[1]
 
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
@@ -1534,7 +1561,7 @@ points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(
 flightlines_20022018['lon_3413']=points[0]
 flightlines_20022018['lat_3413']=points[1]
 
-plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high)
+plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all)
 
 pdb.set_trace()
 
