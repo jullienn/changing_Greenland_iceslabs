@@ -50,6 +50,8 @@ flightlines_20022003['coords'] = flightlines_20022003['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_20022003, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 flightlines_20022003_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+#Add the year
+flightlines_20022003_GrIS['str_year']=np.asarray(['2002-2003']*len(flightlines_20022003_GrIS))
 ################# Load 2002-2003 flightlines coordinates ################
 
 ################# Load 2010-2018 flightlines coordinates ################
@@ -77,6 +79,8 @@ flightlines_2010['coords'] = flightlines_2010['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_2010, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 flightlines_2010_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+#Add the year
+flightlines_2010_GrIS['str_year']=np.asarray(['2010']*len(flightlines_2010_GrIS))
 
 #2011
 points=transformer.transform(np.asarray(flightlines_2011["LON"]),np.asarray(flightlines_2011["LAT"]))
@@ -87,6 +91,8 @@ flightlines_2011['coords'] = flightlines_2011['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_2011, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 flightlines_2011_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+#Add the year
+flightlines_2011_GrIS['str_year']=np.asarray(['2011']*len(flightlines_2011_GrIS))
 
 #2012
 points=transformer.transform(np.asarray(flightlines_2012["LON"]),np.asarray(flightlines_2012["LAT"]))
@@ -97,6 +103,8 @@ flightlines_2012['coords'] = flightlines_2012['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_2012, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 flightlines_2012_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+#Add the year
+flightlines_2012_GrIS['str_year']=np.asarray(['2012']*len(flightlines_2012_GrIS))
 
 #2013
 points=transformer.transform(np.asarray(flightlines_2013["LON"]),np.asarray(flightlines_2013["LAT"]))
@@ -107,6 +115,8 @@ flightlines_2013['coords'] = flightlines_2013['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_2013, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 flightlines_2013_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+#Add the year
+flightlines_2013_GrIS['str_year']=np.asarray(['2013']*len(flightlines_2013_GrIS))
 
 #2014
 points=transformer.transform(np.asarray(flightlines_2014["LON"]),np.asarray(flightlines_2014["LAT"]))
@@ -117,6 +127,8 @@ flightlines_2014['coords'] = flightlines_2014['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_2014, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 flightlines_2014_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+#Add the year
+flightlines_2014_GrIS['str_year']=np.asarray(['2014']*len(flightlines_2014_GrIS))
 
 #2017
 points=transformer.transform(np.asarray(flightlines_2017["LON"]),np.asarray(flightlines_2017["LAT"]))
@@ -127,6 +139,8 @@ flightlines_2017['coords'] = flightlines_2017['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_2017, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 flightlines_2017_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+#Add the year
+flightlines_2017_GrIS['str_year']=np.asarray(['2017']*len(flightlines_2017_GrIS))
 
 #2018
 points=transformer.transform(np.asarray(flightlines_2018["LON"]),np.asarray(flightlines_2018["LAT"]))
@@ -137,6 +151,8 @@ flightlines_2018['coords'] = flightlines_2018['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_2018, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 flightlines_2018_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+#Add the year
+flightlines_2018_GrIS['str_year']=np.asarray(['2018']*len(flightlines_2018_GrIS))
 ################ Transform 2010-2018 coordinates into EPSG:3413 ###############
 
 #Append all the flightlines together
