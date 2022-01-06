@@ -240,10 +240,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
     
+    '''
     if (plot_save == 'TRUE'):
         #Save the figure
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=1000)
-        plt.close(fig)
+    '''
+    plt.close(fig)
     
     pdb.set_trace()
     

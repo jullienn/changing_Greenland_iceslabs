@@ -72,11 +72,11 @@ generate_probability_iceslabs_files='FALSE'
 generate_excel_file='TRUE'
 
 #Identify all the datetraces to process
-'''
-path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+
+path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-
+'''
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 if (generate_probability_iceslabs_files=='TRUE'):
@@ -200,7 +200,7 @@ if (generate_probability_iceslabs_files=='TRUE'):
 
 if (generate_excel_file=='TRUE'):
     print('Generate excel file')
-    pdb.set_trace()
+
     ##############################################################################
     ###              Generate en excel file of ice slabs thickness             ###
     ##############################################################################
@@ -347,24 +347,25 @@ if (generate_excel_file=='TRUE'):
             
         #Compute depth_delta_m
         depth_delta_m = np.mean(depth[1:] - depth[:-1])
-        
-        pdb.set_trace()
-        #Compute likelihood!!
-        
+                
         #Let's transform the probabilistic ice slabs into an ice content
         #We must derive a low end and high end of ice slabs likelihood
         #for low end: slabs identified in 19 quantiles out of 19 => likelihood = 19/19=1
         #for high end: slabs identified in 1 quantile out of 19 => likelihood = 1/19 = 0.05263
-        index_prob=indiv_probability_slice>=0.99
+        index_prob=indiv_probability_slice>=0.05263
         
         #Create slice full of nans
         slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
-        
         #fill in slice_for_calculation by ones where likelihood >= 0.5
         slice_for_calculation[index_prob]=1
-    
         # Number of pixels times the thickness of each pixel
         ice_content_m = np.sum(slice_for_calculation, axis=0) * depth_delta_m
+        
+        #Derive likelihood averaged on the column
+        slice_for_likelihood=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
+        slice_for_likelihood[:]=np.nan
+        slice_for_likelihood[index_prob]=indiv_probability_slice[index_prob]
+        columnal_likelihoods=np.nanmean(slice_for_likelihood,axis=0)
         
         #Use the same names as MacFerrin et al., 2019
         lats=lat_appended
@@ -374,16 +375,17 @@ if (generate_excel_file=='TRUE'):
         # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
         if indiv_trace[0] == "20120412_01_095_095":
             ice_contents[0:9000] = 0.0
-    
-        assert len(lats) == len(lons) == len(ice_contents)
+            columnal_likelihoods[0:9000] = np.nan
+            
+        assert len(lats) == len(lons) == len(ice_contents) == len(columnal_likelihoods)
         tracenums = np.arange(len(lats), dtype=np.int64)
     
         tracecount = 0
-        for lat, lon, tracenum, distance, ice_content in zip(lats, lons, tracenums, distances, ice_contents):
+        for lat, lon, tracenum, distance, ice_content, columnal_likelihood in zip(lats, lons, tracenums, distances, ice_contents, columnal_likelihoods):
             # Record ONLY traces that have > 1 m ice content in them.  We're not interested in thinner stuff here.
             # If it has > 16 m ice content (80%), we also omit it, just to keep pure ice out of it.
             if 1.0 <= ice_content <= 16.0:
-                line = "{0},{1},{2},{3},{4},{5}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content)
+                line = "{0},{1},{2},{3},{4},{5},{6}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content, columnal_likelihood)
                 fout.write(line)
                 tracecount += 1
         print(tracecount, "of", len(lats), "traces.")
