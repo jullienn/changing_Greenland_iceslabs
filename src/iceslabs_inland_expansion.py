@@ -180,10 +180,10 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
 
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
-    plot_fig_S1='TRUE'
-    plot_panela='FALSE'
-    plot_panelb='FALSE'
-    plot_panelc='FALSE'
+    plot_fig_S1='FALSE'
+    plot_panela='TRUE'
+    plot_panelb='TRUE'
+    plot_panelc='TRUE'
     
     if (plot_fig_S1 == 'TRUE'):
         # -------------------------------- FIG S1 --------------------------------
@@ -444,7 +444,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         likelihood_display='TRUE'
         
         panel_c_save='TRUE'
-        
+        pdb.set_trace()
+
         # -------------------------------- PANELS C -------------------------------        
         if (hull_computation=='TRUE'):
             #Panel C
