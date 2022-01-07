@@ -251,7 +251,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     if (panel_a_save == 'TRUE'):
         #Save the figure
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=1000)
-        plt.close(fig)
+    
+    plt.close(fig)
     # -------------------------------- PANEL A --------------------------------
     
     # -------------------------------- PANEL B --------------------------------    
@@ -365,7 +366,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     if (panel_b_save == 'TRUE'):
         #Save the figure
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_b.png',dpi=1000)
-        plt.close(fig)
+    
+    plt.close(fig)
     # -------------------------------- PANEL B --------------------------------    
 
     # -------------------------------- PANELS C -------------------------------        
@@ -462,11 +464,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             #plt.close(fig)
 
     if (likelihood_display=='TRUE'):
-        
-        pdb.set_trace()
-        
+        from matplotlib.markers import MarkerStyle
         #prepare the figure
         figc, (ax1c) = plt.subplots(1, 1)
+        figc.set_size_inches(20,10)
         
         #Display GrIS drainage bassins
         NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
@@ -476,35 +477,98 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
         NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
         
-        pdb.set_trace()
-        #Plot from 2011-2012
-        flightlines_20022018
-        
-        
+        # --- 2011-2012
+        #Flightlines
+        '''        
+        plt.scatter(flightlines_20022018[flightlines_20022018.str_year.str[:4]=='2011']['lon_3413'],
+                    flightlines_20022018[flightlines_20022018.str_year.str[:4]=='2011']['lat_3413'],
+                    s=0.1,c='#d9d9d9')
+        plt.scatter(flightlines_20022018[flightlines_20022018.str_year.str[:4]=='2012']['lon_3413'],
+                    flightlines_20022018[flightlines_20022018.str_year.str[:4]=='2012']['lat_3413'],
+                    s=0.1,c='#d9d9d9',label='flightlines 2011-2012')
+        '''
+        #Likelihood
         plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
                     df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lat_3413'],
                     c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['likelihood'],
-                    s=0.1,cmap=plt.get_cmap('Blues'),label='blabla')
-        plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
+                    s=1,cmap=plt.get_cmap('Blues'))
+        
+        lik_blues=plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
                     df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
                     c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
-                    s=0.1,cmap=plt.get_cmap('Blues'),label='blabla')
+                    s=1,cmap=plt.get_cmap('Blues'),label='Likelihood 2011-2012')
         
-        #Plot from 2017-2018
+        # --- 2017-2018
+        #Flightlines
+        '''
+        plt.scatter(flightlines_20022018[flightlines_20022018.str_year.str[:4]=='2017']['lon_3413'],
+                    flightlines_20022018[flightlines_20022018.str_year.str[:4]=='2017']['lat_3413'],
+                    s=0.1,c='#969696')
+        plt.scatter(flightlines_20022018[flightlines_20022018.str_year.str[:4]=='2018']['lon_3413'],
+                    flightlines_20022018[flightlines_20022018.str_year.str[:4]=='2018']['lat_3413'],
+                    s=0.1,c='#969696',label='flightlines 2017-2018')
+        '''
+        #Likelihood
         plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
                     df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lat_3413'],
                     c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['likelihood'],
-                    s=0.1,cmap=plt.get_cmap('Reds'),label='blabla')
-        plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
+                    s=1,cmap=plt.get_cmap('Reds'))
+        lik_reds=plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
                     df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
                     c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
-                    s=0.1,cmap=plt.get_cmap('Reds'),label='blabla')
-        plt.show()
-        pdb.set_trace()
+                    s=1,cmap=plt.get_cmap('Reds'),label='Likelihood 2017-2018')
         
-        cbar = plt.colorbar(lik)
-        cbar.set_label('Columnal average likelihood')
+        # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
+        lgnd = plt.legend(loc="best", scatterpoints=1, fontsize=10)
+        lgnd.legendHandles[0]._sizes = [30]
+        lgnd.legendHandles[1]._sizes = [30]
+        plt.legend()
 
+        ax1c.set_xlabel('Easting [m]')
+        ax1c.set_ylabel('Northing [m]')
+        
+        #plt.show()
+        
+        '''
+        cbar_reds = plt.colorbar(lik_reds)
+        cbar_blues = plt.colorbar(lik_blues)
+        cbar_blues.set_label('Columnal average likelihood')
+        '''
+                
+        #Save figure according to different regions
+        for region in list(['NE','NO','NW','CW','SW']):
+            if (region =='NE'):
+                polygon_for_zoom=NE_rignotetal
+                ax1c.set_xlim(283000,670000)
+                ax1c.set_ylim(-1880000,-940000)
+                ax1c.text(350000,-1600000,'NE',fontsize=25)
+            elif(region =='NO'):
+                polygon_for_zoom=NO_rignotetal
+                ax1c.set_xlim(-605000,302000)
+                ax1c.set_ylim(-1215000,-785000)
+                ax1c.text(-90000,-1140000,'NO',fontsize=25)
+            elif(region =='NW'):
+                polygon_for_zoom=NW_rignotetal
+                ax1c.set_xlim(-610000,-189000)
+                ax1c.set_ylim(-1140000,-1985000)
+                ax1c.text(-390000,-1410000,'NW',fontsize=25)
+            elif(region =='CW'):
+                polygon_for_zoom=CW_rignotetal
+                ax1c.set_xlim(-259000,-60500)
+                ax1c.set_ylim(-2385000,-1935000)
+                ax1c.text(-130000,-2061500,'CW',fontsize=25)
+            elif(region =='SW'):
+                polygon_for_zoom=SW_rignotetal
+                ax1c.set_xlim(-265000,-55600)
+                ax1c.set_ylim(-2899000,-2370000)
+                ax1c.text(-200000,-2860000,'SW',fontsize=25)
+            else:
+                print('Region not known')
+                        
+            if (panel_c_save == 'TRUE'):
+                #Save the figure
+                plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_c'+region+'.png',dpi=500)
+                
     # -------------------------------- PANELS C -------------------------------        
 
 #Import packages
