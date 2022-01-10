@@ -222,6 +222,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
     axt.legend_.remove()
     axt.set_xlabel('')
     axt.set_ylabel('')
+    
 
 
 import pickle
@@ -466,6 +467,10 @@ f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rign
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
+#Load KAN_U data
+path_KAN_U_data='C:/Users/jullienn/switchdrive/Private/research/RT1/KAN_U_data/'
+df_KAN_U_csv = pd.read_csv(path_KAN_U_data+'KAN_U_month_v03_csv.csv',sep=';',decimal=',',header=0,na_values=-999)
+
 #Plot
 fig = plt.figure()
 gs = gridspec.GridSpec(35, 20)
@@ -482,7 +487,7 @@ ax7r = plt.subplot(gs[30:34, 0:10])
 
 ax8map = plt.subplot(gs[0:5, 10:20])
 ax9l = plt.subplot(gs[5:15, 10:20])
-ax10m = plt.subplot(gs[15:25, 10:20])
+ax10m = plt.subplot(gs[15:22, 10:20])
 ax11t = plt.subplot(gs[25:35, 10:20])
 
 #Display GrIS drainage bassins on the map subplot
@@ -512,12 +517,26 @@ ax8map.set_xlabel('Longitude [°]')
 ax8map.set_ylabel('Latitude [°]')
 ax8map.xaxis.set_label_position("top")
 
+pdb.set_trace()
+
+#Melt equation: M=SWd-SWup+LWdown-LWup+QH+QL W/m2. 1W=1J/s
+df_melt=df_KAN_U_csv
+df_melt['melt']=df_KAN_U_csv['ShortwaveRadiationDown_Cor(W/m2)']-df_KAN_U_csv['ShortwaveRadiationUp_Cor(W/m2)']+df_KAN_U_csv['LongwaveRadiationDown(W/m2)']-df_KAN_U_csv['LongwaveRadiationUp(W/m2)']+df_KAN_U_csv['SensibleHeatFlux(W/m2)']+df_KAN_U_csv['LatentHeatFlux(W/m2)']
+#Select only from May to September
+df_melt_summer=df_melt[(df_melt['MonthOfYear']>=5) & (df_melt['MonthOfYear']<=9)]
+
+ax = sns.barplot(x="Year", y="melt", data=df_melt_summer,ax=ax10m,estimator=sum)
+#Set y tick to the right
+ax10m.yaxis.set_label_position("right")
+ax10m.yaxis.tick_right()
+#axt.set_xticklabels([])
+
+pdb.set_trace()
+
+ax10m.set_xlim(2010,2017)
+
+
 plt.show()
-
-
-
-
-
 pdb.set_trace()
 
 indiv_file_load='Data_20120423_01_137.mat'
