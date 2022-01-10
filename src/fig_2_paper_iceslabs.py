@@ -44,6 +44,16 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
     
+    #Create an empty df_sampling
+    df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev'])
+
+    #Elev divide every 1m.
+    elev_bin_desired=1
+    elev_divide=np.arange(np.floor(np.min(df_for_elev['elevation'])),np.floor(np.max(df_for_elev['elevation']))+1+elev_bin_desired,elev_bin_desired)
+    
+    #Define window size for smoothing
+    winsize=10
+    
     #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
     for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
         
@@ -63,36 +73,72 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         if (len(df_trace_year)==0):
             #No data in this time period, continue
             continue
-        else:
-            
+        else:            
             #Sort df_trace_year from low to high elevations
             df_trace_year_sorted=df_trace_year.sort_values(by=['elevation'])
-
-            '''
-            #Moving window to average results
-            df_trace_year_sorted['ice_content_m_avg']= np.convolve(df_trace_year_sorted['20m_ice_content_m'], np.ones(50)/50, mode='same')
-            '''
-                        
-            df_trace_year_sorted['ice_content_m_q025']=df_trace_year_sorted.rolling(50, win_type=None,center=True).quantile(quantile=0.25)['20m_ice_content_m']            
-            df_trace_year_sorted['ice_content_m_q050']=df_trace_year_sorted.rolling(50, win_type=None,center=True).quantile(quantile=0.50)['20m_ice_content_m']
-            df_trace_year_sorted['ice_content_m_q075']=df_trace_year_sorted.rolling(50, win_type=None,center=True).quantile(quantile=0.75)['20m_ice_content_m']
-
-            #Create a time period column
-            df_trace_year_sorted['time_period']=np.asarray([time_period]*len(df_trace_year_sorted))
             
-            # Plot the median
-            sns.lineplot(data=df_trace_year_sorted, x="elevation", y="ice_content_m_q050", hue="time_period", ax=axt, palette=my_pal, estimator='median',ci=None)
-            #sns.lineplot(data=df_trace_year_sorted, x="elevation", y="20m_ice_content_m", hue="time_period", ax=axt, estimator='median',ci=None)
+            #Set bound_nb to 0
+            bound_nb=0
+            #Loop over the lon divide
+            for i in range(1,len(elev_divide)):
+                
+                #Identify low and higher end of the slice
+                low_bound=elev_divide[i-1]
+                high_bound=elev_divide[i]
+        
+                #Select all the data belonging to this elev slice
+                ind_slice=np.logical_and(np.array(df_trace_year_sorted['elevation']>=low_bound),np.array(df_trace_year_sorted['elevation']<high_bound))
+                df_select=df_trace_year_sorted[ind_slice]
+                
+                if (len(df_select)==0):
+                    continue
+                                
+                #Fill in dictionnary
+                df_temp=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev'])
+                df_temp['Track_name']=df_select['Track_name'].unique()
+                df_temp['time_period']=time_period
+                df_temp['low_bound']=low_bound
+                df_temp['high_bound']=high_bound
+                df_temp['bound_nb']=str(bound_nb)
+                df_temp['mean']=np.nanmean(df_select['20m_ice_content_m'])
+                df_temp['median']=np.nanmedian(df_select['20m_ice_content_m'])
+                df_temp['q025']=np.nanquantile(df_select['20m_ice_content_m'],0.25)
+                df_temp['q075']=np.nanquantile(df_select['20m_ice_content_m'],0.75)
+                df_temp['stddev']=np.nanstd(df_select['20m_ice_content_m'])
+                
+                #Append dictionnary
+                df_sampling=df_sampling.append(df_temp)
+                
+                #Update bound_nb
+                bound_nb=bound_nb+1
+        
+    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+        
+            if (len(df_sampling[df_sampling['time_period']==time_period])==0):
+                #Empty time period, continue
+                continue
+            else:
+                df_plot=df_sampling[df_sampling['time_period']==time_period]
+                
+                #Rolling window, size = 10
+                df_plot['rolling_10_median']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['median'] 
+                df_plot['rolling_10_q025']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q025'] 
+                df_plot['rolling_10_q075']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q075'] 
+                
+                # Plot the median
+                axt.plot(df_plot["low_bound"],df_plot["rolling_10_median"],color=my_pal[time_period])
+                #Display IQR
+                axt.fill_between(df_plot['low_bound'], df_plot['rolling_10_q025'], df_plot['rolling_10_q075'], alpha=0.3,color=my_pal[time_period])
+                #Display the median where outside of average window range
+                axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)],df_plot["median"].iloc[0:int(winsize/2)],alpha=0.5,color=my_pal[time_period])
+                axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)],df_plot["median"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)],alpha=0.5,color=my_pal[time_period])
 
-            #Display IQR
-            axt.fill_between(df_trace_year_sorted['elevation'], df_trace_year_sorted['ice_content_m_q025'], df_trace_year_sorted['ice_content_m_q075'], alpha=0.3,color=my_pal[time_period])
-    
     #Get rid of legend
-    axt.legend_.remove()
+    #axt.legend_.remove()
     axt.set_xlabel('')
     axt.set_ylabel('')
     plt.show()
-        
+    
     print('End plotting fig 2')
     return
 
