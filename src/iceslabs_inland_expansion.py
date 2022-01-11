@@ -188,14 +188,12 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     SW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     CW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     NW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
-    
-    pdb.set_trace()
-    '''
+        
     #Display flightlines of this time period    
     ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==time_period]['lon_3413'],
                     flightlines_20022018[flightlines_20022018.str_year==time_period]['lat_3413'],
                     s=0.001,edgecolors=None,c='#d9d9d9',label='Flightlines')
-    '''
+    
     '''
     #Display firn aquifers
     ax_plot.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',label='Firn aquifers')
@@ -205,9 +203,8 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
         #Display 2002-2003 iceslabs
         ax_plot.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#8c6bb1',label='2002-2003 ice slabs')
     else:
-        pdb.set_trace()
         #Display iceslabs thickness of the corresponding time period
-        lik_blues=ax_plot.scatter(df_all[df_all.str_year==time_period]['lon_3413'],df_all[df_all.str_year==time_period]['lat_3413'],c=df_all[df_all.str_year==time_period]['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'),label=[time_period+' ice slabs'])        
+        lik_blues=ax_plot.scatter(df_all[df_all.str_year==time_period]['lon_3413'],df_all[df_all.str_year==time_period]['lat_3413'],c=df_all[df_all.str_year==time_period]['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'),label=time_period+' ice slabs')        
         
         cbar_blues=fig.colorbar(lik_blues, ax=ax_plot)
         cbar_blues.set_label('Columnal ice content [m]')
@@ -223,7 +220,6 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.set_xlabel('Easting [m]')
     ax_plot.set_ylabel('Northing [m]')
     
-    
     # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
     lgnd = ax_plot.legend(loc="lower right", scatterpoints=1, fontsize=10)
     lgnd.legendHandles[0]._sizes = [30]
@@ -233,7 +229,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
-    plot_fig_S1='FALSE'
+    plot_fig_S1='TRUE'
     plot_panela='FALSE'
     plot_panelb='FALSE'
     plot_panelc='TRUE'
@@ -255,8 +251,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         plot_pannels_supp(ax3,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012')
         plot_pannels_supp(ax4,flightlines_20022018,df_firn_aquifer_all,df_all,'2013-2014')
         plot_pannels_supp(ax5,flightlines_20022018,df_firn_aquifer_all,df_all,'2017-2018')
-
-        pdb.set_trace()
 
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
@@ -789,6 +783,9 @@ import geopandas as gpd  # Requires the pyshp package
 from matplotlib.colors import ListedColormap, BoundaryNorm
 from shapely.geometry import Point, Polygon
 from matplotlib.patches import Patch
+
+#Set fontsize plot
+plt.rcParams.update({'font.size': 22})
 
 create_elevation_dictionaries='FALSE'
 #pdb.set_trace()
