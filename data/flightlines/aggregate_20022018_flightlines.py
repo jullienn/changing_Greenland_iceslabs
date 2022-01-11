@@ -95,7 +95,7 @@ pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This
 flightlines_2011_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 #Add the year
 flightlines_2011_GrIS['str_year']=np.asarray(['2011-2012']*len(flightlines_2011_GrIS))
-flightlines_2011_GrIS['year']=np.asarray([2011]*len(flightlines_2010_GrIS))
+flightlines_2011_GrIS['year']=np.asarray([2011]*len(flightlines_2011_GrIS))
 
 #2012
 points=transformer.transform(np.asarray(flightlines_2012["LON"]),np.asarray(flightlines_2012["LAT"]))
@@ -121,7 +121,7 @@ pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This
 flightlines_2013_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 #Add the year
 flightlines_2013_GrIS['str_year']=np.asarray(['2013-2014']*len(flightlines_2013_GrIS))
-flightlines_2013_GrIS['year']=np.asarray([2013]*len(flightlines_2012_GrIS))
+flightlines_2013_GrIS['year']=np.asarray([2013]*len(flightlines_2013_GrIS))
 
 #2014
 points=transformer.transform(np.asarray(flightlines_2014["LON"]),np.asarray(flightlines_2014["LAT"]))
@@ -134,7 +134,7 @@ pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This
 flightlines_2014_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 #Add the year
 flightlines_2014_GrIS['str_year']=np.asarray(['2013-2014']*len(flightlines_2014_GrIS))
-flightlines_2014_GrIS['year']=np.asarray([2014]*len(flightlines_2012_GrIS))
+flightlines_2014_GrIS['year']=np.asarray([2014]*len(flightlines_2014_GrIS))
 
 #2017
 points=transformer.transform(np.asarray(flightlines_2017["LON"]),np.asarray(flightlines_2017["LAT"]))

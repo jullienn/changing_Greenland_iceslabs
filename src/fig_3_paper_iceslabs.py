@@ -525,6 +525,12 @@ df_melt['melt']=df_KAN_U_csv['ShortwaveRadiationDown_Cor(W/m2)']-df_KAN_U_csv['S
 #Select only from May to September
 df_melt_summer=df_melt[(df_melt['MonthOfYear']>=5) & (df_melt['MonthOfYear']<=9)]
 
+#Transform flux into energy: 1W = 1J/s => W*s=J
+df_melt[df_melt['MonthOfYear']==5]['NRJ']=df_melt[df_melt['MonthOfYear']==5]['melt']*3600*24*31
+
+
+
+
 ax = sns.barplot(x="Year", y="melt", data=df_melt_summer,ax=ax10m,estimator=sum)
 #Set y tick to the right
 ax10m.yaxis.set_label_position("right")

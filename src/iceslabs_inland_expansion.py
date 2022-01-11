@@ -190,31 +190,27 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     NW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     
     pdb.set_trace()
+    '''
     #Display flightlines of this time period    
-    ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==2017]['lon_3413'],
-                    flightlines_20022018[flightlines_20022018.str_year==2017]['lat_3413'],
+    ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==time_period]['lon_3413'],
+                    flightlines_20022018[flightlines_20022018.str_year==time_period]['lat_3413'],
                     s=0.001,edgecolors=None,c='#d9d9d9',label='Flightlines')
-    
-    
+    '''
+    '''
     #Display firn aquifers
     ax_plot.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',label='Firn aquifers')
-    
-    #Display iceslabs thickness of the corresponding time period
-    ax_plot.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],c=df_all[df_all.Track_name.str[:4]=='2010']['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'),label='2010-2018 ice slabs')
-    ax_plot.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],c=df_all[df_all.Track_name.str[:4]=='2011']['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'))
-    ax_plot.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],c=df_all[df_all.Track_name.str[:4]=='2012']['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'))
-    ax_plot.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],c=df_all[df_all.Track_name.str[:4]=='2013']['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'))
-    ax_plot.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],c=df_all[df_all.Track_name.str[:4]=='2014']['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'))
-    ax_plot.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],c=df_all[df_all.Track_name.str[:4]=='2017']['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'))
-    lik_blues=ax_plot.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],c=df_all[df_all.Track_name.str[:4]=='2018']['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'))
-    
-    '''
-    cbar_blues = plt.colorbar(lik_blues)
-    cbar_blues.set_label('Columnal ice content [m]')
     '''
     
-    #Display 2002-2003 iceslabs
-    ax_plot.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=0.1,color='#8c6bb1',label='2002-2003 ice slabs')
+    if (time_period=='2002-2003'):
+        #Display 2002-2003 iceslabs
+        ax_plot.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#8c6bb1',label='2002-2003 ice slabs')
+    else:
+        pdb.set_trace()
+        #Display iceslabs thickness of the corresponding time period
+        lik_blues=ax_plot.scatter(df_all[df_all.str_year==time_period]['lon_3413'],df_all[df_all.str_year==time_period]['lat_3413'],c=df_all[df_all.str_year==time_period]['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'),label=[time_period+' ice slabs'])        
+        
+        cbar_blues=fig.colorbar(lik_blues, ax=ax_plot)
+        cbar_blues.set_label('Columnal ice content [m]')
     
     #Display region name on panel a 
     ax_plot.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
@@ -226,20 +222,18 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     
     ax_plot.set_xlabel('Easting [m]')
     ax_plot.set_ylabel('Northing [m]')
-
+    
+    
     # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
     lgnd = ax_plot.legend(loc="lower right", scatterpoints=1, fontsize=10)
     lgnd.legendHandles[0]._sizes = [30]
-    lgnd.legendHandles[1]._sizes = [30]
-    lgnd.legendHandles[2]._sizes = [30]
-    lgnd.legendHandles[3]._sizes = [30]
     
     ax_plot.set_xlim(-645000,855000)
     ax_plot.set_ylim(-3330000,-785000)
     
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
-    plot_fig_S1='TRUE'
+    plot_fig_S1='FALSE'
     plot_panela='FALSE'
     plot_panelb='FALSE'
     plot_panelc='TRUE'
@@ -250,15 +244,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         gs = gridspec.GridSpec(15, 15)
         gs.update(wspace=0.001)
         #gs.update(wspace=0.001)
-        ax1 = plt.subplot(gs[0:7, 0:5])
+        ax1 = plt.subplot(gs[4:11, 0:5])
         ax2 = plt.subplot(gs[0:7, 5:10])
         ax3 = plt.subplot(gs[0:7, 10:15])
-        ax4 = plt.subplot(gs[8:15, 0:5])
-        ax5 = plt.subplot(gs[8:15, 5:10])
-        ax6 = plt.subplot(gs[8:15, 10:15])
-        
-        pdb.set_trace()
-        
+        ax4 = plt.subplot(gs[8:15, 5:10])
+        ax5 = plt.subplot(gs[8:15, 10:15])
+                
         plot_pannels_supp(ax1,flightlines_20022018,df_firn_aquifer_all,df_all,'2002-2003')
         plot_pannels_supp(ax2,flightlines_20022018,df_firn_aquifer_all,df_all,'2010')
         plot_pannels_supp(ax3,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012')
@@ -271,7 +262,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         figManager.window.showMaximized()
         
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v1/figS1.png',dpi=300)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v2/figS1.png',dpi=300)
         # -------------------------------- FIG S1 --------------------------------
         
     pdb.set_trace()
@@ -655,7 +646,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             lik_blues=plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
-                        s=10,cmap=plt.get_cmap('Blues'),label='Likelihood 2011-2012')
+                        s=10,cmap=plt.get_cmap('Blues'))
             
             # --- 2017-2018            
             plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
@@ -665,16 +656,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             lik_reds=plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
-                        s=1,cmap=plt.get_cmap('Reds'),label='Likelihood 2017-2018')
+                        s=1,cmap=plt.get_cmap('Reds'))
             
-            '''
             # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
             lgnd = plt.legend(loc="best", scatterpoints=1, fontsize=10)
             lgnd.legendHandles[0]._sizes = [30]
             lgnd.legendHandles[1]._sizes = [30]
-            lgnd.legendHandles[2]._sizes = [30]
-            lgnd.legendHandles[3]._sizes = [30]
-            '''         
             
             '''
             import matplotlib.patches as patches
@@ -689,7 +676,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             ax1c.legend(handles=legend_elements)
             '''
             plt.legend()
-    
+            
             ax1c.set_xlabel('Easting [m]')
             ax1c.set_ylabel('Northing [m]')
             
@@ -1921,8 +1908,7 @@ plt.show()
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-flightlines_20022018=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS.csv',decimal='.',sep=',')#,low_memory=False)
-#flightlines_20022018_GrIS
+flightlines_20022018=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS_old.csv',decimal='.',sep=',')#,low_memory=False)
 
 #Transform the coordinates from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
