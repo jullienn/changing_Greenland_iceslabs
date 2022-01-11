@@ -188,12 +188,26 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     SW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     CW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     NW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
-        
-    #Display flightlines of this time period    
-    ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==time_period]['lon_3413'],
-                    flightlines_20022018[flightlines_20022018.str_year==time_period]['lat_3413'],
-                    s=0.001,edgecolors=None,c='#d9d9d9',label='Flightlines')
     
+    pdb.set_trace()
+    
+    if (time_period=='2010'):
+        #Issue, there are 2010 and '2010': take both
+        #Display flightlines of this time period    
+        ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==2010]['lon_3413'],
+                        flightlines_20022018[flightlines_20022018.str_year==2010]['lat_3413'],
+                        s=0.001,edgecolors=None,c='#d9d9d9')
+        
+        #Display flightlines of this time period    
+        ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year=='2010']['lon_3413'],
+                        flightlines_20022018[flightlines_20022018.str_year=='2010']['lat_3413'],
+                        s=0.001,edgecolors=None,c='#d9d9d9',label='Flightlines')
+    else:
+        #Display flightlines of this time period    
+        ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==time_period]['lon_3413'],
+                        flightlines_20022018[flightlines_20022018.str_year==time_period]['lat_3413'],
+                        s=0.001,edgecolors=None,c='#d9d9d9',label='Flightlines')
+        
     '''
     #Display firn aquifers
     ax_plot.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',label='Firn aquifers')
@@ -229,14 +243,14 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
-    plot_fig_S1='FALSE'
-    plot_panela='TRUE'
+    plot_fig_S1='TRUE'
+    plot_panela='FALSE'
     plot_panelb='FALSE'
     plot_panelc='FALSE'
     
     if (plot_fig_S1 == 'TRUE'):
         # -------------------------------- FIG S1 --------------------------------
-        fig = plt.figure()
+        fig = plt.figure(figsize=(16,24))
         gs = gridspec.GridSpec(15, 15)
         gs.update(wspace=0.001)
         #gs.update(wspace=0.001)
@@ -264,7 +278,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     if (plot_panela=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
         panel_a_save='TRUE'
-        fig = plt.figure(figsize=(8,12))
+        fig = plt.figure(figsize=(16,24))
 
         ###################### From Tedstone et al., 2022 #####################
         #from plot_map_decadal_change.py
@@ -325,16 +339,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         # x0, x1, y0, y1
         ax.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
         ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
-        pdb.set_trace()
-        scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
-        plt.box(on=None)
+        #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
+        #plt.box(on=None)
         ###################### From Tedstone et al., 2022 #####################
         
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
-        
-        pdb.set_trace()
-        
+                
         if (panel_a_save == 'TRUE'):
             #Save the figure
             plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=300)
@@ -617,8 +628,19 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         
         if (likelihood_display=='TRUE'):
             #prepare the figure
-            figc, (ax1c) = plt.subplots(1, 1)
-            figc.set_size_inches(40,20)
+            fig = plt.figure(figsize=(16,24))
+
+            ###################### From Tedstone et al., 2022 #####################
+            #from plot_map_decadal_change.py
+            # Define the CartoPy CRS object.
+            crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+            ax1c = plt.axes(projection=crs)
+
+            # This can be converted into a `proj4` string/dict compatible with GeoPandas
+            crs_proj4 = crs.proj4_init
+
+            ax1c.set_facecolor('white')
+            ###################### From Tedstone et al., 2022 #####################
             
             #Display GrIS drainage bassins
             NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
@@ -630,39 +652,39 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             
             #Flightlines
             # --- 2011-2012
-            plt.scatter(flightlines_20022018[flightlines_20022018.str_year==2011]['lon_3413'],
+            ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year==2011]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2011]['lat_3413'],
                         s=0.001,edgecolors=None,c='#d9d9d9')
-            plt.scatter(flightlines_20022018[flightlines_20022018.str_year==2012]['lon_3413'],
+            ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year==2012]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2012]['lat_3413'],
                         s=0.001,edgecolors=None,c='#d9d9d9',label='flightlines 2011-2012')
             
             # --- 2017-2018
-            plt.scatter(flightlines_20022018[flightlines_20022018.str_year==2017]['lon_3413'],
+            ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year==2017]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2017]['lat_3413'],
                         s=0.001,edgecolors=None,c='#969696')
-            plt.scatter(flightlines_20022018[flightlines_20022018.str_year==2018]['lon_3413'],
+            ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year==2018]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2018]['lat_3413'],
                         s=0.001,edgecolors=None,c='#969696',label='flightlines 2017-2018')
             
             #Likelihood
             # --- 2011-2012
-            plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
+            ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['likelihood'],
                         s=10,cmap=plt.get_cmap('Blues'))
             
-            lik_blues=plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
+            lik_blues=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
                         s=10,cmap=plt.get_cmap('Blues'))
             
             # --- 2017-2018            
-            plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
+            ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['likelihood'],
                         s=1,cmap=plt.get_cmap('Reds'))
-            lik_reds=plt.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
+            lik_reds=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
                         s=1,cmap=plt.get_cmap('Reds'))
@@ -686,13 +708,19 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             '''
             plt.legend()
             
-            ax1c.set_xlabel('Easting [m]')
-            ax1c.set_ylabel('Northing [m]')
-            
             cbar_reds = plt.colorbar(lik_reds,location = 'right')
             cbar_reds.set_label('Columnal average likelihood - 2017-2018')
             cbar_blues = plt.colorbar(lik_blues,location = 'left')
             cbar_blues.set_label('Columnal average likelihood - 2011-2012')
+            
+            ###################### From Tedstone et al., 2022 #####################
+            #from plot_map_decadal_change.py
+            # x0, x1, y0, y1
+            ax.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+            ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
+            #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
+            #plt.box(on=None)
+            ###################### From Tedstone et al., 2022 #####################
             
             #Save figure according to different regions
             for region in list(['NE','NO','NW','CW','SW']):

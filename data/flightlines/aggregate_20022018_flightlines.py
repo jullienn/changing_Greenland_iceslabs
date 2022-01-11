@@ -43,8 +43,8 @@ for year in list(all_2002_3_flightlines.keys()):
                 lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
 
 #Create a dataframe with 2002-2003 flightlines
-flightlines_20022003=pd.DataFrame(lat_all,columns=['lat_3413'])
-flightlines_20022003['lon_3413']=lon_all
+flightlines_20022003=pd.DataFrame(lon_all,columns=['lon_3413'])
+flightlines_20022003['lat_3413']=lat_all
 flightlines_20022003['coords'] = list(zip(flightlines_20022003['lon_3413'],flightlines_20022003['lat_3413']))
 flightlines_20022003['coords'] = flightlines_20022003['coords'].apply(Point)
 points = gpd.GeoDataFrame(flightlines_20022003, geometry='coords', crs="EPSG:3413")
@@ -53,6 +53,8 @@ flightlines_20022003_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 #Add the year
 flightlines_20022003_GrIS['str_year']=np.asarray(['2002-2003']*len(flightlines_20022003_GrIS))
 flightlines_20022003_GrIS['year']=np.asarray([20022003]*len(flightlines_20022003_GrIS))
+
+pdb.set_trace()
 ################# Load 2002-2003 flightlines coordinates ################
 
 ################# Load 2010-2018 flightlines coordinates ################
