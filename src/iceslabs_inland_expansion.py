@@ -181,7 +181,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
     plot_fig_S1='FALSE'
-    plot_panela='FALSE'
+    plot_panela='TRUE'
     plot_panelb='FALSE'
     plot_panelc='TRUE'
     
@@ -189,7 +189,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         # -------------------------------- FIG S1 --------------------------------
         #prepare the figure
         fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-        fig.set_size_inches(40,20)
+        fig.set_size_inches(4,2)
         
         #Display GrIS drainage bassins
         NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
@@ -245,7 +245,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         figManager.window.showMaximized()
         
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v1/figS1.png',dpi=1000)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v1/figS1.png',dpi=300)
         # -------------------------------- FIG S1 --------------------------------
     
     #pdb.set_trace()
@@ -256,7 +256,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
 
         #prepare the figure
         fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-        fig.set_size_inches(40,20)
+        fig.set_size_inches(4,2)
         
         #Display GrIS drainage bassins
         NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
@@ -267,22 +267,22 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
         
         #Display 2002-2018 flightlines
-        plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.001,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
+        plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.001,color='#d9d9d9',edgecolor=None,label='Flightlines')#,label='2002-2003')
         
         #Display firn aquifers
-        plt.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',label='Firn aquifers')
-    
+        plt.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',edgecolor=None,label='Firn aquifers')
+                
         #Display 2010-2018 iceslabs
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=1,color='#3690c0',label='2010-2014 ice slabs')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=1,color='#3690c0')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=1,color='#3690c0')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=1,color='#a6bddb',label='2017-2018 ice slabs')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=1,color='#a6bddb')
+        plt.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=1,color='#3690c0',edgecolor=None,label='2010-2014 ice slabs')
+        plt.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=1,color='#3690c0',edgecolor=None)
+        plt.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=1,color='#3690c0',edgecolor=None)
+        plt.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0',edgecolor=None)
+        plt.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0',edgecolor=None)
+        plt.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=1,color='#a6bddb',edgecolor=None,label='2017-2018 ice slabs')
+        plt.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=1,color='#a6bddb',edgecolor=None)
         
         #Display 2002-2003 iceslabs
-        plt.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#0570b0',label='2002-2003 ice slabs')
+        plt.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#0570b0',edgecolor=None,label='2002-2003 ice slabs')
         
         #Display region name on panel a 
         ax1.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
@@ -311,12 +311,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         
         if (panel_a_save == 'TRUE'):
             #Save the figure
-            plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=1000)
+            plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=300)
      
         plt.close(fig)
         # -------------------------------- PANEL A --------------------------------
 
-    #pdb.set_trace()
+    pdb.set_trace()
     
     if (plot_panelb=='TRUE'):
         panel_b_save='TRUE'
@@ -431,7 +431,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         
         if (panel_b_save == 'TRUE'):
             #Save the figure
-            plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_b.png',dpi=1000)
+            plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_b.png',dpi=300)
         
         plt.close(fig)
         # -------------------------------- PANEL B --------------------------------    
@@ -592,7 +592,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         if (likelihood_display=='TRUE'):
             #prepare the figure
             figc, (ax1c) = plt.subplots(1, 1)
-            figc.set_size_inches(20,10)
+            figc.set_size_inches(4,2)
             
             #Display GrIS drainage bassins
             NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
@@ -750,7 +750,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                             
                 if (panel_c_save == 'TRUE'):
                     #Save the figure
-                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_c_'+region+'.png',dpi=500)
+                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_c_'+region+'.png',dpi=300)
                     
         # -------------------------------- PANELS C -------------------------------        
     
@@ -845,6 +845,11 @@ SE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SE']
 SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
 CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
+
+#Load Rignot et al., 2016 GrIS mask
+path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
+GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1_EPSG3413.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
+GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
 ### -------------------------- Load shapefiles --------------------------- ###
 
 if (create_elevation_dictionaries == 'TRUE'):
@@ -1208,6 +1213,14 @@ points=transformer.transform(np.asarray(df_firn_aquifer_all["LONG"]),np.asarray(
 df_firn_aquifer_all['lon_3413']=points[0]
 df_firn_aquifer_all['lat_3413']=points[1]
 
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_firn_aquifer_all['coords'] = list(zip(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413']))
+df_firn_aquifer_all['coords'] = df_firn_aquifer_all['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_firn_aquifer_all, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_firn_aquifer_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ##########################
 
 #Load columnal likelihood file likelihood
 path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate_and_columnal_likelihood/'
@@ -1218,6 +1231,16 @@ points=transformer.transform(np.asarray(df_thickness_likelihood_20102018["lon"])
 #Store lat/lon in 3413
 df_thickness_likelihood_20102018['lon_3413']=points[0]
 df_thickness_likelihood_20102018['lat_3413']=points[1]
+
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_thickness_likelihood_20102018['coords'] = list(zip(df_thickness_likelihood_20102018['lon_3413'],df_thickness_likelihood_20102018['lat_3413']))
+df_thickness_likelihood_20102018['coords'] = df_thickness_likelihood_20102018['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_thickness_likelihood_20102018, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_thickness_likelihood_20102018_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ##########################
+
 
 
 #IV. From here on, work with the different periods separated by strong melting summers.
@@ -1597,6 +1620,15 @@ df_2010_2018_low.loc[df_2010_2018_low['year']==2018,'str_year']=["2017-2018" for
 df_all=df_2002_2003_green
 df_all=df_all.append(df_2010_2018)
 
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
+df_all['coords'] = df_all['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_all, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ##########################
+
 #Prepare plot
 fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
 fig.suptitle('Iceslabs inland progression')
@@ -1875,7 +1907,7 @@ points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(
 flightlines_20022018['lon_3413']=points[0]
 flightlines_20022018['lat_3413']=points[1]
 
-plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018)
+plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS)
 
 pdb.set_trace()
 
