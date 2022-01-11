@@ -34,11 +34,18 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     # Add the patch to the Axes
     ax1.add_patch(rect)
     
-    #Add number of case study on fig localisation
-    ax1.text(x-30000,y-15000,str(casestudy_nb),color='r')
+    if (casestudy_nb=='a'):
+        #Add number of case study on fig localisation
+        ax1.text(x+30000,y-40000,casestudy_nb,color='r')
+    elif (casestudy_nb=='c'):
+        #Add number of case study on fig localisation
+        ax1.text(x-15000,y+30000,casestudy_nb,color='r')
+    else:
+        #Add number of case study on fig localisation
+        ax1.text(x-35000,y-15000,casestudy_nb,color='r')
 
     #Add number of case study on fig localisation    
-    axt.text(0.9925, 0.9,str(casestudy_nb), ha='center', va='center', transform=axt.transAxes)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    axt.text(0.005, 0.9,casestudy_nb, ha='center', va='center', transform=axt.transAxes)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -453,25 +460,32 @@ f_20102018.close()
 
 
 #Plot data
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb=1)
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
-plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=2)
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
 
-plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb=3)
+plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 
-plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=4)
+plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
 
-plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=5)
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
 
-plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb=6)
+plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 
 #Finalize plot
-
 ax1.set_xlim(-580000,-44000)
 ax1.set_ylim(-2650000,-1290000)
 ax1.set_xlabel('Easting [m]')
 ax1.set_ylabel('Northing [m]')
+
+#panels a-b share axis, panels c-d-e-f share axis
+ax2t.set_xlim(1130,1440)
+ax3t.set_xlim(1130,1440)
+ax4t.set_xlim(1600,2080)
+ax5t.set_xlim(1600,2080)
+ax6t.set_xlim(1600,2080)
+ax7t.set_xlim(1600,2080)
 
 #Display distance as Elevation [m]
 ax7t.set_ylabel('Column ice thickness [m]')
