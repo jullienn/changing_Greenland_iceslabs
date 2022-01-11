@@ -221,7 +221,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.set_ylabel('Northing [m]')
     
     # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-    lgnd = ax_plot.legend(loc="lower right", scatterpoints=1, fontsize=10)
+    lgnd = ax_plot.legend(loc="lower right", scatterpoints=1)
     lgnd.legendHandles[0]._sizes = [30]
     
     ax_plot.set_xlim(-645000,855000)
@@ -229,10 +229,10 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
-    plot_fig_S1='TRUE'
-    plot_panela='FALSE'
+    plot_fig_S1='FALSE'
+    plot_panela='TRUE'
     plot_panelb='FALSE'
-    plot_panelc='TRUE'
+    plot_panelc='FALSE'
     
     if (plot_fig_S1 == 'TRUE'):
         # -------------------------------- FIG S1 --------------------------------
@@ -258,67 +258,82 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         #Save the figure
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v2/figS1.png',dpi=300)
         # -------------------------------- FIG S1 --------------------------------
-        
-    pdb.set_trace()
+    
+    #pdb.set_trace()
     
     if (plot_panela=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
         panel_a_save='TRUE'
+        fig = plt.figure(figsize=(8,12))
 
-        #prepare the figure
-        fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-        fig.set_size_inches(40,20)
-        
+        ###################### From Tedstone et al., 2022 #####################
+        #from plot_map_decadal_change.py
+        # Define the CartoPy CRS object.
+        crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+        ax = plt.axes(projection=crs)
+
+        # This can be converted into a `proj4` string/dict compatible with GeoPandas
+        crs_proj4 = crs.proj4_init
+
+        ax.set_facecolor('white')
+        ###################### From Tedstone et al., 2022 #####################
+
         #Display GrIS drainage bassins
-        NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
-        NE_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-        SE_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-        SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-        CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-        NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-        
+        NO_rignotetal.plot(ax=ax,color='white', edgecolor='black')
+        NE_rignotetal.plot(ax=ax,color='white', edgecolor='black') 
+        SE_rignotetal.plot(ax=ax,color='white', edgecolor='black') 
+        SW_rignotetal.plot(ax=ax,color='white', edgecolor='black') 
+        CW_rignotetal.plot(ax=ax,color='white', edgecolor='black') 
+        NW_rignotetal.plot(ax=ax,color='white', edgecolor='black')         
+
         #Display 2002-2018 flightlines
-        plt.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.001,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
+        ax.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.001,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
         
         #Display firn aquifers
-        plt.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',label='Firn aquifers')
+        ax.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',label='Firn aquifers')
                 
         #Display 2010-2018 iceslabs
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=1,color='#3690c0',label='2010-2014 ice slabs')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=1,color='#3690c0')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=1,color='#3690c0')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=1,color='#a6bddb',label='2017-2018 ice slabs')
-        plt.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=1,color='#a6bddb')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=1,color='#3690c0',label='2010-2014 ice slabs')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=1,color='#3690c0')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=1,color='#3690c0')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=1,color='#a6bddb',label='2017-2018 ice slabs')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=1,color='#a6bddb')
         
         #Display 2002-2003 iceslabs
-        plt.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#0570b0',label='2002-2003 ice slabs')
+        ax.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#0570b0',label='2002-2003 ice slabs')
         
         #Display region name on panel a 
-        ax1.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
-        ax1.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
-        ax1.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+20000,np.asarray(SE_rignotetal.SUBREGION1)[0])
-        ax1.text(SW_rignotetal.centroid.x,SW_rignotetal.centroid.y+20000,np.asarray(SW_rignotetal.SUBREGION1)[0])
-        ax1.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
-        ax1.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
-                
-        ax1.set_xlabel('Easting [m]')
-        ax1.set_ylabel('Northing [m]')
-    
+        ax.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+        ax.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+        ax.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+20000,np.asarray(SE_rignotetal.SUBREGION1)[0])
+        ax.text(SW_rignotetal.centroid.x,SW_rignotetal.centroid.y+20000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+        ax.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+        ax.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+
         # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-        lgnd = plt.legend(loc="lower right", scatterpoints=1, fontsize=10)
+        lgnd = plt.legend(loc="lower right", scatterpoints=1)
         lgnd.legendHandles[0]._sizes = [30]
         lgnd.legendHandles[1]._sizes = [30]
         lgnd.legendHandles[2]._sizes = [30]
         lgnd.legendHandles[3]._sizes = [30]
         lgnd.legendHandles[4]._sizes = [30]
         
-        ax1.set_xlim(-645000,855000)
-        ax1.set_ylim(-3330000,-785000)
+        ###################### From Tedstone et al., 2022 #####################
+        #from plot_map_decadal_change.py
+        # x0, x1, y0, y1
+        ax.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+        ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
+        pdb.set_trace()
+        scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
+        plt.box(on=None)
+        ###################### From Tedstone et al., 2022 #####################
         
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
+        
+        pdb.set_trace()
         
         if (panel_a_save == 'TRUE'):
             #Save the figure
@@ -326,7 +341,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
      
         plt.close(fig)
         # -------------------------------- PANEL A --------------------------------
-
+    
     pdb.set_trace()
     
     if (plot_panelb=='TRUE'):
@@ -653,7 +668,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                         s=1,cmap=plt.get_cmap('Reds'))
             
             # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-            lgnd = plt.legend(loc="best", scatterpoints=1, fontsize=10)
+            lgnd = plt.legend(loc="best", scatterpoints=1)
             lgnd.legendHandles[0]._sizes = [30]
             lgnd.legendHandles[1]._sizes = [30]
             
@@ -783,6 +798,8 @@ import geopandas as gpd  # Requires the pyshp package
 from matplotlib.colors import ListedColormap, BoundaryNorm
 from shapely.geometry import Point, Polygon
 from matplotlib.patches import Patch
+import cartopy.crs as ccrs
+import scalebar
 
 #Set fontsize plot
 plt.rcParams.update({'font.size': 22})
@@ -1905,7 +1922,7 @@ plt.show()
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-flightlines_20022018=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS_old.csv',decimal='.',sep=',')#,low_memory=False)
+flightlines_20022018=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS.csv',decimal='.',sep=',')#,low_memory=False)
 
 #Transform the coordinates from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
