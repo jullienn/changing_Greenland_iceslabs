@@ -240,10 +240,10 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
-    plot_fig_S1='TRUE'
+    plot_fig_S1='FALSE'
     plot_panela='FALSE'
     plot_panelb='FALSE'
-    plot_panelc='FALSE'
+    plot_panelc='TRUE'
     
     if (plot_fig_S1 == 'TRUE'):
         # -------------------------------- FIG S1 --------------------------------
@@ -291,7 +291,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     if (plot_panela=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
         panel_a_save='TRUE'
-        fig = plt.figure(figsize=(16,24))
+        fig = plt.figure(figsize=(32,48))
 
         ###################### From Tedstone et al., 2022 #####################
         #from plot_map_decadal_change.py
@@ -351,7 +351,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         #from plot_map_decadal_change.py
         # x0, x1, y0, y1
         ax.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-        ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120,color='#969696')
+        ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,color='#969696')
         #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
         #plt.box(on=None)
         ###################### From Tedstone et al., 2022 #####################
@@ -361,12 +361,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                 
         if (panel_a_save == 'TRUE'):
             #Save the figure
-            plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=300)
+            plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=1000)
      
         plt.close(fig)
         # -------------------------------- PANEL A --------------------------------
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     if (plot_panelb=='TRUE'):
         panel_b_save='TRUE'
@@ -641,7 +641,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         
         if (likelihood_display=='TRUE'):
             #prepare the figure
-            fig = plt.figure(figsize=(16,24))
+            fig = plt.figure(figsize=(32,48))
 
             ###################### From Tedstone et al., 2022 #####################
             #from plot_map_decadal_change.py
@@ -720,19 +720,22 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             ax1c.legend(handles=legend_elements)
             '''
             plt.legend()
-            
+                        
             cbar_reds = plt.colorbar(lik_reds,location = 'right')
             cbar_reds.set_label('Columnal average likelihood - 2017-2018')
             cbar_blues = plt.colorbar(lik_blues,location = 'left')
             cbar_blues.set_label('Columnal average likelihood - 2011-2012')
             
+            pdb.set_trace()
             ###################### From Tedstone et al., 2022 #####################
             #from plot_map_decadal_change.py
             # x0, x1, y0, y1
-            ax.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-            ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
-            #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
-            #plt.box(on=None)
+            ax1c.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+            ax1c.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False)
+            import scalebar
+            scalebar.scale_bar(ax1c, (0.5,0,5), 10)
+                
+            plt.box(on=None)
             ###################### From Tedstone et al., 2022 #####################
             
             #Save figure according to different regions
@@ -840,57 +843,30 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 from shapely.geometry import Point, Polygon
 from matplotlib.patches import Patch
 import cartopy.crs as ccrs
-import scalebar
 from matplotlib.lines import Line2D
 
 import seaborn as sns
 sns.set_theme(style="whitegrid")
+from scalebar import scale_bar
 
 
 #Set fontsize plot
 plt.rcParams.update({'font.size': 10})
 
-create_elevation_dictionaries='FALSE'
+create_elevation_dictionaries='TRUE'
 #pdb.set_trace()
-'''
-########################## Load GrIS elevation ##########################
-#Open the DEM
-grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
-#Minnor slicing on borders to enhance colorbars
-elevDem=grid.dem[:-1,:-1]              
-#Scale the colormap
-#divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
-########################## Load GrIS elevation ##########################
-'''
 
-############################ Load DEM information ############################
-#Extract elevation from DEM to associated with coordinates. This piece of code
-#is from https://gis.stackexchange.com/questions/221292/retrieve-pixel-value-with-geographic-coordinate-as-input-with-gdal
-driver = gdal.GetDriverByName('GTiff')
-filename_raster = "C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif" #path to raster
+### -------------------------- Load GrIS DEM ----------------------------- ###
+#https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
+import rasterio
+from rasterio.plot import show
 
-dataset_dem = gdal.Open(filename_raster)
-band = dataset_dem.GetRasterBand(1)
+path_GrIS_DEM = r'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
+GrIS_DEM = rasterio.open(path_GrIS_DEM)
 
-cols = dataset_dem.RasterXSize
-rows = dataset_dem.RasterYSize
-
-transform_elev = dataset_dem.GetGeoTransform()
-
-xOrigin = transform_elev[0]
-yOrigin = transform_elev[3]
-pixelWidth = transform_elev[1]
-pixelHeight = -transform_elev[5]
-
-data_dem = band.ReadAsArray(0, 0, cols, rows)
-
-#Define ther zero for longitude:
-#Where lon==0 is in may09_03_15:
-    #lon[886]=23.53372773084396 and lon[887]=-40.08804568537925
-    #lat[886]=-3120053.856912824, lat[887]=-3120048.666364133
-avg_lon_zero=(23.53372773084396+-40.08804568537925)/2
-index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
-############################ Load DEM information ############################
+#fig, axs = plt.subplots()
+#show(img,ax=axs)
+### -------------------------- Load GrIS DEM ----------------------------- ###
 
 ### -------------------------- Load shapefiles --------------------------- ###
 #from https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python
@@ -926,74 +902,9 @@ GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
 
 if (create_elevation_dictionaries == 'TRUE'):
     
-    ################# Load 2002-2003 flightlines coordinates ################
-    path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
-    
-    #Open the file and read it
-    f_flightlines = open(path_data+'/metadata_coord_2002_2003', "rb")
-    all_2002_3_flightlines = pickle.load(f_flightlines)
-    f_flightlines.close()
-    ################# Load 2002-2003 flightlines coordinates ################
-    
-    lat_all=[]
-    lon_all=[]
-    #elev_all=[]
-    
-    elevation_dictionnary = {k: {} for k in list(['2002','2003'])}
-    
-    for year in list(all_2002_3_flightlines.keys()):
-        
-        elevation_dictionnary[year]={k: {} for k in list(all_2002_3_flightlines[year].keys())}
-        
-        for days in list(all_2002_3_flightlines[year].keys()):
-            
-            elevation_dictionnary[year][days]={k: {} for k in list(all_2002_3_flightlines[year][days].keys())}
-            
-            for indiv_file in list(all_2002_3_flightlines[year][days].keys()):
-                if (indiv_file[0:7]=='quality'):
-                    continue
-                else:
-                    print(indiv_file)
-                    lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
-                    lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
-                    #Extract the elevation:
-                    lat_elev=[]
-                    lon_elev=[]
-                    if (days=='jun04'):
-                        lat_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][0])
-                        lon_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][1])
-                    else:
-                        lat_elev=all_2002_3_flightlines[year][days][indiv_file][0]
-                        lon_elev=all_2002_3_flightlines[year][days][indiv_file][1]
-                    
-                    latlon_tuple=[]
-                    latlon_tuple=list(zip(lon_elev,lat_elev))
-                    
-                    elev_indiv_file=[]
-                    for indiv_coord in latlon_tuple:
-                        if (np.isnan(indiv_coord[0]) or np.isnan(indiv_coord[1])):
-                            #elev_all=np.append(elev_all,np.nan)
-                            elev_indiv_file=np.append(elev_indiv_file,np.nan)
-                        else:
-                            #The origin is top left corner!!
-                            #y will always be negative
-                            row = int((yOrigin - indiv_coord[1] ) / pixelHeight)
-                            if (indiv_coord[0]<0):
-                                # if x negative
-                                col = index_lon_zero-int((-indiv_coord[0]-0) / pixelWidth)
-                            elif (indiv_coord[0]>0):
-                                # if x positive
-                                col = index_lon_zero+int((indiv_coord[0]-0) / pixelWidth)
-                            #Read the elevation
-                            #elev_all=np.append(elev_all,data_dem[row][col])
-                            elev_indiv_file=np.append(elev_indiv_file,data_dem[row][col])
-                    
-                    #Store data into the dictionnary
-                    elevation_dictionnary[year][days][indiv_file]=elev_indiv_file
-                    
-    ################# Load 2002-2003 flightlines coordinates ################
-    
     ################### Load 2002-2003 ice lenses location ##################
+    path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
+  
     #Open the file and read it
     f_icelens_flightlines = open(path_data+'/metadata_coord_icelens_2002_2003_26022020', "rb")
     icelens_2002_3_flightlines = pickle.load(f_icelens_flightlines)
@@ -1029,7 +940,6 @@ if (create_elevation_dictionaries == 'TRUE'):
     ################### Load 2002-2003 ice lenses location ##################
     
     ################### Load 2010-2018 ice slabs location ##################
-    
     #Load the data
     filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/low_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
     df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
@@ -1051,11 +961,12 @@ if (create_elevation_dictionaries == 'TRUE'):
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
     fig.suptitle('Iceslabs area overview')
     
+    '''
     #Display DEM
     cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5)#,norm=divnorm)
     cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
     cbar1.set_label('Elevation [m]')
-    
+    '''
     #Display the shapefile
     IceBridgeArea_Shape.plot(ax=ax1)
     
@@ -1108,25 +1019,32 @@ if (create_elevation_dictionaries == 'TRUE'):
     
         #Associated the point of interest to its regional shapefile in data_iceslabs
         if (np.sum(check_NO_rignotetal)>0):
-            df_20102018['key_shp'][i]='NO'
+            df_20102018['key_shp'].iloc[i]='NO'
         elif (np.sum(check_NE_rignotetal)>0):
-            df_20102018['key_shp'][i]='NE'
+            df_20102018['key_shp'].iloc[i]='NE'
         elif (np.sum(check_SE_rignotetal)>0):
-            df_20102018['key_shp'][i]='SE'
+            df_20102018['key_shp'].iloc[i]='SE'
         elif (np.sum(check_SW_rignotetal)>0):
-            df_20102018['key_shp'][i]='SW'
+            df_20102018['key_shp'].iloc[i]='SW'
         elif (np.sum(check_CW_rignotetal)>0):
-            df_20102018['key_shp'][i]='CW'
+            df_20102018['key_shp'].iloc[i]='CW'
         elif (np.sum(check_NW_rignotetal)>0):
-            df_20102018['key_shp'][i]='NW'
+            df_20102018['key_shp'].iloc[i]='NW'
         else:
-            df_20102018['key_shp'][i]='Out'
+            df_20102018['key_shp'].iloc[i]='Out'
         
-        #Calculate the corresponding elevation
-        df_20102018['elevation'][i]=calcul_elevation(df_20102018['lon_3413'][i],df_20102018['lat_3413'][i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
         #Add the year
-        df_20102018['year'][i]=int(df_20102018['Track_name'][i][0:4])
-    
+        df_20102018['year'].iloc[i]=int(df_20102018['Track_name'][i][0:4])
+        
+        #Calcul elevation
+        if (np.isnan(df_20102018['lon_3413'].iloc[i])):
+            continue
+        
+        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
+        for val in GrIS_DEM.sample([(df_20102018['lon_3413'].iloc[i], df_20102018['lat_3413'].iloc[i])]): 
+            #Calculate the corresponding elevation
+            df_20102018['elevation'].iloc[i]=val
+        
         #Monitor the process
         print(i/lon_3413_20102018.size*100,'%')
     
@@ -1136,6 +1054,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     pickle.dump(df_20102018,outfile)
     outfile.close()
     
+    pdb.set_trace()
     '''
     #Display the keys
     fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
@@ -1200,19 +1119,24 @@ if (create_elevation_dictionaries == 'TRUE'):
         else:
             df_2002_2003['key_shp'].iloc[i]='Out'
         
-        #Calculate the corresponding elevation
-        df_2002_2003['elevation'].iloc[i]=calcul_elevation(df_2002_2003['lon_3413'].iloc[i],df_2002_2003['lat_3413'].iloc[i],data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero)
-        
         #Add the year
-        if (df_2002_2003['Track_name'][i][6:8] == '02'):
+        if (df_2002_2003['Track_name'].iloc[i][6:8] == '02'):
             year_to_write=2002
-        elif (df_2002_2003['Track_name'][i][6:8] == '03'):
+        elif (df_2002_2003['Track_name'].iloc[i][6:8] == '03'):
             year_to_write=2003
         else:
             print('Year not known, error')
             break
+        df_2002_2003['year'].iloc[i]=year_to_write
         
-        df_2002_2003['year'][i]=year_to_write
+        #Calcul elevation
+        if (np.isnan(df_2002_2003['lon_3413'].iloc[i])):
+            continue
+        
+        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
+        for val in GrIS_DEM.sample([(df_2002_2003['lon_3413'].iloc[i], df_2002_2003['lat_3413'].iloc[i])]): 
+            #Calculate the corresponding elevation
+            df_2002_2003['elevation'].iloc[i]=val
         
         #Monitor the process
         print(i/len(df_2002_2003)*100,'%')
@@ -1262,6 +1186,7 @@ else:
     df_2010_2018_low = pickle.load(f_20102018_low)
     f_20102018_low.close()
 
+pdb.set_trace()
 #Load Miege firn aquifer
 path_firn_aquifer='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/firn_aquifers_miege/'
 df_firn_aquifer_2010 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2010.csv',delimiter=',',decimal='.')
