@@ -1950,15 +1950,23 @@ plt.show()
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-flightlines_20022018=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS.csv',decimal='.',sep=',')#,low_memory=False)
+flightlines_20022018_load=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS.csv',decimal='.',sep=',')#,low_memory=False)
+
+#Differentiate 2002-2003 VS 2010-2018
+flightlines_20022003=flightlines_20022018_load[flightlines_20022018_load.str_year=='2002-2003']
+flightlines_20102018=flightlines_20022018_load[flightlines_20022018_load.str_year!='2002-2003']
 
 #Transform the coordinates from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.asarray(flightlines_20022018["LON"]),np.asarray(flightlines_20022018["LAT"]))
+points=transformer.transform(np.asarray(flightlines_20102018["LON"]),np.asarray(flightlines_20102018["LAT"]))
 
 #Store lat/lon in 3413
-flightlines_20022018['lon_3413']=points[0]
-flightlines_20022018['lat_3413']=points[1]
+flightlines_20102018['lon_3413']=points[0]
+flightlines_20102018['lat_3413']=points[1]
+
+#Aggregate 2002-2003 with 2010-2018
+flightlines_20022018=flightlines_20022003
+flightlines_20022018=flightlines_20022018.append(flightlines_20102018)
 
 plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS)
 

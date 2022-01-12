@@ -54,7 +54,6 @@ flightlines_20022003_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 flightlines_20022003_GrIS['str_year']=np.asarray(['2002-2003']*len(flightlines_20022003_GrIS))
 flightlines_20022003_GrIS['year']=np.asarray([20022003]*len(flightlines_20022003_GrIS))
 
-pdb.set_trace()
 ################# Load 2002-2003 flightlines coordinates ################
 
 ################# Load 2010-2018 flightlines coordinates ################
