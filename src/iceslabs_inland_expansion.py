@@ -957,35 +957,6 @@ if (create_elevation_dictionaries == 'TRUE'):
     ###          Inland expansion of iceslabs from 2002 to 2018         ###
     #######################################################################
     
-    #Prepare plot
-    fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    fig.suptitle('Iceslabs area overview')
-    
-    '''
-    #Display DEM
-    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5)#,norm=divnorm)
-    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-    cbar1.set_label('Elevation [m]')
-    '''
-    #Display the shapefile
-    IceBridgeArea_Shape.plot(ax=ax1)
-    
-    #Plot all the 2002-2003 icelenses according to their condifence color
-    #1. Red
-    ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=1,facecolors='#c9662c', edgecolors='none')
-    #2. Orange
-    ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=1,facecolors='#fed976', edgecolors='none')
-    #3. Green
-    ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'], df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=1,facecolors='#238b45', edgecolors='none')
-    ##Purple
-    #ax1.scatter(lon_icelens[colorcode_icelens==2], lat_icelens[colorcode_icelens==2],s=1,facecolors='purple', edgecolors='none')
-    
-    #Correct zoom
-    ax1.set_xlim(-650000,900000)
-    ax1.set_ylim(-3360000,-650000)
-    
-    plt.show()
-
     # compare min and max of lat/lon of the track with respect to shapefile
     
     #Store lat/lon 3413
@@ -1055,32 +1026,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     outfile.close()
     
     pdb.set_trace()
-    '''
-    #Display the keys
-    fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-    fig.suptitle('Iceslabs keys')
-    
-    #Display DEM
-    cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
-    cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-    cbar1.set_label('Elevation [m]')
-    
-    #Display the shapefile
-    check_NO_rignotetal.plot(ax=ax1)
-    check_NE_rignotetal.plot(ax=ax1)
-    check_SE_rignotetal.plot(ax=ax1)
-    check_SW_rignotetal.plot(ax=ax1)
-    check_CW_rignotetal.plot(ax=ax1)
-    check_NW_rignotetal.plot(ax=ax1)
-    
-    #Display the data as a function of their belonging keys
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NO'],df_20102018['lat_3413'][df_20102018['key_shp']=='NO'],facecolors='orange')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NE'],df_20102018['lat_3413'][df_20102018['key_shp']=='NE'],facecolors='blue')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SE'],df_20102018['lat_3413'][df_20102018['key_shp']=='SE'],facecolors='purple')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='SW'],df_20102018['lat_3413'][df_20102018['key_shp']=='SW'],facecolors='red')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='CW'],df_20102018['lat_3413'][df_20102018['key_shp']=='CW'],facecolors='green')
-    ax1.scatter(df_20102018['lon_3413'][df_20102018['key_shp']=='NW'],df_20102018['lat_3413'][df_20102018['key_shp']=='NW'],facecolors='k')
-    '''
+
     #III. Do the intersection between the mask and 2002-2003 data
     
     #Initialise the shapefile belonging column
@@ -1143,17 +1089,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     
     #Only work with green slabs
     df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
-    '''
-    #Display the data as a function of their belonging keys
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NO'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NO'],facecolors='brown')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NE'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NE'],facecolors='cyan')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SE'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SE'],facecolors='pink')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='SW'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='SW'],facecolors='yellow')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='CW'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='CW'],facecolors='olive')
-    ax1.scatter(df_2002_2003_green['lon_3413'][df_2002_2003_green['key_shp']=='NW'],df_2002_2003_green['lat_3413'][df_2002_2003_green['key_shp']=='NW'],facecolors='gray')
-    
-    plt.show()
-    '''
+
     #Save the dictionary into a picke file
     filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation_rignotetalregions'
     outfile= open(filename_tosave, "wb" )
@@ -1231,6 +1167,270 @@ points = gpd.GeoDataFrame(df_thickness_likelihood_20102018, geometry='coords', c
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 df_thickness_likelihood_20102018_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 ######################### Keep only data on the GrIS ##########################
+
+
+#######################################################################
+###          Inland expansion of iceslabs from 2002 to 2018         ###
+#######################################################################
+
+#Select 2002-2003 with green ice slabs only
+df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
+
+#Set the year for plotting
+df_2002_2003_green['str_year']=["2002-2003" for x in range(len(df_2002_2003_green))]
+
+#Set the year for plotting in high estimate
+df_2010_2018_high.loc[df_2010_2018_high['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2010]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2011]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2012]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2013]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2014]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2017]))]
+df_2010_2018_high.loc[df_2010_2018_high['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2018]))]
+
+#Set the year for plotting in high estimates
+df_2010_2018_low.loc[df_2010_2018_low['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2010]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2011]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2012]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2013]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2014]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2017]))]
+df_2010_2018_low.loc[df_2010_2018_low['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2018]))]
+
+#Append all the dataframes together
+df_all=df_2002_2003_green
+df_all=df_all.append(df_2010_2018_high)
+
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
+df_all['coords'] = df_all['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_all, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ########################## 
+
+'''
+#######################################################################
+###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
+#######################################################################   
+### ------------------------------ 2002-2003 ----------------------------- ###
+#Create a dictionnary where to store slices information
+dict_lat_slice_west={}
+
+#Initialize the slice summary
+slice_summary=np.zeros((len(lat_slices),5))*np.nan
+
+#Initialize the slice summary lat
+slice_lon_summary=np.zeros((len(lat_slices),5))*np.nan
+
+#Loop over the traces
+for trace in traces:
+    
+    #Check whether we are dealing with single or consecutive traces
+    if(len(trace)>1):
+        #We are dealing with consecutive traces
+        #Select the data related to the first trace
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
+        
+        #loop over the traces and append data to each other, do not take the first one
+        for indiv_trace in list(trace[1:]):
+            #Select all the data related to this trace
+            data_trace=data_trace.append(df_2002_2003[df_2002_2003['Track_name']==indiv_trace])
+            
+    else:
+        #We are dealing with individual traces
+        #Select all the data related to this trace
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
+
+    #Now my data_trace datasets are ready to be worked with
+    #Keep only green ice slabs
+    data_trace=data_trace[data_trace['colorcode_icelens']==1]
+    
+    if (len(data_trace)<1):
+        #No green ice slabs, continue
+        continue
+    else:
+        #Check the flag: shall we store data? We are only interested in high end of ice slabs
+        if trace[0] in list(flag_high):
+            print('2002-2003 ice lens present for',trace[0])
+            #Identify the max of that trace, and assign to the corresponding lat_slice
+            max_to_store=np.max(data_trace['elevation'])
+            
+            #Index where maximum
+            ind_max=np.where(data_trace['elevation']==np.max(data_trace['elevation']))
+            
+            #Identify corresponding lat and lon of maximum elevation
+            lat_max=np.asarray(data_trace.iloc[ind_max]['lat_3413'])[0]
+            lon_max=np.asarray(data_trace.iloc[ind_max]['lon_3413'])[0]
+            
+            #Check if a maximum have already been identified here. If yes, compare
+            #the two. If latter > than former, store this new max. If not, continue
+            if (np.isnan(slice_summary[i,0])):
+                #No data for this slice yet, store the data
+                #Identify to which slice it belongs to
+                for i in range(1,len(lat_slices)):
+                    if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
+                        slice_summary[i,0]=max_to_store
+                        slice_lon_summary[i,0]=lon_max
+                    else:
+                        continue
+                        #store the coprresponding max in the corresponding slice
+            else:
+                print('Max already present')
+                #Data for this slice alreadey present check
+                if (max_to_store>slice_summary[i,0]):
+                    print('Replace max by new max')
+                    #Identify to which slice it belongs to
+                    for i in range(1,len(lat_slices)):
+                        print(lat_slices[i])
+                        if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
+                            slice_summary[i,0]=max_to_store
+                            slice_lon_summary[i,0]=lon_max
+                        else:
+                            continue
+                            #store the coprresponding max in the corresponding slice
+                    
+                
+
+### ------------------------------ 2002-2003 ----------------------------- ###
+
+### ------------------------------ 2010-2018 ----------------------------- ###
+count_lat=0
+#Loop over each boundary of lat slices and store dataset related to slices
+for i in range(1,len(lat_slices)):
+    
+    #Identify low and higher end of the slice
+    low_bound=lat_slices[i-1]
+    high_bound=lat_slices[i]
+    
+    #Select all the data belonging to this lat slice
+    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
+    df_slice=df_2010_2018[ind_slice]
+    
+    #Affine data by selecting only west greenland
+    ind_slice=np.array(df_slice['lon_3413']<-50000)
+    df_slice_latlon=df_slice[ind_slice]
+    
+    #Store the associated df
+    dict_lat_slice_west[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice_latlon
+    
+    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+    count_period=0
+    
+    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+        if (time_period == '2010'):
+            df_under_use=df_slice_latlon[df_slice_latlon['year']==2010]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,1]=slice_summary[count_lat,0]
+                #slice_lon_summary[count_lat,1]=slice_lon_summary[count_lat,0]
+                
+                slice_summary[count_lat,1]=np.nan
+                slice_lon_summary[count_lat,1]=np.nan
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,1]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
+                
+        elif (time_period == '2011-2012'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,2]=slice_summary[count_lat,1]
+                #slice_lon_summary[count_lat,2]=slice_lon_summary[count_lat,1]
+                
+                slice_summary[count_lat,2]=np.nan
+                slice_lon_summary[count_lat,2]=np.nan
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,2]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
+                
+        elif (time_period == '2013-2014'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,3]=slice_summary[count_lat,2]
+                #slice_lon_summary[count_lat,3]=slice_lon_summary[count_lat,2]
+                slice_summary[count_lat,3]=np.nan
+                slice_lon_summary[count_lat,3]=np.nan
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,3]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
+                
+        elif (time_period == '2017-2018'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<=np.nanmax(slice_summary[count_lat,:])):
+                #slice_summary[count_lat,4]=slice_summary[count_lat,3]
+                #slice_lon_summary[count_lat,4]=slice_lon_summary[count_lat,3]
+                slice_summary[count_lat,4]=np.nan
+                slice_lon_summary[count_lat,4]=np.nan
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,4]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
+               
+        else:
+            print('Time period not known, break')
+            break
+        
+        #Update count
+        count_period=count_period+1
+    
+    #Update count_lat
+    count_lat=count_lat+1
+### ------------------------------ 2010-2018 ----------------------------- ###
+#######################################################################
+###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
+#######################################################################   
+'''
+#Display Fig.1
+
+path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
+flightlines_20022018_load=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS.csv',decimal='.',sep=',')#,low_memory=False)
+
+#Differentiate 2002-2003 VS 2010-2018
+flightlines_20022003=flightlines_20022018_load[flightlines_20022018_load.str_year=='2002-2003']
+flightlines_20102018=flightlines_20022018_load[flightlines_20022018_load.str_year!='2002-2003']
+
+#Transform the coordinates from WGS84 to EPSG:3413
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+points=transformer.transform(np.asarray(flightlines_20102018["LON"]),np.asarray(flightlines_20102018["LAT"]))
+
+#Store lat/lon in 3413
+flightlines_20102018['lon_3413']=points[0]
+flightlines_20102018['lat_3413']=points[1]
+
+#Aggregate 2002-2003 with 2010-2018
+flightlines_20022018=flightlines_20022003
+flightlines_20022018=flightlines_20022018.append(flightlines_20102018)
+
+plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS)
+
+pdb.set_trace()
 
 
 '''
@@ -1563,266 +1763,3 @@ for region in list(dict_summary.keys()):
 plt.legend()
 plt.show()
 '''
-#######################################################################
-###          Inland expansion of iceslabs from 2002 to 2018         ###
-#######################################################################
-
-#Select 2002-2003 with green ice slabs only
-df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
-
-#Set the year for plotting
-df_2002_2003_green['str_year']=["2002-2003" for x in range(len(df_2002_2003_green))]
-
-#Set the year for plotting in high estimate
-df_2010_2018_high.loc[df_2010_2018_high['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2010]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2011]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2012]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2013]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2014]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2017]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2018]))]
-
-#Set the year for plotting in high estimates
-df_2010_2018_low.loc[df_2010_2018_low['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2010]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2011]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2012]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2013]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2014]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2017]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2018]))]
-
-#Append all the dataframes together
-df_all=df_2002_2003_green
-df_all=df_all.append(df_2010_2018_high)
-
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
-df_all['coords'] = df_all['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_all, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ########################## 
-
-'''
-#######################################################################
-###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
-#######################################################################   
-### ------------------------------ 2002-2003 ----------------------------- ###
-#Create a dictionnary where to store slices information
-dict_lat_slice_west={}
-
-#Initialize the slice summary
-slice_summary=np.zeros((len(lat_slices),5))*np.nan
-
-#Initialize the slice summary lat
-slice_lon_summary=np.zeros((len(lat_slices),5))*np.nan
-
-#Loop over the traces
-for trace in traces:
-    
-    #Check whether we are dealing with single or consecutive traces
-    if(len(trace)>1):
-        #We are dealing with consecutive traces
-        #Select the data related to the first trace
-        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
-        
-        #loop over the traces and append data to each other, do not take the first one
-        for indiv_trace in list(trace[1:]):
-            #Select all the data related to this trace
-            data_trace=data_trace.append(df_2002_2003[df_2002_2003['Track_name']==indiv_trace])
-            
-    else:
-        #We are dealing with individual traces
-        #Select all the data related to this trace
-        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
-
-    #Now my data_trace datasets are ready to be worked with
-    #Keep only green ice slabs
-    data_trace=data_trace[data_trace['colorcode_icelens']==1]
-    
-    if (len(data_trace)<1):
-        #No green ice slabs, continue
-        continue
-    else:
-        #Check the flag: shall we store data? We are only interested in high end of ice slabs
-        if trace[0] in list(flag_high):
-            print('2002-2003 ice lens present for',trace[0])
-            #Identify the max of that trace, and assign to the corresponding lat_slice
-            max_to_store=np.max(data_trace['elevation'])
-            
-            #Index where maximum
-            ind_max=np.where(data_trace['elevation']==np.max(data_trace['elevation']))
-            
-            #Identify corresponding lat and lon of maximum elevation
-            lat_max=np.asarray(data_trace.iloc[ind_max]['lat_3413'])[0]
-            lon_max=np.asarray(data_trace.iloc[ind_max]['lon_3413'])[0]
-            
-            #Check if a maximum have already been identified here. If yes, compare
-            #the two. If latter > than former, store this new max. If not, continue
-            if (np.isnan(slice_summary[i,0])):
-                #No data for this slice yet, store the data
-                #Identify to which slice it belongs to
-                for i in range(1,len(lat_slices)):
-                    if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
-                        slice_summary[i,0]=max_to_store
-                        slice_lon_summary[i,0]=lon_max
-                    else:
-                        continue
-                        #store the coprresponding max in the corresponding slice
-            else:
-                print('Max already present')
-                #Data for this slice alreadey present check
-                if (max_to_store>slice_summary[i,0]):
-                    print('Replace max by new max')
-                    #Identify to which slice it belongs to
-                    for i in range(1,len(lat_slices)):
-                        print(lat_slices[i])
-                        if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
-                            slice_summary[i,0]=max_to_store
-                            slice_lon_summary[i,0]=lon_max
-                        else:
-                            continue
-                            #store the coprresponding max in the corresponding slice
-                    
-                
-
-### ------------------------------ 2002-2003 ----------------------------- ###
-
-### ------------------------------ 2010-2018 ----------------------------- ###
-count_lat=0
-#Loop over each boundary of lat slices and store dataset related to slices
-for i in range(1,len(lat_slices)):
-    
-    #Identify low and higher end of the slice
-    low_bound=lat_slices[i-1]
-    high_bound=lat_slices[i]
-    
-    #Select all the data belonging to this lat slice
-    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
-    df_slice=df_2010_2018[ind_slice]
-    
-    #Affine data by selecting only west greenland
-    ind_slice=np.array(df_slice['lon_3413']<-50000)
-    df_slice_latlon=df_slice[ind_slice]
-    
-    #Store the associated df
-    dict_lat_slice_west[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice_latlon
-    
-    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
-    count_period=0
-    
-    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
-        if (time_period == '2010'):
-            df_under_use=df_slice_latlon[df_slice_latlon['year']==2010]
-            
-            #If max in this slice of this time period is lower than max identified
-            #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
-                #slice_summary[count_lat,1]=slice_summary[count_lat,0]
-                #slice_lon_summary[count_lat,1]=slice_lon_summary[count_lat,0]
-                
-                slice_summary[count_lat,1]=np.nan
-                slice_lon_summary[count_lat,1]=np.nan
-            else:
-                #store the new max elevation
-                slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
-                
-                if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
-                    slice_lon_summary[count_lat,1]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
-                
-        elif (time_period == '2011-2012'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]
-            
-            #If max in this slice of this time period is lower than max identified
-            #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
-                #slice_summary[count_lat,2]=slice_summary[count_lat,1]
-                #slice_lon_summary[count_lat,2]=slice_lon_summary[count_lat,1]
-                
-                slice_summary[count_lat,2]=np.nan
-                slice_lon_summary[count_lat,2]=np.nan
-            else:
-                #store the new max elevation
-                slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
-                
-                if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
-                    slice_lon_summary[count_lat,2]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
-                
-        elif (time_period == '2013-2014'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]
-            
-            #If max in this slice of this time period is lower than max identified
-            #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
-                #slice_summary[count_lat,3]=slice_summary[count_lat,2]
-                #slice_lon_summary[count_lat,3]=slice_lon_summary[count_lat,2]
-                slice_summary[count_lat,3]=np.nan
-                slice_lon_summary[count_lat,3]=np.nan
-            else:
-                #store the new max elevation
-                slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
-                
-                if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
-                    slice_lon_summary[count_lat,3]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
-                
-        elif (time_period == '2017-2018'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]
-            
-            #If max in this slice of this time period is lower than max identified
-            #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<=np.nanmax(slice_summary[count_lat,:])):
-                #slice_summary[count_lat,4]=slice_summary[count_lat,3]
-                #slice_lon_summary[count_lat,4]=slice_lon_summary[count_lat,3]
-                slice_summary[count_lat,4]=np.nan
-                slice_lon_summary[count_lat,4]=np.nan
-            else:
-                #store the new max elevation
-                slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
-                
-                if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
-                    slice_lon_summary[count_lat,4]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
-               
-        else:
-            print('Time period not known, break')
-            break
-        
-        #Update count
-        count_period=count_period+1
-    
-    #Update count_lat
-    count_lat=count_lat+1
-### ------------------------------ 2010-2018 ----------------------------- ###
-#######################################################################
-###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
-#######################################################################   
-'''
-#Display Fig.1
-
-path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-flightlines_20022018_load=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS.csv',decimal='.',sep=',')#,low_memory=False)
-
-#Differentiate 2002-2003 VS 2010-2018
-flightlines_20022003=flightlines_20022018_load[flightlines_20022018_load.str_year=='2002-2003']
-flightlines_20102018=flightlines_20022018_load[flightlines_20022018_load.str_year!='2002-2003']
-
-#Transform the coordinates from WGS84 to EPSG:3413
-transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.asarray(flightlines_20102018["LON"]),np.asarray(flightlines_20102018["LAT"]))
-
-#Store lat/lon in 3413
-flightlines_20102018['lon_3413']=points[0]
-flightlines_20102018['lat_3413']=points[1]
-
-#Aggregate 2002-2003 with 2010-2018
-flightlines_20022018=flightlines_20022003
-flightlines_20022018=flightlines_20022018.append(flightlines_20102018)
-
-plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS)
-
-pdb.set_trace()
-
