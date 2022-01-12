@@ -188,9 +188,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     SW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     CW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     NW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
-    
-    pdb.set_trace()
-    
+        
     if (time_period=='2010'):
         #Issue, there are 2010 and '2010': take both
         #Display flightlines of this time period    
@@ -236,6 +234,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     
     # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
     lgnd = ax_plot.legend(loc="lower right", scatterpoints=1)
+    lgnd.legendHandles[0]._sizes = [30]
     lgnd.legendHandles[0]._sizes = [30]
     
     ax_plot.set_xlim(-645000,855000)
@@ -828,6 +827,10 @@ from shapely.geometry import Point, Polygon
 from matplotlib.patches import Patch
 import cartopy.crs as ccrs
 import scalebar
+
+import seaborn as sns
+sns.set_theme(style="whitegrid")
+
 
 #Set fontsize plot
 plt.rcParams.update({'font.size': 22})
@@ -1630,15 +1633,6 @@ plt.show()
 ###          Inland expansion of iceslabs from 2002 to 2018         ###
 #######################################################################
 
-#######################################################################
-###  Violin plot - Inland expansion of iceslabs from 2002 to 2018   ###
-#######################################################################
-#Try the violin plot - Do not require any latitudinal and longitudinal averaging!
-
-import seaborn as sns
-
-sns.set_theme(style="whitegrid")
-
 #Select 2002-2003 with green ice slabs only
 df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
 
@@ -1681,38 +1675,7 @@ df_all['coords'] = df_all['coords'].apply(Point)
 points = gpd.GeoDataFrame(df_all, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ##########################
-
-#Prepare plot
-fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Iceslabs inland progression')
-
-axs = axs.ravel()
-i=0
-
-for region in df_all['key_shp'].unique():
-    if (region == 'Out'):
-        continue
-    
-    #Add 2010-2017 and 2017-2018!
-    sns.violinplot(ax=axs[i], data=df_all[df_all['key_shp']==region], x="str_year", y="elevation",
-               inner="quart", linewidth=1)
-    sns.despine(left=True)
-
-    #Set title
-    axs[i].title.set_text(region)
-    
-    axs[i].grid()
-    #Update count
-    i=i+1
-                        
-    '''
-    catplot is noce but did not managed to to subplots with it
-    sns.catplot(data=df_2002_2003_green[df_2002_2003_green['key_shp']==region], kind="violin", x="year", y="elevation", hue="colorcode_icelens",ax = axs[i])
-    '''
-#######################################################################
-###  Violin plot - Inland expansion of iceslabs from 2002 to 2018   ###
-#######################################################################   
+######################### Keep only data on the GrIS ########################## 
 
 #######################################################################
 ###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
@@ -1906,46 +1869,9 @@ for i in range(1,len(lat_slices)):
     #Update count_lat
     count_lat=count_lat+1
 ### ------------------------------ 2010-2018 ----------------------------- ###
-
-fig, (ax1,ax2) = plt.subplots(1,2)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Iceslabs inland progression')
-
-ax1.set_title('Elevation')
-ax1.plot(slice_summary[:,0],lat_slices,'.',label='2002-2003')
-#ax1.plot(slice_summary[:,1],lat_slices,'.',label='2010')
-ax1.plot(slice_summary[:,2],lat_slices,'.',label='2011-2012')
-#ax1.plot(slice_summary[:,2],lat_slices,'.',label='2013-2014')
-ax1.plot(slice_summary[:,4],lat_slices,'.',label='2017-2018')
-
-ax2.set_title('Longitude')
-ax2.plot(slice_lon_summary[:,0],lat_slices,'.',label='2002-2003')
-#ax2.plot(slice_lon_summary[:,1],lat_slices,'.',label='2010')
-ax2.plot(slice_lon_summary[:,2],lat_slices,'.',label='2011-2012')
-#ax2.plot(slice_lon_summary[:,2],lat_slices,'.',label='2013-2014')
-ax2.plot(slice_lon_summary[:,4],lat_slices,'.',label='2017-2018')
-
-
-plt.legend()
-plt.show()
-
-#Prepare plot
-fig, ax1 = plt.subplots()#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('Iceslabs difference 2017-2018 minus 2011-2012')
-
-ax1.plot(slice_summary[:,4]-slice_summary[:,2],lat_slices,'.')
-
-plt.show()
-
 #######################################################################
 ###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################   
-
-fig, ax1 = plt.subplots()
-ax1.step(slice_summary[:,4]-slice_summary[:,0],lat_slices,label='2017-2018 minus 2002-2003',color='#238b45')
-ax1.step(slice_summary[:,4]-slice_summary[:,1],lat_slices,label='2017-2018 minus 2010',color='#2b8cbe')
-ax1.step(slice_summary[:,4]-slice_summary[:,2],lat_slices,label='2017-2018 minus 2011-2012',color='#c994c7')
-ax1.step(slice_summary[:,4]-slice_summary[:,3],lat_slices,label='2017-2018 minus 2013-2014',color='#7a0177')
-plt.show()
 
 #Display Fig.1
 
