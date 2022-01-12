@@ -941,7 +941,7 @@ if (create_elevation_dictionaries == 'TRUE'):
     
     ################### Load 2010-2018 ice slabs location ##################
     #Load the data
-    filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/low_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
+    filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv'
     df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
     
     #Transform the coordinated from WGS84 to EPSG:3413
@@ -1034,7 +1034,7 @@ if (create_elevation_dictionaries == 'TRUE'):
             df_20102018['key_shp'].iloc[i]='Out'
         
         #Add the year
-        df_20102018['year'].iloc[i]=int(df_20102018['Track_name'][i][0:4])
+        df_20102018['year'].iloc[i]=int(df_20102018['Track_name'].iloc[i][0:4])
         
         #Calcul elevation
         if (np.isnan(df_20102018['lon_3413'].iloc[i])):
@@ -1049,7 +1049,7 @@ if (create_elevation_dictionaries == 'TRUE'):
         print(i/lon_3413_20102018.size*100,'%')
     
     #Save the dictionary into a picke file
-    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_low_estimate_rignotetalregions'
+    filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_high_estimate_rignotetalregions'
     outfile= open(filename_tosave, "wb" )
     pickle.dump(df_20102018,outfile)
     outfile.close()
@@ -1169,12 +1169,6 @@ else:
     #f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00', "rb")
     df_2002_2003 = pickle.load(f_20022003)
     f_20022003.close()
-    
-    #Load 2010-2018
-    f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
-    #f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00', "rb")
-    df_2010_2018 = pickle.load(f_20102018)
-    f_20102018.close()
     
     #Load 2010-2018 high estimate
     f_20102018_high = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
@@ -1578,13 +1572,6 @@ df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
 
 #Set the year for plotting
 df_2002_2003_green['str_year']=["2002-2003" for x in range(len(df_2002_2003_green))]
-df_2010_2018.loc[df_2010_2018['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018[df_2010_2018['year']==2010]))]
-df_2010_2018.loc[df_2010_2018['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018[df_2010_2018['year']==2011]))]
-df_2010_2018.loc[df_2010_2018['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018[df_2010_2018['year']==2012]))]
-df_2010_2018.loc[df_2010_2018['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018[df_2010_2018['year']==2013]))]
-df_2010_2018.loc[df_2010_2018['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018[df_2010_2018['year']==2014]))]
-df_2010_2018.loc[df_2010_2018['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018[df_2010_2018['year']==2017]))]
-df_2010_2018.loc[df_2010_2018['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018[df_2010_2018['year']==2018]))]
 
 #Set the year for plotting in high estimate
 df_2010_2018_high.loc[df_2010_2018_high['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2010]))]
@@ -1606,7 +1593,7 @@ df_2010_2018_low.loc[df_2010_2018_low['year']==2018,'str_year']=["2017-2018" for
 
 #Append all the dataframes together
 df_all=df_2002_2003_green
-df_all=df_all.append(df_2010_2018)
+df_all=df_all.append(df_2010_2018_high)
 
 ######################### Keep only data on the GrIS ##########################
 # This is from aggregate_20022018_flightlines.py
