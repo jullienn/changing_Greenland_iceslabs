@@ -43,23 +43,6 @@ def alpha_shape(points, alpha):
     
     return cascaded_union(triangles), edge_points
 
-##############################################################################
-############### Define function for discrete colorbar display ###############
-##############################################################################
-def discrete_cmap(N, base_cmap=None):
-    """Create an N-bin discrete colormap from the specified input map"""
-    #This piece of code is from: https://gist.github.com/jakevdp/91077b0cae40f8f8244a
-    # Note that if base_cmap is a string or None, you can simply do
-    #    return plt.cm.get_cmap(base_cmap, N)
-    # The following works for string, None, or a colormap instance:
-    
-    base = plt.cm.get_cmap(base_cmap)
-    color_list = base(np.linspace(0, 1, N))
-    cmap_name = base.name + str(N)
-    return base.from_list(cmap_name, color_list, N)
-##############################################################################
-############### Define function for discrete colorbar display ###############
-##############################################################################
 
 def calcul_elevation(lon,lat,data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero):
     
@@ -229,17 +212,10 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
     ax_plot.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
     
-    ax_plot.set_xlabel('Easting [m]')
-    ax_plot.set_ylabel('Northing [m]')
-    
     # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
     lgnd = ax_plot.legend(loc="lower right", scatterpoints=1)
     lgnd.legendHandles[0]._sizes = [30]
     lgnd.legendHandles[0]._sizes = [30]
-    
-    ax_plot.set_xlim(-645000,855000)
-    ax_plot.set_ylim(-3330000,-785000)
-    
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
     plot_fig_S1='TRUE'
@@ -249,21 +225,57 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     
     if (plot_fig_S1 == 'TRUE'):
         # -------------------------------- FIG S1 --------------------------------
+        ###################### From Tedstone et al., 2022 #####################
+        #from plot_map_decadal_change.py
+        # Define the CartoPy CRS object.
+        crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+        
+        # This can be converted into a `proj4` string/dict compatible with GeoPandas
+        crs_proj4 = crs.proj4_init
+        ###################### From Tedstone et al., 2022 #####################
+        
         fig = plt.figure(figsize=(16,24))
         gs = gridspec.GridSpec(15, 15)
         gs.update(wspace=0.001)
         #gs.update(wspace=0.001)
-        ax1 = plt.subplot(gs[4:11, 0:5])
-        ax2 = plt.subplot(gs[0:7, 5:10])
-        ax3 = plt.subplot(gs[0:7, 10:15])
-        ax4 = plt.subplot(gs[8:15, 5:10])
-        ax5 = plt.subplot(gs[8:15, 10:15])
-                
+        #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
+        ax1 = plt.subplot(gs[4:11, 0:5],projection=crs)
+        ax2 = plt.subplot(gs[0:7, 5:10],projection=crs)
+        ax3 = plt.subplot(gs[0:7, 10:15],projection=crs)
+        ax4 = plt.subplot(gs[8:15, 5:10],projection=crs)
+        ax5 = plt.subplot(gs[8:15, 10:15],projection=crs)
+        
+        ax1.set_facecolor('white')
+        ax2.set_facecolor('white')
+        ax3.set_facecolor('white')
+        ax4.set_facecolor('white')
+        ax5.set_facecolor('white')
+
         plot_pannels_supp(ax1,flightlines_20022018,df_firn_aquifer_all,df_all,'2002-2003')
+        pdb.set_trace()
         plot_pannels_supp(ax2,flightlines_20022018,df_firn_aquifer_all,df_all,'2010')
         plot_pannels_supp(ax3,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012')
         plot_pannels_supp(ax4,flightlines_20022018,df_firn_aquifer_all,df_all,'2013-2014')
         plot_pannels_supp(ax5,flightlines_20022018,df_firn_aquifer_all,df_all,'2017-2018')
+        
+        ###################### From Tedstone et al., 2022 #####################
+        #from plot_map_decadal_change.py
+        # x0, x1, y0, y1
+        ax1.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+        ax1.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
+        ax2.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+        ax2.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
+        ax3.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+        ax3.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
+        ax4.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+        ax4.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
+        ax5.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+        ax5.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
+        
+        #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
+        #plt.box(on=None)
+        ###################### From Tedstone et al., 2022 #####################
+        
 
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
@@ -1299,7 +1311,7 @@ df_thickness_likelihood_20102018_all_GrIS = points[pointInPolys.SUBREGION1=='ICE
 ######################### Keep only data on the GrIS ##########################
 
 
-
+'''
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
 #    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
@@ -1582,7 +1594,7 @@ for region in list(df_2010_2018['key_shp'].unique()):
         dict_summary[region][time_period]['max_elev_mean']=np.nanmean(dict_temp[:,1])
         dict_summary[region][time_period]['max_elev_median']=np.nanmedian(dict_temp[:,1])
         dict_summary[region][time_period]['max_elev_std']=np.nanstd(dict_temp[:,1])
-
+'''
 '''
 #Plot the inland expansion as a graph
 #Display the keys
@@ -1677,6 +1689,7 @@ pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This
 df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 ######################### Keep only data on the GrIS ########################## 
 
+'''
 #######################################################################
 ###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################   
@@ -1872,7 +1885,7 @@ for i in range(1,len(lat_slices)):
 #######################################################################
 ###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
 #######################################################################   
-
+'''
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
@@ -1898,26 +1911,3 @@ plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df
 
 pdb.set_trace()
 
-
-#Boxplot of max elevation per lat slice for each region for different time periods
-#Loop over dict_lat_slices_summary
-
-#######################################################################
-###     Barplot of maximum elevation of ice slabs per time period   ###
-#######################################################################
-#Barplot per regions for each elevation slice
-fig, (ax1) = plt.subplots()
-ax1.bar(lat_slices,slice_lon_summary[:,4],width=10000,label='2017-2018')
-ax1.bar(lat_slices,slice_lon_summary[:,3],width=10000,label='2013-2014')
-ax1.bar(lat_slices,slice_lon_summary[:,2],width=10000,label='2012-2010')
-ax1.bar(lat_slices,slice_lon_summary[:,1],width=10000,label='2010')
-ax1.bar(lat_slices,slice_lon_summary[:,0],width=10000,label='2002-2003')
-plt.legend()
-plt.show()
-#######################################################################
-###     Barplot of maximum elevation of ice slabs per time period   ###
-#######################################################################
-
-fig, (ax1) = plt.subplots()
-ax1.bar(lat_slices,slice_lon_summary[:,4],width=10000)
-plt.show()
