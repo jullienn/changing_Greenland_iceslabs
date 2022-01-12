@@ -197,12 +197,39 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     if (time_period=='2002-2003'):
         #Display 2002-2003 iceslabs
         ax_plot.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#8c6bb1',label='2002-2003 ice slabs')
+        color_legend_display='#8c6bb1'
     else:
         #Display iceslabs thickness of the corresponding time period
         lik_blues=ax_plot.scatter(df_all[df_all.str_year==time_period]['lon_3413'],df_all[df_all.str_year==time_period]['lat_3413'],c=df_all[df_all.str_year==time_period]['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'),label=time_period+' ice slabs')        
-        
-        cbar_blues=fig.colorbar(lik_blues, ax=ax_plot)
+        cbar_blues=plt.colorbar(lik_blues, ax=ax_plot)
         cbar_blues.set_label('Columnal ice content [m]')
+        color_legend_display='#4292c6'
+    
+    #Legend display: this is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
+    # Create dummy Line2D objects for legend
+    h1 = Line2D([0], [0], marker='o', markersize=np.sqrt(20), color='#d9d9d9', linestyle='None')
+    h2 = Line2D([0], [0], marker='o', markersize=np.sqrt(20), color=color_legend_display, linestyle='None')
+    
+    # Plot legend.
+    ax_plot.legend([h1, h2], ['Flightlines', time_period+' ice slabs'], loc="lower left", markerscale=2,
+               scatterpoints=1, fontsize=10)
+    
+    ###################### From Tedstone et al., 2022 #####################
+    #from plot_map_decadal_change.py
+    # Define the CartoPy CRS object.
+    crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+    # This can be converted into a `proj4` string/dict compatible with GeoPandas
+    crs_proj4 = crs.proj4_init
+    # x0, x1, y0, y1
+    ax_plot.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+    gl=ax_plot.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, color='#969696')
+    
+    if (not(time_period=='2002-2003')):
+        gl.ylabels_right = False
+    
+    #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
+    #plt.box(on=None)
+    ###################### From Tedstone et al., 2022 #####################
     
     #Display region name on panel a 
     ax_plot.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
@@ -211,11 +238,6 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.text(SW_rignotetal.centroid.x,SW_rignotetal.centroid.y+20000,np.asarray(SW_rignotetal.SUBREGION1)[0])
     ax_plot.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
     ax_plot.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
-    
-    # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-    lgnd = ax_plot.legend(loc="lower right", scatterpoints=1)
-    lgnd.legendHandles[0]._sizes = [30]
-    lgnd.legendHandles[0]._sizes = [30]
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
     plot_fig_S1='TRUE'
@@ -234,7 +256,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         crs_proj4 = crs.proj4_init
         ###################### From Tedstone et al., 2022 #####################
         
-        fig = plt.figure(figsize=(16,24))
+        fig = plt.figure(figsize=(32,48))
         gs = gridspec.GridSpec(15, 15)
         gs.update(wspace=0.001)
         #gs.update(wspace=0.001)
@@ -252,31 +274,11 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         ax5.set_facecolor('white')
 
         plot_pannels_supp(ax1,flightlines_20022018,df_firn_aquifer_all,df_all,'2002-2003')
-        pdb.set_trace()
         plot_pannels_supp(ax2,flightlines_20022018,df_firn_aquifer_all,df_all,'2010')
         plot_pannels_supp(ax3,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012')
         plot_pannels_supp(ax4,flightlines_20022018,df_firn_aquifer_all,df_all,'2013-2014')
         plot_pannels_supp(ax5,flightlines_20022018,df_firn_aquifer_all,df_all,'2017-2018')
         
-        ###################### From Tedstone et al., 2022 #####################
-        #from plot_map_decadal_change.py
-        # x0, x1, y0, y1
-        ax1.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-        ax1.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
-        ax2.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-        ax2.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
-        ax3.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-        ax3.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
-        ax4.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-        ax4.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
-        ax5.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-        ax5.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
-        
-        #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
-        #plt.box(on=None)
-        ###################### From Tedstone et al., 2022 #####################
-        
-
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
         
@@ -349,7 +351,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         #from plot_map_decadal_change.py
         # x0, x1, y0, y1
         ax.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-        ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120)
+        ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, zorder=120,color='#969696')
         #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
         #plt.box(on=None)
         ###################### From Tedstone et al., 2022 #####################
@@ -839,13 +841,14 @@ from shapely.geometry import Point, Polygon
 from matplotlib.patches import Patch
 import cartopy.crs as ccrs
 import scalebar
+from matplotlib.lines import Line2D
 
 import seaborn as sns
 sns.set_theme(style="whitegrid")
 
 
 #Set fontsize plot
-plt.rcParams.update({'font.size': 22})
+plt.rcParams.update({'font.size': 10})
 
 create_elevation_dictionaries='FALSE'
 #pdb.set_trace()
