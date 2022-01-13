@@ -162,7 +162,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
     return summary_area
 
 
-def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,time_period):
+def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,time_period,label_panel):
     
     #Display GrIS drainage bassins
     NO_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black')
@@ -171,7 +171,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     SW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     CW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
     NW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
-        
+    
     if (time_period=='2010'):
         #Issue, there are 2010 and '2010': take both
         #Display flightlines of this time period    
@@ -201,10 +201,25 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     else:
         #Display iceslabs thickness of the corresponding time period
         lik_blues=ax_plot.scatter(df_all[df_all.str_year==time_period]['lon_3413'],df_all[df_all.str_year==time_period]['lat_3413'],c=df_all[df_all.str_year==time_period]['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'),label=time_period+' ice slabs')        
-        cbar_blues=plt.colorbar(lik_blues, ax=ax_plot)
-        cbar_blues.set_label('Columnal ice content [m]')
         color_legend_display='#4292c6'
     
+    if (time_period=='2017-2018'):
+        #Inspired from this https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_inset_locator.html
+        axins1 = inset_axes(ax_plot,
+                            width="5%",  # width = 50% of parent_bbox width
+                            height="100%",  # height : 5%
+                            loc='lower left',
+                            bbox_to_anchor=(1, 0., 1, 1),
+                            bbox_transform=ax_plot.transAxes,
+                            borderpad=0)
+        
+        cbar_blues=plt.colorbar(lik_blues, ax=ax_plot, cax=axins1, shrink=1,orientation='vertical')
+        cbar_blues.set_label('Columnal ice content [m]')
+    
+    #Add label
+    ax_plot.text(0, 1, label_panel,zorder=10, ha='center', va='center', transform=ax_plot.transAxes, weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+    '''
     #Legend display: this is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
     # Create dummy Line2D objects for legend
     h1 = Line2D([0], [0], marker='o', markersize=np.sqrt(20), color='#d9d9d9', linestyle='None')
@@ -213,6 +228,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     # Plot legend.
     ax_plot.legend([h1, h2], ['Flightlines', time_period+' ice slabs'], loc="lower left", markerscale=2,
                scatterpoints=1, fontsize=10)
+    '''
     
     ###################### From Tedstone et al., 2022 #####################
     #from plot_map_decadal_change.py
@@ -224,11 +240,12 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
     gl=ax_plot.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, color='#969696')
     
-    if (not(time_period=='2002-2003')):
-        gl.ylabels_right = False
-    
+    #Customize lat labels
+    gl.ylabels_right = False
+            
+    ax_plot.set_title(time_period,weight='bold',fontsize=20)
+    ax_plot.axis('off')
     #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
-    #plt.box(on=None)
     ###################### From Tedstone et al., 2022 #####################
     
     #Display region name on panel a 
@@ -240,7 +257,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
-    plot_fig_S1='FALSE'
+    plot_fig_S1='TRUE'
     plot_panela='FALSE'
     plot_panelb='FALSE'
     plot_panelc='TRUE'
@@ -256,37 +273,37 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         crs_proj4 = crs.proj4_init
         ###################### From Tedstone et al., 2022 #####################
         
-        fig = plt.figure(figsize=(32,48))
-        gs = gridspec.GridSpec(15, 15)
-        gs.update(wspace=0.001)
+        fig = plt.figure(figsize=(14,50))
+        gs = gridspec.GridSpec(7, 25)
+        gs.update(wspace = 2.5)
         #gs.update(wspace=0.001)
         #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-        ax1 = plt.subplot(gs[4:11, 0:5],projection=crs)
+        ax1 = plt.subplot(gs[0:7, 0:5],projection=crs)
         ax2 = plt.subplot(gs[0:7, 5:10],projection=crs)
         ax3 = plt.subplot(gs[0:7, 10:15],projection=crs)
-        ax4 = plt.subplot(gs[8:15, 5:10],projection=crs)
-        ax5 = plt.subplot(gs[8:15, 10:15],projection=crs)
+        ax4 = plt.subplot(gs[0:7, 15:20],projection=crs)
+        ax5 = plt.subplot(gs[0:7, 20:25],projection=crs)
         
         ax1.set_facecolor('white')
         ax2.set_facecolor('white')
         ax3.set_facecolor('white')
         ax4.set_facecolor('white')
         ax5.set_facecolor('white')
-
-        plot_pannels_supp(ax1,flightlines_20022018,df_firn_aquifer_all,df_all,'2002-2003')
-        plot_pannels_supp(ax2,flightlines_20022018,df_firn_aquifer_all,df_all,'2010')
-        plot_pannels_supp(ax3,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012')
-        plot_pannels_supp(ax4,flightlines_20022018,df_firn_aquifer_all,df_all,'2013-2014')
-        plot_pannels_supp(ax5,flightlines_20022018,df_firn_aquifer_all,df_all,'2017-2018')
+                
+        plot_pannels_supp(ax1,flightlines_20022018,df_firn_aquifer_all,df_all,'2002-2003','a')
+        plot_pannels_supp(ax2,flightlines_20022018,df_firn_aquifer_all,df_all,'2010','b')
+        plot_pannels_supp(ax3,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012','c')
+        plot_pannels_supp(ax4,flightlines_20022018,df_firn_aquifer_all,df_all,'2013-2014','d')
+        plot_pannels_supp(ax5,flightlines_20022018,df_firn_aquifer_all,df_all,'2017-2018','e')
         
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
         
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v2/figS1.png',dpi=300)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v2/figS1.png',dpi=4000)
         # -------------------------------- FIG S1 --------------------------------
     
-    #pdb.set_trace()
+    pdb.set_trace()
     
     if (plot_panela=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
@@ -848,12 +865,13 @@ from matplotlib.lines import Line2D
 import seaborn as sns
 sns.set_theme(style="whitegrid")
 from scalebar import scale_bar
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 #Set fontsize plot
 plt.rcParams.update({'font.size': 10})
 
-create_elevation_dictionaries='TRUE'
+create_elevation_dictionaries='FALSE'
 #pdb.set_trace()
 
 ### -------------------------- Load GrIS DEM ----------------------------- ###
@@ -1101,7 +1119,7 @@ else:
     path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
     
     #Load 2002-2003
-    f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00_rignotetalregions', "rb")
+    f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_rignotetalregions', "rb")
     #f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00', "rb")
     df_2002_2003 = pickle.load(f_20022003)
     f_20022003.close()
@@ -1116,7 +1134,6 @@ else:
     df_2010_2018_low = pickle.load(f_20102018_low)
     f_20102018_low.close()
 
-pdb.set_trace()
 #Load Miege firn aquifer
 path_firn_aquifer='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/firn_aquifers_miege/'
 df_firn_aquifer_2010 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2010.csv',delimiter=',',decimal='.')
@@ -1140,15 +1157,6 @@ points=transformer.transform(np.asarray(df_firn_aquifer_all["LONG"]),np.asarray(
 df_firn_aquifer_all['lon_3413']=points[0]
 df_firn_aquifer_all['lat_3413']=points[1]
 
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_firn_aquifer_all['coords'] = list(zip(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413']))
-df_firn_aquifer_all['coords'] = df_firn_aquifer_all['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_firn_aquifer_all, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_firn_aquifer_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ##########################
-
 #Load columnal likelihood file likelihood
 path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate_and_columnal_likelihood/'
 df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
@@ -1158,16 +1166,6 @@ points=transformer.transform(np.asarray(df_thickness_likelihood_20102018["lon"])
 #Store lat/lon in 3413
 df_thickness_likelihood_20102018['lon_3413']=points[0]
 df_thickness_likelihood_20102018['lat_3413']=points[1]
-
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_thickness_likelihood_20102018['coords'] = list(zip(df_thickness_likelihood_20102018['lon_3413'],df_thickness_likelihood_20102018['lat_3413']))
-df_thickness_likelihood_20102018['coords'] = df_thickness_likelihood_20102018['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_thickness_likelihood_20102018, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_thickness_likelihood_20102018_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ##########################
-
 
 #######################################################################
 ###          Inland expansion of iceslabs from 2002 to 2018         ###
@@ -1201,6 +1199,25 @@ df_2010_2018_low.loc[df_2010_2018_low['year']==2018,'str_year']=["2017-2018" for
 df_all=df_2002_2003_green
 df_all=df_all.append(df_2010_2018_high)
 
+'''
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_firn_aquifer_all['coords'] = list(zip(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413']))
+df_firn_aquifer_all['coords'] = df_firn_aquifer_all['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_firn_aquifer_all, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_firn_aquifer_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ##########################
+
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_thickness_likelihood_20102018['coords'] = list(zip(df_thickness_likelihood_20102018['lon_3413'],df_thickness_likelihood_20102018['lat_3413']))
+df_thickness_likelihood_20102018['coords'] = df_thickness_likelihood_20102018['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_thickness_likelihood_20102018, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_thickness_likelihood_20102018_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ##########################
+
 ######################### Keep only data on the GrIS ##########################
 # This is from aggregate_20022018_flightlines.py
 df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
@@ -1209,8 +1226,10 @@ points = gpd.GeoDataFrame(df_all, geometry='coords', crs="EPSG:3413")
 pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
 df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 ######################### Keep only data on the GrIS ########################## 
-
-
+'''
+df_all_GrIS = df_all
+df_firn_aquifer_all_GrIS=df_firn_aquifer_all
+df_thickness_likelihood_20102018_all_GrIS=df_thickness_likelihood_20102018
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'

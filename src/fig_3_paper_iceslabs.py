@@ -462,7 +462,7 @@ df_2010_2018_csv['lon_3413']=points[0]
 df_2010_2018_csv['lat_3413']=points[1]
 
 #Load 2010-2018 elevation dataset
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/old_elevation_computation/' 
 f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
