@@ -36,16 +36,16 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     if (casestudy_nb=='a'):
         #Add number of case study on fig localisation
-        ax1.text(x+30000,y-40000,casestudy_nb,color='r')
+        ax1.text(x+30000,y-40000,casestudy_nb,color='r',weight='bold',fontsize=12)
     elif (casestudy_nb=='c'):
         #Add number of case study on fig localisation
-        ax1.text(x-15000,y+30000,casestudy_nb,color='r')
+        ax1.text(x-15000,y+30000,casestudy_nb,color='r',weight='bold',fontsize=12)
     else:
         #Add number of case study on fig localisation
-        ax1.text(x-35000,y-15000,casestudy_nb,color='r')
+        ax1.text(x-35000,y-15000,casestudy_nb,color='r',weight='bold',fontsize=12)
 
     #Add number of case study on fig localisation    
-    axt.text(0.005, 0.9,casestudy_nb, ha='center', va='center', transform=axt.transAxes)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    axt.text(0.005, 0.875,casestudy_nb, ha='center', va='center', transform=axt.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -136,9 +136,22 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
                 axt.plot(df_plot["low_bound"],df_plot["rolling_10_median"],color=my_pal[time_period])
                 #Display IQR
                 axt.fill_between(df_plot['low_bound'], df_plot['rolling_10_q025'], df_plot['rolling_10_q075'], alpha=0.3,color=my_pal[time_period])
+                
                 #Display the median where outside of average window range
-                axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)],df_plot["median"].iloc[0:int(winsize/2)],alpha=0.5,color=my_pal[time_period])
-                axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)],df_plot["median"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)],alpha=0.5,color=my_pal[time_period])
+                #Create array_fill_start and _end for filling at the start and at the end
+                array_fill_start=np.zeros(6,)
+                array_fill_start[:]=np.nan
+                array_fill_start[0:5]=np.asarray(df_plot["median"].iloc[0:int(winsize/2)])
+                array_fill_start[-1]=np.asarray((df_plot['rolling_10_median'].iloc[int(winsize/2)]))
+                
+                array_fill_end=np.zeros(5,)
+                array_fill_end[:]=np.nan
+                array_fill_end[0]=np.asarray((df_plot['rolling_10_median'].iloc[int(len(df_plot)-winsize/2)]))
+                array_fill_end[1:5]=np.asarray(df_plot["median"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)])
+                
+                #Display
+                axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)+1],array_fill_start,alpha=0.5,color=my_pal[time_period])
+                axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2):len(df_plot)],array_fill_end,alpha=0.5,color=my_pal[time_period])
 
     #Get rid of legend
     #axt.legend_.remove()
@@ -168,6 +181,10 @@ from matplotlib.patches import Patch
 import seaborn as sns
 sns.set_theme(style="whitegrid")
 from scipy import signal
+import cartopy.crs as ccrs
+
+#Set fontsize plot
+plt.rcParams.update({'font.size': 10})
 
 ### -------------------------- Load shapefiles --------------------------- ###
 path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
@@ -192,10 +209,10 @@ CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 ### -------------------------- Load shapefiles --------------------------- ###
 
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate/'
 
 #Load all 2010-2018 data without spatial aggregation
-df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv',delimiter=',',decimal='.')
+df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv',delimiter=',',decimal='.')
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2010_2018_csv["lat"]))
@@ -427,12 +444,22 @@ loc9={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
       2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
       2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 
-fig = plt.figure()
-#fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
+
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+
+# This can be converted into a `proj4` string/dict compatible with GeoPandas
+crs_proj4 = crs.proj4_init
+###################### From Tedstone et al., 2022 #####################
+        
+fig = plt.figure(figsize=(32,48))
 gs = gridspec.GridSpec(40, 20)
 gs.update(wspace=0.001)
 #gs.update(wspace=0.001)
-ax1 = plt.subplot(gs[0:25, 0:2])
+#projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
+ax1 = plt.subplot(gs[0:25, 0:2],projection=crs)
 ax_legend = plt.subplot(gs[35:40, 0:2])
 
 ax2t = plt.subplot(gs[0:5, 3:20])
@@ -442,19 +469,21 @@ ax5t = plt.subplot(gs[21:26, 3:20])
 ax6t = plt.subplot(gs[28:33, 3:20])
 ax7t = plt.subplot(gs[35:40, 3:20])
 
+ax1.set_facecolor('white')
+
 #Display GrIS drainage bassins
-NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black')
-NE_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-SE_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
-NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black') 
+NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5)
+NE_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
+SE_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
+SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
+CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
+NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
 
 #plt.scatter(df_spatially_aggregated_2010['avg_lon_3413'],df_spatially_aggregated_2010['avg_lat_3413'],c=df_spatially_aggregated_2010['avg_20m_icecontent'],s=0.2)
 
 #Load 2010-2018 elevation dataset
 path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
-f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
+f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
@@ -473,11 +502,16 @@ plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,c
 plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 
-#Finalize plot
-ax1.set_xlim(-580000,-44000)
-ax1.set_ylim(-2650000,-1290000)
-ax1.set_xlabel('Easting [m]')
-ax1.set_ylabel('Northing [m]')
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# x0, x1, y0, y1
+ax1.set_extent([-580000, -44000, -2650000, -1290000], crs=crs)
+gl=ax1.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[70, 75], x_inline=False, y_inline=False,linewidth=0.5)
+#Customize lat labels
+gl.ylabels_right = False
+gl.xlabels_bottom = False
+ax1.axis('off')
+###################### From Tedstone et al., 2022 #####################
 
 #panels a-b share axis, panels c-d-e-f share axis
 ax2t.set_xlim(1130,1440)
