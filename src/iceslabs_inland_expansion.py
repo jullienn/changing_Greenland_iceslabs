@@ -165,29 +165,29 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
 def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,time_period,label_panel):
     
     #Display GrIS drainage bassins
-    NO_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black')
-    NE_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
-    SE_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
-    SW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
-    CW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
-    NW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black') 
+    NO_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5)
+    NE_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
+    SE_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
+    SW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
+    CW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
+    NW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
     
     if (time_period=='2010'):
         #Issue, there are 2010 and '2010': take both
         #Display flightlines of this time period    
         ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==2010]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2010]['lat_3413'],
-                        s=0.001,edgecolors=None,c='#d9d9d9')
+                        s=1,marker='.',linewidths=0,c='#d9d9d9')
         
         #Display flightlines of this time period    
         ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year=='2010']['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year=='2010']['lat_3413'],
-                        s=0.001,edgecolors=None,c='#d9d9d9',label='Flightlines')
+                        s=1,marker='.',linewidths=0,c='#d9d9d9',label='Flightlines')
     else:
         #Display flightlines of this time period    
         ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==time_period]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==time_period]['lat_3413'],
-                        s=0.001,edgecolors=None,c='#d9d9d9',label='Flightlines')
+                        s=1,marker='.',linewidths=0,c='#d9d9d9',label='Flightlines')
         
     '''
     #Display firn aquifers
@@ -196,11 +196,18 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     
     if (time_period=='2002-2003'):
         #Display 2002-2003 iceslabs
-        ax_plot.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#8c6bb1',label='2002-2003 ice slabs')
+        ax_plot.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
+                        df_all[df_all.str_year=='2002-2003']['lat_3413'],
+                        s=2,marker='.',color='#8c6bb1',linewidths=0,
+                        label='2002-2003 ice slabs')
         color_legend_display='#8c6bb1'
     else:
         #Display iceslabs thickness of the corresponding time period
-        lik_blues=ax_plot.scatter(df_all[df_all.str_year==time_period]['lon_3413'],df_all[df_all.str_year==time_period]['lat_3413'],c=df_all[df_all.str_year==time_period]['20m_ice_content_m'],s=1,cmap=plt.get_cmap('Blues'),label=time_period+' ice slabs')        
+        lik_blues=ax_plot.scatter(df_all[df_all.str_year==time_period]['lon_3413'],
+                                  df_all[df_all.str_year==time_period]['lat_3413'],
+                                  c=df_all[df_all.str_year==time_period]['20m_ice_content_m'],
+                                  s=2,marker='.',cmap=plt.get_cmap('Blues'),linewidths=0,
+                                  label=time_period+' ice slabs')        
         color_legend_display='#4292c6'
     
     if (time_period=='2017-2018'):
@@ -238,7 +245,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     crs_proj4 = crs.proj4_init
     # x0, x1, y0, y1
     ax_plot.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-    gl=ax_plot.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, color='#969696')
+    gl=ax_plot.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, color='#969696',linewidth=0.5)
     
     #Customize lat labels
     gl.ylabels_right = False
@@ -257,7 +264,7 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
-    plot_fig_S1='TRUE'
+    plot_fig_S1='FALSE'
     plot_panela='FALSE'
     plot_panelb='FALSE'
     plot_panelc='TRUE'
@@ -300,10 +307,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         figManager.window.showMaximized()
         
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v2/figS1.png',dpi=4000)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v2/figS1.png',dpi=1000)
         # -------------------------------- FIG S1 --------------------------------
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     if (plot_panela=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
@@ -370,12 +377,14 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         ax.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
         ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,color='#969696')
         #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
-        #plt.box(on=None)
+        ax.axis('off')
         ###################### From Tedstone et al., 2022 #####################
         
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
-                
+        
+        pdb.set_trace()
+        
         if (panel_a_save == 'TRUE'):
             #Save the figure
             plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=1000)
@@ -682,20 +691,21 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             
             #Flightlines
             # --- 2011-2012
+            pdb.set_trace()
             ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year==2011]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2011]['lat_3413'],
-                        s=0.001,edgecolors=None,c='#d9d9d9')
+                        s=1,c='#d9d9d9')
             ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year==2012]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2012]['lat_3413'],
-                        s=0.001,edgecolors=None,c='#d9d9d9',label='flightlines 2011-2012')
+                        s=1,c='#d9d9d9',label='flightlines 2011-2012')
             
             # --- 2017-2018
             ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year==2017]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2017]['lat_3413'],
-                        s=0.001,edgecolors=None,c='#969696')
+                        s=1,marker='.',linewidths=0,c='#969696')
             ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year==2018]['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year==2018]['lat_3413'],
-                        s=0.001,edgecolors=None,c='#969696',label='flightlines 2017-2018')
+                        s=1,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
             
             #Likelihood
             # --- 2011-2012
@@ -752,7 +762,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             import scalebar
             scalebar.scale_bar(ax1c, (0.5,0,5), 10)
                 
-            plt.box(on=None)
+            ax_plot.axis('off')
             ###################### From Tedstone et al., 2022 #####################
             
             #Save figure according to different regions
@@ -1230,6 +1240,7 @@ df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
 df_all_GrIS = df_all
 df_firn_aquifer_all_GrIS=df_firn_aquifer_all
 df_thickness_likelihood_20102018_all_GrIS=df_thickness_likelihood_20102018
+
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
