@@ -7,81 +7,130 @@ Created on Sun Nov 28 12:56:32 2021
 Code adapted from lenses_thickening_visualisation.py
 """
 
-def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
+def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,my_pal):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
-    #Define empty dictionnary for longitudinal slice definition
-    df_for_lon=pd.DataFrame(columns=list(df_2010_2018_csv.keys()))
+    ###########################################################################
+    ###                    Display thickness evolution                      ###
+    ###########################################################################
+    #Define empty dictionnary for elevation slice definition
+    df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
     
     #Loop over the years
     for year in dictionnary_case_study.keys():
-        if (str(year) in list(['2010','2011'])):
-            print('Not on the transect, continue')
-            continue
+        if (dictionnary_case_study[year] == 'empty'):
+            continue  
         #Select data for the trace
-        df_for_lon_temp=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        df_for_elev_temp=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
         #Append data to each other
-        df_for_lon=df_for_lon.append(df_for_lon_temp)
+        df_for_elev=df_for_elev.append(df_for_elev_temp)
+
+    #Create an empty df_sampling
+    df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev'])
+
+    #Elev divide every 1m.
+    elev_bin_desired=1
+    elev_divide=np.arange(np.floor(np.min(df_for_elev['elevation'])),np.floor(np.max(df_for_elev['elevation']))+1+elev_bin_desired,elev_bin_desired)
     
-    #Desired number of longitudinal slices
-    desired_nb=20
+    #Define window size for smoothing
+    winsize=10
+        
+    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+    for indiv_year in range(2012,2019):
+        print(indiv_year)
+        #Get data for that specific time period
+        df_trace_year=df_for_elev[df_for_elev['year']==indiv_year]
+        
+        if (len(df_trace_year)==0):
+            #No data in this time period, continue
+            print('   No data for this year, continue')
+            continue
+        else:            
+            #Sort df_trace_year from low to high elevations
+            df_trace_year_sorted=df_trace_year.sort_values(by=['elevation'])
+            
+            #Set bound_nb to 0
+            bound_nb=0
+            #Loop over the lon divide
+            for i in range(1,len(elev_divide)):
+                
+                #Identify low and higher end of the slice
+                low_bound=elev_divide[i-1]
+                high_bound=elev_divide[i]
+        
+                #Select all the data belonging to this elev slice
+                ind_slice=np.logical_and(np.array(df_trace_year_sorted['elevation']>=low_bound),np.array(df_trace_year_sorted['elevation']<high_bound))
+                df_select=df_trace_year_sorted[ind_slice]
+                
+                if (len(df_select)==0):
+                    continue
+                
+                #Fill in dictionnary
+                df_temp=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev'])
+                df_temp['Track_name']=df_select['Track_name'].unique()
+                df_temp['time_period']=indiv_year
+                df_temp['low_bound']=low_bound
+                df_temp['high_bound']=high_bound
+                df_temp['bound_nb']=str(bound_nb)
+                df_temp['mean']=np.nanmean(df_select['20m_ice_content_m'])
+                df_temp['median']=np.nanmedian(df_select['20m_ice_content_m'])
+                df_temp['q025']=np.nanquantile(df_select['20m_ice_content_m'],0.25)
+                df_temp['q075']=np.nanquantile(df_select['20m_ice_content_m'],0.75)
+                df_temp['stddev']=np.nanstd(df_select['20m_ice_content_m'])
+                
+                #Append dictionnary
+                df_sampling=df_sampling.append(df_temp)
+                
+                #Update bound_nb
+                bound_nb=bound_nb+1
     
-    #Create empty dataframe for storing data
-    df_sampling=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
+    for time_period in range(2012,2019):
     
+        if (len(df_sampling[df_sampling['time_period']==time_period])==0):
+            #Empty time period, continue
+            continue
+        else:
+            df_plot=df_sampling[df_sampling['time_period']==time_period]
+            
+            #Rolling window, size = 10
+            df_plot['rolling_10_median']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['median'] 
+            df_plot['rolling_10_q025']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q025'] 
+            df_plot['rolling_10_q075']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q075'] 
+            
+            # Plot the median
+            axt.plot(df_plot["low_bound"],df_plot["rolling_10_median"],color=my_pal[time_period])
+            #Display IQR
+            axt.fill_between(df_plot['low_bound'], df_plot['rolling_10_q025'], df_plot['rolling_10_q075'], alpha=0.3,color=my_pal[time_period])
+            
+            #Display the median where outside of average window range
+            #Create array_fill_start and _end for filling at the start and at the end
+            array_fill_start=np.zeros(6,)
+            array_fill_start[:]=np.nan
+            array_fill_start[0:5]=np.asarray(df_plot["median"].iloc[0:int(winsize/2)])
+            array_fill_start[-1]=np.asarray((df_plot['rolling_10_median'].iloc[int(winsize/2)]))
+            
+            array_fill_end=np.zeros(5,)
+            array_fill_end[:]=np.nan
+            array_fill_end[0]=np.asarray((df_plot['rolling_10_median'].iloc[int(len(df_plot)-winsize/2)]))
+            array_fill_end[1:5]=np.asarray(df_plot["median"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)])
+            
+            #Display
+            axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)+1],array_fill_start,alpha=0.5,color=my_pal[time_period])
+            axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2):len(df_plot)],array_fill_end,alpha=0.5,color=my_pal[time_period])
+    
+    ###########################################################################
+    ###                    Display thickness evolution                      ###
+    ###########################################################################
+    
+    
+    ###########################################################################
+    ###                           Display radargrams                        ###
+    ###########################################################################
     #Loop over the years
     for year in dictionnary_case_study.keys():
-        
-        #Select data for the trace
-        df_trace=df_2010_2018_csv[df_2010_2018_csv['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
-
-        #Define the longitudinal sampling THIS WORKS ONLY FOR NEGATIVE LON SO FAR!!!!
-        #lon_divide=np.arange(np.floor(np.min(df_for_lon['lon_3413'])),(np.floor(np.max(df_for_lon['lon_3413']))+1)+(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb,(np.abs(np.floor(np.min(df_for_lon['lon_3413'])))-np.abs(np.floor(np.max(df_for_lon['lon_3413']))+1))/desired_nb)
-        
-        #Lon divide every 3km.
-        km_bin_desired=3000
-        lon_divide=np.arange(-110240,np.floor(np.max(df_for_lon['lon_3413'])).astype(int)+1+km_bin_desired,km_bin_desired)
-        
-        #Set bound_nb to 0
-        bound_nb=0
-        #Loop over the lon divide
-        for i in range(1,len(lon_divide)):
-            
-            #Identify low and higher end of the slice
-            low_bound=lon_divide[i-1]
-            high_bound=lon_divide[i]
-    
-            #Select all the data belonging to this lon slice
-            ind_slice=np.logical_and(np.array(df_trace['lon_3413']>=low_bound),np.array(df_trace['lon_3413']<high_bound))
-            df_select=df_trace[ind_slice]
-            
-            #Fill in dictionnary
-            df_temp=pd.DataFrame(columns=['Track_name','year','low_bound', 'high_bound', 'bound_nb', 'mean', 'stddev', '20m_ice_content_m'])
-            df_temp['20m_ice_content_m']=np.asarray(df_select['20m_ice_content_m'])
-            df_temp['Track_name']=np.asarray([df_select['Track_name'].unique()]*len(df_select))
-            df_temp['year']=np.asarray([year]*len(df_select))
-            df_temp['low_bound']=np.asarray([str(low_bound)]*len(df_select))
-            df_temp['high_bound']=np.asarray([str(high_bound)]*len(df_select))
-            df_temp['bound_nb']=np.asarray([str(bound_nb)]*len(df_select))
-            df_temp['mean']=np.asarray([np.nanmean(df_select['20m_ice_content_m'])]*len(df_select))
-            df_temp['stddev']=np.asarray([np.nanstd(df_select['20m_ice_content_m'])]*len(df_select))
-            
-            #Append dictionnary
-            df_sampling=df_sampling.append(df_temp)
-            
-            #Update bound_nb
-            bound_nb=bound_nb+1
-            
-        ######################################################################
-        ###                       Display radargrams                       ###
-        ######################################################################
-        
+        #Pick up the corresponding datetrack
         date_track=dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]
-
-        '''
-        #Calculate distances (in m)
-        distances=compute_distances(dataframe[str(single_year)]['lon_appended'],dataframe[str(single_year)]['lat_appended'])
-        '''
+        
         #Reset depths to 0
         dataframe[str(year)]['depth']=dataframe[str(year)]['depth']-dataframe[str(year)]['depth'][0]
         
@@ -95,43 +144,41 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
         #Identify axis for plotting
         if (year==2010):
             ax_plotting=ax1r
-            color_toplot="#ffffcc"
             ax1r.set_xlabel('Longitude [°]')
         elif (year==2011):
             ax_plotting=ax2r
-            color_toplot="#d9f0a3"
             ax2r.set_xlabel('Latitude [°]')
         elif (year==2012):
             ax_plotting=ax3r
-            color_toplot="#addd8e"
             ax_plotting.axvline(x=-47.11,zorder=1)
             ax_plotting.axvline(x=-47.02,zorder=1)
+            ax_plotting.set_xticklabels([])
         elif (year==2013):
             ax_plotting=ax4r
-            color_toplot="#78c679"
             ax4r.set_xlabel('Depth [m]')
             ax_plotting.axvline(x=-47.11,zorder=1)
             ax_plotting.axvline(x=-47.02,zorder=1)
+            ax_plotting.set_xticklabels([])
         elif (year==2014):
             ax_plotting=ax5r
-            color_toplot="#41ab5d"
+            ax_plotting.set_xticklabels([])
         elif (year==2017):
             ax_plotting=ax6r
-            color_toplot="#238443"
+            ax_plotting.set_xticklabels([])
         elif (year==2018):
             ax_plotting=ax7r
-            color_toplot="#005a32"
             ax_plotting.axvline(x=-47.11,zorder=1)
             ax_plotting.axvline(x=-47.02,zorder=1)
         else:
             print('Year not existing')
         
-        
+        #Select x vector
         if (year==2011):
             X=dataframe[str(year)]['lat_appended']
         else:
             X=dataframe[str(year)]['lon_appended']
         
+        #Select y vector and radargram
         Y=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
         C=dataframe[str(year)]['radar']
                 
@@ -139,90 +186,43 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_csv,axt):
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
         ax_plotting.set_ylim(20,0)
         
+        ###########################################################################
+        ###                           Display radargrams                        ###
+        ########################################################################### 
+        
+        ###########################################################################
+        ###                       Display data localisation                     ###
+        ###########################################################################
+        
+        #Create lat/lon vectors for display
+        lon_plot=dataframe[str(year)]['lon_appended'][dataframe[str(year)]['mask']]
+        lat_plot=dataframe[str(year)]['lat_appended'][dataframe[str(year)]['mask']]
+        
+        lon3413_plot=dataframe[str(year)]['lon_3413'][dataframe[str(year)]['mask']]
+        lat3413_plot=dataframe[str(year)]['lat_3413'][dataframe[str(year)]['mask']]
+        
         if (year==2011):
-            ax_plotting.set_xlim(66.75,67.3)
+            ax_plotting.set_xlim(66.8707,67.2)
+            ind_map=np.logical_and(lat_plot>=66.8707,lat_plot<=67.2)
         else:
-            ax_plotting.set_xlim(-47.5,-46.6)
+            ax_plotting.set_xlim(-47.5,-46.66)
+            ind_map=np.logical_and(lon_plot>=-47.5,lon_plot<=-46.66)
         
-        ######################################################################
-        ###                       Display radargrams                       ###
-        ######################################################################      
-        
-        #Display radar trace on map with mask applied on data
-        ax8map.scatter(dataframe[str(year)]['lon_appended'][dataframe[str(year)]['mask']],dataframe[str(year)]['lat_appended'][dataframe[str(year)]['mask']],c=color_toplot,s=0.5)
-        #Set x tick to the top
-        ax8map.xaxis.tick_top()
-        
-        ##########################################################################
-        ###                        Extract ice content                         ###
-        ##########################################################################
+        #display loc on map
+        ax8map.scatter(lon3413_plot[ind_map],lat3413_plot[ind_map],c=my_pal[year],s=0.5)
 
-        if (str(year) in list(['2010','2011'])):
-            continue
-        else:
-            #Extract ice content
-            indiv_probability_slice=dataframe[str(year)]['probabilistic']
-            
-            #Compute depth_delta_m
-            depth_delta_m = np.mean(dataframe[str(year)]['depth'][1:] - dataframe[str(year)]['depth'][:-1])
-            
-            #Let's transform the probabilistic ice slabs into an ice content
-            #We must derive a low end and high end of ice slabs likelihood
-            #for low end: slabs identified in 19 quantiles out of 19 => likelihood = 19/19=1
-            #for high end: slabs identified in 1 quantile out of 19 => likelihood = 1/19 = 0.05263
-            index_prob=indiv_probability_slice>=0.1579 # >3/19
-            
-            #Create slice full of nans
-            slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
-            
-            #fill in slice_for_calculation by ones where likelihood >= 0.5
-            slice_for_calculation[index_prob]=1
-    
-            # Number of pixels times the thickness of each pixel
-            ice_content_m = np.sum(slice_for_calculation, axis=0) * depth_delta_m
-            
-            #Moving window to average results
-            ice_content_m_avg= np.round(np.convolve(ice_content_m, np.ones(50)/50, mode='same'))
-            
-            #Store total ice content
-            dataframe[str(year)]['ice_content']=ice_content_m_avg
-            
-            #Plot data
-            ax9l.plot(X,ice_content_m_avg,label=str(year),color=color_toplot)
-            plt.legend()
-            ax9l.set_xlim(-47.11,-47.02)
-            plt.show()
-    
-        ##########################################################################
-        ###                        Extract ice content                         ###
-        ##########################################################################   
-    
-    #Keep only data from 2012 onwards as 2010, 2011 are not desired
-    df_sampling_plot=df_sampling[df_sampling['year']==2012]
-    df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2013])
-    df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2014])
-    df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2017])
-    df_sampling_plot=df_sampling_plot.append(df_sampling[df_sampling['year']==2018])
-
-    #Set order to display data
-    order_plot=np.arange(np.min(np.asarray(df_sampling_plot['bound_nb']).astype(int)),np.max(np.asarray(df_sampling_plot['bound_nb']).astype(int))+1)
-    #Define palette plot
-    #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-    my_pal = {2010: "#ffffcc", 2011: "#d9f0a3", 2012:"#addd8e", 2013:"#78c679", 2014:"#41ab5d", 2017:"#238443" ,2018:"#005a32"}
-    
-    #plot thickness data
-    sns.boxplot(x="bound_nb", y="20m_ice_content_m", hue="year",data=df_sampling_plot, palette=my_pal, ax=axt)#,order=order_plot.astype(str))
-    
+        #Add year on radargram
+        ax_plotting.text(0.98, 0.90,str(year), color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        
+        ###########################################################################
+        ###                       Display data localisation                     ###
+        ###########################################################################
+        
     #Set y tick to the right
     axt.yaxis.set_label_position("right")
     axt.yaxis.tick_right()
-    #axt.set_xticklabels([])
     
-    #Get rid of legend
-    axt.legend_.remove()
-    axt.set_xlabel('')
-    axt.set_ylabel('')
-    
+    return
 
 
 import pickle
@@ -237,12 +237,17 @@ import matplotlib.gridspec as gridspec
 from pyproj import Transformer
 import seaborn as sns
 sns.set_theme(style="whitegrid")
+import cartopy.crs as ccrs
+from pyproj import Transformer
 
-
+#Define palette as a function of time
+#This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
+my_pal = {2009: "#8c96c6", 2010: "#006d2c", 2011: "#225ea8", 2012: "#fdd49e", 2013: "#fdbb84", 2014: "#ef6548", 2015: "#88419d", 2016: "#4d004b", 2017:"#d7301f",2018:"#7f0000"}
+    
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
 
 #Extract indiv regions and create related indiv shapefiles
 SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
@@ -314,6 +319,9 @@ path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/da
 path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
 path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
 path_probabilistic='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+
+#Define transformer for coordinates transform from "EPSG:4326" to "EPSG:3413"
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
@@ -415,6 +423,12 @@ for single_year in investigation_year.keys():
         mask=np.flipud(mask)
         probabilistic_file=np.fliplr(probabilistic_file)
     
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    points=transformer.transform(np.array(lon_appended),np.array(lat_appended))
+    lon_3413=points[0]
+    lat_3413=points[1]
+    
     #Calculate the depth from the time
     #########################################################################
     # From plot_2002_2003.py - BEGIN
@@ -444,6 +458,8 @@ for single_year in investigation_year.keys():
     #Store reunited lat/lon, slice output and mask in a dictionnary:
     dataframe[str(single_year)]={'lat_appended':lat_appended,
                                  'lon_appended':lon_appended,
+                                 'lat_3413':lat_3413,
+                                 'lon_3413':lon_3413,
                                  'depth':depth,
                                  'radar':radar,
                                  'mask':mask,
@@ -467,9 +483,13 @@ f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rign
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
-#Load KAN_U data
-path_KAN_U_data='C:/Users/jullienn/switchdrive/Private/research/RT1/KAN_U_data/'
-df_KAN_U_csv = pd.read_csv(path_KAN_U_data+'KAN_U_month_v03_csv.csv',sep=';',decimal=',',header=0,na_values=-999)
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+# This can be converted into a `proj4` string/dict compatible with GeoPandas
+crs_proj4 = crs.proj4_init
+###################### From Tedstone et al., 2022 #####################
 
 #Plot
 fig = plt.figure()
@@ -485,64 +505,87 @@ ax5r = plt.subplot(gs[22:26, 0:10])
 ax6r = plt.subplot(gs[26:30, 0:10])
 ax7r = plt.subplot(gs[30:34, 0:10])
 
-ax8map = plt.subplot(gs[0:5, 10:20])
-ax9l = plt.subplot(gs[5:15, 10:20])
+ax8map = plt.subplot(gs[0:15, 10:20],projection=crs)
 ax10m = plt.subplot(gs[15:22, 10:20])
 ax11t = plt.subplot(gs[25:35, 10:20])
 
 #Display GrIS drainage bassins on the map subplot
-SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black') 
-CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black') 
+SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
+CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
-plot_thickness(investigation_year,dataframe,df_2010_2018_csv,ax11t)
+plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,my_pal)
 
 #Finalize axis ax11t
-#ax11t.set_xticklabels(np.arange(0,10*2,2))
-ax11t.set_xlabel('Longitude [km]')
-ax11t.set_ylabel('Ice slabs thickness [m]')
+ax11t.set_xlabel('Elevation [m]')
+ax11t.set_ylabel('Column ice thickness [m]')
 
 #Finalize radargrams plot
 ax7r.set_xlabel('Longitude [°]')
+ax7r.set_ylabel('Depth [m]')
 
-#Display the radargrams, map and shallowest and deepest slab
- 
+#Show KAN_U
+#Show pannel numbers on the map
+ax8map.scatter(-89205.404,2522571.489,s=10,c='red',label='KAN_U',zorder=10)
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# x0, x1, y0, y1
+ax8map.set_extent([-114500, -70280, -2556000, -2495000], crs=crs)
+gl=ax8map.gridlines(draw_labels=True, xlocs=[-47], ylocs=[67], x_inline=False, y_inline=False,linewidth=0.5)
+#Customize lat labels
+gl.ylabels_right = False
+gl.xlabels_bottom = False
+ax8map.axis('off')
+###################### From Tedstone et al., 2022 #####################
+
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
-#Finalize map plot
-ax8map.set_xlim(-48.05,-46.25)
-ax8map.set_ylim(66.75,67.3)
-ax8map.set_xlabel('Longitude [°]')
-ax8map.set_ylabel('Latitude [°]')
-ax8map.xaxis.set_label_position("top")
+#Load KAN_U data
+path_KAN_U_data='C:/Users/jullienn/switchdrive/Private/research/RT1/KAN_U_data/'
+df_KAN_U_csv = pd.read_csv(path_KAN_U_data+'KAN_U_hourly_v03_csv.csv',sep=';',decimal=',',header=0,na_values=-999)
 
-pdb.set_trace()
+#1. compute hourly melt
 
 #Melt equation: M=SWd-SWup+LWdown-LWup+QH+QL W/m2. 1W=1J/s
 df_melt=df_KAN_U_csv
 df_melt['melt']=df_KAN_U_csv['ShortwaveRadiationDown_Cor(W/m2)']-df_KAN_U_csv['ShortwaveRadiationUp_Cor(W/m2)']+df_KAN_U_csv['LongwaveRadiationDown(W/m2)']-df_KAN_U_csv['LongwaveRadiationUp(W/m2)']+df_KAN_U_csv['SensibleHeatFlux(W/m2)']+df_KAN_U_csv['LatentHeatFlux(W/m2)']
-#Select only from May to September
-df_melt_summer=df_melt[(df_melt['MonthOfYear']>=5) & (df_melt['MonthOfYear']<=9)]
+
+#2. compute hourly NRJ [J]
 
 #Transform flux into energy: 1W = 1J/s => W*s=J
-df_melt[df_melt['MonthOfYear']==5]['NRJ']=df_melt[df_melt['MonthOfYear']==5]['melt']*3600*24*31
+df_melt['NRJ']=df_melt['melt']*60*60
 
+#3. discard negative melt
+df_melt_positive=df_melt
+df_melt_positive[df_melt_positive['NRJ']<0]=np.nan
 
+#4. Keep only summer data
 
+#Select only from May to September
+df_melt_summer=df_melt_positive[(df_melt_positive['MonthOfYear']>=5) & (df_melt_positive['MonthOfYear']<=9)]
 
-ax = sns.barplot(x="Year", y="melt", data=df_melt_summer,ax=ax10m,estimator=sum)
+#Keep only data from 2009 to 2017
+df_melt_summer_time_period=df_melt_summer[(df_melt_summer['Year']>=2009) & (df_melt_summer['Year']<=2017)]
+
+#Transform data from J to kJ => /1000
+df_melt_summer_time_period['NRJ_kJ']=df_melt_summer_time_period['NRJ']/1000
+
+#5. show total cumulative melt
+ax = sns.barplot(x="Year", y="NRJ_kJ", data=df_melt_summer_time_period,palette=my_pal,ax=ax10m,estimator=sum)
+
 #Set y tick to the right
 ax10m.yaxis.set_label_position("right")
 ax10m.yaxis.tick_right()
-#axt.set_xticklabels([])
+ax10m.set_ylabel('Melt energy availaibility [kJ]')
+ax10m.set_xlabel('Year')
+plt.show()
 
 pdb.set_trace()
 
 ax10m.set_xlim(2010,2017)
 
 
-plt.show()
 pdb.set_trace()
 
 indiv_file_load='Data_20120423_01_137.mat'

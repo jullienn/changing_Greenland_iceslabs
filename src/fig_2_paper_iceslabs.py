@@ -120,38 +120,37 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
                 bound_nb=bound_nb+1
         
     for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
-        
-            if (len(df_sampling[df_sampling['time_period']==time_period])==0):
-                #Empty time period, continue
-                continue
-            else:
-                df_plot=df_sampling[df_sampling['time_period']==time_period]
-                
-                #Rolling window, size = 10
-                df_plot['rolling_10_median']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['median'] 
-                df_plot['rolling_10_q025']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q025'] 
-                df_plot['rolling_10_q075']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q075'] 
-                
-                # Plot the median
-                axt.plot(df_plot["low_bound"],df_plot["rolling_10_median"],color=my_pal[time_period])
-                #Display IQR
-                axt.fill_between(df_plot['low_bound'], df_plot['rolling_10_q025'], df_plot['rolling_10_q075'], alpha=0.3,color=my_pal[time_period])
-                
-                #Display the median where outside of average window range
-                #Create array_fill_start and _end for filling at the start and at the end
-                array_fill_start=np.zeros(6,)
-                array_fill_start[:]=np.nan
-                array_fill_start[0:5]=np.asarray(df_plot["median"].iloc[0:int(winsize/2)])
-                array_fill_start[-1]=np.asarray((df_plot['rolling_10_median'].iloc[int(winsize/2)]))
-                
-                array_fill_end=np.zeros(5,)
-                array_fill_end[:]=np.nan
-                array_fill_end[0]=np.asarray((df_plot['rolling_10_median'].iloc[int(len(df_plot)-winsize/2)]))
-                array_fill_end[1:5]=np.asarray(df_plot["median"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)])
-                
-                #Display
-                axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)+1],array_fill_start,alpha=0.5,color=my_pal[time_period])
-                axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2):len(df_plot)],array_fill_end,alpha=0.5,color=my_pal[time_period])
+        if (len(df_sampling[df_sampling['time_period']==time_period])==0):
+            #Empty time period, continue
+            continue
+        else:
+            df_plot=df_sampling[df_sampling['time_period']==time_period]
+            
+            #Rolling window, size = 10
+            df_plot['rolling_10_median']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['median'] 
+            df_plot['rolling_10_q025']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q025'] 
+            df_plot['rolling_10_q075']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q075'] 
+            
+            # Plot the median
+            axt.plot(df_plot["low_bound"],df_plot["rolling_10_median"],color=my_pal[time_period])
+            #Display IQR
+            axt.fill_between(df_plot['low_bound'], df_plot['rolling_10_q025'], df_plot['rolling_10_q075'], alpha=0.3,color=my_pal[time_period])
+            
+            #Display the median where outside of average window range
+            #Create array_fill_start and _end for filling at the start and at the end
+            array_fill_start=np.zeros(6,)
+            array_fill_start[:]=np.nan
+            array_fill_start[0:5]=np.asarray(df_plot["median"].iloc[0:int(winsize/2)])
+            array_fill_start[-1]=np.asarray((df_plot['rolling_10_median'].iloc[int(winsize/2)]))
+            
+            array_fill_end=np.zeros(5,)
+            array_fill_end[:]=np.nan
+            array_fill_end[0]=np.asarray((df_plot['rolling_10_median'].iloc[int(len(df_plot)-winsize/2)]))
+            array_fill_end[1:5]=np.asarray(df_plot["median"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)])
+            
+            #Display
+            axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)+1],array_fill_start,alpha=0.5,color=my_pal[time_period])
+            axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2):len(df_plot)],array_fill_end,alpha=0.5,color=my_pal[time_period])
 
     #Get rid of legend
     #axt.legend_.remove()
