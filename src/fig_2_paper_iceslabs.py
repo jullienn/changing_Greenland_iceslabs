@@ -540,6 +540,9 @@ ax_legend.set_title('Legend')
 plt.show()
 ax7t.legend_.remove()
 
+#Save the figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v2/fig2.png',dpi=500)
+
 
 '''
 #NW but requires additional coding + turning trace
