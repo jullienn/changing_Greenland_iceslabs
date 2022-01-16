@@ -334,7 +334,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
     #from plot_map_decadal_change.py
     # x0, x1, y0, y1
     ax1c.set_extent([x0, x1, y0, y1], crs=crs)
-    ax1c.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5)
+    #ax1c.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5)
     #import scalebar
     #scalebar.scale_bar(ax1c, (0.65, 0.06), 300)
     ax1c.axis('off')
@@ -343,8 +343,8 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
     plot_fig_S1='FALSE'
-    plot_panela='FALSE'
-    plot_panelb='FALSE'
+    plot_panela='TRUE'
+    plot_panelb='TRUE'
     plot_panelc='TRUE'
     
     if (plot_fig_S1 == 'TRUE'):
@@ -400,7 +400,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     #Prepare Fig. 1
     fig = plt.figure(figsize=(14,50))
     gs = gridspec.GridSpec(20, 16)
-    gs.update(wspace = 2.5)
+    gs.update(wspace = 0.5)
     #gs.update(wspace=0.001)
     #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
     axmap = plt.subplot(gs[0:20, 0:10],projection=crs)
@@ -542,9 +542,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         width = 0.1# the width of the bars: can also be len(x) sequence
         N=5 #Number of regions
         ind= np.arange(N) #Position of regions
-        
-        pdb.set_trace()
-        
+                
         axelev.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef', yerr= dplotstd_20022003) #yerr=men_std
         axelev.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
         axelev.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
@@ -576,12 +574,9 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         
         axelev.legend(handles=legend_elements,loc='upper center')
         plt.legend()
-        plt.show()
         
         # -------------------------------- PANEL B --------------------------------    
     
-    pdb.set_trace()
-
     if (plot_panelc=='TRUE'):
         
         hull_computation='TRUE'
@@ -742,7 +737,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #display data
                     display_panels_c(axNE,NE_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
                     #Display region name
-                    axNE.text(350000,-1600000,'NE',fontsize=25)
+                    axNE.text(350000,-1600000,'NE',fontsize=15)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
@@ -767,7 +762,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    axNO.text(-90000,-1025000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axNO.text(-90000,-1160000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='NW'):
@@ -778,7 +773,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #display data
                     display_panels_c(axNW,NW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
                     #Display region name
-                    axNW.text(-300000,-1410000,'NW',fontsize=25)
+                    axNW.text(-300000,-1410000,'NW',fontsize=15)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
@@ -796,7 +791,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #display data
                     display_panels_c(axCW,CW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
                     #Display region name
-                    axCW.text(-130000,-2061500,'CW',fontsize=25)
+                    axCW.text(-130000,-2061500,'CW',fontsize=15)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
@@ -814,7 +809,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #display data
                     display_panels_c(axSW,SW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
                     #Display region name
-                    axSW.text(-200000,-2775000,'SW',fontsize=25)
+                    axSW.text(-200000,-2775000,'SW',fontsize=15)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
