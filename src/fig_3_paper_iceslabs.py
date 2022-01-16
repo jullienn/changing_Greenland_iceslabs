@@ -536,6 +536,7 @@ gl=ax8map.gridlines(draw_labels=True, xlocs=[-47], ylocs=[67], x_inline=False, y
 gl.ylabels_right = False
 gl.xlabels_bottom = False
 ax8map.axis('off')
+
 ###################### From Tedstone et al., 2022 #####################
 
 figManager = plt.get_current_fig_manager()
@@ -593,11 +594,5 @@ path_raw_data=path_data+str(2012)+'_Greenland_P3/CSARP_qlook/'+'20120423_01'+'/'
 
 fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
 lon_filename = fdata_filename['Longitude']
-
-
-
-
-
-
 
 

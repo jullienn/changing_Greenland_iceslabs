@@ -263,6 +263,84 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
     ax_plot.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
     ax_plot.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 
+
+def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs):
+    
+    ax1c.set_facecolor('white')
+
+    #Display GrIS drainage bassins of the specific region
+    region_rignot.plot(ax=ax1c,color='white', edgecolor='black',linewidth=0.5)
+    
+    #Flightlines
+    # --- 2011-2012
+    ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lon_3413'],
+                flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lat_3413'],
+                s=1,marker='.',linewidths=0,c='#d9d9d9',label='flightlines 2011-2012')
+    
+    # --- 2017-2018
+    ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lon_3413'],
+                flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lat_3413'],
+                s=1,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
+    
+    #Likelihood
+    # --- 2011-2012
+    ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['likelihood'],
+                s=10,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
+    
+    lik_blues=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
+                s=10,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
+    
+    # --- 2017-2018            
+    ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['likelihood'],
+                s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
+    lik_reds=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
+                s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
+    
+    '''
+    # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
+    lgnd = plt.legend(loc="best", scatterpoints=1)
+    lgnd.legendHandles[0]._sizes = [30]
+    lgnd.legendHandles[1]._sizes = [30]
+    '''
+    '''
+    import matplotlib.patches as patches
+    from matplotlib.patches import Patch
+    
+    #Custom legend myself
+    legend_elements = [Patch(facecolor='#d9d9d9',label='flightlines 2011-2012'),
+                       Patch(facecolor='#969696',label='flightlines 2017-2018'),
+                       Patch(facecolor='#2171b5',label='Likelihood 2011-2012'),
+                       Patch(facecolor='#cb181d',label='Likelihood 2017-2018')]
+
+    ax1c.legend(handles=legend_elements)
+    plt.legend()
+
+    '''
+    '''
+    cbar_reds = plt.colorbar(lik_reds,location = 'right')
+    cbar_reds.set_label('Columnal average likelihood - 2017-2018')
+    cbar_blues = plt.colorbar(lik_blues,location = 'left')
+    cbar_blues.set_label('Columnal average likelihood - 2011-2012')
+    '''
+    ###################### From Tedstone et al., 2022 #####################
+    #from plot_map_decadal_change.py
+    # x0, x1, y0, y1
+    ax1c.set_extent([x0, x1, y0, y1], crs=crs)
+    ax1c.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5)
+    #import scalebar
+    #scalebar.scale_bar(ax1c, (0.65, 0.06), 300)
+    ax1c.axis('off')
+    ###################### From Tedstone et al., 2022 #####################
+    return
+
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
     plot_fig_S1='FALSE'
     plot_panela='FALSE'
@@ -310,61 +388,69 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v2/figS1.png',dpi=1000)
         # -------------------------------- FIG S1 --------------------------------
     
-    #pdb.set_trace()
+    # --------------------------------- FIG 1 --------------------------------
+    ###################### From Tedstone et al., 2022 #####################
+    #from plot_map_decadal_change.py
+    # Define the CartoPy CRS object.
+    crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+    # This can be converted into a `proj4` string/dict compatible with GeoPandas
+    crs_proj4 = crs.proj4_init
+    ###################### From Tedstone et al., 2022 #####################
+        
+    #Prepare Fig. 1
+    fig = plt.figure(figsize=(14,50))
+    gs = gridspec.GridSpec(20, 16)
+    gs.update(wspace = 2.5)
+    #gs.update(wspace=0.001)
+    #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
+    axmap = plt.subplot(gs[0:20, 0:10],projection=crs)
+    axNO = plt.subplot(gs[0:7, 10:13],projection=crs)
+    axNE = plt.subplot(gs[0:7, 13:16],projection=crs)
+    axNW = plt.subplot(gs[7:14, 10:12],projection=crs)
+    axCW = plt.subplot(gs[7:14, 12:14],projection=crs)
+    axSW = plt.subplot(gs[7:14, 14:16],projection=crs)
+    axelev = plt.subplot(gs[14:20, 10:16])
     
     if (plot_panela=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
-        panel_a_save='TRUE'
-        fig = plt.figure(figsize=(32,48))
-
-        ###################### From Tedstone et al., 2022 #####################
-        #from plot_map_decadal_change.py
-        # Define the CartoPy CRS object.
-        crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
-        ax = plt.axes(projection=crs)
-
-        # This can be converted into a `proj4` string/dict compatible with GeoPandas
-        crs_proj4 = crs.proj4_init
-
-        ax.set_facecolor('white')
-        ###################### From Tedstone et al., 2022 #####################
+        axmap.set_facecolor('white')
 
         #Display GrIS drainage bassins
-        NO_rignotetal.plot(ax=ax,color='white', edgecolor='black')
-        NE_rignotetal.plot(ax=ax,color='white', edgecolor='black') 
-        SE_rignotetal.plot(ax=ax,color='white', edgecolor='black') 
-        SW_rignotetal.plot(ax=ax,color='white', edgecolor='black') 
-        CW_rignotetal.plot(ax=ax,color='white', edgecolor='black') 
-        NW_rignotetal.plot(ax=ax,color='white', edgecolor='black')         
+        NO_rignotetal.plot(ax=axmap,color='white', edgecolor='black')
+        NE_rignotetal.plot(ax=axmap,color='white', edgecolor='black') 
+        SE_rignotetal.plot(ax=axmap,color='white', edgecolor='black') 
+        SW_rignotetal.plot(ax=axmap,color='white', edgecolor='black') 
+        CW_rignotetal.plot(ax=axmap,color='white', edgecolor='black') 
+        NW_rignotetal.plot(ax=axmap,color='white', edgecolor='black')         
 
         #Display 2002-2018 flightlines
-        ax.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=1,marker='.',linewidths=0,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
+        axmap.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=1,marker='.',linewidths=0,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
         
         #Display firn aquifers
-        ax.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=3,marker='.',linewidths=0,color='#238b45',label='Firn aquifers')
+        axmap.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=3,marker='.',linewidths=0,color='#238b45',label='Firn aquifers')
                 
         #Display 2010-2018 iceslabs
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0',label='2010-2014 ice slabs')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=3,marker='.',linewidths=0,color='#a6bddb',label='2017-2018 ice slabs')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=3,marker='.',linewidths=0,color='#a6bddb')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0',label='2010-2014 ice slabs')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=3,marker='.',linewidths=0,color='#a6bddb',label='2017-2018 ice slabs')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=3,marker='.',linewidths=0,color='#a6bddb')
         
         #Display 2002-2003 iceslabs
-        ax.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=3,marker='.',linewidths=0,color='#0570b0',label='2002-2003 ice slabs')
+        axmap.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=3,marker='.',linewidths=0,color='#0570b0',label='2002-2003 ice slabs')
         
         #Display region name on panel a 
-        ax.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
-        ax.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
-        ax.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+20000,np.asarray(SE_rignotetal.SUBREGION1)[0])
-        ax.text(SW_rignotetal.centroid.x,SW_rignotetal.centroid.y+20000,np.asarray(SW_rignotetal.SUBREGION1)[0])
-        ax.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
-        ax.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
-
+        axmap.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+        axmap.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+        axmap.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+20000,np.asarray(SE_rignotetal.SUBREGION1)[0])
+        axmap.text(SW_rignotetal.centroid.x,SW_rignotetal.centroid.y+20000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+        axmap.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+        axmap.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+        
         # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-        lgnd = plt.legend(loc="lower right", scatterpoints=1)
+        lgnd = axmap.legend(loc="lower right", scatterpoints=1)
         lgnd.legendHandles[0]._sizes = [30]
         lgnd.legendHandles[1]._sizes = [30]
         lgnd.legendHandles[2]._sizes = [30]
@@ -374,29 +460,15 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         ###################### From Tedstone et al., 2022 #####################
         #from plot_map_decadal_change.py
         # x0, x1, y0, y1
-        ax.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-        ax.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,color='#969696')
+        axmap.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+        axmap.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,color='#969696')
         #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
-        ax.axis('off')
-        ###################### From Tedstone et al., 2022 #####################
-        
-        figManager = plt.get_current_fig_manager()
-        figManager.window.showMaximized()
-        
-        pdb.set_trace()
-        
-        if (panel_a_save == 'TRUE'):
-            #Save the figure
-            plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_a.png',dpi=1000)
-     
-        plt.close(fig)
+        axmap.axis('off')
+        ###################### From Tedstone et al., 2022 #####################        
         # -------------------------------- PANEL A --------------------------------
-    
-    #pdb.set_trace()
-    
-    if (plot_panelb=='TRUE'):
-        panel_b_save='TRUE'
         
+    if (plot_panelb=='TRUE'):
+                
         # -------------------------------- PANEL B --------------------------------    
         #Define panel names
         labels = ['NE', 'NO', 'NW', 'CW', 'SW']
@@ -470,25 +542,26 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         width = 0.1# the width of the bars: can also be len(x) sequence
         N=5 #Number of regions
         ind= np.arange(N) #Position of regions
-            
-        fig, ax = plt.subplots()
-        ax.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef', yerr= dplotstd_20022003) #yerr=men_std
-        ax.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
-        ax.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
-        ax.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd', yerr= dplotstd_20132014)
-        ax.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c', yerr= dplotstd_20172018)
-        ax.set_xticks(ind + 2*width)
-        ax.set_xticklabels(labels)
-        ax.set_ylim(1000,2050)
         
-        ax.text(ind[0],np.nanmax(max_elev_diff_NE)+50,str(int(np.round(np.nanmax(max_elev_diff_NE)-np.nanmin(max_elev_diff_NE))))+' m')
-        ax.text(ind[1],np.nanmax(max_elev_diff_NO)+50,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
-        ax.text(ind[2],np.nanmax(max_elev_diff_NW)+50,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
-        ax.text(ind[3],np.nanmax(max_elev_diff_CW)+50,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
-        ax.text(ind[4],np.nanmax(max_elev_diff_SW)+50,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
+        pdb.set_trace()
         
-        ax.set_ylabel('Elevation [m]')
-        ax.set_title('Median of ice slabs maximum elevation per slice')
+        axelev.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef', yerr= dplotstd_20022003) #yerr=men_std
+        axelev.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
+        axelev.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
+        axelev.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd', yerr= dplotstd_20132014)
+        axelev.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c', yerr= dplotstd_20172018)
+        axelev.set_xticks(ind + 2*width)
+        axelev.set_xticklabels(labels)
+        axelev.set_ylim(1000,2050)
+        
+        axelev.text(ind[0],np.nanmax(max_elev_diff_NE)+50,str(int(np.round(np.nanmax(max_elev_diff_NE)-np.nanmin(max_elev_diff_NE))))+' m')
+        axelev.text(ind[1],np.nanmax(max_elev_diff_NO)+50,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
+        axelev.text(ind[2],np.nanmax(max_elev_diff_NW)+50,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
+        axelev.text(ind[3],np.nanmax(max_elev_diff_CW)+50,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
+        axelev.text(ind[4],np.nanmax(max_elev_diff_SW)+50,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
+        
+        axelev.set_ylabel('Elevation [m]')
+        axelev.set_title('Median of ice slabs maximum elevation per slice')
         
         #Custom legend myself
         from matplotlib.patches import Patch
@@ -501,26 +574,19 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                            Patch(facecolor='#08519c', alpha=0.5,label='2017-2018'),
                            Line2D([0], [0], color='k', lw=2, label='Standard deviation around the mean')]
         
-        ax.legend(handles=legend_elements,loc='upper center')
+        axelev.legend(handles=legend_elements,loc='upper center')
         plt.legend()
         plt.show()
         
-        if (panel_b_save == 'TRUE'):
-            #Save the figure
-            plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_b.png',dpi=300)
-        
-        plt.close(fig)
         # -------------------------------- PANEL B --------------------------------    
     
-    #pdb.set_trace()
+    pdb.set_trace()
 
     if (plot_panelc=='TRUE'):
         
         hull_computation='TRUE'
         likelihood_display='TRUE'
         
-        panel_c_save='TRUE'
-
         # -------------------------------- PANELS C -------------------------------        
         if (hull_computation=='TRUE'):
             #Panel C
@@ -666,175 +732,101 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             '''
         
         if (likelihood_display=='TRUE'):
-            #prepare the figure
-            fig = plt.figure(figsize=(32,48))
-
-            ###################### From Tedstone et al., 2022 #####################
-            #from plot_map_decadal_change.py
-            # Define the CartoPy CRS object.
-            crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
-            ax1c = plt.axes(projection=crs)
-
-            # This can be converted into a `proj4` string/dict compatible with GeoPandas
-            crs_proj4 = crs.proj4_init
-
-            ax1c.set_facecolor('white')
-            ###################### From Tedstone et al., 2022 #####################
-            
-            #Display GrIS drainage bassins
-            NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black',linewidth=0.5)
-            NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black',linewidth=0.5) 
-            SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black',linewidth=0.5) 
-            SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black',linewidth=0.5) 
-            CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black',linewidth=0.5) 
-            NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black',linewidth=0.5)
-            
-            #Flightlines
-            # --- 2011-2012
-            ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lon_3413'],
-                        flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lat_3413'],
-                        s=1,marker='.',linewidths=0,c='#d9d9d9',label='flightlines 2011-2012')
-            
-            # --- 2017-2018
-            ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lon_3413'],
-                        flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lat_3413'],
-                        s=1,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
-            
-            #Likelihood
-            # --- 2011-2012
-            ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
-                        df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lat_3413'],
-                        c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['likelihood'],
-                        s=10,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
-            
-            lik_blues=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
-                        df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
-                        c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
-                        s=10,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
-            
-            # --- 2017-2018            
-            ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
-                        df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lat_3413'],
-                        c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['likelihood'],
-                        s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
-            lik_reds=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
-                        df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
-                        c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
-                        s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
-            
-            # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-            lgnd = plt.legend(loc="best", scatterpoints=1)
-            lgnd.legendHandles[0]._sizes = [30]
-            lgnd.legendHandles[1]._sizes = [30]
-            
-            '''
-            import matplotlib.patches as patches
-            from matplotlib.patches import Patch
-            
-            #Custom legend myself
-            legend_elements = [Patch(facecolor='#d9d9d9',label='flightlines 2011-2012'),
-                               Patch(facecolor='#969696',label='flightlines 2017-2018'),
-                               Patch(facecolor='#2171b5',label='Likelihood 2011-2012'),
-                               Patch(facecolor='#cb181d',label='Likelihood 2017-2018')]
-
-            ax1c.legend(handles=legend_elements)
-            '''
-            plt.legend()
-                        
-            cbar_reds = plt.colorbar(lik_reds,location = 'right')
-            cbar_reds.set_label('Columnal average likelihood - 2017-2018')
-            cbar_blues = plt.colorbar(lik_blues,location = 'left')
-            cbar_blues.set_label('Columnal average likelihood - 2011-2012')
-            
-            ###################### From Tedstone et al., 2022 #####################
-            #from plot_map_decadal_change.py
-            # x0, x1, y0, y1
-            ax1c.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-            ax1c.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5)
-            #import scalebar
-            #scalebar.scale_bar(ax1c, (0.65, 0.06), 300)
-            ax1c.axis('off')
-            ###################### From Tedstone et al., 2022 #####################
-            
             #Save figure according to different regions
             for region in list(['NE','NO','NW','CW','SW']):
                 if (region =='NE'):
-                    polygon_for_zoom=NE_rignotetal
-                    ax1c.set_xlim(283000,670000)
-                    ax1c.set_ylim(-1880000,-940000)
-                    ax1c.text(350000,-1600000,'NE',fontsize=25)
+                    x0=283000
+                    x1=670000
+                    y0=-1880000
+                    y1=-940000
+                    #display data
+                    display_panels_c(axNE,NE_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axNE.text(350000,-1600000,'NE',fontsize=25)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    ax1c.text(350000,-1650000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axNE.text(350000,-1650000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='NO'):
-                    polygon_for_zoom=NO_rignotetal
-                    ax1c.set_xlim(-605000,302000)
-                    ax1c.set_ylim(-1215000,-785000)
-                    ax1c.text(-90000,-1075000,'NO',fontsize=25)
+                    x0=-605000
+                    x1=302000
+                    y0=-1215000
+                    y1=-785000
+                    #display data
+                    display_panels_c(axNO,NO_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axNO.text(-90000,-1075000,'NO',fontsize=25)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    ax1c.text(-90000,-1025000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axNO.text(-90000,-1025000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='NW'):
-                    polygon_for_zoom=NW_rignotetal
-                    ax1c.set_xlim(-610000,-189000)
-                    ax1c.set_ylim(-1140000,-1985000)
-                    ax1c.text(-300000,-1410000,'NW',fontsize=25)
+                    x0=-610000
+                    x1=-189000
+                    y0=-1140000
+                    y1=-1985000
+                    #display data
+                    display_panels_c(axNW,NW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axNW.text(-300000,-1410000,'NW',fontsize=25)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    ax1c.text(-300000,-1460000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axNW.text(-300000,-1460000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='CW'):
-                    polygon_for_zoom=CW_rignotetal
-                    ax1c.set_xlim(-259000,-60500)
-                    ax1c.set_ylim(-2385000,-1935000)
-                    ax1c.text(-130000,-2061500,'CW',fontsize=25)
+                    x0=-259000
+                    x1=-60500
+                    y0=-2385000
+                    y1=-1935000
+                    #display data
+                    display_panels_c(axCW,CW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axCW.text(-130000,-2061500,'CW',fontsize=25)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    ax1c.text(-130000,-2101500,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axCW.text(-130000,-2101500,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='SW'):
-                    polygon_for_zoom=SW_rignotetal
-                    ax1c.set_xlim(-265000,-55600)
-                    ax1c.set_ylim(-2899000,-2370000)
-                    ax1c.text(-200000,-2775000,'SW',fontsize=25)
+                    x0=-265000
+                    x1=-55600
+                    y0=-2899000
+                    y1=-2370000
+                    #display data
+                    display_panels_c(axSW,SW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axSW.text(-200000,-2775000,'SW',fontsize=25)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    ax1c.text(-200000,-2825000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axSW.text(-200000,-2825000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 else:
                     print('Region not known')
-                            
-                if (panel_c_save == 'TRUE'):
-                    #Save the figure
-                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v2/fig1_panel_c_'+region+'.png',dpi=300)
-                    
+            
         # -------------------------------- PANELS C -------------------------------        
     
     pdb.set_trace()
@@ -1253,210 +1245,10 @@ flightlines_20102018['lat_3413']=points[1]
 flightlines_20022018=flightlines_20022003
 flightlines_20022018=flightlines_20022018.append(flightlines_20102018)
 
-plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS)
 
-pdb.set_trace()
-
-
-'''
-#######################################################################
-###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
-#######################################################################   
-### ------------------------------ 2002-2003 ----------------------------- ###
-#Create a dictionnary where to store slices information
-dict_lat_slice_west={}
-
-#Initialize the slice summary
-slice_summary=np.zeros((len(lat_slices),5))*np.nan
-
-#Initialize the slice summary lat
-slice_lon_summary=np.zeros((len(lat_slices),5))*np.nan
-
-#Loop over the traces
-for trace in traces:
-    
-    #Check whether we are dealing with single or consecutive traces
-    if(len(trace)>1):
-        #We are dealing with consecutive traces
-        #Select the data related to the first trace
-        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
-        
-        #loop over the traces and append data to each other, do not take the first one
-        for indiv_trace in list(trace[1:]):
-            #Select all the data related to this trace
-            data_trace=data_trace.append(df_2002_2003[df_2002_2003['Track_name']==indiv_trace])
-            
-    else:
-        #We are dealing with individual traces
-        #Select all the data related to this trace
-        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
-
-    #Now my data_trace datasets are ready to be worked with
-    #Keep only green ice slabs
-    data_trace=data_trace[data_trace['colorcode_icelens']==1]
-    
-    if (len(data_trace)<1):
-        #No green ice slabs, continue
-        continue
-    else:
-        #Check the flag: shall we store data? We are only interested in high end of ice slabs
-        if trace[0] in list(flag_high):
-            print('2002-2003 ice lens present for',trace[0])
-            #Identify the max of that trace, and assign to the corresponding lat_slice
-            max_to_store=np.max(data_trace['elevation'])
-            
-            #Index where maximum
-            ind_max=np.where(data_trace['elevation']==np.max(data_trace['elevation']))
-            
-            #Identify corresponding lat and lon of maximum elevation
-            lat_max=np.asarray(data_trace.iloc[ind_max]['lat_3413'])[0]
-            lon_max=np.asarray(data_trace.iloc[ind_max]['lon_3413'])[0]
-            
-            #Check if a maximum have already been identified here. If yes, compare
-            #the two. If latter > than former, store this new max. If not, continue
-            if (np.isnan(slice_summary[i,0])):
-                #No data for this slice yet, store the data
-                #Identify to which slice it belongs to
-                for i in range(1,len(lat_slices)):
-                    if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
-                        slice_summary[i,0]=max_to_store
-                        slice_lon_summary[i,0]=lon_max
-                    else:
-                        continue
-                        #store the coprresponding max in the corresponding slice
-            else:
-                print('Max already present')
-                #Data for this slice alreadey present check
-                if (max_to_store>slice_summary[i,0]):
-                    print('Replace max by new max')
-                    #Identify to which slice it belongs to
-                    for i in range(1,len(lat_slices)):
-                        print(lat_slices[i])
-                        if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
-                            slice_summary[i,0]=max_to_store
-                            slice_lon_summary[i,0]=lon_max
-                        else:
-                            continue
-                            #store the coprresponding max in the corresponding slice
-                    
-                
-
-### ------------------------------ 2002-2003 ----------------------------- ###
-
-### ------------------------------ 2010-2018 ----------------------------- ###
-count_lat=0
-#Loop over each boundary of lat slices and store dataset related to slices
-for i in range(1,len(lat_slices)):
-    
-    #Identify low and higher end of the slice
-    low_bound=lat_slices[i-1]
-    high_bound=lat_slices[i]
-    
-    #Select all the data belonging to this lat slice
-    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
-    df_slice=df_2010_2018[ind_slice]
-    
-    #Affine data by selecting only west greenland
-    ind_slice=np.array(df_slice['lon_3413']<-50000)
-    df_slice_latlon=df_slice[ind_slice]
-    
-    #Store the associated df
-    dict_lat_slice_west[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice_latlon
-    
-    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
-    count_period=0
-    
-    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
-        if (time_period == '2010'):
-            df_under_use=df_slice_latlon[df_slice_latlon['year']==2010]
-            
-            #If max in this slice of this time period is lower than max identified
-            #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
-                #slice_summary[count_lat,1]=slice_summary[count_lat,0]
-                #slice_lon_summary[count_lat,1]=slice_lon_summary[count_lat,0]
-                
-                slice_summary[count_lat,1]=np.nan
-                slice_lon_summary[count_lat,1]=np.nan
-            else:
-                #store the new max elevation
-                slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
-                
-                if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
-                    slice_lon_summary[count_lat,1]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
-                
-        elif (time_period == '2011-2012'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]
-            
-            #If max in this slice of this time period is lower than max identified
-            #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
-                #slice_summary[count_lat,2]=slice_summary[count_lat,1]
-                #slice_lon_summary[count_lat,2]=slice_lon_summary[count_lat,1]
-                
-                slice_summary[count_lat,2]=np.nan
-                slice_lon_summary[count_lat,2]=np.nan
-            else:
-                #store the new max elevation
-                slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
-                
-                if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
-                    slice_lon_summary[count_lat,2]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
-                
-        elif (time_period == '2013-2014'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]
-            
-            #If max in this slice of this time period is lower than max identified
-            #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
-                #slice_summary[count_lat,3]=slice_summary[count_lat,2]
-                #slice_lon_summary[count_lat,3]=slice_lon_summary[count_lat,2]
-                slice_summary[count_lat,3]=np.nan
-                slice_lon_summary[count_lat,3]=np.nan
-            else:
-                #store the new max elevation
-                slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
-                
-                if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
-                    slice_lon_summary[count_lat,3]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
-                
-        elif (time_period == '2017-2018'):
-            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]
-            
-            #If max in this slice of this time period is lower than max identified
-            #in previous time period, store the max of previous time period
-            if (np.max(df_under_use['elevation'])<=np.nanmax(slice_summary[count_lat,:])):
-                #slice_summary[count_lat,4]=slice_summary[count_lat,3]
-                #slice_lon_summary[count_lat,4]=slice_lon_summary[count_lat,3]
-                slice_summary[count_lat,4]=np.nan
-                slice_lon_summary[count_lat,4]=np.nan
-            else:
-                #store the new max elevation
-                slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
-                
-                if (len(df_under_use)>0):
-                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
-                    slice_lon_summary[count_lat,4]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
-               
-        else:
-            print('Time period not known, break')
-            break
-        
-        #Update count
-        count_period=count_period+1
-    
-    #Update count_lat
-    count_lat=count_lat+1
-### ------------------------------ 2010-2018 ----------------------------- ###
-#######################################################################
-###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
-#######################################################################   
-'''
-
-'''
+###############################################################################
+###                  Aggregate data for pannel b display                    ###
+###############################################################################
 #IV. From here on, work with the different periods separated by strong melting summers.
 #    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
 #    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
@@ -1739,8 +1531,218 @@ for region in list(df_2010_2018['key_shp'].unique()):
         dict_summary[region][time_period]['max_elev_mean']=np.nanmean(dict_temp[:,1])
         dict_summary[region][time_period]['max_elev_median']=np.nanmedian(dict_temp[:,1])
         dict_summary[region][time_period]['max_elev_std']=np.nanstd(dict_temp[:,1])
+
+
+###############################################################################
+###                  Aggregate data for pannel b display                    ###
+###############################################################################
+
+#Create Fig.1
+plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS)
+
+pdb.set_trace()
+
+
 '''
+#######################################################################
+###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
+#######################################################################   
+### ------------------------------ 2002-2003 ----------------------------- ###
+#Create a dictionnary where to store slices information
+dict_lat_slice_west={}
+
+#Initialize the slice summary
+slice_summary=np.zeros((len(lat_slices),5))*np.nan
+
+#Initialize the slice summary lat
+slice_lon_summary=np.zeros((len(lat_slices),5))*np.nan
+
+#Loop over the traces
+for trace in traces:
+    
+    #Check whether we are dealing with single or consecutive traces
+    if(len(trace)>1):
+        #We are dealing with consecutive traces
+        #Select the data related to the first trace
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
+        
+        #loop over the traces and append data to each other, do not take the first one
+        for indiv_trace in list(trace[1:]):
+            #Select all the data related to this trace
+            data_trace=data_trace.append(df_2002_2003[df_2002_2003['Track_name']==indiv_trace])
+            
+    else:
+        #We are dealing with individual traces
+        #Select all the data related to this trace
+        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
+
+    #Now my data_trace datasets are ready to be worked with
+    #Keep only green ice slabs
+    data_trace=data_trace[data_trace['colorcode_icelens']==1]
+    
+    if (len(data_trace)<1):
+        #No green ice slabs, continue
+        continue
+    else:
+        #Check the flag: shall we store data? We are only interested in high end of ice slabs
+        if trace[0] in list(flag_high):
+            print('2002-2003 ice lens present for',trace[0])
+            #Identify the max of that trace, and assign to the corresponding lat_slice
+            max_to_store=np.max(data_trace['elevation'])
+            
+            #Index where maximum
+            ind_max=np.where(data_trace['elevation']==np.max(data_trace['elevation']))
+            
+            #Identify corresponding lat and lon of maximum elevation
+            lat_max=np.asarray(data_trace.iloc[ind_max]['lat_3413'])[0]
+            lon_max=np.asarray(data_trace.iloc[ind_max]['lon_3413'])[0]
+            
+            #Check if a maximum have already been identified here. If yes, compare
+            #the two. If latter > than former, store this new max. If not, continue
+            if (np.isnan(slice_summary[i,0])):
+                #No data for this slice yet, store the data
+                #Identify to which slice it belongs to
+                for i in range(1,len(lat_slices)):
+                    if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
+                        slice_summary[i,0]=max_to_store
+                        slice_lon_summary[i,0]=lon_max
+                    else:
+                        continue
+                        #store the coprresponding max in the corresponding slice
+            else:
+                print('Max already present')
+                #Data for this slice alreadey present check
+                if (max_to_store>slice_summary[i,0]):
+                    print('Replace max by new max')
+                    #Identify to which slice it belongs to
+                    for i in range(1,len(lat_slices)):
+                        print(lat_slices[i])
+                        if ((lat_max>=lat_slices[i-1]) and (lat_max<lat_slices[i])):
+                            slice_summary[i,0]=max_to_store
+                            slice_lon_summary[i,0]=lon_max
+                        else:
+                            continue
+                            #store the coprresponding max in the corresponding slice
+                    
+                
+
+### ------------------------------ 2002-2003 ----------------------------- ###
+
+### ------------------------------ 2010-2018 ----------------------------- ###
+count_lat=0
+#Loop over each boundary of lat slices and store dataset related to slices
+for i in range(1,len(lat_slices)):
+    
+    #Identify low and higher end of the slice
+    low_bound=lat_slices[i-1]
+    high_bound=lat_slices[i]
+    
+    #Select all the data belonging to this lat slice
+    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
+    df_slice=df_2010_2018[ind_slice]
+    
+    #Affine data by selecting only west greenland
+    ind_slice=np.array(df_slice['lon_3413']<-50000)
+    df_slice_latlon=df_slice[ind_slice]
+    
+    #Store the associated df
+    dict_lat_slice_west[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice_latlon
+    
+    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+    count_period=0
+    
+    for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
+        if (time_period == '2010'):
+            df_under_use=df_slice_latlon[df_slice_latlon['year']==2010]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,1]=slice_summary[count_lat,0]
+                #slice_lon_summary[count_lat,1]=slice_lon_summary[count_lat,0]
+                
+                slice_summary[count_lat,1]=np.nan
+                slice_lon_summary[count_lat,1]=np.nan
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,1]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,1]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
+                
+        elif (time_period == '2011-2012'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2011) & (df_slice_latlon['year']<=2012)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,2]=slice_summary[count_lat,1]
+                #slice_lon_summary[count_lat,2]=slice_lon_summary[count_lat,1]
+                
+                slice_summary[count_lat,2]=np.nan
+                slice_lon_summary[count_lat,2]=np.nan
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,2]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,2]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
+                
+        elif (time_period == '2013-2014'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2013) & (df_slice_latlon['year']<=2014)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<=(np.nanmax(slice_summary[count_lat,:]))):
+                #slice_summary[count_lat,3]=slice_summary[count_lat,2]
+                #slice_lon_summary[count_lat,3]=slice_lon_summary[count_lat,2]
+                slice_summary[count_lat,3]=np.nan
+                slice_lon_summary[count_lat,3]=np.nan
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,3]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,3]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
+                
+        elif (time_period == '2017-2018'):
+            df_under_use=df_slice_latlon[(df_slice_latlon['year']>=2017) & (df_slice_latlon['year']<=2018)]
+            
+            #If max in this slice of this time period is lower than max identified
+            #in previous time period, store the max of previous time period
+            if (np.max(df_under_use['elevation'])<=np.nanmax(slice_summary[count_lat,:])):
+                #slice_summary[count_lat,4]=slice_summary[count_lat,3]
+                #slice_lon_summary[count_lat,4]=slice_lon_summary[count_lat,3]
+                slice_summary[count_lat,4]=np.nan
+                slice_lon_summary[count_lat,4]=np.nan
+            else:
+                #store the new max elevation
+                slice_summary[count_lat,4]=np.max(df_under_use['elevation'])
+                
+                if (len(df_under_use)>0):
+                    #Data in this slice, can do the lon picking. Several point have the same elevation, take the eastern one (<=> the max)
+                    slice_lon_summary[count_lat,4]=np.max(np.unique(df_under_use[df_under_use['elevation']==np.max(df_under_use['elevation'])]['lon_3413']))
+               
+        else:
+            print('Time period not known, break')
+            break
+        
+        #Update count
+        count_period=count_period+1
+    
+    #Update count_lat
+    count_lat=count_lat+1
+### ------------------------------ 2010-2018 ----------------------------- ###
+#######################################################################
+###   Slice plot - Inland expansion of iceslabs from 2002 to 2018   ###
+#######################################################################   
 '''
+
+'''
+
 #Plot the inland expansion as a graph
 #Display the keys
 fig, axs = plt.subplots(2, 3)#, gridspec_kw={'width_ratios': [1, 3]})
