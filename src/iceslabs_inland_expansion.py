@@ -310,7 +310,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/supp/v2/figS1.png',dpi=1000)
         # -------------------------------- FIG S1 --------------------------------
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     if (plot_panela=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
@@ -338,22 +338,22 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         NW_rignotetal.plot(ax=ax,color='white', edgecolor='black')         
 
         #Display 2002-2018 flightlines
-        ax.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.001,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
+        ax.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=1,marker='.',linewidths=0,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
         
         #Display firn aquifers
-        ax.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',label='Firn aquifers')
+        ax.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=3,marker='.',linewidths=0,color='#238b45',label='Firn aquifers')
                 
         #Display 2010-2018 iceslabs
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=1,color='#3690c0',label='2010-2014 ice slabs')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=1,color='#3690c0')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=1,color='#3690c0')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=1,color='#a6bddb',label='2017-2018 ice slabs')
-        ax.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=1,color='#a6bddb')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0',label='2010-2014 ice slabs')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=3,marker='.',linewidths=0,color='#3690c0')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=3,marker='.',linewidths=0,color='#a6bddb',label='2017-2018 ice slabs')
+        ax.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=3,marker='.',linewidths=0,color='#a6bddb')
         
         #Display 2002-2003 iceslabs
-        ax.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,color='#0570b0',label='2002-2003 ice slabs')
+        ax.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=3,marker='.',linewidths=0,color='#0570b0',label='2002-2003 ice slabs')
         
         #Display region name on panel a 
         ax.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
@@ -516,7 +516,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
 
     if (plot_panelc=='TRUE'):
         
-        hull_computation='FALSE'
+        hull_computation='TRUE'
         likelihood_display='TRUE'
         
         panel_c_save='TRUE'
@@ -548,7 +548,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             from scipy.spatial import ConvexHull
             from shapely import geometry
             from shapely.ops import unary_union
-        
+            
             #prepare the figure
             figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
             figc.suptitle('GrIS ice slabs extent - high estimate')
@@ -691,7 +691,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             
             #Flightlines
             # --- 2011-2012
-            pdb.set_trace()
             ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lon_3413'],
                         flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lat_3413'],
                         s=1,marker='.',linewidths=0,c='#d9d9d9',label='flightlines 2011-2012')
@@ -706,22 +705,22 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['likelihood'],
-                        s=10,cmap=plt.get_cmap('Blues'))
+                        s=10,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
             
             lik_blues=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
-                        s=10,cmap=plt.get_cmap('Blues'))
+                        s=10,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
             
             # --- 2017-2018            
             ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['likelihood'],
-                        s=1,cmap=plt.get_cmap('Reds'))
+                        s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
             lik_reds=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
                         df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
                         c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
-                        s=1,cmap=plt.get_cmap('Reds'))
+                        s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
             
             # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
             lgnd = plt.legend(loc="best", scatterpoints=1)
@@ -747,16 +746,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             cbar_blues = plt.colorbar(lik_blues,location = 'left')
             cbar_blues.set_label('Columnal average likelihood - 2011-2012')
             
-            pdb.set_trace()
             ###################### From Tedstone et al., 2022 #####################
             #from plot_map_decadal_change.py
             # x0, x1, y0, y1
             ax1c.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
             ax1c.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5)
-            import scalebar
-            scalebar.scale_bar(ax1c, (0.65, 0.06), 300)
-
-                
+            #import scalebar
+            #scalebar.scale_bar(ax1c, (0.65, 0.06), 300)
             ax1c.axis('off')
             ###################### From Tedstone et al., 2022 #####################
             
@@ -767,7 +763,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     ax1c.set_xlim(283000,670000)
                     ax1c.set_ylim(-1880000,-940000)
                     ax1c.text(350000,-1600000,'NE',fontsize=25)
-                    '''
+                    
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
@@ -775,13 +771,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #Compute and display relative change
                     ax1c.text(350000,-1650000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
-                    '''
+                    
                 elif(region =='NO'):
                     polygon_for_zoom=NO_rignotetal
                     ax1c.set_xlim(-605000,302000)
                     ax1c.set_ylim(-1215000,-785000)
                     ax1c.text(-90000,-1075000,'NO',fontsize=25)
-                    '''
+                    
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
@@ -789,13 +785,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #Compute and display relative change
                     ax1c.text(-90000,-1025000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
-                    '''
+                    
                 elif(region =='NW'):
                     polygon_for_zoom=NW_rignotetal
                     ax1c.set_xlim(-610000,-189000)
                     ax1c.set_ylim(-1140000,-1985000)
                     ax1c.text(-300000,-1410000,'NW',fontsize=25)
-                    '''
+                    
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
@@ -803,13 +799,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #Compute and display relative change
                     ax1c.text(-300000,-1460000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
-                    '''
+                    
                 elif(region =='CW'):
                     polygon_for_zoom=CW_rignotetal
                     ax1c.set_xlim(-259000,-60500)
                     ax1c.set_ylim(-2385000,-1935000)
                     ax1c.text(-130000,-2061500,'CW',fontsize=25)
-                    '''
+                    
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
@@ -817,13 +813,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #Compute and display relative change
                     ax1c.text(-130000,-2101500,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
-                    '''
+                    
                 elif(region =='SW'):
                     polygon_for_zoom=SW_rignotetal
                     ax1c.set_xlim(-265000,-55600)
                     ax1c.set_ylim(-2899000,-2370000)
                     ax1c.text(-200000,-2775000,'SW',fontsize=25)
-                    '''
+                    
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
@@ -831,7 +827,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #Compute and display relative change
                     ax1c.text(-200000,-2825000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
-                    '''
+                    
                 else:
                     print('Region not known')
                             
