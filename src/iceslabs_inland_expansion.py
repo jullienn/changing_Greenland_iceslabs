@@ -341,10 +341,10 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
     ###################### From Tedstone et al., 2022 #####################
     return
 
-def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018):   
+def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S1='FALSE'
     plot_panela='TRUE'
-    plot_panelb='TRUE'
+    plot_panelb='FALSE'
     plot_panelc='TRUE'
     
     if (plot_fig_S1 == 'TRUE'):
@@ -744,7 +744,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    axNE.text(350000,-1650000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axNE.text(300000,-1650000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='NO'):
@@ -755,14 +755,14 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #display data
                     display_panels_c(axNO,NO_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
                     #Display region name
-                    axNO.text(-90000,-1075000,'NO',fontsize=25)
+                    axNO.text(-90000,-1075000,'NO',fontsize=15)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    axNO.text(-90000,-1160000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axNO.text(-90000,-1150000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='NW'):
@@ -773,14 +773,14 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #display data
                     display_panels_c(axNW,NW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
                     #Display region name
-                    axNW.text(-300000,-1410000,'NW',fontsize=15)
+                    axNW.text(-350000,-1410000,'NW',fontsize=15)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    axNW.text(-300000,-1460000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
+                    axNW.text(-450000,-1460000,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='CW'):
@@ -823,7 +823,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     print('Region not known')
             
         # -------------------------------- PANELS C -------------------------------        
-    
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v3/fig1.png',dpi=1000)
+
     pdb.set_trace()
 
 #Import packages
@@ -1183,42 +1184,6 @@ df_2010_2018_low.loc[df_2010_2018_low['year']==2014,'str_year']=["2013-2014" for
 df_2010_2018_low.loc[df_2010_2018_low['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2017]))]
 df_2010_2018_low.loc[df_2010_2018_low['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2018]))]
 
-#Append all the dataframes together
-df_all=df_2002_2003_green
-df_all=df_all.append(df_2010_2018_high)
-
-'''
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_firn_aquifer_all['coords'] = list(zip(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413']))
-df_firn_aquifer_all['coords'] = df_firn_aquifer_all['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_firn_aquifer_all, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_firn_aquifer_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ##########################
-
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_thickness_likelihood_20102018['coords'] = list(zip(df_thickness_likelihood_20102018['lon_3413'],df_thickness_likelihood_20102018['lat_3413']))
-df_thickness_likelihood_20102018['coords'] = df_thickness_likelihood_20102018['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_thickness_likelihood_20102018, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_thickness_likelihood_20102018_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ##########################
-
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
-df_all['coords'] = df_all['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_all, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ########################## 
-'''
-df_all_GrIS = df_all
-df_firn_aquifer_all_GrIS=df_firn_aquifer_all
-df_thickness_likelihood_20102018_all_GrIS=df_thickness_likelihood_20102018
-
 #Display Fig.1
 
 path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
@@ -1265,10 +1230,10 @@ lon_slices=np.linspace(-600000,650000,int((np.abs(650000)+np.abs(-600000))/10000
 dict_lat_slice={}
 
 #Create a dictionnary to store np arrays storing slices min and max elevation for each region
-dict_lat_slices_summary={k: {} for k in list(df_2010_2018['key_shp'].unique())}
+dict_lat_slices_summary={k: {} for k in list(df_2010_2018_high['key_shp'].unique())}
 
 #loop over the regions, create the room for each time period in each region
-for region in list(df_2010_2018['key_shp'].unique()):
+for region in list(df_2010_2018_high['key_shp'].unique()):
     dict_lat_slices_summary[region]={k: {} for k in list(['2010','2011-2012','2013-2014','2017-2018'])}
     
     for time_period in dict_lat_slices_summary[region].keys():
@@ -1283,8 +1248,8 @@ for i in range(1,len(lat_slices)):
     high_bound=lat_slices[i]
     
     #Select all the data belonging to this slice
-    ind_slice=np.logical_and(np.array(df_2010_2018['lat_3413']>=low_bound),np.array(df_2010_2018['lat_3413']<high_bound))
-    df_slice=df_2010_2018[ind_slice]
+    ind_slice=np.logical_and(np.array(df_2010_2018_high['lat_3413']>=low_bound),np.array(df_2010_2018_high['lat_3413']<high_bound))
+    df_slice=df_2010_2018_high[ind_slice]
     
     #Store the associated df
     dict_lat_slice[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice   
@@ -1321,10 +1286,10 @@ for i in range(1,len(lat_slices)):
 dict_lon_slice={}
 
 #Create a dictionnary to store np arrays storing slices min and max elevation for each region
-dict_lon_slices_summary={k: {} for k in list(df_2010_2018['key_shp'].unique())}
+dict_lon_slices_summary={k: {} for k in list(df_2010_2018_high['key_shp'].unique())}
 
 #loop over the regions, create the room for each time period in each region
-for region in list(df_2010_2018['key_shp'].unique()):
+for region in list(df_2010_2018_high['key_shp'].unique()):
     dict_lon_slices_summary[region]={k: {} for k in list(['2010','2011-2012','2013-2014','2017-2018'])}
     
     for time_period in dict_lon_slices_summary[region].keys():
@@ -1339,8 +1304,8 @@ for i in range(1,len(lon_slices)):
     high_bound=lon_slices[i]
     
     #Select all the data belonging to this slice
-    ind_slice=np.logical_and(np.array(df_2010_2018['lon_3413']>=low_bound),np.array(df_2010_2018['lon_3413']<high_bound))
-    df_slice=df_2010_2018[ind_slice]
+    ind_slice=np.logical_and(np.array(df_2010_2018_high['lon_3413']>=low_bound),np.array(df_2010_2018_high['lon_3413']<high_bound))
+    df_slice=df_2010_2018_high[ind_slice]
     
     #Store the associated df
     dict_lon_slice[str(int(lon_slices[i-1]))+' to '+str(int(lon_slices[i]))]=df_slice   
@@ -1495,10 +1460,10 @@ for trace in traces:
 
 #7. Do the elevation difference and eventually the corresponding distance calculation in each region
 #Create a dictionnary where to store relevant information
-dict_summary={k: {} for k in list(df_2010_2018['key_shp'].unique())}
+dict_summary={k: {} for k in list(df_2010_2018_high['key_shp'].unique())}
 
 #Loop over the regions
-for region in list(df_2010_2018['key_shp'].unique()):
+for region in list(df_2010_2018_high['key_shp'].unique()):
     
     #Continue building the dictionnary
     dict_summary[region]={k: {} for k in list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])}
@@ -1532,8 +1497,45 @@ for region in list(df_2010_2018['key_shp'].unique()):
 ###                  Aggregate data for pannel b display                    ###
 ###############################################################################
 
+#Append all the dataframes together
+df_all=df_2002_2003_green
+df_all=df_all.append(df_2010_2018_high)
+
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_firn_aquifer_all['coords'] = list(zip(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413']))
+df_firn_aquifer_all['coords'] = df_firn_aquifer_all['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_firn_aquifer_all, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_firn_aquifer_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ##########################
+
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_thickness_likelihood_20102018['coords'] = list(zip(df_thickness_likelihood_20102018['lon_3413'],df_thickness_likelihood_20102018['lat_3413']))
+df_thickness_likelihood_20102018['coords'] = df_thickness_likelihood_20102018['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_thickness_likelihood_20102018, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_thickness_likelihood_20102018_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ##########################
+
+######################### Keep only data on the GrIS ##########################
+# This is from aggregate_20022018_flightlines.py
+df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
+df_all['coords'] = df_all['coords'].apply(Point)
+points = gpd.GeoDataFrame(df_all, geometry='coords', crs="EPSG:3413")
+pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
+df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
+######################### Keep only data on the GrIS ########################## 
+
+'''
+df_all_GrIS = df_all
+df_firn_aquifer_all_GrIS=df_firn_aquifer_all
+df_thickness_likelihood_20102018_all_GrIS=df_thickness_likelihood_20102018
+'''
+
 #Create Fig.1
-plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS)
+plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS,dict_summary)
 
 pdb.set_trace()
 
