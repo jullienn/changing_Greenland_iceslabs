@@ -145,19 +145,21 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         if (year==2010):
             ax_plotting=ax1r
             ax1r.set_xlabel('Longitude [°]')
+            ax_plotting.set_xticklabels([])
         elif (year==2011):
             ax_plotting=ax2r
             ax2r.set_xlabel('Latitude [°]')
+            ax2r.set_ylabel('Depth [m]')
         elif (year==2012):
             ax_plotting=ax3r
-            ax_plotting.axvline(x=-47.11,zorder=1)
-            ax_plotting.axvline(x=-47.02,zorder=1)
+            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='red')
+            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='red')
             ax_plotting.set_xticklabels([])
         elif (year==2013):
             ax_plotting=ax4r
             ax4r.set_xlabel('Depth [m]')
-            ax_plotting.axvline(x=-47.11,zorder=1)
-            ax_plotting.axvline(x=-47.02,zorder=1)
+            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='red')
+            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='red')
             ax_plotting.set_xticklabels([])
         elif (year==2014):
             ax_plotting=ax5r
@@ -167,8 +169,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting.set_xticklabels([])
         elif (year==2018):
             ax_plotting=ax7r
-            ax_plotting.axvline(x=-47.11,zorder=1)
-            ax_plotting.axvline(x=-47.02,zorder=1)
+            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='red')
+            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='red')
         else:
             print('Year not existing')
         
@@ -212,17 +214,13 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         ax8map.scatter(lon3413_plot[ind_map],lat3413_plot[ind_map],c=my_pal[year],s=0.5)
 
         #Add year on radargram
-        ax_plotting.text(0.98, 0.90,str(year), color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plotting.text(0.97, 0.90,str(year), color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         
         ###########################################################################
         ###                       Display data localisation                     ###
         ###########################################################################
-        
-    #Set y tick to the right
-    axt.yaxis.set_label_position("right")
-    axt.yaxis.tick_right()
     
-    return
+    return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation'])
 
 
 import pickle
@@ -242,8 +240,8 @@ from pyproj import Transformer
 
 #Define palette as a function of time
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-my_pal = {2009: "#8c96c6", 2010: "#006d2c", 2011: "#225ea8", 2012: "#fdd49e", 2013: "#fdbb84", 2014: "#ef6548", 2015: "#88419d", 2016: "#4d004b", 2017:"#d7301f",2018:"#7f0000"}
-    
+my_pal = {2010: "#bf812d", 2011: "#1a9850", 2012: "#1a9850", 2013: "#542788", 2014: "#4393c3", 2017:"#bf812d",2018:"#b2182b"}
+
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
@@ -495,38 +493,43 @@ crs_proj4 = crs.proj4_init
 fig = plt.figure()
 gs = gridspec.GridSpec(35, 20)
 gs.update(wspace=0.1)
-#gs.update(wspace=0.001)
+gs.update(hspace=0.1)
 
 ax1r = plt.subplot(gs[0:4, 0:10])
-ax2r = plt.subplot(gs[7:11, 0:10])
-ax3r = plt.subplot(gs[14:18, 0:10])
-ax4r = plt.subplot(gs[18:22, 0:10])
-ax5r = plt.subplot(gs[22:26, 0:10])
-ax6r = plt.subplot(gs[26:30, 0:10])
-ax7r = plt.subplot(gs[30:34, 0:10])
+ax2r = plt.subplot(gs[0:4, 10:20])
+ax3r = plt.subplot(gs[4:8, 0:10])
+ax4r = plt.subplot(gs[8:12, 0:10])
+ax5r = plt.subplot(gs[12:16, 0:10])
+ax6r = plt.subplot(gs[16:20, 0:10])
+ax7r = plt.subplot(gs[20:24, 0:10])
+ax11t = plt.subplot(gs[27:35, 0:10])
 
-ax8map = plt.subplot(gs[0:15, 10:20],projection=crs)
-ax10m = plt.subplot(gs[15:22, 10:20])
-ax11t = plt.subplot(gs[25:35, 10:20])
+ax8map = plt.subplot(gs[26:35, 10:20],projection=crs)
+ax10m = plt.subplot(gs[7:20, 10:20])
 
 #Display GrIS drainage bassins on the map subplot
 SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
-plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,my_pal)
+min_elev,max_elev=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,my_pal)
+
+#Finalize axis ax2r
+ax2r.yaxis.set_label_position("right")
+ax2r.yaxis.tick_right()
 
 #Finalize axis ax11t
+ax11t.set_xlim(min_elev,max_elev)
 ax11t.set_xlabel('Elevation [m]')
 ax11t.set_ylabel('Column ice thickness [m]')
 
 #Finalize radargrams plot
 ax7r.set_xlabel('Longitude [°]')
-ax7r.set_ylabel('Depth [m]')
+ax4r.set_ylabel('Depth [m]')
 
 #Show KAN_U
 #Show pannel numbers on the map
-ax8map.scatter(-89205.404,2522571.489,s=10,c='red',label='KAN_U',zorder=10)
+ax8map.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',label='KAN_U',zorder=10)
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
@@ -536,7 +539,7 @@ gl=ax8map.gridlines(draw_labels=True, xlocs=[-47], ylocs=[67], x_inline=False, y
 gl.ylabels_right = False
 gl.xlabels_bottom = False
 ax8map.axis('off')
-
+plt.legend()
 ###################### From Tedstone et al., 2022 #####################
 
 figManager = plt.get_current_fig_manager()
@@ -573,7 +576,7 @@ df_melt_summer_time_period=df_melt_summer[(df_melt_summer['Year']>=2009) & (df_m
 df_melt_summer_time_period['NRJ_kJ']=df_melt_summer_time_period['NRJ']/1000
 
 #5. show total cumulative melt
-ax = sns.barplot(x="Year", y="NRJ_kJ", data=df_melt_summer_time_period,palette=my_pal,ax=ax10m,estimator=sum)
+ax = sns.barplot(x="Year", y="NRJ_kJ", data=df_melt_summer_time_period,palette=['lightgrey'],ax=ax10m,estimator=sum)
 
 #Set y tick to the right
 ax10m.yaxis.set_label_position("right")
