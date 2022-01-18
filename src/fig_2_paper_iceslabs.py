@@ -156,6 +156,11 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #axt.legend_.remove()
     axt.set_xlabel('')
     axt.set_ylabel('')
+    
+    #Activate ticks x and y label
+    axt.yaxis.tick_left()
+    axt.xaxis.tick_bottom()
+
     plt.show()
     
     print('End plotting fig 2')
@@ -521,7 +526,7 @@ ax6t.set_xlim(1600,2080)
 ax7t.set_xlim(1600,2080)
 
 #Display distance as Elevation [m]
-ax7t.set_ylabel('Column ice thickness [m]')
+ax5t.set_ylabel('Column ice thickness [m]')
 ax7t.set_xlabel('Elevation [m]')
 
 #Custom legend myself

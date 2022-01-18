@@ -330,6 +330,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
     cbar_blues = plt.colorbar(lik_blues,location = 'left')
     cbar_blues.set_label('Columnal average likelihood - 2011-2012')
     '''
+    
     ###################### From Tedstone et al., 2022 #####################
     #from plot_map_decadal_change.py
     # x0, x1, y0, y1
