@@ -150,6 +150,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting.set_yticklabels(['0', '10', ''])
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticks([0,10,])
+            #Define pannel label
+            casestudy_nb='a'
         elif (year==2011):
             ax_plotting=ax2r
             ax2r.set_xlabel('Latitude [°]')
@@ -157,6 +159,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             label_for_map=u'\u03B2'
             #Activate ticks xlabel
             ax_plotting.xaxis.tick_bottom()
+            #Define pannel label
+            casestudy_nb='b'
         elif (year==2012):
             ax_plotting=ax3r
             ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
@@ -166,6 +170,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting.set_yticklabels(['0', '10', ''])
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticks([0,10,])
+            #Define pannel label
+            casestudy_nb='c'
         elif (year==2013):
             ax_plotting=ax4r
             ax4r.set_xlabel('Depth [m]')
@@ -176,6 +182,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting.set_yticklabels(['0', '10', ''])
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticks([0,10,])
+            #Define pannel label
+            casestudy_nb='d'
         elif (year==2014):
             ax_plotting=ax5r
             label_for_map=u'\u03B4'
@@ -183,6 +191,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting.set_yticklabels(['0', '10', ''])
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticks([0,10,])
+            #Define pannel label
+            casestudy_nb='e'
         elif (year==2017):
             ax_plotting=ax6r
             label_for_map=u'\u03B4'
@@ -190,6 +200,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting.set_yticklabels(['0', '10', ''])
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticks([0,10,])
+            #Define pannel label
+            casestudy_nb='f'
         elif (year==2018):
             ax_plotting=ax7r
             ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
@@ -197,6 +209,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             label_for_map=u'\u03B3'
             #Activate ticks xlabel
             ax_plotting.xaxis.tick_bottom()
+            #Define pannel label
+            casestudy_nb='g'
         else:
             print('Year not existing')
         
@@ -245,6 +259,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
 
         #Add year on radargram
         ax_plotting.text(0.96, 0.90,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        
+        #Add pannel label
+        ax_plotting.text(0.01, 0.875,casestudy_nb,ha='center', va='center', transform=ax_plotting.transAxes,weight='bold',fontsize=20,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         
         #Activate ticks ylabel
         ax_plotting.yaxis.tick_left()
@@ -567,6 +584,8 @@ ax11t.set_xlim(1735.68640136718750,1983.92419433593750)
 #xmax is from 20140416_05_035_037 in df_for_elev that is the closest from -46.66
 #Note that 2014 and 2017 are perfectly overlapping.
 ax11t.scatter(1879,15.8,s=10,c='r')
+#Add pannel label
+ax11t.text(0.01, 0.875,'h',ha='center', va='center', transform=ax11t.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Finalize radargrams plot
 ax7r.set_xlabel('Longitude [°]')
@@ -581,6 +600,9 @@ ax8map.text(-79280,-2533000,s=u'\u03B4')
 #Show KAN_U
 #Show pannel numbers on the map
 ax8map.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',label='KAN_U',zorder=10)
+#Add pannel label
+ax8map.text(-114400,-2505000,'j',ha='center', va='center',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
@@ -639,6 +661,9 @@ ax10m.set_ylabel('Melt energy availaibility [kJ]')
 ax10m.set_xlabel('Year')
 #Activate ticks xlabel
 ax10m.xaxis.tick_bottom()
+#Add pannel label
+ax10m.text(0.01, 0.875,'i',ha='center', va='center', transform=ax10m.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
 pdb.set_trace()
 
 ax10m.legend_.remove()
