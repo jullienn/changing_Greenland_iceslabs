@@ -145,39 +145,58 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         if (year==2010):
             ax_plotting=ax1r
             ax1r.set_xlabel('Longitude [°]')
-            ax_plotting.set_xticklabels([])
             label_for_map=u'\u03B1'
+            #Adapt xticklabels
+            ax_plotting.set_yticklabels(['0', '10', ''])
+            ax_plotting.set_xticklabels([])
+            ax_plotting.set_yticks([0,10,])
         elif (year==2011):
             ax_plotting=ax2r
             ax2r.set_xlabel('Latitude [°]')
             ax2r.set_ylabel('Depth [m]')
             label_for_map=u'\u03B2'
+            #Activate ticks xlabel
+            ax_plotting.xaxis.tick_bottom()
         elif (year==2012):
             ax_plotting=ax3r
             ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
             ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
-            ax_plotting.set_xticklabels([])
             label_for_map=u'\u03B3'
+            #Adapt xticklabels
+            ax_plotting.set_yticklabels(['0', '10', ''])
+            ax_plotting.set_xticklabels([])
+            ax_plotting.set_yticks([0,10,])
         elif (year==2013):
             ax_plotting=ax4r
             ax4r.set_xlabel('Depth [m]')
             ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
             ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
-            ax_plotting.set_xticklabels([])
             label_for_map=u'\u03B3'
+            #Adapt xticklabels
+            ax_plotting.set_yticklabels(['0', '10', ''])
+            ax_plotting.set_xticklabels([])
+            ax_plotting.set_yticks([0,10,])
         elif (year==2014):
             ax_plotting=ax5r
-            ax_plotting.set_xticklabels([])
             label_for_map=u'\u03B4'
+            #Adapt xticklabels, from https://stackoverflow.com/questions/43673884/change-x-axis-ticks-to-custom-strings
+            ax_plotting.set_yticklabels(['0', '10', ''])
+            ax_plotting.set_xticklabels([])
+            ax_plotting.set_yticks([0,10,])
         elif (year==2017):
             ax_plotting=ax6r
-            ax_plotting.set_xticklabels([])
             label_for_map=u'\u03B4'
+            #Adapt xticklabels
+            ax_plotting.set_yticklabels(['0', '10', ''])
+            ax_plotting.set_xticklabels([])
+            ax_plotting.set_yticks([0,10,])
         elif (year==2018):
             ax_plotting=ax7r
             ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
             ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
             label_for_map=u'\u03B3'
+            #Activate ticks xlabel
+            ax_plotting.xaxis.tick_bottom()
         else:
             print('Year not existing')
         
@@ -225,7 +244,10 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         ax8map.scatter(lon3413_plot[ind_map],lat3413_plot[ind_map],c='k',s=0.5)
 
         #Add year on radargram
-        ax_plotting.text(0.95, 0.90,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plotting.text(0.96, 0.90,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        
+        #Activate ticks ylabel
+        ax_plotting.yaxis.tick_left()
 
         ###########################################################################
         ###                       Display data localisation                     ###
@@ -251,7 +273,7 @@ from pyproj import Transformer
 
 #Define palette as a function of time
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-my_pal = {2010: "k", 2011: "k", 2012: "#1a9850", 2013: "#542788", 2014: "#4393c3", 2017:"#bf812d",2018:"#b2182b"}
+my_pal = {2010: "k", 2011: "k", 2012: "#1a9850", 2013: "#542788", 2014: "#2166ac", 2017:"#bf812d",2018:"#b2182b"}
 
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
@@ -533,6 +555,9 @@ ax2r.yaxis.tick_right()
 ax11t.set_xlim(min_elev,max_elev)
 ax11t.set_xlabel('Elevation [m]')
 ax11t.set_ylabel('Column ice thickness [m]')
+#Activate ticks label
+ax11t.xaxis.tick_bottom()
+ax11t.yaxis.tick_left()
 
 #Add vertical lines where the analysed section is
 ax11t.axvline(x=1882,zorder=1,linestyle='--',color='k') #from QGIS, reading along 2014-2017 flightline
@@ -549,10 +574,10 @@ ax4r.set_ylabel('Depth [m]')
 
 #Finalize map plot
 #Display flightlines correpsondance with year
-ax8map.text(-100400,-2505000,u'\u03B1')
-ax8map.text(-96520,-2520000,u'\u03B2')
-ax8map.text(-79280,-2524000,u'\u03B3')
-ax8map.text(-79280,-2522000,s=u'\u03B4')
+ax8map.text(-100400,-2505000,u'\u03B2')
+ax8map.text(-94240,-2554000,u'\u03B1')
+ax8map.text(-79280,-2522000,u'\u03B3')
+ax8map.text(-79280,-2533000,s=u'\u03B4')
 #Show KAN_U
 #Show pannel numbers on the map
 ax8map.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',label='KAN_U',zorder=10)
@@ -560,12 +585,12 @@ ax8map.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',label='KAN_U',zorder=10)
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
 ax8map.set_extent([-114500, -70280, -2556000, -2495000], crs=crs)
-gl=ax8map.gridlines(draw_labels=True, xlocs=[-47], ylocs=[67], x_inline=False, y_inline=False,linewidth=0.5)
+gl=ax8map.gridlines(draw_labels=True, xlocs=[-47, -47.5], ylocs=[67], x_inline=False, y_inline=False,linewidth=0.5)
 #Customize lat labels
 gl.ylabels_right = False
 gl.xlabels_bottom = False
 ax8map.axis('off')
-plt.legend()
+#ax8map.legend(loc='upper right')
 ###################### From Tedstone et al., 2022 #####################
 
 figManager = plt.get_current_fig_manager()
@@ -601,20 +626,26 @@ df_melt_summer_time_period=df_melt_summer[(df_melt_summer['Year']>=2009) & (df_m
 #Transform data from J to kJ => /1000
 df_melt_summer_time_period['NRJ_kJ']=df_melt_summer_time_period['NRJ']/1000
 
+#Set the year as integer for data display
+df_melt_summer_time_period.Year=df_melt_summer_time_period.Year.astype(int)
+
 #5. show total cumulative melt
-ax = sns.barplot(x="Year", y="NRJ_kJ", data=df_melt_summer_time_period,palette=['lightgrey'],ax=ax10m,estimator=sum)
+ax = sns.barplot(x="Year", y="NRJ_kJ", data=df_melt_summer_time_period,palette=['lightgrey'],ax=ax10m,estimator=sum,ci=None)
 
 #Set y tick to the right
 ax10m.yaxis.set_label_position("right")
 ax10m.yaxis.tick_right()
 ax10m.set_ylabel('Melt energy availaibility [kJ]')
 ax10m.set_xlabel('Year')
-plt.show()
-
+#Activate ticks xlabel
+ax10m.xaxis.tick_bottom()
 pdb.set_trace()
 
-ax10m.set_xlim(2010,2017)
+ax10m.legend_.remove()
+plt.show()
 
+#Save figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v2/fig3.png',dpi=1000)
 
 pdb.set_trace()
 
