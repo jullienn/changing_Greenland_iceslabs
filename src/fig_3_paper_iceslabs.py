@@ -34,7 +34,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     
     #Define window size for smoothing
     winsize=10
-        
+
     #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
     for indiv_year in range(2012,2019):
         print(indiv_year)
@@ -146,31 +146,38 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting=ax1r
             ax1r.set_xlabel('Longitude [°]')
             ax_plotting.set_xticklabels([])
+            label_for_map=u'\u03B1'
         elif (year==2011):
             ax_plotting=ax2r
             ax2r.set_xlabel('Latitude [°]')
             ax2r.set_ylabel('Depth [m]')
+            label_for_map=u'\u03B2'
         elif (year==2012):
             ax_plotting=ax3r
-            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='red')
-            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='red')
+            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
+            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
             ax_plotting.set_xticklabels([])
+            label_for_map=u'\u03B3'
         elif (year==2013):
             ax_plotting=ax4r
             ax4r.set_xlabel('Depth [m]')
-            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='red')
-            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='red')
+            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
+            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
             ax_plotting.set_xticklabels([])
+            label_for_map=u'\u03B3'
         elif (year==2014):
             ax_plotting=ax5r
             ax_plotting.set_xticklabels([])
+            label_for_map=u'\u03B4'
         elif (year==2017):
             ax_plotting=ax6r
             ax_plotting.set_xticklabels([])
+            label_for_map=u'\u03B4'
         elif (year==2018):
             ax_plotting=ax7r
-            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='red')
-            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='red')
+            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
+            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
+            label_for_map=u'\u03B3'
         else:
             print('Year not existing')
         
@@ -206,16 +213,20 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         if (year==2011):
             ax_plotting.set_xlim(66.8707,67.2)
             ind_map=np.logical_and(lat_plot>=66.8707,lat_plot<=67.2)
+            #Display KAN_U
+            ax_plotting.scatter(67.000425,1,s=10,c='r')
         else:
             ax_plotting.set_xlim(-47.5,-46.66)
             ind_map=np.logical_and(lon_plot>=-47.5,lon_plot<=-46.66)
+            #Display KAN_U
+            ax_plotting.scatter(-47.030473,1,s=10,c='r')
         
         #display loc on map
-        ax8map.scatter(lon3413_plot[ind_map],lat3413_plot[ind_map],c=my_pal[year],s=0.5)
+        ax8map.scatter(lon3413_plot[ind_map],lat3413_plot[ind_map],c='k',s=0.5)
 
         #Add year on radargram
-        ax_plotting.text(0.97, 0.90,str(year), color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-        
+        ax_plotting.text(0.95, 0.90,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
         ###########################################################################
         ###                       Display data localisation                     ###
         ###########################################################################
@@ -240,7 +251,7 @@ from pyproj import Transformer
 
 #Define palette as a function of time
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-my_pal = {2010: "#bf812d", 2011: "#1a9850", 2012: "#1a9850", 2013: "#542788", 2014: "#4393c3", 2017:"#bf812d",2018:"#b2182b"}
+my_pal = {2010: "k", 2011: "k", 2012: "#1a9850", 2013: "#542788", 2014: "#4393c3", 2017:"#bf812d",2018:"#b2182b"}
 
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
@@ -523,10 +534,25 @@ ax11t.set_xlim(min_elev,max_elev)
 ax11t.set_xlabel('Elevation [m]')
 ax11t.set_ylabel('Column ice thickness [m]')
 
+#Add vertical lines where the analysed section is
+ax11t.axvline(x=1882,zorder=1,linestyle='--',color='k') #from QGIS, reading along 2014-2017 flightline
+ax11t.axvline(x=1852,zorder=1,linestyle='--',color='k') #from QGIS, reading along 2014-2017 flightline
+ax11t.set_xlim(1735.68640136718750,1983.92419433593750)
+#xmin is from 20170502_01_171_173 in df_for_elev that is the closest from -47.5
+#xmax is from 20140416_05_035_037 in df_for_elev that is the closest from -46.66
+#Note that 2014 and 2017 are perfectly overlapping.
+ax11t.scatter(1879,15.8,s=10,c='r')
+
 #Finalize radargrams plot
 ax7r.set_xlabel('Longitude [°]')
 ax4r.set_ylabel('Depth [m]')
 
+#Finalize map plot
+#Display flightlines correpsondance with year
+ax8map.text(-100400,-2505000,u'\u03B1')
+ax8map.text(-96520,-2520000,u'\u03B2')
+ax8map.text(-79280,-2524000,u'\u03B3')
+ax8map.text(-79280,-2522000,s=u'\u03B4')
 #Show KAN_U
 #Show pannel numbers on the map
 ax8map.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',label='KAN_U',zorder=10)

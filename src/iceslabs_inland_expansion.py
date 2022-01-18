@@ -441,7 +441,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axmap.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,marker='.',linewidths=0,color='#fdae61',label='2002-2003 ice slabs')
         
         #Display firn aquifers
-        axmap.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,marker='.',linewidths=0,color='#807dba',label='Firn aquifers')
+        axmap.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=3,marker='.',linewidths=0,color='#807dba',label='Firn aquifers')
         
         #Display region name on panel a 
         axmap.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
@@ -567,8 +567,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                            Patch(facecolor='#3182bd', alpha=0.5,label='2013-2014'),
                            Patch(facecolor='#08519c', alpha=0.5,label='2017-2018')]#,
                            #Line2D([0], [0], color='k', lw=2, label='Standard deviation around the mean')]
-        
-        axelev.legend(handles=legend_elements,loc='best')
+        axelev.legend(handles=legend_elements,loc='upper left')
         plt.legend()
         
         # -------------------------------- PANEL B --------------------------------    
@@ -787,7 +786,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #display data
                     display_panels_c(axCW,CW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
                     #Display region name
-                    axCW.text(-200000,-2327000,'CW',fontsize=15)
+                    axCW.text(-207500,-2327000,'CW',fontsize=15)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
@@ -805,23 +804,31 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #display data
                     display_panels_c(axSW,SW_rignotetal,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs)
                     #Display region name
-                    axSW.text(-150000,-2770000,'SW',fontsize=15)
+                    axSW.text(-167000,-2800000,'SW',fontsize=15)
                     
                     ################ DISPLAY AREA CHANGE #####################
                     low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    axSW.text(-200000,-2820000,'[+'+str(low_end_change)+':+'+str(high_end_change)+']%')
+                    axSW.text(-200000,-2840000,'[+'+str(low_end_change)+':+'+str(high_end_change)+']%')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 else:
                     print('Region not known')
             
         # -------------------------------- PANELS C -------------------------------        
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v3/fig1.png',dpi=1000)
-
+    #Force legend of pannel b to be upper left
+    axelev.legend(handles=legend_elements,loc='upper left')
+    
+    #Maximize plot size
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+    
     pdb.set_trace()
+    
+    #Save figure
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v3/fig1.png',dpi=1000)
 
 #Import packages
 #import rasterio
