@@ -428,22 +428,22 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axmap.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.1,marker='.',linewidths=0,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
         
         #Display 2010-2014 iceslabs
-        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=7,marker='.',linewidths=0,color='#238b45',label='2010-2014 ice slabs')
-        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=7,marker='.',linewidths=0,color='#238b45')
-        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=7,marker='.',linewidths=0,color='#238b45')
-        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=7,marker='.',linewidths=0,color='#238b45')
-        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=7,marker='.',linewidths=0,color='#238b45')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4',label='2010-2014 ice slabs')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
         
         #Display 2017-2018 iceslabs
-        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=3,marker='.',linewidths=0,color='#225ea8',label='2017-2018 ice slabs')
-        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=3,marker='.',linewidths=0,color='#225ea8')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=3,marker='.',linewidths=0,color='#d73027',label='2017-2018 ice slabs')
+        axmap.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=3,marker='.',linewidths=0,color='#d73027')
         
         #Display 2002-2003 iceslabs
-        axmap.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=1,marker='.',linewidths=0,color='#fdae61',label='2002-2003 ice slabs')
+        axmap.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=3,marker='.',linewidths=0,color='#2ECC71',label='2002-2003 ice slabs')
         
         #Display firn aquifers
         axmap.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=3,marker='.',linewidths=0,color='#807dba',label='Firn aquifers')
-        
+                
         #Display region name on panel a 
         axmap.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
         axmap.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
@@ -542,11 +542,11 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         N=4 #Number of regions
         ind= np.arange(N) #Position of regions
                 
-        axelev.bar(ind, dplot_20022003, width, label='2002-2003',color='#c6dbef', yerr= dplotstd_20022003) #yerr=men_std
+        axelev.bar(ind, dplot_20022003, width, label='2002-2003',color='#2ECC71', yerr= dplotstd_20022003) #yerr=men_std
         axelev.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
         axelev.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
         axelev.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd', yerr= dplotstd_20132014)
-        axelev.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#08519c', yerr= dplotstd_20172018)
+        axelev.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#d73027', yerr= dplotstd_20172018)
         axelev.set_xticks(ind + 2*width)
         axelev.set_xticklabels(labels)
         axelev.set_ylim(1000,2050)
@@ -562,15 +562,15 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         from matplotlib.patches import Patch
         from matplotlib.lines import Line2D
         
-        legend_elements = [Patch(facecolor='#c6dbef', alpha=0.5,label='2002-2003'),
-                           Patch(facecolor='#9ecae1', alpha=0.5,label='2010'),
-                           Patch(facecolor='#6baed6', alpha=0.5,label='2011-2012'),
-                           Patch(facecolor='#3182bd', alpha=0.5,label='2013-2014'),
-                           Patch(facecolor='#08519c', alpha=0.5,label='2017-2018')]#,
+        legend_elements = [Patch(facecolor='#2ECC71',label='2002-2003'),
+                           Patch(facecolor='#9ecae1',label='2010'),
+                           Patch(facecolor='#6baed6',label='2011-2012'),
+                           Patch(facecolor='#3182bd',label='2013-2014'),
+                           Patch(facecolor='#d73027',label='2017-2018')]#,
                            #Line2D([0], [0], color='k', lw=2, label='Standard deviation around the mean')]
         axelev.legend(handles=legend_elements,loc='upper left')
         plt.legend()
-        
+        pdb.set_trace()
         # -------------------------------- PANEL B --------------------------------    
     
     if (plot_panelc=='TRUE'):
