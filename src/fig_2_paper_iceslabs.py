@@ -52,14 +52,26 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
     
     #Create an empty df_sampling
-    df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev'])
+    df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev','rolling_10_median_scatter'])
 
-    #Elev divide every 1m.
-    elev_bin_desired=1
+    #Elev divide every 2m.
+    elev_bin_desired=2
     elev_divide=np.arange(np.floor(np.min(df_for_elev['elevation'])),np.floor(np.max(df_for_elev['elevation']))+1+elev_bin_desired,elev_bin_desired)
-    
+
     #Define window size for smoothing
-    winsize=10
+    winsize=3
+    
+    #Define empty list
+    app_time_period=[]
+    app_low_bound=[]
+    app_high_bound=[]
+    app_bound_nb=[]
+    #app_Track_name=[]
+    app_mean=[]
+    app_median=[]
+    app_q025=[]
+    app_q075=[]
+    app_stddev=[]
     
     #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
     for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
@@ -97,27 +109,44 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
                 ind_slice=np.logical_and(np.array(df_trace_year_sorted['elevation']>=low_bound),np.array(df_trace_year_sorted['elevation']<high_bound))
                 df_select=df_trace_year_sorted[ind_slice]
                 
+                #Append data to each other - general info                
+                app_time_period=np.append(app_time_period,np.asarray(time_period))
+                app_low_bound=np.append(app_low_bound,low_bound)
+                app_high_bound=np.append(app_high_bound,high_bound)
+                app_bound_nb=np.append(app_bound_nb,str(bound_nb))
+                
                 if (len(df_select)==0):
-                    continue
-                                
-                #Fill in dictionnary
-                df_temp=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev'])
-                df_temp['Track_name']=df_select['Track_name'].unique()
-                df_temp['time_period']=time_period
-                df_temp['low_bound']=low_bound
-                df_temp['high_bound']=high_bound
-                df_temp['bound_nb']=str(bound_nb)
-                df_temp['mean']=np.nanmean(df_select['20m_ice_content_m'])
-                df_temp['median']=np.nanmedian(df_select['20m_ice_content_m'])
-                df_temp['q025']=np.nanquantile(df_select['20m_ice_content_m'],0.25)
-                df_temp['q075']=np.nanquantile(df_select['20m_ice_content_m'],0.75)
-                df_temp['stddev']=np.nanstd(df_select['20m_ice_content_m'])
-                
-                #Append dictionnary
-                df_sampling=df_sampling.append(df_temp)
-                
+                    #Append data to each other - data
+                    #app_Track_name=np.append(app_Track_name,np.nan)
+                    app_mean=np.append(app_mean,np.nan)
+                    app_median=np.append(app_median,np.nan)
+                    app_q025=np.append(app_q025,np.nan)
+                    app_q075=np.append(app_q075,np.nan)
+                    app_stddev=np.append(app_stddev,np.nan)
+                else:
+                    #Append data to each other -data
+                    #app_Track_name=np.append(app_Track_name,np.asarray(df_select['Track_name'].unique()))
+                    app_mean=np.append(app_mean,np.asarray(np.nanmean(df_select['20m_ice_content_m'])))
+                    app_median=np.append(app_median,np.asarray(np.nanmedian(df_select['20m_ice_content_m'])))
+                    app_q025=np.append(app_q025,np.asarray(np.nanquantile(df_select['20m_ice_content_m'],0.25)))
+                    app_q075=np.append(app_q075,np.asarray(np.nanquantile(df_select['20m_ice_content_m'],0.75)))
+                    app_stddev=np.append(app_stddev,np.asarray(np.nanstd(df_select['20m_ice_content_m'])))
+
                 #Update bound_nb
                 bound_nb=bound_nb+1
+    
+    #Create df_sampling which is the dataframe reuniting all the appended lists
+    df_sampling = pd.DataFrame(data={'time_period': app_time_period})
+    df_sampling['low_bound']=app_low_bound
+    df_sampling['high_bound']=app_high_bound
+    df_sampling['bound_nb']=app_bound_nb
+    #df_sampling['Track_name']=app_Track_name
+    df_sampling['mean']=app_mean
+    df_sampling['median']=app_median
+    df_sampling['q025']=app_q025
+    df_sampling['q075']=app_q075
+    df_sampling['stddev']=app_stddev
+    df_sampling['rolling_10_median_scatter']=[np.nan]*len(app_mean)
         
     for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
         if (len(df_sampling[df_sampling['time_period']==time_period])==0):
@@ -126,16 +155,35 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         else:
             df_plot=df_sampling[df_sampling['time_period']==time_period]
             
-            #Rolling window, size = 10
+            #Rolling window, size = winsize
             df_plot['rolling_10_median']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['median'] 
             df_plot['rolling_10_q025']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q025'] 
             df_plot['rolling_10_q075']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q075'] 
             
+            #Where window rolling shows NaN because of NaN surrounding, add raw data
+            for i in range(0,len(df_plot)):
+                if (np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i]))):
+                    df_plot['rolling_10_median_scatter'].iloc[i]=df_plot['median'].iloc[i]
+                    df_plot['rolling_10_q025'].iloc[i]=np.nan#df_plot['q025'].iloc[i]
+                    df_plot['rolling_10_q075'].iloc[i]=np.nan#df_plot['q075'].iloc[i]
+                
+                if (i>0):
+                    if (np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i-1])) and not(np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i])))):
+                        df_plot['rolling_10_median_scatter'].iloc[i]=df_plot['rolling_10_median'].iloc[i]
+                        
+                if (i<(len(df_plot)-1)):
+                    if (np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i+1])) and not(np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i])))):
+                        df_plot['rolling_10_median_scatter'].iloc[i]=df_plot['rolling_10_median'].iloc[i]
+                
             # Plot the median
             axt.plot(df_plot["low_bound"],df_plot["rolling_10_median"],color=my_pal[time_period])
             #Display IQR
             axt.fill_between(df_plot['low_bound'], df_plot['rolling_10_q025'], df_plot['rolling_10_q075'], alpha=0.3,color=my_pal[time_period])
+            #Display raw data where moving window do not display
+            axt.plot(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],color=my_pal[time_period],alpha=0.5)
+            axt.scatter(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],c=my_pal[time_period],marker='.',s=0.5,alpha=1)
             
+            '''
             #Display the median where outside of average window range
             #Create array_fill_start and _end for filling at the start and at the end
             array_fill_start=np.zeros(6,)
@@ -151,7 +199,13 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             #Display
             axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)+1],array_fill_start,alpha=0.5,color=my_pal[time_period])
             axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2):len(df_plot)],array_fill_end,alpha=0.5,color=my_pal[time_period])
-            
+            '''
+            '''
+            # Plot the median
+            axt.plot(df_plot["low_bound"],df_plot["median"],color=my_pal[time_period])
+            #Display IQR
+            axt.fill_between(df_plot['low_bound'], df_plot['q025'], df_plot['q075'], alpha=0.3,color=my_pal[time_period])
+            '''
     #Get rid of legend
     #axt.legend_.remove()
     axt.set_xlabel('')
@@ -162,7 +216,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.xaxis.tick_bottom()
 
     plt.show()
-    
     print('End plotting fig 2')
     return
 
@@ -384,7 +437,7 @@ loc3={2010:'empty',
       2017:'empty',
       2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 
-'''
+
 #in 2017 overestimation of ice content
 loc4={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
       2011:'empty',
@@ -393,7 +446,7 @@ loc4={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
       2014:'empty',
       2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
       2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
-'''
+
 '''
 #Only 2 years in SW, do not display it
 loc5={2010:'empty',
@@ -448,7 +501,15 @@ loc9={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
       2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
       2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
 
+'''
+in the NO
+20170413_01_126_134
+20140519_08_066_069
+20130420_08_045_048
 
+20170417_01_104_106
+20120511_01_059_059
+'''
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # Define the CartoPy CRS object.
@@ -491,12 +552,11 @@ f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estima
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
-
 #Plot data
 plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
-plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
-
+plot_thickness_evolution(loc4,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
+#previousl b was loc8
 plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 
 plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
@@ -519,7 +579,7 @@ ax1.axis('off')
 
 #panels a-b share axis, panels c-d-e-f share axis
 ax2t.set_xlim(1130,1440)
-ax3t.set_xlim(1130,1440)
+#ax3t.set_xlim(1130,1440)
 ax4t.set_xlim(1600,2080)
 ax5t.set_xlim(1600,2080)
 ax6t.set_xlim(1600,2080)
@@ -544,6 +604,7 @@ ax_legend.set_title('Legend')
 plt.show()
 ax7t.legend_.remove()
 
+pdb.set_trace()
 #Save the figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v2/fig2.png',dpi=500)
 

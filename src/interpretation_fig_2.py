@@ -256,6 +256,16 @@ panelb:
 2014  is reversed
 2017  is reversed
 '''
+
+#in 2017 overestimation of ice content
+panel_b_new={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+      2011:'empty',
+      2012:'empty',
+      2013:'empty',
+      2014:'empty',
+      2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
+      2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+
 panel_c={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
       2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
       2012:'empty',
@@ -575,6 +585,8 @@ figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
 plt.show()
+
+pdb.set_trace()
 ##############################################################################
 ###                              Show dry firn                             ###
 ##############################################################################
@@ -679,8 +691,8 @@ ax5_l = plt.subplot(gs[16:20, 0:10])
 ax6_l = plt.subplot(gs[20:24, 0:10])
 ax7_l = plt.subplot(gs[24:28, 0:10])
 
-investigation_year=panel_f
-investigation_year_surfpick=panel_f_surfpick
+investigation_year=panel_b
+investigation_year_surfpick=panel_b_surfpick
 lon_for_min_max=[]
 
 #Load appended radar for additional check about ice slabs continuity
@@ -701,7 +713,7 @@ for single_year in investigation_year.keys():
         
         if (indiv_file_load in list(list_added)):
             #Create the path
-            path_raw_data=path_higher+'panel_f/'
+            path_raw_data=path_higher+'panel_b/'
         else:
             #Create the path
             path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
@@ -784,7 +796,11 @@ for single_year in investigation_year.keys():
     ax_plot.invert_yaxis()
     #Append for lon min/max computation
     lon_for_min_max=np.append(lon_for_min_max,lon_appended)
-    
+
+'''
+lon_for_min_max=[]
+lon_for_min_max=[-66.86,-66.63]
+'''
 #Set xmin and xmax
 ax1_l.set_xlim(np.min(lon_for_min_max),np.max(lon_for_min_max))
 ax2_l.set_xlim(np.min(lon_for_min_max),np.max(lon_for_min_max))

@@ -404,9 +404,9 @@ display_pickle='FALSE'
 display_plots_quick_check='FALSE'
 
 investigation_quantile='TRUE'
-gaussian_calibration='FALSE'
+gaussian_calibration='TRUE'
 #For quantile investigation plotting
-show_reference_trace='FALSE'
+show_reference_trace='TRUE'
 show_case_study='TRUE'
 
 #1. Open roll corrected of the specific year
@@ -450,7 +450,7 @@ investigation_year={2010:'empty',
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 #2014 and 2017 almost colocated
 '''
-'''
+
 #Calibration track in MacFerrin et al, 2019
 investigation_year={2010:'empty',
                     2011:'empty',
@@ -460,7 +460,7 @@ investigation_year={2010:'empty',
                     2017:'empty',
                     2018:'empty'}
 #2014 and 2017 almost colocated
-'''
+
 
 #Investigation failing ice slabs likelihood
 #list_trace=list(['20110416_01_053_055':['Data_20110416_01_053.mat','Data_20110416_01_054.mat','Data_20110416_01_055.mat']
@@ -478,6 +478,7 @@ investigation_year={2010:'empty',
                 #'20180427_01_170_172':['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']
                 #'20180429_01_008_014'])['Data_20180429_01_008.mat','Data_20180429_01_009.mat','Data_20180429_01_010.mat','Data_20180429_01_011.mat','Data_20180429_01_012.mat','Data_20180429_01_013.mat','Data_20180429_01_014.mat']
 #One date in 2018 where processing is good for comparison: '20180427_01_004_006':['Data_20180427_01_004.mat','Data_20180427_01_005.mat','Data_20180427_01_006.mat']
+'''
 investigation_year={2010:'empty',
                     2011:'empty',
                     2012:'empty',
@@ -485,7 +486,7 @@ investigation_year={2010:'empty',
                     2014:'empty',
                     2017:'empty',
                     2018:['Data_20180427_01_004.mat','Data_20180427_01_005.mat','Data_20180427_01_006.mat']}
-
+'''
 
 if (create_pickle == 'TRUE'):
     ##############################################################################
@@ -501,7 +502,7 @@ if (create_pickle == 'TRUE'):
     dataframe={}
 
     #Define the desired quantiles
-    desired_quantiles=np.arange(0.63,0.82,0.01)
+    desired_quantiles=np.arange(0.2,1,0.01)
     filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
     
     for single_year in investigation_year.keys():
@@ -803,21 +804,25 @@ if (create_pickle == 'TRUE'):
         
         #Display the distribution of the signals
         fig1, (ax1) = plt.subplots(1, 1)
-        fig1.suptitle('Signal strenght distribution - Calibration trace in MacFerrin et al., 2019')
-        ax1.hist(iceslabs,bins=500,density=True,label='iceslabs')
-        ax1.hist(dry_firn,bins=500,density=True,alpha=0.2,label='dry firn')
+        #fig1.suptitle('Signal strenght distribution - Calibration trace in MacFerrin et al., 2019')
+        ax1.hist(iceslabs,bins=500,density=True,label='Ice')
+        ax1.hist(dry_firn,bins=500,density=True,alpha=0.2,label='Dry firn')
         ax1.legend()
+        ax1.set_xlabel('Radar signal strength [dB]')
+        ax1.set_ylabel('Probability density [ ]')
         plt.show()
         
         #Define quantiles for investigation of accuracy
         quantile_investigation=np.quantile(iceslabs,desired_quantiles)
-        
+        '''
         f_quantiles = open(filename_quantiles, "w")
         f_quantiles.write(str(np.round(desired_quantiles,2))+'\n')
         f_quantiles.write(str(quantile_investigation))
         f_quantiles.close() #Close the quantile file when we’re done!
-        pdb.set_trace()
-        
+        '''
+        '''
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/figS2.png',dpi=300)
+        '''
     else:
         #pdb.set_trace()
         #Then open the quantile file created previously        
@@ -888,15 +893,15 @@ if (investigation_quantile=='TRUE'):
         date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
         
         #Define filename roll, depth corrected data and mask
-        filename_depth_corrected=date_track+'_DEPTH_CORRECTED.pickle'
+        filename_depth_corrected=date_track+'_DEPTH_CORRECTED_surf_removal.pickle'
                      
         #Open the roll corrected file
-        f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+        f_depth_corrected = open(path_boolean_remove_surf+filename_depth_corrected, "rb")
         depth_corrected = pickle.load(f_depth_corrected)
         f_depth_corrected.close()
         
         #Define the quantiles to open
-        quantiles_open=np.round(np.arange(0.6,0.91,0.01),2)
+        quantiles_open=np.round(np.arange(0.2,1.01,0.01),2)
         
         #pdb.set_trace()
         #Set dataframe
@@ -983,7 +988,7 @@ if (investigation_quantile=='TRUE'):
                 depth_check=depth_check-abs(depth_check[0])
                 depth = depth_check
             
-        #pdb.set_trace()
+        pdb.set_trace()
         #Store reunited lat/lon, slice output and mask in a dictionnary:
         dataframe['lat_appended']=lat_appended
         dataframe['lon_appended']=lon_appended
@@ -1089,10 +1094,10 @@ if (investigation_quantile=='TRUE'):
         ax3.grid()
         
         plt.show()
-        #pdb.set_trace()
+        pdb.set_trace()
         
         #Display the resulting slabs identification
-        path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/'
+        #path_savefig='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantile_investigation/'
         
         for i in range(0,len(quantiles_open)):
             
@@ -1123,7 +1128,7 @@ if (investigation_quantile=='TRUE'):
             ax1.set_yticklabels(list(np.linspace(0,20,3)))
             ax1.set_ylabel('Depth [m]')
             
-            #pdb.set_trace()
+            pdb.set_trace()
             
             #Save the figure
             plt.savefig(fig_name,dpi=2000)
