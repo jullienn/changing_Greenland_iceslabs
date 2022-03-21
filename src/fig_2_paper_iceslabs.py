@@ -54,9 +54,9 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Create an empty df_sampling
     df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev','rolling_10_median_scatter'])
 
-    #Elev divide every 2m.
-    elev_bin_desired=2
-    elev_divide=np.arange(np.floor(np.min(df_for_elev['elevation'])),np.floor(np.max(df_for_elev['elevation']))+1+elev_bin_desired,elev_bin_desired)
+    #Longitudinal divide every 200m.
+    lon_bin_desired=200
+    lon_divide=np.arange(np.floor(np.min(df_for_elev['lon_3413'])),np.floor(np.max(df_for_elev['lon_3413']))+1+lon_bin_desired,lon_bin_desired)
 
     #Define window size for smoothing
     winsize=3
@@ -88,25 +88,36 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         else:
             print('Time period not known, break')
             break
-        
+          
         if (len(df_trace_year)==0):
             #No data in this time period, continue
             continue
-        else:            
-            #Sort df_trace_year from low to high elevations
-            df_trace_year_sorted=df_trace_year.sort_values(by=['elevation'])
+        else:   
+            '''
+            #Display elevation along longitude
+            if (casestudy_nb=='c'):
+                #Sort df_trace_year_sorted_panb from low to high elevations
+                df_trace_year_sorted_panb=df_trace_year.sort_values(by=['lon_3413'])
+                
+                fige, ((axfige)) = plt.subplots()
+                axfige.plot(df_trace_year_sorted_panb['lon_3413'],df_trace_year_sorted_panb['elevation'])
+                axfige.set_title(str(df_trace_year_sorted_panb.year.unique()[0].astype(int)))
+                plt.show()
+            '''
+            #Sort df_trace_year from low to high longitude (from west to east)
+            df_trace_year_sorted=df_trace_year.sort_values(by=['lon_3413'])
             
             #Set bound_nb to 0
             bound_nb=0
             #Loop over the lon divide
-            for i in range(1,len(elev_divide)):
+            for i in range(1,len(lon_divide)):
                 
                 #Identify low and higher end of the slice
-                low_bound=elev_divide[i-1]
-                high_bound=elev_divide[i]
+                low_bound=lon_divide[i-1]
+                high_bound=lon_divide[i]
         
                 #Select all the data belonging to this elev slice
-                ind_slice=np.logical_and(np.array(df_trace_year_sorted['elevation']>=low_bound),np.array(df_trace_year_sorted['elevation']<high_bound))
+                ind_slice=np.logical_and(np.array(df_trace_year_sorted['lon_3413']>=low_bound),np.array(df_trace_year_sorted['lon_3413']<high_bound))
                 df_select=df_trace_year_sorted[ind_slice]
                 
                 #Append data to each other - general info                
@@ -147,7 +158,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     df_sampling['q075']=app_q075
     df_sampling['stddev']=app_stddev
     df_sampling['rolling_10_median_scatter']=[np.nan]*len(app_mean)
-        
+    
     for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
         if (len(df_sampling[df_sampling['time_period']==time_period])==0):
             #Empty time period, continue
@@ -503,13 +514,62 @@ loc9={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
 
 '''
 in the NO
-20170413_01_126_134
-20140519_08_066_069
-20130420_08_045_048
+loc10={2010:'empty',
+       2011:'empty',
+       2012:'empty',
+       2013:['Data_20130420_08_045.mat','Data_20130420_08_046.mat','Data_20130420_08_047.mat','Data_20130420_08_048.mat'],
+       2014:['Data_20140519_08_066.mat','Data_20140519_08_067.mat','Data_20140519_08_068.mat','Data_20140519_08_069.mat'],
+       2017:['Data_20170413_01_126.mat','Data_20170413_01_127.mat','Data_20170413_01_128.mat',
+             'Data_20170413_01_129.mat','Data_20170413_01_130.mat','Data_20170413_01_131.mat',
+             'Data_20170413_01_132.mat','Data_20170413_01_133.mat','Data_20170413_01_134.mat'],
+       2018:'empty'}
 
-20170417_01_104_106
-20120511_01_059_059
+loc11={2010:'empty',
+       2011:'empty',
+       2012:['Data_20120511_01_059.mat'],
+       2013:'empty',
+       2014:'empty',
+       2017:['Data_20170417_01_104.mat','Data_20170417_01_105.mat','Data_20170417_01_106.mat'],
+       2018:'empty'}
+
 '''
+
+
+pkpas={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+                    2011:'empty',
+                    2012:'empty',
+                    2013:'empty',
+                    2014:'empty',
+                    2017:'empty',
+                    2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+
+pkpas={2010:'empty',
+                    2011:'empty',
+                    2012:'empty',
+                    2013:['Data_20130405_01_011.mat','Data_20130405_01_012.mat','Data_20130405_01_013.mat'],
+                    2014:['Data_20140424_03_046.mat','Data_20140424_03_047.mat','Data_20140424_03_048.mat'],
+                    2017:['Data_20170422_01_007.mat','Data_20170422_01_008.mat','Data_20170422_01_009.mat'],
+                    2018:'empty'}
+
+
+pkpas={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
+                    2011:'empty',
+                    2012:'empty',
+                    2013:'empty',
+                    2014:'empty',
+                    2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
+                    2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
+
+plutotbien={2010:'empty',
+            2011:'empty',
+            2012:['Data_20120418_01_005.mat','Data_20120418_01_006.mat','Data_20120418_01_007.mat'],
+            2013:'empty',
+            2014:'empty',
+            2017:['Data_20170505_02_181.mat','Data_20170505_02_182.mat','Data_20170505_02_183.mat'],
+            2018:'empty'}
+
+
+
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # Define the CartoPy CRS object.
@@ -555,7 +615,7 @@ f_20102018.close()
 #Plot data
 plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
-plot_thickness_evolution(loc4,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
 #previousl b was loc8
 plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 
@@ -577,6 +637,7 @@ gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
 
+'''
 #panels a-b share axis, panels c-d-e-f share axis
 ax2t.set_xlim(1130,1440)
 #ax3t.set_xlim(1130,1440)
@@ -584,7 +645,7 @@ ax4t.set_xlim(1600,2080)
 ax5t.set_xlim(1600,2080)
 ax6t.set_xlim(1600,2080)
 ax7t.set_xlim(1600,2080)
-
+'''
 #Display distance as Elevation [m]
 ax5t.set_ylabel('Column ice thickness [m]')
 ax7t.set_xlabel('Elevation [m]')
