@@ -225,10 +225,51 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Activate ticks x and y label
     axt.yaxis.tick_left()
     axt.xaxis.tick_bottom()
-
+    
+    '''
+    #TO DO:
+        - 1. extract x tick labels
+        - 2. find corresponding elevation using np.argmin(lon-lon_axis[0])
+        - 3. display corresponding elevation
+        - 4. Add elevation profile on the right hand side?
+    '''
+    #1. Extract x ticks
+    #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
+    xticks=np.asarray([item for item in axt.get_xticks()])
+    
+    #2. Find closest corresponding elevation
+    elevation_display=[np.nan]*len(xticks)
+    count=0
+    for indiv_lon in xticks:
+        
+        index_closest=np.argmin(np.abs(np.abs(df_for_elev['lon_3413'])-np.abs(indiv_lon)))
+        elevation_display[count]=np.round(df_for_elev.iloc[index_closest]['elevation'])
+        count=count+1
+    
+    #This is from https://stackoverflow.com/questions/63723514/userwarning-fixedformatter-should-only-be-used-together-with-fixedlocator
+    # fixing xticks with matplotlib.ticker "FixedLocator"
+    axt.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))
+    axt.set_xticklabels(elevation_display)
+        
+    '''
+    Backup solution
+    #This is from https://stackoverflow.com/questions/63723514/userwarning-fixedformatter-should-only-be-used-together-with-fixedlocator
+    # fixing yticks with "set_yticks"
+    axt.set_xticks(axt.get_xticks().tolist())        
+    axt.set_xticklabels(elevation_display)
+    '''
+    
+    '''
+    #This is from https://stackoverflow.com/questions/30914462/matplotlib-how-to-force-integer-tick-labels
+    from matplotlib.ticker import MaxNLocator
+    axt.xaxis.set_major_locator(MaxNLocator(integer=True))
+    '''
     plt.show()
+    
+    #Return the df storing elevation with longitude for xaxis legending    
+    returned_df_for_xaxis=df_for_elev[['lon_3413','elevation']]
     print('End plotting fig 2')
-    return
+    return returned_df_for_xaxis
 
 ###     This is from iceslabs_20102018_thickening_analysis.py       ###
 
@@ -250,6 +291,8 @@ import seaborn as sns
 sns.set_theme(style="whitegrid")
 from scipy import signal
 import cartopy.crs as ccrs
+import matplotlib.ticker as mticker
+
 
 #Set fontsize plot
 plt.rcParams.update({'font.size': 10})
@@ -613,18 +656,17 @@ df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
 #Plot data
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
+panel_a_xaxis=plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
-plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
+panel_b_xaxis=plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
 #previousl b was loc8
-plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
+panel_c_xaxis=plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 
-plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
+panel_d_xaxis=plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
 
-plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
+panel_e_xaxis=plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
 
-plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
-
+panel_f_xaxis=plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
@@ -636,6 +678,9 @@ gl.ylabels_right = False
 gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
+
+pdb.set_trace()
+
 
 '''
 #panels a-b share axis, panels c-d-e-f share axis
