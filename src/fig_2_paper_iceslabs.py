@@ -4,7 +4,7 @@ Created on Sun Dec 19 12:14:06 2021
 
 @author: jullienn
 """
-def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,custom_angle,offset_x,offset_y,casestudy_nb):
+def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,axe,custom_angle,offset_x,offset_y,casestudy_nb):
     
     #Define empty dictionnary for elevation slice definition
     df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
@@ -246,6 +246,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         elevation_display[count]=np.round(df_for_elev.iloc[index_closest]['elevation'])
         count=count+1
     
+    #3. Display corresponding elevation
     #This is from https://stackoverflow.com/questions/63723514/userwarning-fixedformatter-should-only-be-used-together-with-fixedlocator
     # fixing xticks with matplotlib.ticker "FixedLocator"
     axt.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))
@@ -260,10 +261,16 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     '''
     
     '''
+    #Try to display integer
     #This is from https://stackoverflow.com/questions/30914462/matplotlib-how-to-force-integer-tick-labels
     from matplotlib.ticker import MaxNLocator
     axt.xaxis.set_major_locator(MaxNLocator(integer=True))
     '''
+    
+    #4. Display elevation profile
+    axe.scatter(df_for_elev['lon_3413'],df_for_elev['elevation'],s=0.5,marker='.',c='k')
+    axe.yaxis.tick_right()
+
     plt.show()
     
     #Return the df storing elevation with longitude for xaxis legending    
@@ -623,7 +630,7 @@ crs_proj4 = crs.proj4_init
 ###################### From Tedstone et al., 2022 #####################
         
 fig = plt.figure(figsize=(32,48))
-gs = gridspec.GridSpec(40, 20)
+gs = gridspec.GridSpec(40, 23)
 gs.update(wspace=0.001)
 #gs.update(wspace=0.001)
 #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
@@ -636,6 +643,13 @@ ax4t = plt.subplot(gs[14:19, 3:20])
 ax5t = plt.subplot(gs[21:26, 3:20])
 ax6t = plt.subplot(gs[28:33, 3:20])
 ax7t = plt.subplot(gs[35:40, 3:20])
+
+ax2e = plt.subplot(gs[0:5, 21:23])
+ax3e = plt.subplot(gs[7:12, 21:23])
+ax4e = plt.subplot(gs[14:19, 21:23])
+ax5e = plt.subplot(gs[21:26, 21:23])
+ax6e = plt.subplot(gs[28:33, 21:23])
+ax7e = plt.subplot(gs[35:40, 21:23])
 
 ax1.set_facecolor('white')
 
@@ -656,17 +670,17 @@ df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
 #Plot data
-panel_a_xaxis=plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
+panel_a_xaxis=plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
-panel_b_xaxis=plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
+panel_b_xaxis=plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,ax3e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
 #previousl b was loc8
-panel_c_xaxis=plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
+panel_c_xaxis=plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 
-panel_d_xaxis=plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
+panel_d_xaxis=plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
 
-panel_e_xaxis=plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
+panel_e_xaxis=plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
 
-panel_f_xaxis=plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
+panel_f_xaxis=plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,ax7e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
@@ -679,21 +693,19 @@ gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
 
-pdb.set_trace()
 
-
-'''
 #panels a-b share axis, panels c-d-e-f share axis
-ax2t.set_xlim(1130,1440)
-#ax3t.set_xlim(1130,1440)
-ax4t.set_xlim(1600,2080)
-ax5t.set_xlim(1600,2080)
-ax6t.set_xlim(1600,2080)
-ax7t.set_xlim(1600,2080)
-'''
+ax2e.set_ylim(1130,1440)
+ax3e.set_xlim(1130,1440)
+ax4e.set_ylim(1600,2080)
+ax5e.set_ylim(1600,2080)
+ax6e.set_ylim(1600,2080)
+ax7e.set_ylim(1600,2080)
+
 #Display distance as Elevation [m]
 ax5t.set_ylabel('Column ice thickness [m]')
 ax7t.set_xlabel('Elevation [m]')
+ax5t.set_ylabel('Elevation [m]')
 
 #Custom legend myself
 legend_elements = [Patch(facecolor='#fdd49e',label='2010'),
