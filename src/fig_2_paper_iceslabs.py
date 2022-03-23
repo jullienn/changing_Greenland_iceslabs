@@ -709,7 +709,6 @@ gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
 
-
 #panels a-b share axis, panels c-d-e-f share axis
 ax2e.set_ylim(1130,1440)
 ax3e.set_ylim(1130,1440)
