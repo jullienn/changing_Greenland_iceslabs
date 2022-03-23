@@ -639,7 +639,7 @@ df_melt_positive[df_melt_positive['NRJ']<0]=np.nan
 
 #4. Keep only summer data
 
-#Select only from May to September
+#Select only from 1st May to 30th September
 df_melt_summer=df_melt_positive[(df_melt_positive['MonthOfYear']>=5) & (df_melt_positive['MonthOfYear']<=9)]
 
 #Keep only data from 2009 to 2017
@@ -664,10 +664,52 @@ ax10m.xaxis.tick_bottom()
 #Add pannel label
 ax10m.text(0.01, 0.875,'i',ha='center', va='center', transform=ax10m.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
-pdb.set_trace()
-
+'''
 ax10m.legend_.remove()
 plt.show()
+'''
+######################## Assess the data coverage #############################
+
+#Create an empty dataframe for data coverage
+year_coverage=[]
+month_coverage=[]
+day_coverage=[]
+data_coverage=[]
+
+for indiv_year in df_melt['Year'].unique():
+    #Select indiv year
+    df_melt_year=df_melt[df_melt['Year']==indiv_year]
+    
+    for indiv_month in df_melt_year['MonthOfYear'].unique():
+        #Select indiv month
+        df_melt_year_month=df_melt_year[df_melt_year['MonthOfYear']==indiv_month]
+    
+        for indiv_day in df_melt_year_month['DayOfMonth'].unique():
+            #Select indiv day
+            df_melt_year_month_day=df_melt_year_month[df_melt_year_month['DayOfMonth']==indiv_day]
+            
+            #Store number of non-NaN data I have for this day (complete = 24)
+            indiv_day_data=np.asarray(df_melt_year_month_day['melt'])
+            
+            #Get rid of NaNs
+            indiv_day_data_nonNaNs=indiv_day_data[~np.isnan(indiv_day_data)]
+            
+            #Store associated number of melt data for this day
+            year_coverage=np.append(year_coverage,indiv_year)
+            month_coverage=np.append(month_coverage,indiv_month)
+            day_coverage=np.append(day_coverage,indiv_day)
+            data_coverage=np.append(data_coverage,len(indiv_day_data_nonNaNs))
+
+#Create a coverage dataframe
+df_coverage=pd.DataFrame(year_coverage, columns=['Year'])
+df_coverage['Month']=month_coverage
+df_coverage['Day']=day_coverage
+df_coverage['Data_coverage']=data_coverage
+
+pdb.set_trace()
+
+######################## Assess the data coverage #############################
+
 
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v2/fig3.png',dpi=1000)
