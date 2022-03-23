@@ -226,14 +226,13 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.yaxis.tick_left()
     axt.xaxis.tick_bottom()
     
-    pdb.set_trace()
-    
     '''
     #TO DO:
         - 1. extract x tick labels
         - 2. find corresponding elevation using np.argmin(lon-lon_axis[0])
         - 3. display corresponding elevation
         - 4. Add elevation profile on the right hand side?
+    '''
     '''
     #1. Extract x ticks
     #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
@@ -253,7 +252,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     # fixing xticks with matplotlib.ticker "FixedLocator"
     axt.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))
     axt.set_xticklabels(elevation_display)
-        
+    '''
+    
     '''
     Backup solution
     #This is from https://stackoverflow.com/questions/63723514/userwarning-fixedformatter-should-only-be-used-together-with-fixedlocator
@@ -272,9 +272,36 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #4. Display elevation profile
     axe.scatter(df_for_elev['lon_3413'],df_for_elev['elevation'],s=0.5,marker='.',c='k')
     axe.yaxis.tick_right()
-
-    plt.show()
     
+    #Making xticks from axt match with those of axe
+    axe.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))
+    #Display only a few of xticks labels on axe so that it is readable
+    if (casestudy_nb=='a'):
+        list_ticks=[-468000,-452000]
+    elif (casestudy_nb=='b'):
+        list_ticks=[-540000,-490000]
+    elif (casestudy_nb=='c'):
+        list_ticks=[-120000,-70000]
+    elif (casestudy_nb=='d'):
+        list_ticks=[-120000,-80000]
+    elif (casestudy_nb=='e'):
+        list_ticks=[-120000,-70000]
+    elif (casestudy_nb=='f'):
+        list_ticks=[-160000,-90000]
+    else:
+        print('Case study, not known')
+
+    #aDisplay tick markers
+    axe.xaxis.tick_bottom()
+    
+    #Display only start and end longitude to ease readability
+    #This is from https://www.delftstack.com/howto/matplotlib/matplotlib-set-number-of-ticks/, adpated to the new matplotlib version (axe.get_xticklabels() instead of axe.xaxis.get_ticklabels())
+    for i, tick in enumerate(axe.get_xticklabels()):
+        pdb.set_trace()
+        if (tick._x not in list_ticks):
+            tick.set_visible(False)
+    plt.show()
+
     #Return the df storing elevation with longitude for xaxis legending    
     returned_df_for_xaxis=df_for_elev[['lon_3413','elevation']]
     print('End plotting fig 2')
@@ -698,7 +725,7 @@ ax1.axis('off')
 
 #panels a-b share axis, panels c-d-e-f share axis
 ax2e.set_ylim(1130,1440)
-ax3e.set_xlim(1130,1440)
+ax3e.set_ylim(1130,1440)
 ax4e.set_ylim(1600,2080)
 ax5e.set_ylim(1600,2080)
 ax6e.set_ylim(1600,2080)
@@ -706,8 +733,11 @@ ax7e.set_ylim(1600,2080)
 
 #Display distance as Elevation [m]
 ax5t.set_ylabel('Column ice thickness [m]')
-ax7t.set_xlabel('Elevation [m]')
+ax7t.set_xlabel('Longitude')
 ax5t.set_ylabel('Elevation [m]')
+ax5e.set_ylabel('Elevation [m]')
+ax5e.yaxis.set_label_position("right")
+ax7e.set_xlabel('Longitude')
 
 #Custom legend myself
 legend_elements = [Patch(facecolor='#fdd49e',label='2010'),
@@ -722,11 +752,11 @@ plt.legend()
 ax_legend.axis('off')
 ax_legend.set_title('Legend')
 plt.show()
-ax7t.legend_.remove()
+ax7e.legend_.remove()
 
 pdb.set_trace()
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v2/fig2.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v3/fig2.png',dpi=500)
 
 
 '''
