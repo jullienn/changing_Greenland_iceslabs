@@ -226,6 +226,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.yaxis.tick_left()
     axt.xaxis.tick_bottom()
     
+    pdb.set_trace()
+    
     '''
     #TO DO:
         - 1. extract x tick labels
