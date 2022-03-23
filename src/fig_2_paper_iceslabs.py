@@ -227,13 +227,12 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.xaxis.tick_bottom()
     
     '''
-    #TO DO:
+    #IF DISPLAY ELEVATION ON XTICKS ON THE LONG VS COLUMNAL ICE CONTENT PLOT IS DESIRED:
         - 1. extract x tick labels
         - 2. find corresponding elevation using np.argmin(lon-lon_axis[0])
         - 3. display corresponding elevation
         - 4. Add elevation profile on the right hand side?
-    '''
-    '''
+
     #1. Extract x ticks
     #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
     xticks=np.asarray([item for item in axt.get_xticks()])
@@ -252,17 +251,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     # fixing xticks with matplotlib.ticker "FixedLocator"
     axt.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))
     axt.set_xticklabels(elevation_display)
-    '''
-    
-    '''
-    Backup solution
-    #This is from https://stackoverflow.com/questions/63723514/userwarning-fixedformatter-should-only-be-used-together-with-fixedlocator
-    # fixing yticks with "set_yticks"
-    axt.set_xticks(axt.get_xticks().tolist())        
-    axt.set_xticklabels(elevation_display)
-    '''
-    
-    '''
+
     #Try to display integer
     #This is from https://stackoverflow.com/questions/30914462/matplotlib-how-to-force-integer-tick-labels
     from matplotlib.ticker import MaxNLocator
@@ -302,10 +291,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             tick.set_visible(False)
     plt.show()
 
-    #Return the df storing elevation with longitude for xaxis legending    
-    returned_df_for_xaxis=df_for_elev[['lon_3413','elevation']]
     print('End plotting fig 2')
-    return returned_df_for_xaxis
+    return 
 
 ###     This is from iceslabs_20102018_thickening_analysis.py       ###
 
@@ -699,17 +686,17 @@ df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
 #Plot data
-panel_a_xaxis=plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
-panel_b_xaxis=plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,ax3e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,ax3e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
 #previousl b was loc8
-panel_c_xaxis=plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
+plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 
-panel_d_xaxis=plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
+plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
 
-panel_e_xaxis=plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
 
-panel_f_xaxis=plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,ax7e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
+plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,ax7e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
