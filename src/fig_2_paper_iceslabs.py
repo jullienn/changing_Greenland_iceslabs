@@ -4,6 +4,36 @@ Created on Sun Dec 19 12:14:06 2021
 
 @author: jullienn
 """
+
+def compute_distances(eastings,northings):
+    #This function is from plot_2002_2003.py, which was originally taken from MacFerrin et al., 2019
+    '''Compute the distance (in m here, not km as written originally) of the traces in the file.'''
+    # C = sqrt(A^2  + B^2)
+    distances = np.power(np.power((eastings[1:] - eastings[:-1]),2) + np.power((northings[1:] - northings[:-1]),2), 0.5)
+
+    #Calculate the cumsum of the distances
+    cumsum_distances=np.nancumsum(distances)
+    #Seeting the first value of the cumsum to be zero as it is the origin
+    return_cumsum_distances=np.zeros(eastings.shape[0])
+    return_cumsum_distances[1:eastings.shape[0]]=cumsum_distances
+
+    return return_cumsum_distances
+
+def compute_distances_pyproj(eastings,northings):
+    #This is from https://pyproj4.github.io/pyproj/stable/api/geod.html#pyproj.Geod.line_length
+    from pyproj import Geod
+    geod = Geod(ellps="WGS84")
+    
+    distances=[]
+    pdb.set_trace()
+    
+    for line_length in geod.line_lengths(northings, eastings):
+        distances=np.append(distances,line_length)
+    
+    pdb.set_trace()
+    
+    return return_cumsum_distances
+
 def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,axe,custom_angle,offset_x,offset_y,casestudy_nb):
     
     #Define empty dictionnary for elevation slice definition
@@ -53,14 +83,47 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     #Create an empty df_sampling
     df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev','rolling_10_median_scatter'])
-
-    #Longitudinal divide every 200m.
-    lon_bin_desired=200
-    lon_divide=np.arange(np.floor(np.min(df_for_elev['lon_3413'])),np.floor(np.max(df_for_elev['lon_3413']))+1+lon_bin_desired,lon_bin_desired)
-
+        
+    #Sort df_for_elev from low to high longitude (from west to east)
+    df_for_elev_sorted=df_for_elev.sort_values(by=['lon_3413'])
+    
+    #Create a nan array for storing distances
+    df_for_elev_sorted['distances']=np.nan
+    
+    #Store coordinates of the bounds of the transect
+    bounds_transect=np.array([[df_for_elev_sorted.iloc[0]['lon_3413'], df_for_elev_sorted.iloc[0]['lat_3413']],
+                              [df_for_elev_sorted.iloc[-1]['lon_3413'], df_for_elev_sorted.iloc[-1]['lat_3413']]])
+    
+    #Compute distance between the westernmost and easternmost point
+    bounds_distances=compute_distances(bounds_transect[:,0],bounds_transect[:,1])
+        
+    #grizou= compute_distances_pyproj(np.asarray(df_for_elev_sorted['lon']),np.asarray(df_for_elev_sorted['lat']))
+    
+    #Distance divide every 500m.
+    dist_bin_desired=500
+    dist_divide=np.arange(np.floor(np.min(bounds_distances)),np.floor(np.max(bounds_distances))+1+dist_bin_desired,dist_bin_desired)
+    
     #Define window size for smoothing
     winsize=3
-    
+        
+    #Calculate distance for every single year
+    for indiv_year in np.array([2010,2011,2012,2013,2014,2017,2018]):
+        print(indiv_year)
+        #Extract the indexes of the corresponding year
+        ind_indiv_year=np.where(df_for_elev_sorted['year']==indiv_year)
+        #Select the corresponding year
+        df_trace_year_sorted_for_dist=df_for_elev_sorted.iloc[ind_indiv_year]
+        
+        if (len(df_trace_year_sorted_for_dist)>0):            
+            #Calculate the distance compared to start of transect
+            #a. Add the start of the transect for calculating distances
+            coordinates_df=[np.append(bounds_transect[0,0],np.asarray(df_trace_year_sorted_for_dist['lon_3413'])),
+                            np.append(bounds_transect[0,1],np.asarray(df_trace_year_sorted_for_dist['lat_3413']))]
+            #b. Calculate the distances
+            distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
+            #c. Store the distances
+            df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
+         
     #Define empty list
     app_time_period=[]
     app_low_bound=[]
@@ -78,22 +141,23 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         
         #Get data for that specific time period
         if (time_period == '2010'):
-            df_trace_year=df_for_elev[df_for_elev['year']==2010]
+            df_trace_year_sorted=df_for_elev_sorted[df_for_elev_sorted['year']==2010]
         elif (time_period == '2011-2012'):
-            df_trace_year=df_for_elev[(df_for_elev['year']>=2011) & (df_for_elev['year']<=2012)]
+            df_trace_year_sorted=df_for_elev_sorted[(df_for_elev_sorted['year']>=2011) & (df_for_elev_sorted['year']<=2012)]
         elif (time_period == '2013-2014'):
-            df_trace_year=df_for_elev[(df_for_elev['year']>=2013) & (df_for_elev['year']<=2014)]
+            df_trace_year_sorted=df_for_elev_sorted[(df_for_elev_sorted['year']>=2013) & (df_for_elev_sorted['year']<=2014)]
         elif (time_period == '2017-2018'):
-            df_trace_year=df_for_elev[(df_for_elev['year']>=2017) & (df_for_elev['year']<=2018)]
+            df_trace_year_sorted=df_for_elev_sorted[(df_for_elev_sorted['year']>=2017) & (df_for_elev_sorted['year']<=2018)]
         else:
             print('Time period not known, break')
             break
           
-        if (len(df_trace_year)==0):
+        if (len(df_trace_year_sorted)==0):
             #No data in this time period, continue
             continue
         else:   
             '''
+            NOT UP TO DATE WITH RECENT CHANGES ABOUT DISTANCE
             #Display elevation along longitude
             if (casestudy_nb=='c'):
                 #Sort df_trace_year_sorted_panb from low to high elevations
@@ -104,20 +168,18 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
                 axfige.set_title(str(df_trace_year_sorted_panb.year.unique()[0].astype(int)))
                 plt.show()
             '''
-            #Sort df_trace_year from low to high longitude (from west to east)
-            df_trace_year_sorted=df_trace_year.sort_values(by=['lon_3413'])
             
             #Set bound_nb to 0
             bound_nb=0
-            #Loop over the lon divide
-            for i in range(1,len(lon_divide)):
+            #Loop over the dist divide
+            for i in range(1,len(dist_divide)):
                 
                 #Identify low and higher end of the slice
-                low_bound=lon_divide[i-1]
-                high_bound=lon_divide[i]
+                low_bound=dist_divide[i-1]
+                high_bound=dist_divide[i]
         
                 #Select all the data belonging to this elev slice
-                ind_slice=np.logical_and(np.array(df_trace_year_sorted['lon_3413']>=low_bound),np.array(df_trace_year_sorted['lon_3413']<high_bound))
+                ind_slice=np.logical_and(np.array(df_trace_year_sorted['distances']>=low_bound),np.array(df_trace_year_sorted['distances']<high_bound))
                 df_select=df_trace_year_sorted[ind_slice]
                 
                 #Append data to each other - general info                
@@ -195,6 +257,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             axt.scatter(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],c=my_pal[time_period],marker='.',s=0.5,alpha=1)
             
             '''
+            NOT UP TO DATE WITH RECENT CHANGES ABOUT DISTANCE
             #Display the median where outside of average window range
             #Create array_fill_start and _end for filling at the start and at the end
             array_fill_start=np.zeros(6,)
@@ -227,6 +290,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.xaxis.tick_bottom()
     
     '''
+    NOT UP TO DATE WITH RECENT CHANGES ABOUT DISTANCE
     #IF DISPLAY ELEVATION ON XTICKS ON THE LONG VS COLUMNAL ICE CONTENT PLOT IS DESIRED:
         - 1. extract x tick labels
         - 2. find corresponding elevation using np.argmin(lon-lon_axis[0])
@@ -259,36 +323,13 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     '''
     
     #4. Display elevation profile
-    axe.scatter(df_for_elev['lon_3413'],df_for_elev['elevation'],s=0.5,marker='.',c='k')
+    #axe.scatter(df_for_elev['lon_3413'],df_for_elev['elevation'],s=0.5,marker='.',c='k')
+    axe.scatter(df_for_elev_sorted['lon_3413'],df_for_elev_sorted['elevation'])
     axe.yaxis.tick_right()
     
-    #Making xticks from axt match with those of axe
-    axe.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))
-    #Display only a few of xticks labels on axe so that it is readable
-    if (casestudy_nb=='a'):
-        list_ticks=[-468000,-452000]
-    elif (casestudy_nb=='b'):
-        list_ticks=[-540000,-490000]
-    elif (casestudy_nb=='c'):
-        list_ticks=[-120000,-70000]
-    elif (casestudy_nb=='d'):
-        list_ticks=[-120000,-80000]
-    elif (casestudy_nb=='e'):
-        list_ticks=[-120000,-70000]
-    elif (casestudy_nb=='f'):
-        list_ticks=[-160000,-90000]
-    else:
-        print('Case study, not known')
-
-    #aDisplay tick markers
+    #Display tick markers
     axe.xaxis.tick_bottom()
     
-    #Display only start and end longitude to ease readability
-    #This is from https://www.delftstack.com/howto/matplotlib/matplotlib-set-number-of-ticks/, adpated to the new matplotlib version (axe.get_xticklabels() instead of axe.xaxis.get_ticklabels())
-    for i, tick in enumerate(axe.get_xticklabels()):
-        pdb.set_trace()
-        if (tick._x not in list_ticks):
-            tick.set_visible(False)
     plt.show()
 
     print('End plotting fig 2')
@@ -708,6 +749,15 @@ gl.ylabels_right = False
 gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
+
+ax2t.set_xlim(0,70000)
+ax3t.set_xlim(0,70000)
+ax4t.set_xlim(0,70000)
+ax5t.set_xlim(0,70000)
+ax6t.set_xlim(0,70000)
+ax7t.set_xlim(0,70000)
+
+pdb.set_trace()
 
 #panels a-b share axis, panels c-d-e-f share axis
 ax2e.set_ylim(1130,1440)

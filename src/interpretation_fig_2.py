@@ -257,7 +257,7 @@ panelb:
 2017  is reversed
 '''
 
-panel_b_new=
+#panel_b_new=
 
 panel_c={2010:['Data_20100507_01_008.mat','Data_20100507_01_009.mat','Data_20100507_01_010.mat'],
       2011:['Data_20110426_01_009.mat','Data_20110426_01_010.mat','Data_20110426_01_011.mat'],
@@ -312,7 +312,7 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_b_new
+investigation_year=panel_b
 
 fig = plt.figure()
 gs = gridspec.GridSpec(30, 10)
