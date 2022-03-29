@@ -99,8 +99,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         
     #grizou= compute_distances_pyproj(np.asarray(df_for_elev_sorted['lon']),np.asarray(df_for_elev_sorted['lat']))
     
-    #Distance divide every 500m.
-    dist_bin_desired=500
+    #Distance divide every 300m.
+    dist_bin_desired=300
     dist_divide=np.arange(np.floor(np.min(bounds_distances)),np.floor(np.max(bounds_distances))+1+dist_bin_desired,dist_bin_desired)
     
     #Define window size for smoothing
@@ -326,9 +326,36 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #axe.scatter(df_for_elev['lon_3413'],df_for_elev['elevation'],s=0.5,marker='.',c='k')
     axe.scatter(df_for_elev_sorted['lon_3413'],df_for_elev_sorted['elevation'])
     axe.yaxis.tick_right()
-    
     #Display tick markers
     axe.xaxis.tick_bottom()
+    
+    pdb.set_trace()
+    #Display elevations on the top of the axis.
+    axelev=axt.twiny() #This is from https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.twiny.html
+    
+    #Forcing top xticks to be the ones from bottom xticks with matplotlib.ticker "FixedLocator"
+    #This is from https://stackoverflow.com/questions/63723514/userwarning-fixedformatter-should-only-be-used-together-with-fixedlocator
+    axelev.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))    
+    
+    #Extract x ticks
+    #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
+    xticks=np.asarray([item for item in axt.get_xticks()])
+    
+    #Find closest corresponding elevation
+    elevation_display=[np.nan]*len(xticks)
+    count=0
+    for indiv_dist in xticks:
+        if (indiv_dist<0):
+            elevation_display[count]=np.nan
+        else:
+            index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)))
+            elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation'])
+        
+        count=count+1
+    
+    pdb.set_trace()
+    #Display elevation along top xticks
+    axelev.set_xticklabels(elevation_display)
     
     plt.show()
 
