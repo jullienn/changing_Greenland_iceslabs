@@ -45,12 +45,18 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             continue  
         #Select data for the trace
         df_for_elev_temp=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        
+        #If panel, b, then start only at lon=-530298
+        if (casestudy_nb=='b'):
+            #Do not keep where lon_3413 < -530298 because not monotoneously elevation increase
+            df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon_3413']>=-530298]
+        
         #Append data to each other
         df_for_elev=df_for_elev.append(df_for_elev_temp)
                 
         #Display data
-        ax1.scatter(df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lon_3413'],
-                    df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]['lat_3413'],
+        ax1.scatter(df_for_elev_temp['lon_3413'],
+                    df_for_elev_temp['lat_3413'],
                     s=0.1,color='#737373')
             
     #Display rectangle around data    
