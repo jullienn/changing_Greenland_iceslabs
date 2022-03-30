@@ -34,7 +34,7 @@ def compute_distances_pyproj(eastings,northings):
     
     return return_cumsum_distances
 
-def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,axe,custom_angle,offset_x,offset_y,casestudy_nb):
+def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,custom_angle,offset_x,offset_y,casestudy_nb):
     
     #Define empty dictionnary for elevation slice definition
     df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
@@ -86,7 +86,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
-    
+        
     #Create an empty df_sampling
     df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev','rolling_10_median_scatter'])
         
@@ -108,7 +108,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Distance divide every 300m.
     dist_bin_desired=300
     dist_divide=np.arange(np.floor(np.min(bounds_distances)),np.floor(np.max(bounds_distances))+1+dist_bin_desired,dist_bin_desired)
-    
+        
     #Define window size for smoothing
     winsize=3
         
@@ -129,7 +129,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
             #c. Store the distances
             df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
-         
+        
     #Define empty list
     app_time_period=[]
     app_low_bound=[]
@@ -327,14 +327,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     from matplotlib.ticker import MaxNLocator
     axt.xaxis.set_major_locator(MaxNLocator(integer=True))
     '''
-    
-    #4. Display elevation profile
-    #axe.scatter(df_for_elev['lon_3413'],df_for_elev['elevation'],s=0.5,marker='.',c='k')
-    axe.scatter(df_for_elev_sorted['lon_3413'],df_for_elev_sorted['elevation'],s=0.5,marker='.',c='k')
-    axe.yaxis.tick_right()
-    #Display tick markers
-    axe.xaxis.tick_bottom()
         
+    #4. Display elevation
     #Store the xticks for the distance
     xtick_distance=axt.get_xticks()
     #Set the xticks
@@ -731,7 +725,7 @@ crs_proj4 = crs.proj4_init
 ###################### From Tedstone et al., 2022 #####################
         
 fig = plt.figure(figsize=(32,48))
-gs = gridspec.GridSpec(39, 23)
+gs = gridspec.GridSpec(39, 20)
 gs.update(wspace=0.001)
 #gs.update(wspace=0.001)
 #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
@@ -744,13 +738,6 @@ ax4t = plt.subplot(gs[14:18, 3:20])
 ax5t = plt.subplot(gs[21:25, 3:20])
 ax6t = plt.subplot(gs[28:32, 3:20])
 ax7t = plt.subplot(gs[35:39, 3:20])
-
-ax2e = plt.subplot(gs[0:4, 21:23])
-ax3e = plt.subplot(gs[7:11, 21:23])
-ax4e = plt.subplot(gs[14:18, 21:23])
-ax5e = plt.subplot(gs[21:25, 21:23])
-ax6e = plt.subplot(gs[28:32, 21:23])
-ax7e = plt.subplot(gs[35:39, 21:23])
 
 ax1.set_facecolor('white')
 
@@ -771,17 +758,17 @@ df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
 #Plot data
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,ax2e,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
-plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,ax3e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
 #previousl b was loc8
-plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,ax4e,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
+plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 
-plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,ax5e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
+plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
 
-plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,ax6e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
 
-plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,ax7e,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
+plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
@@ -796,22 +783,11 @@ ax1.axis('off')
 
 pdb.set_trace()
 
-#panels a-b share axis, panels c-d-e-f share axis
-ax2e.set_ylim(1130,1440)
-ax3e.set_ylim(1130,1440)
-ax4e.set_ylim(1600,2080)
-ax5e.set_ylim(1600,2080)
-ax6e.set_ylim(1600,2080)
-ax7e.set_ylim(1600,2080)
-
 #Display distance as Elevation [m]
 ax5t.set_ylabel('Column ice thickness [m]')
 ax7t.set_xlabel('Distance [km]')
 ax2t.xaxis.set_label_position("top")
 ax2t.set_xlabel('Elevation [m]')
-ax5e.set_ylabel('Elevation [m]')
-ax5e.yaxis.set_label_position("right")
-ax7e.set_xlabel('Longitude')
 
 #Custom legend myself
 legend_elements = [Patch(facecolor='#fdd49e',label='2010'),
@@ -826,7 +802,7 @@ plt.legend()
 ax_legend.axis('off')
 ax_legend.set_title('Legend')
 plt.show()
-ax7e.legend_.remove()
+ax7t.legend_.remove()
 
 pdb.set_trace()
 #Save the figure
