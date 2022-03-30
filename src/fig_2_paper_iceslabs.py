@@ -328,34 +328,33 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axe.yaxis.tick_right()
     #Display tick markers
     axe.xaxis.tick_bottom()
-    
-    pdb.set_trace()
-    #Display elevations on the top of the axis.
-    axelev=axt.twiny() #This is from https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.twiny.html
-    
-    #Forcing top xticks to be the ones from bottom xticks with matplotlib.ticker "FixedLocator"
-    #This is from https://stackoverflow.com/questions/63723514/userwarning-fixedformatter-should-only-be-used-together-with-fixedlocator
-    axelev.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))    
-    
-    #Extract x ticks
-    #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
-    xticks=np.asarray([item for item in axt.get_xticks()])
+        
+    #Store the xticks for the distance
+    xtick_distance=axt.get_xticks()
+    #Set the xticks
+    axt.set_xticks(xtick_distance)
     
     #Find closest corresponding elevation
-    elevation_display=[np.nan]*len(xticks)
+    #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
+    elevation_display=[np.nan]*len(xtick_distance)
     count=0
-    for indiv_dist in xticks:
+    for indiv_dist in xtick_distance:
         if (indiv_dist<0):
             elevation_display[count]=np.nan
         else:
             index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)))
-            elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation'])
-        
+            elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation']).astype(int)
+            
         count=count+1
     
-    pdb.set_trace()
-    #Display elevation along top xticks
-    axelev.set_xticklabels(elevation_display)
+    #Display elevation on the top xticklabels
+    #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
+    ax_t = axt.secondary_xaxis('top')
+    ax_t.set_xticks(xtick_distance)
+    ax_t.set_xticklabels(elevation_display)
+    
+    #Set xlims
+    axt.set_xlim(0,70000)
     
     plt.show()
 
@@ -776,13 +775,6 @@ gl.ylabels_right = False
 gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
-
-ax2t.set_xlim(0,70000)
-ax3t.set_xlim(0,70000)
-ax4t.set_xlim(0,70000)
-ax5t.set_xlim(0,70000)
-ax6t.set_xlim(0,70000)
-ax7t.set_xlim(0,70000)
 
 pdb.set_trace()
 
