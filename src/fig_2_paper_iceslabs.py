@@ -324,7 +324,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     #4. Display elevation profile
     #axe.scatter(df_for_elev['lon_3413'],df_for_elev['elevation'],s=0.5,marker='.',c='k')
-    axe.scatter(df_for_elev_sorted['lon_3413'],df_for_elev_sorted['elevation'])
+    axe.scatter(df_for_elev_sorted['lon_3413'],df_for_elev_sorted['elevation'],s=0.5,marker='.',c='k')
     axe.yaxis.tick_right()
     #Display tick markers
     axe.xaxis.tick_bottom()
@@ -340,19 +340,31 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     count=0
     for indiv_dist in xtick_distance:
         if (indiv_dist<0):
-            elevation_display[count]=np.nan
+            elevation_display[count]=''
         else:
+            #Extract index where distance is minimal
             index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)))
-            elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation']).astype(int)
+            #If minimum distance is higher than 1km, store nan. If not, store corresponding elevation
+            if (np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)).iloc[index_closest] > 1000):
+                elevation_display[count]=''
+            else:
+                elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation']).astype(int)
             
         count=count+1
-    
+        
     #Display elevation on the top xticklabels
     #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
     ax_t = axt.secondary_xaxis('top')
     ax_t.set_xticks(xtick_distance)
     ax_t.set_xticklabels(elevation_display)
     
+    #Display bottom xtick in km instead of m
+    axt.set_xticklabels((xtick_distance/1000).astype(int))
+    
+    #Modify spacing between xticklabels and xticks
+    axt.tick_params(pad=1.2)
+    ax_t.tick_params(pad=1.2)
+
     #Set xlims
     axt.set_xlim(0,70000)
     
@@ -713,26 +725,26 @@ crs_proj4 = crs.proj4_init
 ###################### From Tedstone et al., 2022 #####################
         
 fig = plt.figure(figsize=(32,48))
-gs = gridspec.GridSpec(40, 23)
+gs = gridspec.GridSpec(39, 23)
 gs.update(wspace=0.001)
 #gs.update(wspace=0.001)
 #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
 ax1 = plt.subplot(gs[0:25, 0:2],projection=crs)
-ax_legend = plt.subplot(gs[35:40, 0:2])
+ax_legend = plt.subplot(gs[34:39, 0:2])
 
-ax2t = plt.subplot(gs[0:5, 3:20])
-ax3t = plt.subplot(gs[7:12, 3:20])
-ax4t = plt.subplot(gs[14:19, 3:20])
-ax5t = plt.subplot(gs[21:26, 3:20])
-ax6t = plt.subplot(gs[28:33, 3:20])
-ax7t = plt.subplot(gs[35:40, 3:20])
+ax2t = plt.subplot(gs[0:4, 3:20])
+ax3t = plt.subplot(gs[7:11, 3:20])
+ax4t = plt.subplot(gs[14:18, 3:20])
+ax5t = plt.subplot(gs[21:25, 3:20])
+ax6t = plt.subplot(gs[28:32, 3:20])
+ax7t = plt.subplot(gs[35:39, 3:20])
 
-ax2e = plt.subplot(gs[0:5, 21:23])
-ax3e = plt.subplot(gs[7:12, 21:23])
-ax4e = plt.subplot(gs[14:19, 21:23])
-ax5e = plt.subplot(gs[21:26, 21:23])
-ax6e = plt.subplot(gs[28:33, 21:23])
-ax7e = plt.subplot(gs[35:40, 21:23])
+ax2e = plt.subplot(gs[0:4, 21:23])
+ax3e = plt.subplot(gs[7:11, 21:23])
+ax4e = plt.subplot(gs[14:18, 21:23])
+ax5e = plt.subplot(gs[21:25, 21:23])
+ax6e = plt.subplot(gs[28:32, 21:23])
+ax7e = plt.subplot(gs[35:39, 21:23])
 
 ax1.set_facecolor('white')
 
@@ -788,8 +800,9 @@ ax7e.set_ylim(1600,2080)
 
 #Display distance as Elevation [m]
 ax5t.set_ylabel('Column ice thickness [m]')
-ax7t.set_xlabel('Longitude')
-ax5t.set_ylabel('Elevation [m]')
+ax7t.set_xlabel('Distance [km]')
+ax2t.xaxis.set_label_position("top")
+ax2t.set_xlabel('Elevation [m]')
 ax5e.set_ylabel('Elevation [m]')
 ax5e.yaxis.set_label_position("right")
 ax7e.set_xlabel('Longitude')
