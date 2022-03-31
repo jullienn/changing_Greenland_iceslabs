@@ -264,6 +264,11 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     axt.set_xlim(0,40000)
     
     '''
+    #Display limits of area of focus
+    ax_plotting.axvline(x=distances_with_start_transect[np.argmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
+    ax_plotting.axvline(x=distances_with_start_transect[np.argmin(np.abs(np.abs(lon_plot)-np.abs(-47.02)))],zorder=1,linestyle='--',color='k')
+    '''
+    '''
     # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
     axt.grid(False)
     '''
@@ -315,8 +320,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             casestudy_nb='b'
         elif (year==2012):
             ax_plotting=ax3r
-            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
-            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
             label_for_map=u'\u03B3'
             #Adapt xticklabels
             ax_plotting.set_yticklabels(['0', '10', ''])
@@ -327,8 +330,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         elif (year==2013):
             ax_plotting=ax4r
             ax4r.set_xlabel('Depth [m]')
-            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
-            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
             label_for_map=u'\u03B3'
             #Adapt xticklabels
             ax_plotting.set_yticklabels(['0', '10', ''])
@@ -356,8 +357,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             casestudy_nb='f'
         elif (year==2018):
             ax_plotting=ax7r
-            ax_plotting.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
-            ax_plotting.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
             label_for_map=u'\u03B3'
             #Activate ticks xlabel
             ax_plotting.xaxis.tick_bottom()
@@ -365,49 +364,85 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             casestudy_nb='g'
         else:
             print('Year not existing')
-        
-        #Select x vector
-        if (year==2011):
-            X=dataframe[str(year)]['lat_appended']
-        else:
-            X=dataframe[str(year)]['lon_appended']
-        
-        #Select y vector and radargram
-        Y=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
-        C=dataframe[str(year)]['radar']
                 
-        cb=ax_plotting.pcolor(X, Y, C,cmap=plt.get_cmap('gray'),zorder=-1)#,norm=divnorm)
+        #Select x vector and select only where we want data to be displayed
+        #Find indexes where within bounds
+        if (year==2011):
+            #2011 lat>= 66.8707 and lat <67.2
+            indexes_within_bounds=np.logical_and(dataframe[str(year)]['lat_appended']>=66.8707,dataframe[str(year)]['lat_appended']<=67.2)
+            #Select only data within bounds
+            X=dataframe[str(year)]['lat_appended'][indexes_within_bounds]
+        else:
+            #2010, 2012-2018 lon>-47.5 and lon<-46.66
+            indexes_within_bounds=np.logical_and(dataframe[str(year)]['lon_appended']>=-47.5,dataframe[str(year)]['lon_appended']<=-46.66)
+            #Select only data within bounds
+            X=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
+        
+        #Select only data within bounds
+        Y=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
+        C=dataframe[str(year)]['radar'][:,indexes_within_bounds]
+        mask_plot=dataframe[str(year)]['mask'][indexes_within_bounds]
+        
+        #Create lat/lon vectors for display
+        lon_plot_int=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
+        lat_plot_int=dataframe[str(year)]['lat_appended'][indexes_within_bounds]
+        
+        lon3413_plot_int=dataframe[str(year)]['lon_3413'][indexes_within_bounds]
+        lat3413_plot_int=dataframe[str(year)]['lat_3413'][indexes_within_bounds]
+        
+        #Update lat/lon vectors for display with the masks
+        lon_plot=np.zeros(len(lon_plot_int))
+        lon_plot[:]=np.nan
+        lon_plot[mask_plot]=lon_plot_int[mask_plot]
+        
+        lat_plot=np.zeros(len(lat_plot_int))
+        lat_plot[:]=np.nan
+        lat_plot[mask_plot]=lat_plot_int[mask_plot]
+        
+        lon3413_plot=np.zeros(len(lon3413_plot_int))
+        lon3413_plot[:]=np.nan
+        lon3413_plot[mask_plot]=lon3413_plot_int[mask_plot]
+        
+        lat3413_plot=np.zeros(len(lat3413_plot_int))
+        lat3413_plot[:]=np.nan
+        lat3413_plot[mask_plot]=lat3413_plot_int[mask_plot]
+        
+        #Calculate distances
+        distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
+                        
+        cb=ax_plotting.pcolor(distances_with_start_transect, Y, C,cmap=plt.get_cmap('gray'),zorder=-1)#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
         ax_plotting.set_ylim(20,0)
         
+        #Display bottom xtick in km instead of m
+        xtick_distance=ax_plotting.get_xticks()
+        ax_plotting.set_xticks(xtick_distance)
+        ax_plotting.set_xticklabels((xtick_distance/1000).astype(int))
+        
+        #Display limits of area of focus
+        if (str(year) in list(['2012','2013','2018'])):
+            ax_plotting.axvline(x=distances_with_start_transect[np.argmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
+            ax_plotting.axvline(x=distances_with_start_transect[np.argmin(np.abs(np.abs(lon_plot)-np.abs(-47.02)))],zorder=1,linestyle='--',color='k')
+        
         ###########################################################################
         ###                           Display radargrams                        ###
-        ########################################################################### 
-        
+        ###########################################################################
+
         ###########################################################################
         ###                       Display data localisation                     ###
         ###########################################################################
         
-        #Create lat/lon vectors for display
-        lon_plot=dataframe[str(year)]['lon_appended'][dataframe[str(year)]['mask']]
-        lat_plot=dataframe[str(year)]['lat_appended'][dataframe[str(year)]['mask']]
-        
-        lon3413_plot=dataframe[str(year)]['lon_3413'][dataframe[str(year)]['mask']]
-        lat3413_plot=dataframe[str(year)]['lat_3413'][dataframe[str(year)]['mask']]
-        
         if (year==2011):
-            ax_plotting.set_xlim(66.8707,67.2)
-            ind_map=np.logical_and(lat_plot>=66.8707,lat_plot<=67.2)
+            ax_plotting.set_xlim(0,40000)
             #Display KAN_U
             ax_plotting.scatter(67.000425,1,s=10,c='r')
         else:
-            ax_plotting.set_xlim(-47.5,-46.66)
-            ind_map=np.logical_and(lon_plot>=-47.5,lon_plot<=-46.66)
+            ax_plotting.set_xlim(0,40000)
             #Display KAN_U
             ax_plotting.scatter(-47.030473,1,s=10,c='r')
         
         #display loc on map
-        ax8map.scatter(lon3413_plot[ind_map],lat3413_plot[ind_map],c='k',s=0.5)
+        ax8map.scatter(lon3413_plot,lat3413_plot,c='k',s=0.5)
 
         #Add year on radargram
         ax_plotting.text(0.96, 0.90,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
@@ -417,7 +452,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         
         #Activate ticks ylabel
         ax_plotting.yaxis.tick_left()
-
         ###########################################################################
         ###                       Display data localisation                     ###
         ###########################################################################
@@ -728,13 +762,13 @@ gs = gridspec.GridSpec(35, 20)
 gs.update(wspace=0.1)
 gs.update(hspace=0.1)
 
-ax1r = plt.subplot(gs[0:4, 0:10])
-ax2r = plt.subplot(gs[0:4, 10:20])
-ax3r = plt.subplot(gs[4:8, 0:10])
-ax4r = plt.subplot(gs[8:12, 0:10])
-ax5r = plt.subplot(gs[12:16, 0:10])
-ax6r = plt.subplot(gs[16:20, 0:10])
-ax7r = plt.subplot(gs[20:24, 0:10])
+ax1r = plt.subplot(gs[0:3, 0:10])
+ax2r = plt.subplot(gs[0:3, 10:20])
+ax3r = plt.subplot(gs[4:7, 0:10])
+ax4r = plt.subplot(gs[8:11, 0:10])
+ax5r = plt.subplot(gs[12:15, 0:10])
+ax6r = plt.subplot(gs[16:19, 0:10])
+ax7r = plt.subplot(gs[20:23, 0:10])
 ax11t = plt.subplot(gs[27:35, 0:10])
 
 ax8map = plt.subplot(gs[26:35, 15:20],projection=crs)
@@ -747,6 +781,8 @@ CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5)
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
 min_elev,max_elev=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,ax12_elev,my_pal)
+
+pdb.set_trace()
 
 #Finalize axis ax2r
 ax2r.yaxis.set_label_position("right")
@@ -772,7 +808,7 @@ ax11t.scatter(1879,15.8,s=10,c='r')
 ax11t.text(0.01, 0.875,'h',ha='center', va='center', transform=ax11t.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Finalize radargrams plot
-ax7r.set_xlabel('Longitude [°]')
+ax7r.set_xlabel('Distance [km]')
 ax4r.set_ylabel('Depth [m]')
 
 #Finalize map plot
