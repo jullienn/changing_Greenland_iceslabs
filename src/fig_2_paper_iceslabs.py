@@ -79,9 +79,10 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     else:
         #Add number of case study on fig localisation
         ax1.text(x-35000,y-15000,casestudy_nb,color='r',weight='bold',fontsize=12)
-
+    
+    #pdb.set_trace()
     #Add number of case study on fig localisation    
-    axt.text(0.005, 0.875,casestudy_nb, ha='center', va='center', transform=axt.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    axt.text(0.99, 0.825,casestudy_nb, ha='center', va='center', transform=axt.transAxes,fontsize=15)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -114,7 +115,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         
     #Calculate distance for every single year
     for indiv_year in np.array([2010,2011,2012,2013,2014,2017,2018]):
-        print(indiv_year)
         #Extract the indexes of the corresponding year
         ind_indiv_year=np.where(df_for_elev_sorted['year']==indiv_year)
         #Select the corresponding year
@@ -295,6 +295,9 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.yaxis.tick_left()
     axt.xaxis.tick_bottom()
     
+    #Place yticks on the right hand side
+    axt.yaxis.tick_right()
+    
     '''
     NOT UP TO DATE WITH RECENT CHANGES ABOUT DISTANCE
     #IF DISPLAY ELEVATION ON XTICKS ON THE LONG VS COLUMNAL ICE CONTENT PLOT IS DESIRED:
@@ -368,6 +371,10 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Set xlims
     axt.set_xlim(0,70000)
     
+    '''
+    # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
+    axt.grid(False)
+    '''
     plt.show()
 
     print('End plotting fig 2')
@@ -781,9 +788,8 @@ gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
 
-pdb.set_trace()
-
 #Display distance as Elevation [m]
+ax5t.yaxis.set_label_position("right")
 ax5t.set_ylabel('Column ice thickness [m]')
 ax7t.set_xlabel('Distance [km]')
 ax2t.xaxis.set_label_position("top")
@@ -804,9 +810,8 @@ ax_legend.set_title('Legend')
 plt.show()
 ax7t.legend_.remove()
 
-pdb.set_trace()
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v3/fig2.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v5/fig2.png',dpi=500)
 
 
 '''
