@@ -7,12 +7,28 @@ Created on Sun Nov 28 12:56:32 2021
 Code adapted from lenses_thickening_visualisation.py
 """
 
-def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,my_pal):
+def compute_distances(eastings,northings):
+    #This function is from plot_2002_2003.py, which was originally taken from MacFerrin et al., 2019
+    '''Compute the distance (in m here, not km as written originally) of the traces in the file.'''
+    # C = sqrt(A^2  + B^2)
+    distances = np.power(np.power((eastings[1:] - eastings[:-1]),2) + np.power((northings[1:] - northings[:-1]),2), 0.5)
+
+    #Calculate the cumsum of the distances
+    cumsum_distances=np.nancumsum(distances)
+    #Seeting the first value of the cumsum to be zero as it is the origin
+    return_cumsum_distances=np.zeros(eastings.shape[0])
+    return_cumsum_distances[1:eastings.shape[0]]=cumsum_distances
+
+    return return_cumsum_distances
+
+
+def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,ax_elev,my_pal):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
     ###########################################################################
     ###                    Display thickness evolution                      ###
     ###########################################################################
+    
     #Define empty dictionnary for elevation slice definition
     df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
     
@@ -22,106 +38,242 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             continue  
         #Select data for the trace
         df_for_elev_temp=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        #Do not keep where lon<-47.5 and lon>-46.66
+        df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon']>=-47.5]
+        #2011 data are displayed only from 66.8707 to 67.2
+        if (year == 2011):
+            df_for_elev_temp=df_for_elev_temp[np.logical_and(df_for_elev_temp['lat']>=66.8707,df_for_elev_temp['lat']<=67.2)]
         #Append data to each other
         df_for_elev=df_for_elev.append(df_for_elev_temp)
-
+     
     #Create an empty df_sampling
-    df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev'])
-
-    #Elev divide every 1m.
-    elev_bin_desired=1
-    elev_divide=np.arange(np.floor(np.min(df_for_elev['elevation'])),np.floor(np.max(df_for_elev['elevation']))+1+elev_bin_desired,elev_bin_desired)
+    df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev','rolling_10_median_scatter'])
+    
+    #Sort df_for_elev from low to high longitude (from west to east)
+    df_for_elev_sorted=df_for_elev.sort_values(by=['lon_3413'])
+    
+    #Create a nan array for storing distances
+    df_for_elev_sorted['distances']=np.nan
+        
+    #Exclude 2010 and 2011 for start of transect definition
+    df_for_elev_sorted_transect=df_for_elev_sorted[~np.logical_or(df_for_elev_sorted['year']==2010,df_for_elev_sorted['year']==2011)]
+    
+    #Store coordinates of the bounds of the transect
+    bounds_transect=np.array([[df_for_elev_sorted_transect.iloc[0]['lon_3413'], df_for_elev_sorted_transect.iloc[0]['lat_3413']],
+                              [df_for_elev_sorted_transect.iloc[-1]['lon_3413'], df_for_elev_sorted_transect.iloc[-1]['lat_3413']]])
+    
+    #Compute distance between the westernmost and easternmost point
+    bounds_distances=compute_distances(bounds_transect[:,0],bounds_transect[:,1])
+    
+    #Distance divide every 300m.
+    dist_bin_desired=300
+    dist_divide=np.arange(np.floor(np.min(bounds_distances)),np.floor(np.max(bounds_distances))+1+dist_bin_desired,dist_bin_desired)
     
     #Define window size for smoothing
-    winsize=10
-
-    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
-    for indiv_year in range(2012,2019):
-        print(indiv_year)
-        #Get data for that specific time period
-        df_trace_year=df_for_elev[df_for_elev['year']==indiv_year]
+    winsize=3
         
-        if (len(df_trace_year)==0):
+    #Calculate distance for every single year
+    for indiv_year in np.array([2010,2011,2012,2013,2014,2017,2018]):
+        #Extract the indexes of the corresponding year
+        ind_indiv_year=np.where(df_for_elev_sorted['year']==indiv_year)
+        #Select the corresponding year
+        df_trace_year_sorted_for_dist=df_for_elev_sorted.iloc[ind_indiv_year]
+                
+        if (len(df_trace_year_sorted_for_dist)>0):            
+            #Calculate the distance compared to start of transect
+            #if 2010 or 2011, calculate the distance along their own path because they are not collocated with 2012-2018
+            if (indiv_year in list([2010,2011])):
+                
+                if (indiv_year==2011):
+                    #Sort from low to less low latitude (from south to north)
+                    df_trace_year_sorted_for_dist=df_trace_year_sorted_for_dist.sort_values(by=['lat_3413'])
+                
+                #a. Add the start of the transect for calculating distances
+                coordinates_df=[np.asarray(df_trace_year_sorted_for_dist['lon_3413']),
+                                np.asarray(df_trace_year_sorted_for_dist['lat_3413'])]
+                #b. Calculate the distances
+                distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
+                #c. Store the distances
+                df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect
+                
+            else:
+                #a. Add the start of the transect for calculating distances
+                coordinates_df=[np.append(bounds_transect[0,0],np.asarray(df_trace_year_sorted_for_dist['lon_3413'])),
+                                np.append(bounds_transect[0,1],np.asarray(df_trace_year_sorted_for_dist['lat_3413']))]
+                #b. Calculate the distances
+                distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
+                #c. Store the distances
+                df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
+    
+    #Define empty list
+    app_time_period=[]
+    app_low_bound=[]
+    app_high_bound=[]
+    app_bound_nb=[]
+    #app_Track_name=[]
+    app_mean=[]
+    app_median=[]
+    app_q025=[]
+    app_q075=[]
+    app_stddev=[]
+    
+    #Loop over every year (2012, 2013, 2014, 2017, 2018) expect 2010, 2011
+    for indiv_year in range(2012,2019):
+        
+        #Get data for that specific time period
+        df_trace_year_sorted=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
+          
+        if (len(df_trace_year_sorted)==0):
             #No data in this time period, continue
-            print('   No data for this year, continue')
             continue
-        else:            
-            #Sort df_trace_year from low to high elevations
-            df_trace_year_sorted=df_trace_year.sort_values(by=['elevation'])
-            
+        else:
             #Set bound_nb to 0
             bound_nb=0
-            #Loop over the lon divide
-            for i in range(1,len(elev_divide)):
+            #Loop over the dist divide
+            for i in range(1,len(dist_divide)):
                 
                 #Identify low and higher end of the slice
-                low_bound=elev_divide[i-1]
-                high_bound=elev_divide[i]
+                low_bound=dist_divide[i-1]
+                high_bound=dist_divide[i]
         
                 #Select all the data belonging to this elev slice
-                ind_slice=np.logical_and(np.array(df_trace_year_sorted['elevation']>=low_bound),np.array(df_trace_year_sorted['elevation']<high_bound))
+                ind_slice=np.logical_and(np.array(df_trace_year_sorted['distances']>=low_bound),np.array(df_trace_year_sorted['distances']<high_bound))
                 df_select=df_trace_year_sorted[ind_slice]
                 
+                #Append data to each other - general info                
+                app_time_period=np.append(app_time_period,np.asarray(indiv_year))
+                app_low_bound=np.append(app_low_bound,low_bound)
+                app_high_bound=np.append(app_high_bound,high_bound)
+                app_bound_nb=np.append(app_bound_nb,str(bound_nb))
+                
                 if (len(df_select)==0):
-                    continue
-                
-                #Fill in dictionnary
-                df_temp=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev'])
-                df_temp['Track_name']=df_select['Track_name'].unique()
-                df_temp['time_period']=indiv_year
-                df_temp['low_bound']=low_bound
-                df_temp['high_bound']=high_bound
-                df_temp['bound_nb']=str(bound_nb)
-                df_temp['mean']=np.nanmean(df_select['20m_ice_content_m'])
-                df_temp['median']=np.nanmedian(df_select['20m_ice_content_m'])
-                df_temp['q025']=np.nanquantile(df_select['20m_ice_content_m'],0.25)
-                df_temp['q075']=np.nanquantile(df_select['20m_ice_content_m'],0.75)
-                df_temp['stddev']=np.nanstd(df_select['20m_ice_content_m'])
-                
-                #Append dictionnary
-                df_sampling=df_sampling.append(df_temp)
-                
+                    #Append data to each other - data
+                    #app_Track_name=np.append(app_Track_name,np.nan)
+                    app_mean=np.append(app_mean,np.nan)
+                    app_median=np.append(app_median,np.nan)
+                    app_q025=np.append(app_q025,np.nan)
+                    app_q075=np.append(app_q075,np.nan)
+                    app_stddev=np.append(app_stddev,np.nan)
+                else:
+                    #Append data to each other -data
+                    #app_Track_name=np.append(app_Track_name,np.asarray(df_select['Track_name'].unique()))
+                    app_mean=np.append(app_mean,np.asarray(np.nanmean(df_select['20m_ice_content_m'])))
+                    app_median=np.append(app_median,np.asarray(np.nanmedian(df_select['20m_ice_content_m'])))
+                    app_q025=np.append(app_q025,np.asarray(np.nanquantile(df_select['20m_ice_content_m'],0.25)))
+                    app_q075=np.append(app_q075,np.asarray(np.nanquantile(df_select['20m_ice_content_m'],0.75)))
+                    app_stddev=np.append(app_stddev,np.asarray(np.nanstd(df_select['20m_ice_content_m'])))
+
                 #Update bound_nb
                 bound_nb=bound_nb+1
     
-    for time_period in range(2012,2019):
+    #Create df_sampling which is the dataframe reuniting all the appended lists
+    df_sampling = pd.DataFrame(data={'time_period': app_time_period})
+    df_sampling['low_bound']=app_low_bound
+    df_sampling['high_bound']=app_high_bound
+    df_sampling['bound_nb']=app_bound_nb
+    #df_sampling['Track_name']=app_Track_name
+    df_sampling['mean']=app_mean
+    df_sampling['median']=app_median
+    df_sampling['q025']=app_q025
+    df_sampling['q075']=app_q075
+    df_sampling['stddev']=app_stddev
+    df_sampling['rolling_10_median_scatter']=[np.nan]*len(app_mean)
     
+    for time_period in range(2012,2019):
         if (len(df_sampling[df_sampling['time_period']==time_period])==0):
             #Empty time period, continue
             continue
         else:
             df_plot=df_sampling[df_sampling['time_period']==time_period]
             
-            #Rolling window, size = 10
+            #Rolling window, size = winsize
             df_plot['rolling_10_median']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['median'] 
             df_plot['rolling_10_q025']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q025'] 
             df_plot['rolling_10_q075']=df_plot.rolling(winsize, win_type=None,center=True).quantile(quantile=0.5)['q075'] 
             
+            #Where window rolling shows NaN because of NaN surrounding, add raw data
+            for i in range(0,len(df_plot)):
+                if (np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i]))):
+                    df_plot['rolling_10_median_scatter'].iloc[i]=df_plot['median'].iloc[i]
+                    df_plot['rolling_10_q025'].iloc[i]=np.nan#df_plot['q025'].iloc[i]
+                    df_plot['rolling_10_q075'].iloc[i]=np.nan#df_plot['q075'].iloc[i]
+                
+                if (i>0):
+                    if (np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i-1])) and not(np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i])))):
+                        df_plot['rolling_10_median_scatter'].iloc[i]=df_plot['rolling_10_median'].iloc[i]
+                        
+                if (i<(len(df_plot)-1)):
+                    if (np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i+1])) and not(np.isnan(np.asarray(df_plot['rolling_10_median'].iloc[i])))):
+                        df_plot['rolling_10_median_scatter'].iloc[i]=df_plot['rolling_10_median'].iloc[i]
+                
             # Plot the median
             axt.plot(df_plot["low_bound"],df_plot["rolling_10_median"],color=my_pal[time_period])
             #Display IQR
             axt.fill_between(df_plot['low_bound'], df_plot['rolling_10_q025'], df_plot['rolling_10_q075'], alpha=0.3,color=my_pal[time_period])
+            #Display raw data where moving window do not display
+            axt.plot(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],color=my_pal[time_period],alpha=0.5)
+            axt.scatter(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],c=my_pal[time_period],marker='.',s=0.5,alpha=1)
             
-            #Display the median where outside of average window range
-            #Create array_fill_start and _end for filling at the start and at the end
-            array_fill_start=np.zeros(6,)
-            array_fill_start[:]=np.nan
-            array_fill_start[0:5]=np.asarray(df_plot["median"].iloc[0:int(winsize/2)])
-            array_fill_start[-1]=np.asarray((df_plot['rolling_10_median'].iloc[int(winsize/2)]))
+    #Get rid of legend
+    #axt.legend_.remove()
+    axt.set_xlabel('')
+    axt.set_ylabel('')
+    
+    #Activate ticks x and y label
+    axt.yaxis.tick_left()
+    axt.xaxis.tick_bottom()
+        
+    #4. Display elevation
+    #Store the xticks for the distance
+    xtick_distance=axt.get_xticks()
+    #Set the xticks
+    axt.set_xticks(xtick_distance)
+    
+    #Find closest corresponding elevation
+    #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
+    elevation_display=[np.nan]*len(xtick_distance)
+    count=0
+    for indiv_dist in xtick_distance:
+        if (indiv_dist<0):
+            elevation_display[count]=''
+        else:
+            #Extract index where distance is minimal
+            index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)))
+            #If minimum distance is higher than 1km, store nan. If not, store corresponding elevation
+            if (np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)).iloc[index_closest] > 1000):
+                elevation_display[count]=''
+            else:
+                elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation']).astype(int)
             
-            array_fill_end=np.zeros(5,)
-            array_fill_end[:]=np.nan
-            array_fill_end[0]=np.asarray((df_plot['rolling_10_median'].iloc[int(len(df_plot)-winsize/2)]))
-            array_fill_end[1:5]=np.asarray(df_plot["median"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)])
-            
-            #Display
-            axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)+1],array_fill_start,alpha=0.5,color=my_pal[time_period])
-            axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2):len(df_plot)],array_fill_end,alpha=0.5,color=my_pal[time_period])
+        count=count+1
+        
+    #Display elevation on the top xticklabels
+    #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
+    ax_t = axt.secondary_xaxis('top')
+    ax_t.set_xticks(xtick_distance)
+    ax_t.set_xticklabels(elevation_display)
+    
+    #Display bottom xtick in km instead of m
+    axt.set_xticklabels((xtick_distance/1000).astype(int))
+    
+    #Modify spacing between xticklabels and xticks
+    axt.tick_params(pad=1.2)
+    ax_t.tick_params(pad=1.2)
+
+    #Set xlims
+    axt.set_xlim(0,40000)
+    
+    '''
+    # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
+    axt.grid(False)
+    '''
+    plt.show()
+
+    print('End plotting thickness data')
     
     ###########################################################################
     ###                    Display thickness evolution                      ###
     ###########################################################################
-    
     
     ###########################################################################
     ###                           Display radargrams                        ###
@@ -269,6 +421,37 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         ###########################################################################
         ###                       Display data localisation                     ###
         ###########################################################################
+        
+        
+    ###########################################################################
+    ###                       Display elevation profile                     ###
+    ###########################################################################
+    
+    #Select only  2012, 2013, 2018
+    df_transect_elev_2012=df_for_elev[df_for_elev['year']==2012]
+    df_transect_elev_2013=df_for_elev[df_for_elev['year']==2013] 
+    df_transect_elev_2018=df_for_elev[df_for_elev['year']==2018] 
+    
+    #Plot transect
+    ax_elev.scatter(df_transect_elev_2012['lon'],df_transect_elev_2012['elevation'],s=0.5,c='k',marker='.')
+    ax_elev.scatter(df_transect_elev_2013['lon'],df_transect_elev_2013['elevation'],s=0.5,c='k',marker='.')
+    ax_elev.scatter(df_transect_elev_2018['lon'],df_transect_elev_2018['elevation'],s=0.5,c='k',marker='.')
+    
+    #Set xlims and draw dotted lines
+    ax_elev.set_xlim(-47.5,-46.66)
+    ax_elev.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
+    ax_elev.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
+    
+    #Improve display
+    #Set y tick to the right
+    ax_elev.yaxis.set_label_position("right")
+    ax_elev.yaxis.tick_right()
+    ax_elev.set_ylabel('Elevation [m]')
+    ax_elev.set_xlabel('Longitude [°]')
+    
+    ###########################################################################
+    ###                       Display elevation profile                     ###
+    ###########################################################################
     
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation'])
 
@@ -554,15 +737,16 @@ ax6r = plt.subplot(gs[16:20, 0:10])
 ax7r = plt.subplot(gs[20:24, 0:10])
 ax11t = plt.subplot(gs[27:35, 0:10])
 
-ax8map = plt.subplot(gs[26:35, 10:20],projection=crs)
+ax8map = plt.subplot(gs[26:35, 15:20],projection=crs)
 ax10m = plt.subplot(gs[7:20, 10:20])
+ax12_elev = plt.subplot(gs[26:35, 10:15])
 
 #Display GrIS drainage bassins on the map subplot
 SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
-min_elev,max_elev=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,my_pal)
+min_elev,max_elev=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,ax12_elev,my_pal)
 
 #Finalize axis ax2r
 ax2r.yaxis.set_label_position("right")
@@ -622,43 +806,19 @@ figManager.window.showMaximized()
 path_KAN_U_data='C:/Users/jullienn/switchdrive/Private/research/RT1/KAN_U_data/'
 df_KAN_U_csv = pd.read_csv(path_KAN_U_data+'KAN_U_hourly_v03_csv.csv',sep=';',decimal=',',header=0,na_values=-999)
 
-#1. compute hourly melt
-
-#Melt equation: M=SWd-SWup+LWdown-LWup+QH+QL W/m2. 1W=1J/s
-df_melt=df_KAN_U_csv
-df_melt['melt']=df_KAN_U_csv['ShortwaveRadiationDown_Cor(W/m2)']-df_KAN_U_csv['ShortwaveRadiationUp_Cor(W/m2)']+df_KAN_U_csv['LongwaveRadiationDown(W/m2)']-df_KAN_U_csv['LongwaveRadiationUp(W/m2)']+df_KAN_U_csv['SensibleHeatFlux(W/m2)']+df_KAN_U_csv['LatentHeatFlux(W/m2)']
-
-#2. compute hourly NRJ [J]
-
-#Transform flux into energy: 1W = 1J/s => W*s=J
-df_melt['NRJ']=df_melt['melt']*60*60
-
-#3. discard negative melt
-df_melt_positive=df_melt
-df_melt_positive[df_melt_positive['NRJ']<0]=np.nan
-
-#4. Keep only summer data
-
-#Select only from 1st May to 30th September
-df_melt_summer=df_melt_positive[(df_melt_positive['MonthOfYear']>=5) & (df_melt_positive['MonthOfYear']<=9)]
-
-#Keep only data from 2009 to 2017
-df_melt_summer_time_period=df_melt_summer[(df_melt_summer['Year']>=2009) & (df_melt_summer['Year']<=2017)]
-
-#Transform data from J to kJ => /1000
-df_melt_summer_time_period['NRJ_kJ']=df_melt_summer_time_period['NRJ']/1000
-
-#Set the year as integer for data display
-df_melt_summer_time_period.Year=df_melt_summer_time_period.Year.astype(int)
+#Calculate PDH
+df_KAN_U_csv['PDH']=(df_KAN_U_csv['AirTemperature(C)']>0).astype(int)
+df_KAN_U_csv['PDH_temperature']=df_KAN_U_csv[df_KAN_U_csv['AirTemperature(C)']>0]['AirTemperature(C)']
 
 #5. show total cumulative melt
-ax = sns.barplot(x="Year", y="NRJ_kJ", data=df_melt_summer_time_period,palette=['lightgrey'],ax=ax10m,estimator=sum,ci=None)
+ax = sns.barplot(x="Year", y="PDH_temperature", data=df_KAN_U_csv,palette=['lightgrey'],ax=ax10m,estimator=sum,ci=None)
 
 #Set y tick to the right
 ax10m.yaxis.set_label_position("right")
 ax10m.yaxis.tick_right()
-ax10m.set_ylabel('Melt energy availaibility [kJ]')
+ax10m.set_ylabel('PDH [°C]')
 ax10m.set_xlabel('Year')
+ax10m.set_xlim(-0.5,8.5) #From 2009 to 2017
 #Activate ticks xlabel
 ax10m.xaxis.tick_bottom()
 #Add pannel label
@@ -667,6 +827,8 @@ ax10m.text(0.01, 0.875,'i',ha='center', va='center', transform=ax10m.transAxes,w
 '''
 ax10m.legend_.remove()
 plt.show()
+'''
+
 '''
 ######################## Assess the data coverage #############################
 
@@ -709,10 +871,10 @@ df_coverage['Data_coverage']=data_coverage
 pdb.set_trace()
 
 ######################## Assess the data coverage #############################
-
+'''
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v2/fig3.png',dpi=1000)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig3_last_version.png',dpi=1000)
 
 pdb.set_trace()
 

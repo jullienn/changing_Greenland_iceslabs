@@ -161,20 +161,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         if (len(df_trace_year_sorted)==0):
             #No data in this time period, continue
             continue
-        else:   
-            '''
-            NOT UP TO DATE WITH RECENT CHANGES ABOUT DISTANCE
-            #Display elevation along longitude
-            if (casestudy_nb=='c'):
-                #Sort df_trace_year_sorted_panb from low to high elevations
-                df_trace_year_sorted_panb=df_trace_year.sort_values(by=['lon_3413'])
-                
-                fige, ((axfige)) = plt.subplots()
-                axfige.plot(df_trace_year_sorted_panb['lon_3413'],df_trace_year_sorted_panb['elevation'])
-                axfige.set_title(str(df_trace_year_sorted_panb.year.unique()[0].astype(int)))
-                plt.show()
-            '''
-            
+        else:
             #Set bound_nb to 0
             bound_nb=0
             #Loop over the dist divide
@@ -262,30 +249,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             axt.plot(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],color=my_pal[time_period],alpha=0.5)
             axt.scatter(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],c=my_pal[time_period],marker='.',s=0.5,alpha=1)
             
-            '''
-            NOT UP TO DATE WITH RECENT CHANGES ABOUT DISTANCE
-            #Display the median where outside of average window range
-            #Create array_fill_start and _end for filling at the start and at the end
-            array_fill_start=np.zeros(6,)
-            array_fill_start[:]=np.nan
-            array_fill_start[0:5]=np.asarray(df_plot["median"].iloc[0:int(winsize/2)])
-            array_fill_start[-1]=np.asarray((df_plot['rolling_10_median'].iloc[int(winsize/2)]))
-            
-            array_fill_end=np.zeros(5,)
-            array_fill_end[:]=np.nan
-            array_fill_end[0]=np.asarray((df_plot['rolling_10_median'].iloc[int(len(df_plot)-winsize/2)]))
-            array_fill_end[1:5]=np.asarray(df_plot["median"].iloc[int(len(df_plot)-winsize/2+1):len(df_plot)])
-            
-            #Display
-            axt.plot(df_plot["low_bound"].iloc[0:int(winsize/2)+1],array_fill_start,alpha=0.5,color=my_pal[time_period])
-            axt.plot(df_plot["low_bound"].iloc[int(len(df_plot)-winsize/2):len(df_plot)],array_fill_end,alpha=0.5,color=my_pal[time_period])
-            '''
-            '''
-            # Plot the median
-            axt.plot(df_plot["low_bound"],df_plot["median"],color=my_pal[time_period])
-            #Display IQR
-            axt.fill_between(df_plot['low_bound'], df_plot['q025'], df_plot['q075'], alpha=0.3,color=my_pal[time_period])
-            '''
     #Get rid of legend
     #axt.legend_.remove()
     axt.set_xlabel('')
@@ -297,39 +260,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     #Place yticks on the right hand side
     axt.yaxis.tick_right()
-    
-    '''
-    NOT UP TO DATE WITH RECENT CHANGES ABOUT DISTANCE
-    #IF DISPLAY ELEVATION ON XTICKS ON THE LONG VS COLUMNAL ICE CONTENT PLOT IS DESIRED:
-        - 1. extract x tick labels
-        - 2. find corresponding elevation using np.argmin(lon-lon_axis[0])
-        - 3. display corresponding elevation
-        - 4. Add elevation profile on the right hand side?
-
-    #1. Extract x ticks
-    #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
-    xticks=np.asarray([item for item in axt.get_xticks()])
-    
-    #2. Find closest corresponding elevation
-    elevation_display=[np.nan]*len(xticks)
-    count=0
-    for indiv_lon in xticks:
-        
-        index_closest=np.argmin(np.abs(np.abs(df_for_elev['lon_3413'])-np.abs(indiv_lon)))
-        elevation_display[count]=np.round(df_for_elev.iloc[index_closest]['elevation'])
-        count=count+1
-    
-    #3. Display corresponding elevation
-    #This is from https://stackoverflow.com/questions/63723514/userwarning-fixedformatter-should-only-be-used-together-with-fixedlocator
-    # fixing xticks with matplotlib.ticker "FixedLocator"
-    axt.xaxis.set_major_locator(mticker.FixedLocator(axt.get_xticks().tolist()))
-    axt.set_xticklabels(elevation_display)
-
-    #Try to display integer
-    #This is from https://stackoverflow.com/questions/30914462/matplotlib-how-to-force-integer-tick-labels
-    from matplotlib.ticker import MaxNLocator
-    axt.xaxis.set_major_locator(MaxNLocator(integer=True))
-    '''
         
     #4. Display elevation
     #Store the xticks for the distance
