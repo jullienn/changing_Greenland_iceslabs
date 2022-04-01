@@ -38,8 +38,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             continue  
         #Select data for the trace
         df_for_elev_temp=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
-        #Do not keep where lon<-47.5 and lon>-46.66
-        df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon']>=-47.5]
+        #Do not keep where lon<-47.4233 (2012 is the constraining year) and lon> -46.2981 (2018 is the constraining year)
+        df_for_elev_temp=df_for_elev_temp[np.logical_and(df_for_elev_temp['lon']>=-47.4233,df_for_elev_temp['lon']<=-46.2981)]
         #2011 data are displayed only from 66.8707 to 67.2
         if (year == 2011):
             df_for_elev_temp=df_for_elev_temp[np.logical_and(df_for_elev_temp['lat']>=66.8707,df_for_elev_temp['lat']<=67.2)]
@@ -71,7 +71,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     
     #Define window size for smoothing
     winsize=3
-        
+    
     #Calculate distance for every single year
     for indiv_year in np.array([2010,2011,2012,2013,2014,2017,2018]):
         #Extract the indexes of the corresponding year
@@ -104,7 +104,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
                 distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
                 #c. Store the distances
                 df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
-    
+
     #Define empty list
     app_time_period=[]
     app_low_bound=[]
@@ -263,16 +263,40 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     #Set xlims
     axt.set_xlim(0,40000)
     
-    '''
+    #Use the 2018 dataset for displaying the dashed lines
+    lon_for_dashed_lines=df_for_elev_sorted[df_for_elev_sorted['year']==2018]['lon']
+    dist_for_dashed_lines=df_for_elev_sorted[df_for_elev_sorted['year']==2018]['distances']
+    
     #Display limits of area of focus
-    ax_plotting.axvline(x=distances_with_start_transect[np.argmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
-    ax_plotting.axvline(x=distances_with_start_transect[np.argmin(np.abs(np.abs(lon_plot)-np.abs(-47.02)))],zorder=1,linestyle='--',color='k')
-    '''
+    axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
+    axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.02)))],zorder=1,linestyle='--',color='k')
+    
     '''
     # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
     axt.grid(False)
     '''
     plt.show()
+    
+    ###########################################################################
+    ###      Extract total columnal ice content inside area of focus        ###
+    ###########################################################################
+    count_ice=0
+    columnal_sum_studied_case=np.zeros(3)
+    columnal_sum_studied_case[:]=np.nan
+        
+    for indiv_year in np.array([2012,2013,2018]):
+        #Select data
+        df_indiv_year=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
+        #Keep only within studied area
+        df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.02)]
+        #Extract total solumnal ice content within this area
+        columnal_sum_studied_case[count_ice]=np.sum(df_studied_case['20m_ice_content_m'])
+        #Update count_ice
+        count_ice=count_ice+1
+    
+    ###########################################################################
+    ###      Extract total columnal ice content inside area of focus        ###
+    ###########################################################################  
 
     print('End plotting thickness data')
     
@@ -373,8 +397,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             #Select only data within bounds
             X=dataframe[str(year)]['lat_appended'][indexes_within_bounds]
         else:
-            #2010, 2012-2018 lon>-47.5 and lon<-46.66
-            indexes_within_bounds=np.logical_and(dataframe[str(year)]['lon_appended']>=-47.5,dataframe[str(year)]['lon_appended']<=-46.66)
+            #2010, 2012-2018 lon>-47.4233 and lon<-46.2981
+            indexes_within_bounds=np.logical_and(dataframe[str(year)]['lon_appended']>=-47.4233,dataframe[str(year)]['lon_appended']<=-46.2981)
             #Select only data within bounds
             X=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
         
@@ -421,8 +445,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         
         #Display limits of area of focus
         if (str(year) in list(['2012','2013','2018'])):
-            ax_plotting.axvline(x=distances_with_start_transect[np.argmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
-            ax_plotting.axvline(x=distances_with_start_transect[np.argmin(np.abs(np.abs(lon_plot)-np.abs(-47.02)))],zorder=1,linestyle='--',color='k')
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.02)))],zorder=1,linestyle='--',color='k')
         
         ###########################################################################
         ###                           Display radargrams                        ###
@@ -460,7 +484,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     ###########################################################################
     ###                       Display elevation profile                     ###
     ###########################################################################
-    
+
     #Select only  2012, 2013, 2018
     df_transect_elev_2012=df_for_elev[df_for_elev['year']==2012]
     df_transect_elev_2013=df_for_elev[df_for_elev['year']==2013] 
@@ -485,9 +509,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     
     ###########################################################################
     ###                       Display elevation profile                     ###
-    ###########################################################################
+    ###########################################################################  
     
-    return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation'])
+    return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
 
 import pickle
@@ -780,30 +804,25 @@ SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5)
 CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
-min_elev,max_elev=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,ax12_elev,my_pal)
+min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,ax12_elev,my_pal)
 
 pdb.set_trace()
-
 #Finalize axis ax2r
 ax2r.yaxis.set_label_position("right")
 ax2r.yaxis.tick_right()
 
 #Finalize axis ax11t
-ax11t.set_xlim(min_elev,max_elev)
-ax11t.set_xlabel('Elevation [m]')
+ax11t.set_xlabel('Distance [km]')
 ax11t.set_ylabel('Column ice thickness [m]')
 #Activate ticks label
 ax11t.xaxis.tick_bottom()
 ax11t.yaxis.tick_left()
 
 #Add vertical lines where the analysed section is
-ax11t.axvline(x=1882,zorder=1,linestyle='--',color='k') #from QGIS, reading along 2014-2017 flightline
-ax11t.axvline(x=1852,zorder=1,linestyle='--',color='k') #from QGIS, reading along 2014-2017 flightline
-ax11t.set_xlim(1735.68640136718750,1983.92419433593750)
-#xmin is from 20170502_01_171_173 in df_for_elev that is the closest from -47.5
-#xmax is from 20140416_05_035_037 in df_for_elev that is the closest from -46.66
 #Note that 2014 and 2017 are perfectly overlapping.
+'''
 ax11t.scatter(1879,15.8,s=10,c='r')
+'''
 #Add pannel label
 ax11t.text(0.01, 0.875,'h',ha='center', va='center', transform=ax11t.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
@@ -860,6 +879,7 @@ ax10m.xaxis.tick_bottom()
 #Add pannel label
 ax10m.text(0.01, 0.875,'i',ha='center', va='center', transform=ax10m.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
+pdb.set_trace()
 '''
 ax10m.legend_.remove()
 plt.show()
