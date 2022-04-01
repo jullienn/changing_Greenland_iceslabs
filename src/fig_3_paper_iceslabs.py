@@ -281,16 +281,19 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     ###      Extract total columnal ice content inside area of focus        ###
     ###########################################################################
     count_ice=0
-    columnal_sum_studied_case=np.zeros(3)
+    columnal_sum_studied_case=np.zeros(len(np.arange(2009,2022)))
     columnal_sum_studied_case[:]=np.nan
         
-    for indiv_year in np.array([2012,2013,2018]):
-        #Select data
-        df_indiv_year=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
-        #Keep only within studied area
-        df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.02)]
-        #Extract total solumnal ice content within this area
-        columnal_sum_studied_case[count_ice]=np.sum(df_studied_case['20m_ice_content_m'])
+    for indiv_year in np.arange(2009,2022):
+        print(indiv_year)
+        if (indiv_year in np.array([2012,2013,2018])):
+            #Select data
+            df_indiv_year=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
+            #Keep only within studied area
+            df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.02)]
+            #Extract total solumnal ice content within this area
+            columnal_sum_studied_case[count_ice]=np.sum(df_studied_case['20m_ice_content_m'])
+            
         #Update count_ice
         count_ice=count_ice+1
     
@@ -796,7 +799,7 @@ ax7r = plt.subplot(gs[20:23, 0:10])
 ax11t = plt.subplot(gs[27:35, 0:10])
 
 ax8map = plt.subplot(gs[26:35, 15:20],projection=crs)
-ax10m = plt.subplot(gs[7:20, 10:20])
+ax10m = plt.subplot(gs[7:20, 14:20])
 ax12_elev = plt.subplot(gs[26:35, 10:15])
 
 #Display GrIS drainage bassins on the map subplot
@@ -806,7 +809,6 @@ CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5)
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
 min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,ax12_elev,my_pal)
 
-pdb.set_trace()
 #Finalize axis ax2r
 ax2r.yaxis.set_label_position("right")
 ax2r.yaxis.tick_right()
@@ -868,6 +870,10 @@ df_KAN_U_csv['PDH_temperature']=df_KAN_U_csv[df_KAN_U_csv['AirTemperature(C)']>0
 #5. show total cumulative melt
 ax = sns.barplot(x="Year", y="PDH_temperature", data=df_KAN_U_csv,palette=['lightgrey'],ax=ax10m,estimator=sum,ci=None)
 
+#This is from https://stackoverflow.com/questions/14762181/adding-a-y-axis-label-to-secondary-y-axis-in-matplotlib
+ax10m_second = ax10m.twinx()
+ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.2)
+
 #Set y tick to the right
 ax10m.yaxis.set_label_position("right")
 ax10m.yaxis.tick_right()
@@ -879,7 +885,6 @@ ax10m.xaxis.tick_bottom()
 #Add pannel label
 ax10m.text(0.01, 0.875,'i',ha='center', va='center', transform=ax10m.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
-pdb.set_trace()
 '''
 ax10m.legend_.remove()
 plt.show()
