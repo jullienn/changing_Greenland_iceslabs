@@ -410,18 +410,25 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             indexes_within_bounds=np.logical_and(dataframe[str(year)]['lon_appended']>=-47.4233,dataframe[str(year)]['lon_appended']<=-46.2981)
             #Select only data within bounds
             X=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
+                
+        #Select only radar data within bounds
+        Y_data=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
+        C_data=dataframe[str(year)]['radar'][:,indexes_within_bounds]
         
-        '''
-        #Select only data within bounds
-        Y=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
-        C=dataframe[str(year)]['radar'][:,indexes_within_bounds]
-        '''
+        #Keep only the first 20m of radar data
+        C_data=C_data[Y_data<20,:]
+        Y_data=Y_data[Y_data<20]
+
+        #Select only probabilistic data within bounds
         Y=np.arange(0,20,20/dataframe[str(year)]['probabilistic'].shape[0])
         C=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
     
         #Display only where probability is higher or equal than prob
         C_bool=(C>=prob).astype(int)
-    
+        C_bool_plot=np.zeros([C_bool.shape[0],C_bool.shape[1]])
+        C_bool_plot[:]=np.nan
+        C_bool_plot[C_bool==1]=1
+        
         mask_plot=dataframe[str(year)]['mask'][indexes_within_bounds]
         
         #Create lat/lon vectors for display
@@ -450,10 +457,15 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         
         #Calculate distances
         distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
-                        
-        cb=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool,cmap=plt.get_cmap('gray_r'),zorder=-1)#,norm=divnorm)
+        
+        #Display radargram
+        cb=ax_plotting.pcolor(distances_with_start_transect, Y_data, C_data,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
         ax_plotting.set_ylim(20,0)
+
+        #Display probability
+        cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=plt.get_cmap('autumn'),zorder=-1,alpha=0.1, antialiased=True, linewidth=0.0)
+        #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
         
         #Display bottom xtick in km instead of m
         xtick_distance=ax_plotting.get_xticks()
@@ -905,7 +917,7 @@ ax10m.yaxis.set_label_position("right")
 ax10m.yaxis.tick_right()
 ax10m.set_ylabel('PDH [°C]')
 ax10m.set_xlabel('Year')
-ax10m.set_xlim(-0.5,8.5) #From 2009 to 2017
+ax10m.set_xlim(-0.5,8.6) #From 2009 to 2017
 #Activate ticks xlabel
 ax10m.xaxis.tick_bottom()
 #Add pannel label
