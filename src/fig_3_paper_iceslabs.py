@@ -22,7 +22,7 @@ def compute_distances(eastings,northings):
     return return_cumsum_distances
 
 
-def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,ax_elev,my_pal):
+def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_likelihood,axt,ax_elev,my_pal):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
     ###########################################################################
@@ -30,37 +30,37 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     ###########################################################################
     
     #Define empty dictionnary for elevation slice definition
-    df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
+    df_likelihood=pd.DataFrame(columns=list(df_2010_2018_likelihood.keys()))
     
     #Loop over the years
     for year in dictionnary_case_study.keys():
         if (dictionnary_case_study[year] == 'empty'):
             continue  
         #Select data for the trace
-        df_for_elev_temp=df_2010_2018_elevation[df_2010_2018_elevation['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
+        df_likelihood_temp=df_2010_2018_likelihood[df_2010_2018_likelihood['Track_name']==dictionnary_case_study[year][0][5:20]+'_'+dictionnary_case_study[year][-1][17:20]]
         #Do not keep where lon<-47.4233 (2012 is the constraining year) and lon> -46.2981 (2018 is the constraining year)
-        df_for_elev_temp=df_for_elev_temp[np.logical_and(df_for_elev_temp['lon']>=-47.4233,df_for_elev_temp['lon']<=-46.2981)]
+        df_likelihood_temp=df_likelihood_temp[np.logical_and(df_likelihood_temp['lon']>=-47.4233,df_likelihood_temp['lon']<=-46.2981)]
         #2011 data are displayed only from 66.8707 to 67.2
         if (year == 2011):
-            df_for_elev_temp=df_for_elev_temp[np.logical_and(df_for_elev_temp['lat']>=66.8707,df_for_elev_temp['lat']<=67.2)]
+            df_likelihood_temp=df_likelihood_temp[np.logical_and(df_likelihood_temp['lat']>=66.8707,df_likelihood_temp['lat']<=67.2)]
         #Append data to each other
-        df_for_elev=df_for_elev.append(df_for_elev_temp)
+        df_likelihood=df_likelihood.append(df_likelihood_temp)
      
     #Create an empty df_sampling
     df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev','rolling_10_median_scatter'])
     
-    #Sort df_for_elev from low to high longitude (from west to east)
-    df_for_elev_sorted=df_for_elev.sort_values(by=['lon_3413'])
+    #Sort df_likelihood from low to high longitude (from west to east)
+    df_likelihood_sorted=df_likelihood.sort_values(by=['lon_3413'])
     
     #Create a nan array for storing distances
-    df_for_elev_sorted['distances']=np.nan
+    df_likelihood_sorted['distances']=np.nan
         
     #Exclude 2010 and 2011 for start of transect definition
-    df_for_elev_sorted_transect=df_for_elev_sorted[~np.logical_or(df_for_elev_sorted['year']==2010,df_for_elev_sorted['year']==2011)]
+    df_likelihood_sorted_transect=df_likelihood_sorted[~np.logical_or(df_likelihood_sorted['year']==2010,df_likelihood_sorted['year']==2011)]
     
     #Store coordinates of the bounds of the transect
-    bounds_transect=np.array([[df_for_elev_sorted_transect.iloc[0]['lon_3413'], df_for_elev_sorted_transect.iloc[0]['lat_3413']],
-                              [df_for_elev_sorted_transect.iloc[-1]['lon_3413'], df_for_elev_sorted_transect.iloc[-1]['lat_3413']]])
+    bounds_transect=np.array([[df_likelihood_sorted_transect.iloc[0]['lon_3413'], df_likelihood_sorted_transect.iloc[0]['lat_3413']],
+                              [df_likelihood_sorted_transect.iloc[-1]['lon_3413'], df_likelihood_sorted_transect.iloc[-1]['lat_3413']]])
     
     #Compute distance between the westernmost and easternmost point
     bounds_distances=compute_distances(bounds_transect[:,0],bounds_transect[:,1])
@@ -75,9 +75,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     #Calculate distance for every single year
     for indiv_year in np.array([2010,2011,2012,2013,2014,2017,2018]):
         #Extract the indexes of the corresponding year
-        ind_indiv_year=np.where(df_for_elev_sorted['year']==indiv_year)
+        ind_indiv_year=np.where(df_likelihood_sorted['year']==indiv_year)
         #Select the corresponding year
-        df_trace_year_sorted_for_dist=df_for_elev_sorted.iloc[ind_indiv_year]
+        df_trace_year_sorted_for_dist=df_likelihood_sorted.iloc[ind_indiv_year]
                 
         if (len(df_trace_year_sorted_for_dist)>0):            
             #Calculate the distance compared to start of transect
@@ -94,7 +94,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
                 #b. Calculate the distances
                 distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
                 #c. Store the distances
-                df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect
+                df_likelihood_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect
                 
             else:
                 #a. Add the start of the transect for calculating distances
@@ -103,7 +103,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
                 #b. Calculate the distances
                 distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
                 #c. Store the distances
-                df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
+                df_likelihood_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
 
     #Define empty list
     app_time_period=[]
@@ -121,7 +121,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     for indiv_year in range(2012,2019):
         
         #Get data for that specific time period
-        df_trace_year_sorted=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
+        df_trace_year_sorted=df_likelihood_sorted[df_likelihood_sorted['year']==indiv_year]
           
         if (len(df_trace_year_sorted)==0):
             #No data in this time period, continue
@@ -238,12 +238,12 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             elevation_display[count]=''
         else:
             #Extract index where distance is minimal
-            index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)))
+            index_closest=np.argmin(np.abs(np.abs(df_likelihood_sorted['distances'])-np.abs(indiv_dist)))
             #If minimum distance is higher than 1km, store nan. If not, store corresponding elevation
-            if (np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)).iloc[index_closest] > 1000):
+            if (np.abs(np.abs(df_likelihood_sorted['distances'])-np.abs(indiv_dist)).iloc[index_closest] > 1000):
                 elevation_display[count]=''
             else:
-                elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation']).astype(int)
+                elevation_display[count]=np.round(df_likelihood_sorted.iloc[index_closest]['elevation']).astype(int)
             
         count=count+1
         
@@ -264,8 +264,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     axt.set_xlim(0,40000)
     
     #Use the 2018 dataset for displaying the dashed lines
-    lon_for_dashed_lines=df_for_elev_sorted[df_for_elev_sorted['year']==2018]['lon']
-    dist_for_dashed_lines=df_for_elev_sorted[df_for_elev_sorted['year']==2018]['distances']
+    lon_for_dashed_lines=df_likelihood_sorted[df_likelihood_sorted['year']==2018]['lon']
+    dist_for_dashed_lines=df_likelihood_sorted[df_likelihood_sorted['year']==2018]['distances']
     
     #Display limits of area of focus
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
@@ -288,7 +288,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         print(indiv_year)
         if (indiv_year in np.array([2012,2013,2018])):
             #Select data
-            df_indiv_year=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
+            df_indiv_year=df_likelihood_sorted[df_likelihood_sorted['year']==indiv_year]
             #Keep only within studied area
             df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.02)]
             #Extract total solumnal ice content within this area
@@ -405,9 +405,17 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             #Select only data within bounds
             X=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
         
+        '''
         #Select only data within bounds
         Y=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
         C=dataframe[str(year)]['radar'][:,indexes_within_bounds]
+        '''
+        Y=np.arange(0,20,20/dataframe[str(year)]['probabilistic'].shape[0])
+        C=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
+        
+        #Extract where probability is lower than 0.2
+        C_bool=(C>=0.3).astype(int)
+        
         mask_plot=dataframe[str(year)]['mask'][indexes_within_bounds]
         
         #Create lat/lon vectors for display
@@ -437,7 +445,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         #Calculate distances
         distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
                         
-        cb=ax_plotting.pcolor(distances_with_start_transect, Y, C,cmap=plt.get_cmap('gray'),zorder=-1)#,norm=divnorm)
+        cb=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool,cmap=plt.get_cmap('gray_r'),zorder=-1)#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
         ax_plotting.set_ylim(20,0)
         
@@ -483,38 +491,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         ###                       Display data localisation                     ###
         ###########################################################################
         
-        
-    ###########################################################################
-    ###                       Display elevation profile                     ###
-    ###########################################################################
-
-    #Select only  2012, 2013, 2018
-    df_transect_elev_2012=df_for_elev[df_for_elev['year']==2012]
-    df_transect_elev_2013=df_for_elev[df_for_elev['year']==2013] 
-    df_transect_elev_2018=df_for_elev[df_for_elev['year']==2018] 
     
-    #Plot transect
-    ax_elev.scatter(df_transect_elev_2012['lon'],df_transect_elev_2012['elevation'],s=0.5,c='k',marker='.')
-    ax_elev.scatter(df_transect_elev_2013['lon'],df_transect_elev_2013['elevation'],s=0.5,c='k',marker='.')
-    ax_elev.scatter(df_transect_elev_2018['lon'],df_transect_elev_2018['elevation'],s=0.5,c='k',marker='.')
     
-    #Set xlims and draw dotted lines
-    ax_elev.set_xlim(-47.5,-46.66)
-    ax_elev.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
-    ax_elev.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
-    
-    #Improve display
-    #Set y tick to the right
-    ax_elev.yaxis.set_label_position("right")
-    ax_elev.yaxis.tick_right()
-    ax_elev.set_ylabel('Elevation [m]')
-    ax_elev.set_xlabel('Longitude [°]')
-    
-    ###########################################################################
-    ###                       Display elevation profile                     ###
-    ###########################################################################  
-    
-    return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
+    return columnal_sum_studied_case
 
 
 import pickle
@@ -759,15 +738,37 @@ for single_year in investigation_year.keys():
 
 
 #Load all 2010-2018 data without spatial aggregation
+'''
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
 df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv',delimiter=',',decimal='.')
+'''
+
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate_and_columnal_likelihood/'
+#Write the year in df_2010_2018_csv_likelihood
+import datetime as dt
+
+def _parse(Track_name):
+    return dt.datetime(int(Track_name[0:4]),int(Track_name[4:6]),int(Track_name[6:8]),int(0))
+
+df_2010_2018_csv_likelihood = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv',
+                                          parse_dates={'timestamp': ['Track_name']},
+                                          index_col='timestamp',
+                                          date_parser=_parse,
+                                          delimiter=',',
+                                          decimal='.')
+df_2010_2018_csv_likelihood['year']=df_2010_2018_csv_likelihood.index.year
+
+#Store Track_name
+df_2010_2018_csv_likelihood_for_tracknames = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
+df_2010_2018_csv_likelihood['Track_name']=np.asarray(df_2010_2018_csv_likelihood_for_tracknames['Track_name'])
+
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2010_2018_csv["lat"]))
+points=transformer.transform(np.asarray(df_2010_2018_csv_likelihood["lon"]),np.asarray(df_2010_2018_csv_likelihood["lat"]))
 
 #Store lat/lon in 3413
-df_2010_2018_csv['lon_3413']=points[0]
-df_2010_2018_csv['lat_3413']=points[1]
+df_2010_2018_csv_likelihood['lon_3413']=points[0]
+df_2010_2018_csv_likelihood['lat_3413']=points[1]
 
 #Load 2010-2018 elevation dataset
 path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/old_elevation_computation/' 
@@ -799,7 +800,7 @@ ax7r = plt.subplot(gs[20:23, 0:10])
 ax11t = plt.subplot(gs[27:35, 0:10])
 
 ax8map = plt.subplot(gs[26:35, 15:20],projection=crs)
-ax10m = plt.subplot(gs[7:20, 14:20])
+ax10m = plt.subplot(gs[7:20, 12:20])
 ax12_elev = plt.subplot(gs[26:35, 10:15])
 
 #Display GrIS drainage bassins on the map subplot
@@ -807,7 +808,7 @@ SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5)
 CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
-min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,ax12_elev,my_pal)
+columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_csv_likelihood,ax11t,ax12_elev,my_pal)
 
 #Finalize axis ax2r
 ax2r.yaxis.set_label_position("right")
@@ -873,6 +874,10 @@ ax = sns.barplot(x="Year", y="PDH_temperature", data=df_KAN_U_csv,palette=['ligh
 #This is from https://stackoverflow.com/questions/14762181/adding-a-y-axis-label-to-secondary-y-axis-in-matplotlib
 ax10m_second = ax10m.twinx()
 ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.2)
+ax10m_second.yaxis.set_label_position("left")
+ax10m_second.yaxis.tick_left()
+ax10m_second.set_ylabel('Total columnal ice content [m]')
+ax10m_second.set_xlim(0,8.6)
 
 #Set y tick to the right
 ax10m.yaxis.set_label_position("right")
@@ -933,11 +938,11 @@ pdb.set_trace()
 
 ######################## Assess the data coverage #############################
 '''
+pdb.set_trace()
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig3_last_version.png',dpi=1000)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig3_final_prob03.png',dpi=1000)
 
-pdb.set_trace()
 
 indiv_file_load='Data_20120423_01_137.mat'
 path_raw_data=path_data+str(2012)+'_Greenland_P3/CSARP_qlook/'+'20120423_01'+'/'
