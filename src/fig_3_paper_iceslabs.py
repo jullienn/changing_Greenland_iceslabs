@@ -22,7 +22,7 @@ def compute_distances(eastings,northings):
     return return_cumsum_distances
 
 
-def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,ax_elev,my_pal):
+def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,my_pal):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
     #Define the probability
@@ -258,6 +258,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     ax_t = axt.secondary_xaxis('top')
     ax_t.set_xticks(xtick_distance)
     ax_t.set_xticklabels(elevation_display)
+    ax_t.set_xlabel('Elevation[m]')
     
     #Display bottom xtick in km instead of m
     axt.set_xticklabels((xtick_distance/1000).astype(int))
@@ -275,8 +276,11 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
     
     #Display limits of area of focus
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
-    axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.02)))],zorder=1,linestyle='--',color='k')
+    axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
     
+    #Display KAN_U
+    axt.scatter(dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.030473)))],15.5,s=10,c='#b2182b',zorder=10)
+
     '''
     # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
     axt.grid(False)
@@ -296,7 +300,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             #Select data
             df_indiv_year=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
             #Keep only within studied area
-            df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.02)]
+            df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.023)]
             #Extract total solumnal ice content within this area
             columnal_sum_studied_case[count_ice]=np.sum(df_studied_case['20m_ice_content_m'])
             
@@ -340,15 +344,23 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             ax_plotting.set_yticklabels(['0', '10', ''])
             ax_plotting.set_xticklabels([])
             ax_plotting.set_yticks([0,10,])
+            #Activate ticks xlabel
+            ax_plotting.xaxis.tick_bottom()
+            #Modify spacing between xticklabels and xticks
+            ax_plotting.tick_params(pad=1.2)
             #Define pannel label
             casestudy_nb='a'
         elif (year==2011):
             ax_plotting=ax2r
             ax2r.set_xlabel('Latitude [°]')
-            ax2r.set_ylabel('Depth [m]')
             label_for_map=u'\u03B2'
+            ax_plotting.set_yticklabels(['0', '10', ''])
+            ax_plotting.set_xticklabels([])
+            ax_plotting.set_yticks([0,10,])
             #Activate ticks xlabel
             ax_plotting.xaxis.tick_bottom()
+            #Modify spacing between xticklabels and xticks
+            ax_plotting.tick_params(pad=1.2)
             #Define pannel label
             casestudy_nb='b'
         elif (year==2012):
@@ -356,7 +368,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             label_for_map=u'\u03B3'
             #Adapt xticklabels
             ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels([])
+            ax_plotting.set_xticklabels(['','',''])
             ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='c'
@@ -366,7 +378,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             label_for_map=u'\u03B3'
             #Adapt xticklabels
             ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels([])
+            ax_plotting.set_xticklabels(['','','','',''])
             ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='d'
@@ -375,7 +387,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             label_for_map=u'\u03B4'
             #Adapt xticklabels, from https://stackoverflow.com/questions/43673884/change-x-axis-ticks-to-custom-strings
             ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels([])
+            ax_plotting.set_xticklabels(['','','','',''])
             ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='e'
@@ -384,7 +396,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
             label_for_map=u'\u03B4'
             #Adapt xticklabels
             ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels([])
+            ax_plotting.set_xticklabels(['','','','',''])
             ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='f'
@@ -475,7 +487,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         #Display limits of area of focus
         if (str(year) in list(['2012','2013','2018'])):
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
-            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.02)))],zorder=1,linestyle='--',color='k')
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
         
         ###########################################################################
         ###                           Display radargrams                        ###
@@ -488,20 +500,21 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         if (year==2011):
             ax_plotting.set_xlim(0,40000)
             #Display KAN_U
-            ax_plotting.scatter(67.000425,1,s=10,c='r')
+            ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lat_plot)-np.abs(67.000425)))],1,s=10,c='#b2182b',zorder=10)
         else:
             ax_plotting.set_xlim(0,40000)
             #Display KAN_U
-            ax_plotting.scatter(-47.030473,1,s=10,c='r')
+            ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],1,s=10,c='#b2182b',zorder=10)
+            
         
         #display loc on map
-        ax8map.scatter(lon3413_plot,lat3413_plot,c='k',s=0.5)
-
+        ax8map.scatter(lon3413_plot,lat3413_plot,c='k',s=0.5,zorder=10)
+                
         #Add year on radargram
-        ax_plotting.text(0.96, 0.90,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes, weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plotting.text(0.975, 0.825,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         
         #Add pannel label
-        ax_plotting.text(0.01, 0.875,casestudy_nb,ha='center', va='center', transform=ax_plotting.transAxes,weight='bold',fontsize=20,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plotting.text(0.01, 0.85,casestudy_nb,ha='center', va='center', transform=ax_plotting.transAxes,fontsize=15,zorder=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         
         #Activate ticks ylabel
         ax_plotting.yaxis.tick_left()
@@ -509,36 +522,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         ###                       Display data localisation                     ###
         ###########################################################################
         
-        
-    ###########################################################################
-    ###                       Display elevation profile                     ###
-    ###########################################################################
-
-    #Select only  2012, 2013, 2018
-    df_transect_elev_2012=df_for_elev[df_for_elev['year']==2012]
-    df_transect_elev_2013=df_for_elev[df_for_elev['year']==2013] 
-    df_transect_elev_2018=df_for_elev[df_for_elev['year']==2018] 
-    
-    #Plot transect
-    ax_elev.scatter(df_transect_elev_2012['lon'],df_transect_elev_2012['elevation'],s=0.5,c='k',marker='.')
-    ax_elev.scatter(df_transect_elev_2013['lon'],df_transect_elev_2013['elevation'],s=0.5,c='k',marker='.')
-    ax_elev.scatter(df_transect_elev_2018['lon'],df_transect_elev_2018['elevation'],s=0.5,c='k',marker='.')
-    
-    #Set xlims and draw dotted lines
-    ax_elev.set_xlim(-47.5,-46.66)
-    ax_elev.axvline(x=-47.11,zorder=1,linestyle='--',color='k')
-    ax_elev.axvline(x=-47.02,zorder=1,linestyle='--',color='k')
-    
-    #Improve display
-    #Set y tick to the right
-    ax_elev.yaxis.set_label_position("right")
-    ax_elev.yaxis.tick_right()
-    ax_elev.set_ylabel('Elevation [m]')
-    ax_elev.set_xlabel('Longitude [°]')
-    
-    ###########################################################################
-    ###                       Display elevation profile                     ###
-    ###########################################################################  
     
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
@@ -819,33 +802,26 @@ crs_proj4 = crs.proj4_init
 
 #Plot
 fig = plt.figure()
-gs = gridspec.GridSpec(35, 20)
+gs = gridspec.GridSpec(36, 12)
 gs.update(wspace=0.1)
 gs.update(hspace=0.1)
 
 ax1r = plt.subplot(gs[0:3, 0:10])
-ax2r = plt.subplot(gs[0:3, 10:20])
-ax3r = plt.subplot(gs[4:7, 0:10])
-ax4r = plt.subplot(gs[8:11, 0:10])
-ax5r = plt.subplot(gs[12:15, 0:10])
-ax6r = plt.subplot(gs[16:19, 0:10])
+ax2r = plt.subplot(gs[4:7, 0:10])
+ax3r = plt.subplot(gs[8:11, 0:10])
+ax4r = plt.subplot(gs[11:14, 0:10])
+ax5r = plt.subplot(gs[14:17, 0:10])
+ax6r = plt.subplot(gs[17:20, 0:10])
 ax7r = plt.subplot(gs[20:23, 0:10])
-ax11t = plt.subplot(gs[27:35, 0:10])
-
-ax8map = plt.subplot(gs[26:35, 15:20],projection=crs)
-ax10m = plt.subplot(gs[7:20, 12:20])
-ax12_elev = plt.subplot(gs[26:35, 10:15])
+ax11t = plt.subplot(gs[28:36, 0:10])
+ax8map = plt.subplot(gs[28:36, 10:12],projection=crs)
 
 #Display GrIS drainage bassins on the map subplot
 SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
-min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,ax12_elev,my_pal)
-
-#Finalize axis ax2r
-ax2r.yaxis.set_label_position("right")
-ax2r.yaxis.tick_right()
+min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,my_pal)
 
 #Finalize axis ax11t
 ax11t.set_xlabel('Distance [km]')
@@ -860,7 +836,7 @@ ax11t.yaxis.tick_left()
 ax11t.scatter(1879,15.8,s=10,c='r')
 '''
 #Add pannel label
-ax11t.text(0.01, 0.875,'h',ha='center', va='center', transform=ax11t.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax11t.text(0.01, 0.875,'h',ha='center', va='center', transform=ax11t.transAxes,weight='bold',fontsize=15)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Finalize radargrams plot
 ax7r.set_xlabel('Distance [km]')
@@ -893,6 +869,18 @@ ax8map.axis('off')
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
+pdb.set_trace()
+#Save figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig3_final_prob03.png',dpi=1000)
+
+#Create a new figure for the PDH and total columnal ice content
+fig = plt.figure()
+gs = gridspec.GridSpec(5, 10)
+gs.update(wspace=0.1)
+gs.update(hspace=0.1)
+
+ax10m = plt.subplot(gs[0:5, 0:10])
+
 #Load KAN_U data
 path_KAN_U_data='C:/Users/jullienn/switchdrive/Private/research/RT1/KAN_U_data/'
 df_KAN_U_csv = pd.read_csv(path_KAN_U_data+'KAN_U_hourly_v03_csv.csv',sep=';',decimal=',',header=0,na_values=-999)
@@ -902,26 +890,31 @@ df_KAN_U_csv['PDH']=(df_KAN_U_csv['AirTemperature(C)']>0).astype(int)
 df_KAN_U_csv['PDH_temperature']=df_KAN_U_csv[df_KAN_U_csv['AirTemperature(C)']>0]['AirTemperature(C)']
 
 #5. show total cumulative melt
-ax = sns.barplot(x="Year", y="PDH_temperature", data=df_KAN_U_csv,palette=['lightgrey'],ax=ax10m,estimator=sum,ci=None)
+ax = sns.barplot(x="Year", y="PDH_temperature", data=df_KAN_U_csv,palette=['black'],ax=ax10m,estimator=sum,ci=None,alpha=0.8)
 
 #This is from https://stackoverflow.com/questions/14762181/adding-a-y-axis-label-to-secondary-y-axis-in-matplotlib
 ax10m_second = ax10m.twinx()
-ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.2)
-ax10m_second.yaxis.set_label_position("left")
-ax10m_second.yaxis.tick_left()
+ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.2,color='indianred')
+ax10m_second.yaxis.set_label_position("right")
+ax10m_second.yaxis.tick_right()
 ax10m_second.set_ylabel('Total columnal ice content [m]')
 ax10m_second.set_xlim(0,8.6)
 
-#Set y tick to the right
-ax10m.yaxis.set_label_position("right")
-ax10m.yaxis.tick_right()
 ax10m.set_ylabel('PDH [°C]')
 ax10m.set_xlabel('Year')
 ax10m.set_xlim(-0.5,8.6) #From 2009 to 2017
 #Activate ticks xlabel
 ax10m.xaxis.tick_bottom()
-#Add pannel label
-ax10m.text(0.01, 0.875,'i',ha='center', va='center', transform=ax10m.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+#Remove the grids
+ax10m.grid(False)
+ax10m_second.grid(False)
+
+#Adapt colors
+ax10m.spines['left'].set_color('black') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
+ax10m_second.spines['right'].set_color('indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
+ax10m_second.tick_params(axis='y', colors='indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
+ax10m_second.set_ylabel('Total columnal ice content [m]',color='indianred')
 
 '''
 ax10m.legend_.remove()
@@ -975,7 +968,7 @@ pdb.set_trace()
 
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig3_final_prob03.png',dpi=1000)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig4_PDH.png',dpi=1000)
 
 pdb.set_trace()
 
