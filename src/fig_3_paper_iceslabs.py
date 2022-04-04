@@ -25,6 +25,9 @@ def compute_distances(eastings,northings):
 def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,ax_elev,my_pal):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
+    #Define the probability
+    prob=0.3
+    
     ###########################################################################
     ###                    Display thickness evolution                      ###
     ###########################################################################
@@ -104,7 +107,10 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
                 distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
                 #c. Store the distances
                 df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
-
+    
+    #Discard here where likelihood<prob
+    df_for_elev_sorted=df_for_elev_sorted[df_for_elev_sorted['likelihood']>=prob]
+    
     #Define empty list
     app_time_period=[]
     app_low_bound=[]
@@ -413,8 +419,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,a
         Y=np.arange(0,20,20/dataframe[str(year)]['probabilistic'].shape[0])
         C=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
     
-        #Extract where probability is lower than 0.2
-        C_bool=(C>=0.3).astype(int)
+        #Display only where probability is higher or equal than prob
+        C_bool=(C>=prob).astype(int)
     
         mask_plot=dataframe[str(year)]['mask'][indexes_within_bounds]
         
@@ -770,13 +776,6 @@ for single_year in investigation_year.keys():
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
 df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv',delimiter=',',decimal='.')
 
-#Load all 2010-2018 columnal likelihood data without spatial aggregation
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate_and_columnal_likelihood/'
-df_2010_2018_csv_likelihood = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
-
-#Store likelihood in df_2010_2018_csv
-df_2010_2018_csv['likelihood']=np.asarray(df_2010_2018_csv_likelihood['likelihood'])
-
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2010_2018_csv["lat"]))
@@ -790,6 +789,13 @@ path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final
 f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
+
+#Load all 2010-2018 columnal likelihood data without spatial aggregation
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate_and_columnal_likelihood/'
+df_2010_2018_csv_likelihood = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
+
+#Store likelihood in df_2010_2018_csv
+df_2010_2018_elevation['likelihood']=np.asarray(df_2010_2018_csv_likelihood['likelihood'])
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
