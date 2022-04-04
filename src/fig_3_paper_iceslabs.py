@@ -340,10 +340,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting=ax1r
             ax1r.set_xlabel('Longitude [°]')
             label_for_map=u'\u03B1'
-            #Adapt xticklabels
-            ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels([])
-            ax_plotting.set_yticks([0,10,])
             #Activate ticks xlabel
             ax_plotting.xaxis.tick_bottom()
             #Modify spacing between xticklabels and xticks
@@ -354,9 +350,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting=ax2r
             ax2r.set_xlabel('Latitude [°]')
             label_for_map=u'\u03B2'
-            ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels([])
-            ax_plotting.set_yticks([0,10,])
             #Activate ticks xlabel
             ax_plotting.xaxis.tick_bottom()
             #Modify spacing between xticklabels and xticks
@@ -366,9 +359,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         elif (year==2012):
             ax_plotting=ax3r
             label_for_map=u'\u03B3'
-            #Adapt xticklabels
-            ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels(['','',''])
+            #Set yticks
             ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='c'
@@ -376,9 +367,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting=ax4r
             ax4r.set_xlabel('Depth [m]')
             label_for_map=u'\u03B3'
-            #Adapt xticklabels
-            ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels(['','','','',''])
+            #Set yticks
             ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='d'
@@ -386,17 +375,14 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             ax_plotting=ax5r
             label_for_map=u'\u03B4'
             #Adapt xticklabels, from https://stackoverflow.com/questions/43673884/change-x-axis-ticks-to-custom-strings
-            ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels(['','','','',''])
+            #Set yticks
             ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='e'
         elif (year==2017):
             ax_plotting=ax6r
             label_for_map=u'\u03B4'
-            #Adapt xticklabels
-            ax_plotting.set_yticklabels(['0', '10', ''])
-            ax_plotting.set_xticklabels(['','','','',''])
+            #Set yticks
             ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='f'
@@ -492,7 +478,14 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         ###########################################################################
         ###                           Display radargrams                        ###
         ###########################################################################
-
+        
+        #Do not dispay x ticks in 2012, 2013, 2014, 2017
+        if (str(year) in list(['2012','2013','2014','2017'])):
+            #Fix xticks
+            ax_plotting.set_xticks(ax_plotting.get_xticks())
+            #Set xticks labels to empty
+            ax_plotting.set_xticklabels([])
+        
         ###########################################################################
         ###                       Display data localisation                     ###
         ###########################################################################
@@ -521,7 +514,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         ###########################################################################
         ###                       Display data localisation                     ###
         ###########################################################################
-        
     
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
