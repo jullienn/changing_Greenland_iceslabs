@@ -185,7 +185,17 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     df_sampling['stddev']=app_stddev
     df_sampling['rolling_10_median_scatter']=[np.nan]*len(app_mean)
     
+    #For ice slabs filling
+    summary_filling_year=[]
+    summary_filling_data=[]
+    summary_filling_low_bound=[]
+    summary_filling_high_bound=[]
+    
     for time_period in range(2012,2019):
+        
+        if (str(time_period) not in list(['2012','2013','2018'])):
+            continue
+        
         if (len(df_sampling[df_sampling['time_period']==time_period])==0):
             #Empty time period, continue
             continue
@@ -220,6 +230,12 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             axt.plot(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],color=my_pal[time_period],alpha=0.5)
             axt.scatter(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],c=my_pal[time_period],marker='.',s=0.5,alpha=1)
             
+            #For ice slabs filling
+            summary_filling_year=np.append(summary_filling_year,np.ones(len(df_plot['rolling_10_median']))*time_period)
+            summary_filling_data=np.append(summary_filling_data,np.asarray(df_plot['rolling_10_median']))
+            summary_filling_low_bound=np.append(summary_filling_low_bound,np.asarray(df_plot['low_bound']))
+            summary_filling_high_bound=np.append(summary_filling_high_bound,np.asarray(df_plot['high_bound']))
+
     #Get rid of legend
     #axt.legend_.remove()
     axt.set_xlabel('')
@@ -277,7 +293,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     #Display limits of area of focus
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
-    
+    #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07492900582864)))],zorder=1,linestyle='--',color='k') #Line at km 15.4
     #Display KAN_U
     axt.scatter(dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.030473)))],15.5,s=10,c='#b2182b',zorder=10)
 
@@ -307,10 +323,39 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         #Update count_ice
         count_ice=count_ice+1
     
+    #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs filling beneath pre existing one, i.e. between -47.11 and -47.07492900582864
+    left_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))]
+    right_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07492900582864)))]
+    
+    #Create a dataframe
+    df_filling = pd.DataFrame(summary_filling_year,columns=['year'])
+    df_filling['low_bound']=summary_filling_low_bound
+    df_filling['high_bound']=summary_filling_high_bound
+    df_filling['ice_content']=summary_filling_data
+
+    #Extract the years
+    df_2012_filling=df_filling[df_filling['year']==2012]
+    df_2018_filling=df_filling[df_filling['year']==2018]
+    
+    #Extract within the bounds
+    df_2012_filling_focused=df_2012_filling[np.logical_and(df_2012_filling['low_bound']>=left_end,df_2012_filling['low_bound']<=right_end)]
+    df_2018_filling_focused=df_2018_filling[np.logical_and(df_2018_filling['low_bound']>=left_end,df_2018_filling['low_bound']<=right_end)]
+    
+    '''
+    #Display to make sure we extracted th right data
+    axt.scatter(df_2012_filling_focused['low_bound'],df_2012_filling_focused['ice_content'],c=my_pal[2012],s=5,alpha=1)
+    axt.scatter(df_2018_filling_focused['low_bound'],df_2018_filling_focused['ice_content'],c=my_pal[2018],s=5,alpha=1)
+    plt.show()
+    '''
+    #Calculate the difference
+    diff_20182012=np.asarray(df_2018_filling_focused['ice_content'])-np.asarray(df_2012_filling_focused['ice_content'])
+    #np.median(diff_20182012)
+    #np.mean(diff_20182012)
+
     ###########################################################################
     ###      Extract total columnal ice content inside area of focus        ###
     ###########################################################################  
-
+    
     print('End plotting thickness data')
     
     ###########################################################################
@@ -474,7 +519,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         if (str(year) in list(['2012','2013','2018'])):
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
-        
+            #ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07492900582864)))],zorder=1,linestyle='--',color='k')#Line at km 15.4
+            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07492900582864)))])
         ###########################################################################
         ###                           Display radargrams                        ###
         ###########################################################################
