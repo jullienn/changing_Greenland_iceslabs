@@ -192,10 +192,10 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     summary_filling_high_bound=[]
     
     for time_period in range(2012,2019):
-        
+        '''
         if (str(time_period) not in list(['2012','2013','2018'])):
             continue
-        
+        '''
         if (len(df_sampling[df_sampling['time_period']==time_period])==0):
             #Empty time period, continue
             continue
@@ -293,7 +293,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     #Display limits of area of focus
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
-    #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07492900582864)))],zorder=1,linestyle='--',color='k') #Line at km 15.4
+    #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07492900582864)))],zorder=1,linestyle='--',color='k') #Ice slabs filling, line at km 15.4
+    #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0449)))],zorder=1,linestyle='--',color='k') #Ice slabs accretion, line at km x
+
     #Display KAN_U
     axt.scatter(dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.030473)))],15.5,s=10,c='#b2182b',zorder=10)
 
@@ -323,6 +325,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         #Update count_ice
         count_ice=count_ice+1
     
+    ########################## Ice slabs filling #############################
     #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs filling beneath pre existing one, i.e. between -47.11 and -47.07492900582864
     left_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))]
     right_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07492900582864)))]
@@ -351,6 +354,28 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     diff_20182012=np.asarray(df_2018_filling_focused['ice_content'])-np.asarray(df_2012_filling_focused['ice_content'])
     #np.median(diff_20182012)
     #np.mean(diff_20182012)
+    ########################## Ice slabs filling #############################
+
+    ########################## Ice slabs accretion #############################
+    #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs accretion on top pre existing lens/slab, i.e. between -47.05010052087395 and -47.023
+    left_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0449)))]
+    right_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))]
+    
+    #Extract within the bounds
+    df_2012_accretion_focused=df_2012_filling[np.logical_and(df_2012_filling['low_bound']>=left_end,df_2012_filling['low_bound']<=right_end)]
+    df_2018_accretion_focused=df_2018_filling[np.logical_and(df_2018_filling['low_bound']>=left_end,df_2018_filling['low_bound']<=right_end)]
+    
+    '''
+    #Display to make sure we extracted th right data
+    axt.scatter(df_2012_accretion_focused['low_bound'],df_2012_accretion_focused['ice_content'],c=my_pal[2012],s=5,alpha=1)
+    axt.scatter(df_2018_accretion_focused['low_bound'],df_2018_accretion_focused['ice_content'],c=my_pal[2018],s=5,alpha=1)
+    plt.show()
+    '''
+    #Calculate the difference
+    diff_20182012=np.asarray(df_2018_accretion_focused['ice_content'])-np.asarray(df_2012_accretion_focused['ice_content'])
+    #np.median(diff_20182012)
+    #np.mean(diff_20182012)
+    ########################## Ice slabs accretion #############################
 
     ###########################################################################
     ###      Extract total columnal ice content inside area of focus        ###
@@ -519,8 +544,16 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         if (str(year) in list(['2012','2013','2018'])):
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
+            #Ice slabs filling
             #ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07492900582864)))],zorder=1,linestyle='--',color='k')#Line at km 15.4
             #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07492900582864)))])
+            
+            #Ice slabs accretion
+            #ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0449)))],zorder=1,linestyle='--',color='k')#Line at km
+            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0449)))])
+        
+            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))])
+
         ###########################################################################
         ###                           Display radargrams                        ###
         ###########################################################################
@@ -962,43 +995,35 @@ plt.show()
 '''
 ######################## Assess the data coverage #############################
 
-#Create an empty dataframe for data coverage
-year_coverage=[]
-month_coverage=[]
-day_coverage=[]
-data_coverage=[]
+#This is example from Andrew
 
-for indiv_year in df_melt['Year'].unique():
-    #Select indiv year
-    df_melt_year=df_melt[df_melt['Year']==indiv_year]
-    
-    for indiv_month in df_melt_year['MonthOfYear'].unique():
-        #Select indiv month
-        df_melt_year_month=df_melt_year[df_melt_year['MonthOfYear']==indiv_month]
-    
-        for indiv_day in df_melt_year_month['DayOfMonth'].unique():
-            #Select indiv day
-            df_melt_year_month_day=df_melt_year_month[df_melt_year_month['DayOfMonth']==indiv_day]
-            
-            #Store number of non-NaN data I have for this day (complete = 24)
-            indiv_day_data=np.asarray(df_melt_year_month_day['melt'])
-            
-            #Get rid of NaNs
-            indiv_day_data_nonNaNs=indiv_day_data[~np.isnan(indiv_day_data)]
-            
-            #Store associated number of melt data for this day
-            year_coverage=np.append(year_coverage,indiv_year)
-            month_coverage=np.append(month_coverage,indiv_month)
-            day_coverage=np.append(day_coverage,indiv_day)
-            data_coverage=np.append(data_coverage,len(indiv_day_data_nonNaNs))
+import pandas as pd
+import datetime as dt
+import matplotlib.pyplot as plt
 
-#Create a coverage dataframe
-df_coverage=pd.DataFrame(year_coverage, columns=['Year'])
-df_coverage['Month']=month_coverage
-df_coverage['Day']=day_coverage
-df_coverage['Data_coverage']=data_coverage
+def _parse(y,m,d,h):
+    return dt.datetime(int(y),int(m),int(d),int(h))
 
-pdb.set_trace()
+kan_u = pd.read_csv('/Users/tedstona/Desktop/KAN_U_hour_v03.txt',
+    parse_dates={'timestamp': [
+        'Year', 'MonthOfYear', 'DayOfMonth', 'HourOfDay(UTC)']},
+    index_col='timestamp',
+    date_parser=_parse,
+    delim_whitespace=True,
+    na_values=-999)
+
+melt = (kan_u['ShortwaveRadiationDown_Cor(W/m2)']-kan_u['ShortwaveRadiationUp_Cor(W/m2)'])+(kan_u['LongwaveRadiationDown(W/m2)']-kan_u['LongwaveRadiationUp(W/m2)'])+kan_u['SensibleHeatFlux(W/m2)']+kan_u['LatentHeatFlux(W/m2)']
+
+meltplus = melt[melt > 0]
+meltplus_summer = meltplus[(meltplus.index.month >= 5) & (meltplus.index.month <= 9)]
+
+
+meltplus_summer.resample('1AS').sum().plot.bar()
+
+nans = melt.isna()
+nans.resample('1AS').count().plot(marker='x')
+
+kan_u['AirTemperature(C)'][(kan_u.index.month >= 5) & (kan_u.index.month <= 9)].resample('1AS').mean().plot(marker='x')
 
 ######################## Assess the data coverage #############################
 '''
@@ -1007,6 +1032,29 @@ pdb.set_trace()
 
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig4_PDH.png',dpi=1000)
+
+#########################################################################
+###                 Calculate slope and intercept                     ###
+#########################################################################
+fig = plt.figure()
+gs = gridspec.GridSpec(5, 10)
+gs.update(wspace=0.1)
+gs.update(hspace=0.1)
+
+ax_lin = plt.subplot(gs[0:5, 0:10])
+ax_lin.plot(np.array([0,314,1275]),np.array([0,1273,2233]))
+ax_lin.scatter(np.array([0,314,1275]),np.array([0,1273,2233]))
+
+plt.show()
+
+#This is from https://www.delftstack.com/howto/python/calculate-slope-python/
+from scipy.stats import linregress
+x = np.array([314,1275])
+y = np.array([1273,2233])
+slope, intercept, r_value, p_value, std_err = linregress(x, y)
+#########################################################################
+###                 Calculate slope and intercept                     ###
+#########################################################################
 
 pdb.set_trace()
 
