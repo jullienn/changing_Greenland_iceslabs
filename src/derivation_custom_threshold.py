@@ -502,9 +502,9 @@ if (create_pickle == 'TRUE'):
     dataframe={}
 
     #Define the desired quantiles
-    desired_quantiles=np.arange(0.2,1,0.01)
+    desired_quantiles=np.arange(0.63,0.82,0.01)
     filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
-    
+
     for single_year in investigation_year.keys():
         print(single_year)
         
@@ -791,7 +791,7 @@ if (create_pickle == 'TRUE'):
         ax1.set_ylim(61,0)
         ax1.imshow(arr_boolean_mask,cmap=plt.get_cmap('autumn'), alpha=0.1)#,norm=divnorm)
         plt.show()
-            
+                
         #Apply mask to depth corrected traces
         #-- a. extract the 20m of depth corrected traces
         depth_corr_20m=dataframe['2013']['depth_corrected_after_surf_removal_without_norm'][ind_20m,:]
@@ -810,10 +810,28 @@ if (create_pickle == 'TRUE'):
         ax1.legend()
         ax1.set_xlabel('Radar signal strength [dB]')
         ax1.set_ylabel('Probability density [ ]')
-        plt.show()
         
         #Define quantiles for investigation of accuracy
         quantile_investigation=np.quantile(iceslabs,desired_quantiles)
+        
+        #Add low and high quantile as dashed lines
+        ax1.axvline(x=quantile_investigation[0],linestyle='--',color='k')
+        ax1.axvline(x=quantile_investigation[-1],linestyle='--',color='k')
+
+        plt.show()
+        
+        #Save for supplementary figure plotting
+        #Save as pickle file     
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/referece_iceslabs_distrib.pickle'
+        outfile= open(filename_tosave, "wb" )
+        pickle.dump(iceslabs,outfile)
+        outfile.close()
+        
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/referece_dry_firn_distrib.pickle'
+        outfile= open(filename_tosave, "wb" )
+        pickle.dump(dry_firn,outfile)
+        outfile.close()
+                
         '''
         f_quantiles = open(filename_quantiles, "w")
         f_quantiles.write(str(np.round(desired_quantiles,2))+'\n')

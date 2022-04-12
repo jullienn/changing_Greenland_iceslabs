@@ -249,6 +249,7 @@ panel_b={2010:['Data_20100517_02_001.mat','Data_20100517_02_002.mat'],
       2014:['Data_20140507_03_007.mat','Data_20140507_03_008.mat'], #test with 20140514_02_087_089 and 20140515_02_173_175 also
       2017:['Data_20170417_01_171.mat','Data_20170417_01_172.mat','Data_20170417_01_173.mat','Data_20170417_01_174.mat'],
       2018:'empty'}
+
 '''
 panelb:
 2010  is reversed
@@ -312,7 +313,7 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_b
+investigation_year=panel_e
 
 fig = plt.figure()
 gs = gridspec.GridSpec(30, 10)
