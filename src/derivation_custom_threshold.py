@@ -643,6 +643,12 @@ if (create_pickle == 'TRUE'):
         pickle.dump(dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm'],outfile)
         outfile.close()
         
+        #Save depth corrected, depth and lat/lon
+        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'+dataframe[str(single_year)]['datetrack']+'_dataframeforS2.pickle'
+        outfile= open(filename_tosave, "wb" )
+        pickle.dump(dataframe[str(single_year)],outfile)
+        outfile.close()
+        
         print('Exporting '+dataframe[str(single_year)]['datetrack']+' depth corrected pickle file')
         
     if (display_plots_quick_check=='TRUE'):
@@ -919,7 +925,7 @@ if (investigation_quantile=='TRUE'):
         f_depth_corrected.close()
         
         #Define the quantiles to open
-        quantiles_open=np.round(np.arange(0.2,1.01,0.01),2)
+        quantiles_open=np.round(np.arange(0.63,0.82,0.01),2)
         
         #pdb.set_trace()
         #Set dataframe
