@@ -358,10 +358,10 @@ def extract_surface_return(slice_roll_corrected):
     
     # --- Remove the average
     #Let's say we take the 1 top pixels
-    surface_return=slice_roll_corrected[0:1,]
+    surface_return=slice_roll_corrected[0,]
     #substract the average of surface_return to the whole radar slice
     roll_corrected_after_surf_removal=slice_roll_corrected-np.nanmean(surface_return)
-    
+
     '''
     # --- Remove the top at each column
     roll_corrected_after_surf_removal=np.empty((slice_roll_corrected.shape[0],slice_roll_corrected.shape[1]))
@@ -617,7 +617,7 @@ if (create_pickle == 'TRUE'):
         ##############################################################################
         ###                          Load and organise data                        ###
         ##############################################################################
-    #pdb.set_trace()
+    pdb.set_trace()
     #3. Extract surface return and perform depth correction without normalisation
     for single_year in investigation_year.keys():
         print('--- Perform depth correction ---')

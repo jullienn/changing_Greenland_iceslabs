@@ -171,4 +171,4 @@ ax5.set_xlabel('Distance [km]')
 
 plt.show()
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/figS2.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/figS2_new.png',dpi=300)
