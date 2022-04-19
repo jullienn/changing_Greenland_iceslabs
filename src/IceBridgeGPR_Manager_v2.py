@@ -387,7 +387,7 @@ class IceBridgeGPR_Manager_v2():
                 ice_contents[0:9000] = 0.0
 
             assert len(lats) == len(lons) == len(ice_contents)
-            tracenums = numpy.arange(len(lats), dtype=numpy.int)
+            tracenums = numpy.arange(len(lats), dtype=int)
 
             tracecount = 0
             for lat, lon, tracenum, distance, ice_content in zip(lats, lons, tracenums, distances, ice_contents):
@@ -692,7 +692,7 @@ class Mask_Manager():
             assert type(mask_filenames) in (list,tuple)
             assert numpy.all([(fname in self.valid_mask_filenames) for fname in mask_filenames])
 
-        boolean_array = numpy.ones((array_length,), dtype=numpy.bool)
+        boolean_array = numpy.ones((array_length,), dtype=bool)
 
         # Iterate over just one file, or all of them.
         if type(mask_filenames) == str:
@@ -1138,8 +1138,8 @@ class IceBridgeGPR_Track_v2():
         # Create a "perfect" track that identifies all pixels w/ >= 50% ice lenses
         # from GPR data as 1, all pixels <50% ice lens data as 0.  See what the "best case" score is there.
         PERFECT_TRACK = (GPR_resampled >= 0.50)
-        ALL_ZEROS = numpy.zeros(GPR_resampled.shape, dtype=numpy.bool)
-        ALL_ONES  = numpy.ones(GPR_resampled.shape, dtype=numpy.bool)
+        ALL_ZEROS = numpy.zeros(GPR_resampled.shape, dtype=bool)
+        ALL_ONES  = numpy.ones(GPR_resampled.shape, dtype=bool)
 
         print("ZEROS:  ", self._compute_score_accuracy_wrt_reference_track(ALL_ZEROS, GPR_resampled), "(all false negatives)")
         print("ONES:   ", self._compute_score_accuracy_wrt_reference_track(ALL_ONES , GPR_resampled), "(all false positives)")
@@ -1184,7 +1184,7 @@ class IceBridgeGPR_Track_v2():
             for i in range(len(algorithm_names)):
                 group_id_arrays[i], group_size_dicts[i] = self._caluculate_icelens_connectedness(boolean_arrays[i])
 
-            boolean_image_blank = numpy.zeros(boolean_arrays[0].shape, dtype=numpy.bool)
+            boolean_image_blank = numpy.zeros(boolean_arrays[0].shape, dtype=bool)
 
             for continuity_t in continuity_thresholds:
                 for name, boolean_array, group_id_array, group_size_dict in zip(algorithm_names,
@@ -1221,8 +1221,8 @@ class IceBridgeGPR_Track_v2():
 
         '''A parent function that iterates over an image until all pixels have found which "group" they belong to.
         Return an int array of group_ID numbers (zero are empty pixels), and a dictionary of (ID:size) pairs.'''
-        group_id_array = numpy.zeros(boolean_image.shape, dtype=numpy.int)
-        visited_mask_empty = numpy.zeros(boolean_image.shape, dtype=numpy.bool)
+        group_id_array = numpy.zeros(boolean_image.shape, dtype=int)
+        visited_mask_empty = numpy.zeros(boolean_image.shape, dtype=bool)
         # Visited mask cumulative -- a boolean array of all the pixels we've visited.  Starts out empty, should match boolean_image in the end
         visited_mask_cumulative = visited_mask_empty.copy()
         # Keeps track of how many pixels are in each group.
@@ -2680,7 +2680,7 @@ class IceBridgeGPR_Track_v2():
 
             # Perform the continuity thresholding.
             group_id_array, group_size_dict = self._caluculate_icelens_connectedness(boolean_traces)
-            ice_lenses_above_cutoff_size = numpy.zeros(boolean_traces.shape, dtype=numpy.bool)
+            ice_lenses_above_cutoff_size = numpy.zeros(boolean_traces.shape, dtype=bool)
 
             # Set each group of pixels in that category to True, only for groups larger than the cutoff
             for group_ID in [ID for (ID,size) in list(group_size_dict.items()) if size >= continuity_threshold]:

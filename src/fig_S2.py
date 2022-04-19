@@ -45,15 +45,15 @@ f_dataframe = open(data_path+'20130409_01_010_012_dataframeforS2.pickle', "rb")
 dataframe = pickle.load(f_dataframe)
 f_dataframe.close()
 
-#Open quantile 0.63
-f_quant063 = open(data_path+'20130409_01_010_012_SG1_cutoff_0.63_threshold_350.pickle', "rb")
-quant063 = pickle.load(f_quant063)
-f_quant063.close()
+#Open quantile 0.65
+f_quant065 = open(data_path+'20130409_01_010_012_SG1_cutoff_0.65_threshold_350.pickle', "rb")
+quant065 = pickle.load(f_quant065)
+f_quant065.close()
 
-#Open quantile 0.81
-f_quant081 = open(data_path+'20130409_01_010_012_SG1_cutoff_0.81_threshold_350.pickle', "rb")
-quant081 = pickle.load(f_quant081)
-f_quant081.close()
+#Open quantile 0.79
+f_quant079 = open(data_path+'20130409_01_010_012_SG1_cutoff_0.79_threshold_350.pickle', "rb")
+quant079 = pickle.load(f_quant079)
+f_quant079.close()
 
 #Open conservative mask
 path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/'
@@ -70,15 +70,16 @@ arr_boolean_mask_20m[arr_boolean_mask_20m==255]=1
 #Finalize the mask
 final_mask=np.zeros((arr_boolean_mask_20m.shape[0],arr_boolean_mask_20m.shape[1]))
 final_mask[:]=np.nan
-final_mask[arr_boolean_mask_20m==1]=arr_boolean_mask_20m[arr_boolean_mask_20m==1]
-#Finalize the quantile 0.63
-final_quant063=np.zeros((quant063.shape[0],quant063.shape[1]))
-final_quant063[:]=np.nan
-final_quant063[quant063==1]=quant063[quant063==1]
-#Finalize the quantile 0.81
-final_quant081=np.zeros((quant081.shape[0],quant081.shape[1]))
-final_quant081[:]=np.nan
-final_quant081[quant081==1]=quant081[quant081==1]
+final_mask[arr_boolean_mask_20m==1]=arr_boolean_mask_20m[arr_boolean_mask_20m==1] 
+
+#Finalize the quantile 0.65
+final_quant065=np.zeros((quant065.shape[0],quant065.shape[1]))
+final_quant065[:]=np.nan
+final_quant065[quant065==1]=quant065[quant065==1]
+#Finalize the quantile 0.79
+final_quant079=np.zeros((quant079.shape[0],quant079.shape[1]))
+final_quant079[:]=np.nan
+final_quant079[quant079==1]=quant079[quant079==1]
 
 #Define transformer for coordinates transform from "EPSG:4326" to "EPSG:3413"
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
@@ -117,12 +118,16 @@ ax1.legend()
 ax1.set_xlabel('Radar signal strength [dB]')
 ax1.set_ylabel('Probability density [ ]')
 #Define the desired quantiles
-desired_quantiles=np.arange(0.63,0.82,0.01)
+desired_quantiles=np.arange(0.65,0.80,0.01)
 #Define quantiles for investigation of accuracy
 quantile_investigation=np.quantile(iceslabs_distrib,desired_quantiles)
 #Add low and high quantile as dashed lines
+
 ax1.axvline(x=quantile_investigation[0],linestyle='--',color='k')
 ax1.axvline(x=quantile_investigation[-1],linestyle='--',color='k')
+ax1.text(quantile_investigation[0]-0.02, 0.85, 'quantile 0.65', rotation=90, va='center',fontsize=15)
+ax1.text(quantile_investigation[-1]+0.005, 0.85, 'quantile 0.79', rotation=90, va='center',fontsize=15)
+
 ax1.text(-0.6325, 3.75,'a',ha='center', va='center',fontsize=15,zorder=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Display depth corrected radargram
@@ -142,21 +147,23 @@ ax3.set_yticklabels(['0','10',''])
 ax3.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_mask,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
 ax3.text(0.01, 0.75,'c',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
-#Display depth corrected radargram and quantile 0.63 over it
+
+#Display depth corrected radargram and quantile 0.65 over it
 ax4.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
 ax4.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax4.set_ylim(20,0)
 plt.setp(ax4.get_xticklabels(), visible=False)
 ax4.set_yticklabels(['0','10',''])
-ax4.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant063,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
+ax4.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant065,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
 ax4.text(0.01, 0.75,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
-#Display depth corrected radargram and quantile 0.81 over it
+
+#Display depth corrected radargram and quantile 0.79 over it
 ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
 ax5.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax5.set_ylim(20,0)
 ax5.set_ylabel('Depth [m]')
-ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant081,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
+ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant079,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
 ax5.text(0.01, 0.75,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Set distance
@@ -170,5 +177,44 @@ ax5.set_xlim(low_xlim,high_xlim)
 ax5.set_xlabel('Distance [km]')
 
 plt.show()
+
+pdb.set_trace()
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/figS2_new.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/figS2_final.png',dpi=300)
+
+#Display for each quantile the ice slabs identification
+desired_quantiles=np.round(np.arange(0.60,0.91,0.01),2)
+
+for single_quantile in desired_quantiles:
+    print(single_quantile)
+    
+    #Open quantile
+    f_indiv_quant = open(data_path+'20130409_01_010_012_SG1_cutoff_'+str(single_quantile)+'_threshold_350.pickle', "rb")
+    indiv_quant = pickle.load(f_indiv_quant)
+    f_indiv_quant.close()
+    
+    #Finalize the quantile
+    final_indiv_quant=np.zeros((indiv_quant.shape[0],indiv_quant.shape[1]))
+    final_indiv_quant[:]=np.nan
+    final_indiv_quant[indiv_quant==1]=indiv_quant[indiv_quant==1]
+        
+    fig, (ax1, ax2) = plt.subplots(2)
+    #Display depth corrected radargram and manual mask over it
+    ax1.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+    ax1.invert_yaxis() #Invert the y axis = avoid using flipud.    
+    ax1.set_ylim(20,0)
+    plt.setp(ax3.get_xticklabels(), visible=False)
+    ax1.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_mask,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
+    ax1.set_aspect(100)
+    
+    #Display depth corrected radargram and indiv_quantile over it
+    ax2.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+    ax2.invert_yaxis() #Invert the y axis = avoid using flipud.    
+    ax2.set_ylim(20,0)
+    plt.setp(ax4.get_xticklabels(), visible=False)
+    ax2.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_indiv_quant,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
+    ax2.text(0.01, 0.75,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    ax2.set_aspect(100)
+    
+    #Save figure
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/'+str(single_quantile)+'.png',dpi=300)

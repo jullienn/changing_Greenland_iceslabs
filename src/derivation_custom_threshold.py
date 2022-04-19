@@ -114,7 +114,7 @@ def identify_ice_lenses(traces,dry_firn_normalisation,depth,mask,datetrack,quant
 
         # Perform the continuity thresholding.
         group_id_array, group_size_dict = caluculate_icelens_connectedness(boolean_traces)
-        ice_lenses_above_cutoff_size = np.zeros(boolean_traces.shape, dtype=np.bool)
+        ice_lenses_above_cutoff_size = np.zeros(boolean_traces.shape, dtype=bool)
 
         # Set each group of pixels in that category to True, only for groups larger than the cutoff
         for group_ID in [ID for (ID,size) in list(group_size_dict.items()) if size >= continuity_threshold]:
@@ -244,8 +244,8 @@ def caluculate_icelens_connectedness(boolean_image):
 
     '''A parent function that iterates over an image until all pixels have found which "group" they belong to.
     Return an int array of group_ID numbers (zero are empty pixels), and a dictionary of (ID:size) pairs.'''
-    group_id_array = np.zeros(boolean_image.shape, dtype=np.int)
-    visited_mask_empty = np.zeros(boolean_image.shape, dtype=np.bool)
+    group_id_array = np.zeros(boolean_image.shape, dtype=int)
+    visited_mask_empty = np.zeros(boolean_image.shape, dtype=bool)
     # Visited mask cumulative -- a boolean array of all the pixels we've visited.  Starts out empty, should match boolean_image in the end
     visited_mask_cumulative = visited_mask_empty.copy()
     # Keeps track of how many pixels are in each group.
@@ -361,13 +361,12 @@ def extract_surface_return(slice_roll_corrected):
     surface_return=slice_roll_corrected[0,]
     #substract the average of surface_return to the whole radar slice
     roll_corrected_after_surf_removal=slice_roll_corrected-np.nanmean(surface_return)
-
     '''
     # --- Remove the top at each column
     roll_corrected_after_surf_removal=np.empty((slice_roll_corrected.shape[0],slice_roll_corrected.shape[1]))
     
     #Set half the size of the moving window
-    size_mov_window=5
+    size_mov_window=2
     
     for i in range(0,slice_roll_corrected.shape[1]):
         #pdb.set_trace()
@@ -385,7 +384,7 @@ def extract_surface_return(slice_roll_corrected):
         
         #Remove the moving window to the data
         roll_corrected_after_surf_removal[:,i]=slice_roll_corrected[:,i]-np.nanmean(mov_window)
-    '''   
+    '''
     return roll_corrected_after_surf_removal
 
 import pickle
@@ -497,13 +496,18 @@ if (create_pickle == 'TRUE'):
     v= 299792458 / (1.0 + (0.734*0.873/1000.0))
     
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+    path_roll_corrected=path_data+'exported/Roll_Corrected_Picklefiles/'
+    path_mask=path_data+'exported/Boolean Array Picklefiles/'
+
+    '''
     path_roll_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Roll_Corrected_Picklefiles/'
     path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
+    '''
     dataframe={}
 
     #Define the desired quantiles
-    desired_quantiles=np.arange(0.63,0.82,0.01)
-    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'.txt'
+    desired_quantiles=np.arange(0.65,0.79,0.01)
+    filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(desired_quantiles[0],2))+'_'+str(np.round(desired_quantiles[-1],2))+'_onfulltrace.txt'
 
     for single_year in investigation_year.keys():
         print(single_year)
@@ -617,7 +621,7 @@ if (create_pickle == 'TRUE'):
         ##############################################################################
         ###                          Load and organise data                        ###
         ##############################################################################
-    pdb.set_trace()
+
     #3. Extract surface return and perform depth correction without normalisation
     for single_year in investigation_year.keys():
         print('--- Perform depth correction ---')
@@ -636,13 +640,13 @@ if (create_pickle == 'TRUE'):
             dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm']=apply_normalisation(dataframe[str(single_year)]['roll_corrected_after_surf_removal'],dataframe[str(single_year)]['mask'],dataframe[str(single_year)]['depth'][0:428])
         else:
             dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm']=apply_normalisation(dataframe[str(single_year)]['roll_corrected_after_surf_removal'],dataframe[str(single_year)]['mask'],dataframe[str(single_year)]['depth'][0:201])
-        
+                
         #Save as the depth corrected trace as pickle file     
         filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'+dataframe[str(single_year)]['datetrack']+'_Depth_Corrected_surf_removal.pickle'
         outfile= open(filename_tosave, "wb" )
         pickle.dump(dataframe[str(single_year)]['depth_corrected_after_surf_removal_without_norm'],outfile)
         outfile.close()
-        
+
         #Save depth corrected, depth and lat/lon
         filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'+dataframe[str(single_year)]['datetrack']+'_dataframeforS2.pickle'
         outfile= open(filename_tosave, "wb" )
@@ -819,11 +823,11 @@ if (create_pickle == 'TRUE'):
         
         #Define quantiles for investigation of accuracy
         quantile_investigation=np.quantile(iceslabs,desired_quantiles)
-        
+        '''
         #Add low and high quantile as dashed lines
         ax1.axvline(x=quantile_investigation[0],linestyle='--',color='k')
         ax1.axvline(x=quantile_investigation[-1],linestyle='--',color='k')
-
+        '''
         plt.show()
         
         #Save for supplementary figure plotting
@@ -838,21 +842,16 @@ if (create_pickle == 'TRUE'):
         pickle.dump(dry_firn,outfile)
         outfile.close()
                 
-        '''
         f_quantiles = open(filename_quantiles, "w")
         f_quantiles.write(str(np.round(desired_quantiles,2))+'\n')
         f_quantiles.write(str(quantile_investigation))
         f_quantiles.close() #Close the quantile file when we’re done!
-        '''
-        '''
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/figS2.png',dpi=300)
-        '''
+        
     else:
-        #pdb.set_trace()
         #Then open the quantile file created previously        
         quantile_file = pd.read_csv(filename_quantiles, sep=" ", header=None)
         quantile_investigation=np.asarray(quantile_file.iloc[1])
-    
+        pdb.set_trace()
     '''
     Not usefull anymore but kept in case needed
     boolean_mask_nb=np.empty((depth_corr_20m.shape[0],depth_corr_20m.shape[1]))

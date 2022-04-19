@@ -471,6 +471,7 @@ filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_i
 filename_quantiles='/flash/jullienn/data/threshold_processing/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
 quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None))
 
+'''
 #List of traces where iceslabs likelihood identification have failed
 list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20130423_01_125_125',
                         '20130423_01_127_127','20130426_01_089_089','20140419_01_016_017',
@@ -492,15 +493,18 @@ list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20130423_01
                         '20180404_02_002_005','20180426_01_018_018','20170501_04_041_043',
                         '20170501_02_009_016','20170410_01_132_133','20170424_01_008_012',
                         '20170501_04_011_013','20180425_01_167_169','20180501_01_007_009'])
+'''
 #intialize counter to 0
 count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:
-        
+    
+    '''
     #We want to process only 2017 and 2018
     if (not(indiv_trace[0][0:4] in list(['2017','2018']))):
         print(indiv_trace[0],' not 2017 nor 2018, continue')
         continue
+    '''
     
     #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
@@ -665,10 +669,10 @@ for indiv_trace in datetrack_toread:
     #6. Create picklefile of iceslabs
     #7. Create excel files of summary data.
 
-print('End of 2017-2018 processing')
+print('End of processing')
 
 #Stop here for 2017-2017 exclusion of dry firn
-
+'''
 ##############################################################################
 ################# Perform rescaling for date who have failed #################
 ##############################################################################
@@ -696,6 +700,7 @@ for indiv_date in datetrack_toread:
     f_depth_corrected.close()
     
     '''
+    '''
     #Set ylim
     if indiv_date[0][0:4] in list(['2010','2011']):
         custom_ylim=129
@@ -712,6 +717,7 @@ for indiv_date in datetrack_toread:
     #Extract the value of the 5th and 95th quantile
     appended_radar_slices=np.append(appended_radar_slices,slice_depth_corrected_array)
     '''
+    '''
     #Reshape into a vector
     slice_depth_corrected_array=np.asarray(slice_depth_corrected).reshape(-1)
     
@@ -727,12 +733,14 @@ print('Perform rescaling')
 
 for indiv_file in list_trace_failed:
     #pdb.set_trace()
-    
+    '''
+    '''
     #We want to process only 2017 and 2018
     if (not(indiv_file[0:4] in list(['2017','2018']))):
         print(indiv_file,' not 2017 nor 2018, continue')
         continue
-    
+    '''
+    '''
     #Define filename
     filename_depth_corrected=indiv_file+'_Depth_Corrected_surf_removal.pickle'
     #Open the depth corrected file of the corresponding date
@@ -876,6 +884,8 @@ ax1.hist(appended_radar_slices,bins=100)
 #Save the figure
 plt.savefig(path_depth_corrected+'distribution_for_rescaling.png',dpi=2000)
 plt.close(fig)
+
+'''
 
 print('   ')
 print(' --- End of processing --- ')
