@@ -68,15 +68,15 @@ import time
 import os.path
 import glob
 
-generate_probability_iceslabs_files='FALSE'
+generate_probability_iceslabs_files='TRUE'
 generate_excel_file='TRUE'
 
 #Identify all the datetraces to process
-
+'''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-'''
+
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 if (generate_probability_iceslabs_files=='TRUE'):
@@ -88,19 +88,19 @@ if (generate_probability_iceslabs_files=='TRUE'):
     path_quantiles_data='/flash/jullienn/data/threshold_processing_output/pickles/'
     
     #Define the desired quantiles over which we will loop
-    desired_quantiles=np.round(np.arange(0.63,0.82,0.01),2)
+    desired_quantiles=np.round(np.arange(0.65,0.79,0.01),2)
     
     #intialize counter to 0
     count_time=0
     
     #II. Loop over these datetracks, and perform probability calculation:
     for indiv_trace in datetrack_toread:
-        
+        '''
         #We want to process only 2017 and 2018
         if (not(indiv_trace[0][0:4] in list(['2017','2018']))):
             print(indiv_trace[0],' not 2017 nor 2018, continue')
             continue
-        
+        '''
         #If pickle files have already been created, do not process and continue
         filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'*'
         #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
@@ -114,16 +114,16 @@ if (generate_probability_iceslabs_files=='TRUE'):
         print(indiv_trace[0])
         print(count_time/len(datetrack_toread)*100,'%')
         
-        #Must open the first quantile (0.63) to know the size 
-        filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str(0.63)+'_threshold_350.pickle'
+        #Must open the first quantile (0.65) to know the size 
+        filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str(0.65)+'_threshold_350.pickle'
                              
-        #Open the corresponding quantile 0.63 file
+        #Open the corresponding quantile 0.65 file
         f_quantile = open(path_quantiles_data+filename_quantile_open, "rb")
-        indiv_quantile063_slice = pickle.load(f_quantile)
+        indiv_quantile065_slice = pickle.load(f_quantile)
         f_quantile.close()
         
         #Set the probabilistic_slice to zeros
-        probabilistic_slice=np.zeros((indiv_quantile063_slice.shape[0],indiv_quantile063_slice.shape[1]))
+        probabilistic_slice=np.zeros((indiv_quantile065_slice.shape[0],indiv_quantile065_slice.shape[1]))
         
         #Loop over the quantiles, load data and perform probability calculation
         for indiv_quantile in desired_quantiles:
@@ -218,22 +218,21 @@ if (generate_excel_file=='TRUE'):
     v= 299792458 / (1.0 + (0.734*0.873/1000.0))
     
     #Define path where data are stored
-    
+    '''
     path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
     path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-    
     '''
     path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'
     path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
     path_data='/flash/jullienn/data/threshold_processing/'
-    '''
-    #Define filename
     
+    #Define filename
+    '''
     filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv'
     '''
     filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
-    '''
+    
     #Open filename (same procedure as MacFerrin et al., 2019)
     fout = open(filename_excel_output, 'w')
     header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m,likelihood\n"
@@ -350,13 +349,13 @@ if (generate_excel_file=='TRUE'):
                 
         #Let's transform the probabilistic ice slabs into an ice content
         #We must derive a low end and high end of ice slabs likelihood
-        #for low end: slabs identified in 19 quantiles out of 19 => likelihood = 19/19=1
-        #for high end: slabs identified in 1 quantile out of 19 => likelihood = 1/19 = 0.05263
-        index_prob=indiv_probability_slice>=0.05263
+        #for low end: slabs identified in 15 quantiles out of 15 => likelihood = 15/15=1
+        #for high end: slabs identified in 1 quantile out of 15 => likelihood = 1/15 = 0.06667
+        index_prob=indiv_probability_slice>=0.0665
         
         #Create slice full of nans
         slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
-        #fill in slice_for_calculation by ones where likelihood >= 0.5
+        #fill in slice_for_calculation by ones where likelihood >= chosen high/low end
         slice_for_calculation[index_prob]=1
         # Number of pixels times the thickness of each pixel
         ice_content_m = np.sum(slice_for_calculation, axis=0) * depth_delta_m
