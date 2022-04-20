@@ -76,8 +76,10 @@ generate_excel_file='TRUE'
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
+
+#Read dry firn exclusions file
+DF_exclusions = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 if (generate_probability_iceslabs_files=='TRUE'):
     #I. Define path, open datetracks and define desired quantiles
@@ -139,7 +141,6 @@ if (generate_probability_iceslabs_files=='TRUE'):
             #Add up the numbers
             probabilistic_slice=probabilistic_slice+indiv_quantile_slice
         
-            
         #Divide the probabilistic_slice by the number of quantiles to have a probability map
         probabilistic_slice=probabilistic_slice/len(desired_quantiles)
         
@@ -149,43 +150,13 @@ if (generate_probability_iceslabs_files=='TRUE'):
         '''
         fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
         
-        
-        '''
-        #Traditional was of plotting, depreciated here
-        fig, (ax1) = plt.subplots(1, 1)
-        
-        #Plot custom threshold ice slabs identification
-        cb=ax1.imshow(final_probability_slice,cmap=plt.get_cmap('Blues'))#,norm=divnorm)
-        ax1.title.set_text(indiv_trace[0]+' - ice slabs presence probability (quantile 0.63-0.81)')
-        
-        plt.show()
-            
-        #Save the figure
-        plt.savefig(fig_name,dpi=2000)
-        plt.close(fig)
-        '''
-        
-        '''
-        #If one wants to check that _export_to_8bit_array does not more than
-        #rescaling the image between 0 and 255
-        
-        probabilistic_slice_png_toplot=_export_to_8bit_array(probabilistic_slice)
-        
-        fig, (ax1,ax2) = plt.subplots(2, 1)
-        ax1.imshow(probabilistic_slice,cmap=plt.get_cmap('Blues'))
-        ax2.imshow(final_probability_slice,cmap=plt.get_cmap('Blues'))
-        plt.show()
-        '''
-        
         #Prepare matrix for png plot. (1-probabilistic_slice) because 1 is white
         #out of the function _export_to_8bit_array, and I want black
         probabilistic_slice_png=_export_to_8bit_array((1-probabilistic_slice))
         
         #Save the image
-        #pdb.set_trace()
         png_to_save=png.from_array(probabilistic_slice_png, mode='L')
         png_to_save.save(fig_name)
-        
         #Save the pickle file
         '''
         filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
@@ -195,7 +166,12 @@ if (generate_probability_iceslabs_files=='TRUE'):
         outfile= open(filename_tosave, "wb" )
         pickle.dump(probabilistic_slice,outfile)
         outfile.close()
-    
+        
+        ##################### Apply dry firn exclusions #######################
+        if (apply_dry_firn_exclusions=='TRUE'):
+            #Apply dry firn exclusions here and save results as images and pickles
+        ##################### Apply dry firn exclusions #######################
+
     print('End of probabilistic processing')
 
 if (generate_excel_file=='TRUE'):
