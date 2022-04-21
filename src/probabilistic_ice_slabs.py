@@ -69,6 +69,7 @@ import os.path
 import glob
 
 generate_probability_iceslabs_files='TRUE'
+apply_dry_firn_exclusions='TRUE'
 generate_excel_file='TRUE'
 
 #Identify all the datetraces to process
@@ -76,16 +77,23 @@ generate_excel_file='TRUE'
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
+
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Read dry firn exclusions file
-DF_exclusions = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
+DF_exclusions = pd.read_csv(path_datetrack+'dry_firn_removal.txt',sep="\n", header=None)
+#This is from https://stackoverflow.com/questions/55129640/read-csv-into-a-dataframe-with-varying-row-lengths-using-pandas
+DF_exclusions = DF_exclusions[0].str.split(' ', expand=True)
+#Create colnames
+len_exclusions = [str(i) for i in np.arange(0,DF_exclusions.shape[1]-1)] #from https://www.geeksforgeeks.org/python-converting-all-strings-in-list-to-integers/
+colnames=['indiv_dates']+len_exclusions #from https://stackoverflow.com/questions/1720421/how-do-i-concatenate-two-lists-in-python
+DF_exclusions.columns=colnames
 
 if (generate_probability_iceslabs_files=='TRUE'):
     #I. Define path, open datetracks and define desired quantiles
     #Define path where to pick roll corrected data
     '''
-    path_quantiles_data='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
+    path_quantiles_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/to_delete/'
     '''
     path_quantiles_data='/flash/jullienn/data/threshold_processing_output/pickles/'
     
@@ -94,7 +102,7 @@ if (generate_probability_iceslabs_files=='TRUE'):
     
     #intialize counter to 0
     count_time=0
-    
+        
     #II. Loop over these datetracks, and perform probability calculation:
     for indiv_trace in datetrack_toread:
         '''
@@ -104,9 +112,10 @@ if (generate_probability_iceslabs_files=='TRUE'):
             continue
         '''
         #If pickle files have already been created, do not process and continue
-        filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'*'
+        filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/before_DF_appliance/pickles/'+indiv_trace[0]+'*'
         #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
-                          
+        #filename_to_check='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/to_delete/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+        
         if (len(glob.glob(filename_to_check))>0):
             print(indiv_trace[0],': file already existent, move on to the next date')
             continue
@@ -126,7 +135,7 @@ if (generate_probability_iceslabs_files=='TRUE'):
         
         #Set the probabilistic_slice to zeros
         probabilistic_slice=np.zeros((indiv_quantile065_slice.shape[0],indiv_quantile065_slice.shape[1]))
-        
+                
         #Loop over the quantiles, load data and perform probability calculation
         for indiv_quantile in desired_quantiles:
             #print(str('%.2f' % indiv_quantile))
@@ -146,9 +155,9 @@ if (generate_probability_iceslabs_files=='TRUE'):
         
         #Save the image
         '''
-        fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
+        fig_name=path_quantiles_data+'/prob/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
         '''
-        fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
+        fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/before_DF_appliance/images/'+indiv_trace[0]+'_probability_iceslabs_presence.png'
         
         #Prepare matrix for png plot. (1-probabilistic_slice) because 1 is white
         #out of the function _export_to_8bit_array, and I want black
@@ -157,19 +166,86 @@ if (generate_probability_iceslabs_files=='TRUE'):
         #Save the image
         png_to_save=png.from_array(probabilistic_slice_png, mode='L')
         png_to_save.save(fig_name)
+        
         #Save the pickle file
         '''
-        filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+        filename_tosave=path_quantiles_data+'/prob/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
         '''
-        filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+        filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/before_DF_appliance/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
         
         outfile= open(filename_tosave, "wb" )
         pickle.dump(probabilistic_slice,outfile)
         outfile.close()
-        
+                
         ##################### Apply dry firn exclusions #######################
+        #Apply dry firn exclusions here and save results as images and pickles
         if (apply_dry_firn_exclusions=='TRUE'):
-            #Apply dry firn exclusions here and save results as images and pickles
+            print('starting dry firn removal')
+            
+            #1. Extract exclusions
+            #Extract total length of trace for dry firn mask generation
+            total_len_trace=probabilistic_slice.shape[1]
+            
+            #Extract indiv_date and corresponding exclusions
+            indiv_date=np.asarray(DF_exclusions[DF_exclusions['indiv_dates']==indiv_trace[0]])[0,0]
+            exclusions=np.asarray(DF_exclusions[DF_exclusions['indiv_dates']==indiv_trace[0]])[0,1:]
+            
+            #Get rid of None in exclusions
+            exclusions=exclusions[~(exclusions==None)]
+            
+            print(indiv_date)
+            print(exclusions)
+            print(total_len_trace)
+            
+            #2. Gather all exclusions
+            #Loop through the exclusions
+            for indiv_exclusion in exclusions:
+                #Set indiv_mask to empty
+                indiv_mask=[]
+                
+                if (indiv_exclusion.partition("-")[0]==''):
+                    #-N case
+                    indiv_mask='0-'+indiv_exclusion.partition("-")[-1]
+                elif (indiv_exclusion.partition("-")[1]=='-'):
+                    if (indiv_exclusion.partition("-")[-1]==''):
+                        #N- case
+                        indiv_mask=indiv_exclusion.partition("-")[0]+'-'+str(total_len_trace)
+                    else:
+                        #N-N case
+                        indiv_mask=indiv_exclusion
+                else:
+                    print('Error!!')
+                    break
+                #3. Apply exclusions to the slice
+                print(indiv_mask)
+                start_exclusion=int(indiv_mask.partition("-")[0])
+                end_exclusion=int(indiv_mask.partition("-")[-1])
+                
+                probabilistic_slice[:,start_exclusion:end_exclusion]=0
+                probabilistic_slice_png[:,start_exclusion:end_exclusion]=255
+            
+            #4. Save final result
+            
+            #Save the image
+            '''
+            fig_name=path_quantiles_data+'/prob/'+indiv_trace[0]+'_probability_iceslabs_presence_after_DF.png'
+            '''
+            fig_name='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/images/'+indiv_trace[0]+'_probability_iceslabs_presence_after_DF.png'
+            
+            #Save the image
+            png_to_save=png.from_array(probabilistic_slice_png, mode='L')
+            png_to_save.save(fig_name)
+            
+            #Save the pickle file
+            '''
+            filename_tosave=path_quantiles_data+'/prob/'+indiv_trace[0]+'_probability_iceslabs_presence_after_DF.pickle'
+            '''
+            filename_tosave='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence_after_DF.pickle'
+            
+            outfile= open(filename_tosave, "wb" )
+            pickle.dump(probabilistic_slice,outfile)
+            outfile.close()
+        
         ##################### Apply dry firn exclusions #######################
 
     print('End of probabilistic processing')
