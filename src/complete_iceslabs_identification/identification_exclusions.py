@@ -252,8 +252,9 @@ import glob
 
 obvious_identification='FALSE'
 identification_after_depth_correction='FALSE'
-identification_dry_firn_exclusions='TRUE'
+identification_dry_firn_exclusions='FALSE'
 generate_exclusion_files='FALSE'
+identification_exclusions_april2022='TRUE'
 
 if (generate_exclusion_files=='TRUE'):
         
@@ -333,10 +334,9 @@ if (generate_exclusion_files=='TRUE'):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-#Open, read and close the file of suggested surface picks
-f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/exclusions/datetrack_20172018.txt','r')
-data_20172018 = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
-f.close()
+#Open list of data from 2010 to 2018
+path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
+datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Define path where data are stored
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
@@ -617,6 +617,94 @@ if (identification_dry_firn_exclusions == 'TRUE'):
         
 
 
+        count=count+1
+
+
+pdb.set_trace()
+
+if (identification_exclusions_april2022 == 'TRUE'):
+    count=0
+    count_display=0
+    
+    #Define path of depth corrected
+    path_depth_corrected=path_data+'exported/Depth_Corrected_Picklefiles/'
+    path_probability='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/inspection_april2022/probability_iceslabs/before_DF_appliance/pickles/'
+    path_probability_after_DF='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/inspection_april2022/probability_iceslabs/after_DF_appliance/pickles/'
+    
+    #Loop over the dates
+    for indiv_trace in list(datetrack_toread):
+        
+        '''        
+        if (count_display<90):
+            count_display=count_display+1
+            continue
+        '''
+        print(count/len(list(datetrack_toread))*100,' %')
+        
+        #Define filename depth corrected
+        filename_depth_corrected=indiv_trace[0]+'_DEPTH_CORRECTED.pickle'
+        
+        #Open depth corrected pickles files
+        f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+        depth_corrected_file = pickle.load(f_depth_corrected)
+        f_depth_corrected.close()
+        
+        #Define the probability filename
+        filename_probability=indiv_trace[0]+'_probability_iceslabs_presence'
+        #Open probability pickles files
+        f_probability = open(path_probability+filename_probability+'.pickle', "rb")
+        probability_file = pickle.load(f_probability)
+        f_probability.close()
+
+        #Define the probability filename considering dry firn exclusions
+        filename_probability_after_DF=filename_probability+'_after_DF.pickle'
+        
+        #Open old probability pickles files
+        f_probability_after_DF = open(path_probability_after_DF+filename_probability_after_DF, "rb")
+        probability_after_DF_file = pickle.load(f_probability_after_DF)
+        f_probability_after_DF.close()
+    
+        #Select the first 30m of the slice:
+        #Define path data to open time variable
+        path_data_open=path_data+indiv_trace[0][0:4]+'_Greenland_P3/CSARP_qlook/'+indiv_trace[0][0:11]+'/'
+
+        if (int(indiv_trace[0][0:4])>=2014):
+            fdata_filename = h5py.File(path_data_open+'Data_'+indiv_trace[0][0:15]+'.mat')
+            time_variable=fdata_filename['Time'][:,:]
+        else:
+            fdata_filename = scipy.io.loadmat(path_data_open+'Data_'+indiv_trace[0][0:15]+'.mat')
+            time_variable = fdata_filename['Time']
+        
+        #transpose???time_variable=f['Time'][:].transpose()
+        
+        #calculate depth
+        depths = v * time_variable / 2.0
+        
+        #Reset depths to 0
+        depths=depths-depths[0]
+        
+        #Identify index where time > 20 m
+        ind_lower_20m=np.where(depths<=20)[0]
+        depth_corrected_20m=depth_corrected_file[ind_lower_20m,:]
+        
+        #Plot roll corrected pickle files
+        fig, (ax1,ax2,ax3) = plt.subplots(3,1)#, gridspec_kw={'width_ratios': [1, 3]})
+        ax1.set_title(indiv_trace[0]+' - depth corrected 20m')
+        ax1.imshow(depth_corrected_20m,cmap='gray')
+        #ax1.set_aspect(4)
+        
+        ax2.set_title(indiv_trace[0]+' - probability')
+        ax2.imshow(probability_file,cmap='gray_r')
+        #ax2.set_aspect(4)
+        
+        ax3.set_title(indiv_trace[0]+' - probability after DF')
+        ax3.imshow(probability_after_DF_file,cmap='gray_r')
+        #ax3.set_aspect(4)
+        
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+        plt.show()
+        pdb.set_trace()
         count=count+1
 
 
