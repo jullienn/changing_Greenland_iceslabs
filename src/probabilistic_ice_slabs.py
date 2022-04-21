@@ -272,18 +272,16 @@ if (generate_excel_file=='TRUE'):
     #Define path where data are stored
     '''
     path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
-    path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
     '''
-    path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/pickles/'
-    path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
+    path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/pickles/'
     path_data='/flash/jullienn/data/threshold_processing/'
     
     #Define filename
     '''
     filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv'
     '''
-    filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
+    filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
     
     #Open filename (same procedure as MacFerrin et al., 2019)
     fout = open(filename_excel_output, 'w')
@@ -292,23 +290,15 @@ if (generate_excel_file=='TRUE'):
     
     #Loop over the traces
     for indiv_trace in datetrack_toread:
-            
+        
         #Open probability ice slabs pickle file
-        filename_probability_open=indiv_trace[0]+'_probability_iceslabs_presence.pickle'
+        filename_probability_open=indiv_trace[0]+'_probability_iceslabs_presence_after_DF.pickle'
         
         f_probability = open(path_probability_iceslabs+filename_probability_open, "rb")
         indiv_probability_slice=pickle.load(f_probability)
         f_probability.close()
-        
-        #Open mask
-        filename_mask=indiv_trace[0]+'_mask.pickle'
-        
-        f_mask = open(path_mask+filename_mask, "rb")
-        indiv_mask_slice = pickle.load(f_mask)
-        f_mask.close()
-        
+                
         #Open depths and lat/lon
-        
         #Create list of dates
         start_trace=int(indiv_trace[0][12:15])
         end_trace=int(indiv_trace[0][16:19])
