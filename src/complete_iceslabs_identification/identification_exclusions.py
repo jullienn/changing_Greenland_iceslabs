@@ -249,6 +249,7 @@ from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import png
 import glob
+import matplotlib.image as mpimg
 
 obvious_identification='FALSE'
 identification_after_depth_correction='FALSE'
@@ -620,8 +621,6 @@ if (identification_dry_firn_exclusions == 'TRUE'):
         count=count+1
 
 
-pdb.set_trace()
-
 if (identification_exclusions_april2022 == 'TRUE'):
     count=0
     count_display=0
@@ -630,6 +629,7 @@ if (identification_exclusions_april2022 == 'TRUE'):
     path_depth_corrected=path_data+'exported/Depth_Corrected_Picklefiles/'
     path_probability='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/inspection_april2022/probability_iceslabs/before_DF_appliance/pickles/'
     path_probability_after_DF='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/inspection_april2022/probability_iceslabs/after_DF_appliance/pickles/'
+    path_surface_slice=path_data+'exported/Surface_Slice_100m_Picklefiles/'
     
     #Loop over the dates
     for indiv_trace in list(datetrack_toread):
@@ -658,13 +658,16 @@ if (identification_exclusions_april2022 == 'TRUE'):
 
         #Define the probability filename considering dry firn exclusions
         filename_probability_after_DF=filename_probability+'_after_DF.pickle'
-        
-        #Open old probability pickles files
+        #Open probability pickles files after dry firn removal
         f_probability_after_DF = open(path_probability_after_DF+filename_probability_after_DF, "rb")
         probability_after_DF_file = pickle.load(f_probability_after_DF)
         f_probability_after_DF.close()
-    
-        #Select the first 30m of the slice:
+        
+        #Define the raw 0m_30m_BESTFIT_V1 filename - This is from plot_firn_workshop.py
+        filename_raw=indiv_trace[0]+'_0m_30m_BESTFIT_V1.png'
+        #Load image
+        img_raw = mpimg.imread(path_data+'exported/'+filename_raw)
+        
         #Define path data to open time variable
         path_data_open=path_data+indiv_trace[0][0:4]+'_Greenland_P3/CSARP_qlook/'+indiv_trace[0][0:11]+'/'
 
@@ -682,24 +685,30 @@ if (identification_exclusions_april2022 == 'TRUE'):
         
         #Reset depths to 0
         depths=depths-depths[0]
-        
+                
         #Identify index where time > 20 m
         ind_lower_20m=np.where(depths<=20)[0]
         depth_corrected_20m=depth_corrected_file[ind_lower_20m,:]
+        img_raw_20m=img_raw[ind_lower_20m,:]
         
         #Plot roll corrected pickle files
-        fig, (ax1,ax2,ax3) = plt.subplots(3,1)#, gridspec_kw={'width_ratios': [1, 3]})
-        ax1.set_title(indiv_trace[0]+' - depth corrected 20m')
-        ax1.imshow(depth_corrected_20m,cmap='gray')
-        #ax1.set_aspect(4)
+        fig, (ax1,ax2,ax3,ax4) = plt.subplots(4,1)#, gridspec_kw={'width_ratios': [1, 3]})
         
-        ax2.set_title(indiv_trace[0]+' - probability')
-        ax2.imshow(probability_file,cmap='gray_r')
-        #ax2.set_aspect(4)
+        ax1.set_title(indiv_trace[0]+' - raw 20m')
+        ax1.imshow(img_raw_20m,cmap='gray')
+        ax1.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
         
-        ax3.set_title(indiv_trace[0]+' - probability after DF')
-        ax3.imshow(probability_after_DF_file,cmap='gray_r')
-        #ax3.set_aspect(4)
+        ax2.set_title(indiv_trace[0]+' - depth corrected 20m')
+        ax2.imshow(depth_corrected_20m,cmap='gray')
+        ax2.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
+        
+        ax3.set_title(indiv_trace[0]+' - probability')
+        ax3.imshow(probability_file,cmap='gray_r')
+        ax3.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
+        
+        ax4.set_title(indiv_trace[0]+' - probability after DF')
+        ax4.imshow(probability_after_DF_file,cmap='gray_r')
+        ax4.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
         
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
