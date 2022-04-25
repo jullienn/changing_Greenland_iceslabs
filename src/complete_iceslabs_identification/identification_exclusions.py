@@ -634,11 +634,10 @@ if (identification_exclusions_april2022 == 'TRUE'):
     #Loop over the dates
     for indiv_trace in list(datetrack_toread):
         
-        '''        
-        if (count_display<90):
-            count_display=count_display+1
+        if (int(indiv_trace[0][0:4])<2014):
+            count=count+1
             continue
-        '''
+        
         print(count/len(list(datetrack_toread))*100,' %')
         
         #Define filename depth corrected
@@ -673,13 +672,12 @@ if (identification_exclusions_april2022 == 'TRUE'):
 
         if (int(indiv_trace[0][0:4])>=2014):
             fdata_filename = h5py.File(path_data_open+'Data_'+indiv_trace[0][0:15]+'.mat')
-            time_variable=fdata_filename['Time'][:,:]
+            time_variable=fdata_filename['Time'][:].transpose()
+
         else:
             fdata_filename = scipy.io.loadmat(path_data_open+'Data_'+indiv_trace[0][0:15]+'.mat')
             time_variable = fdata_filename['Time']
-        
-        #transpose???time_variable=f['Time'][:].transpose()
-        
+                
         #calculate depth
         depths = v * time_variable / 2.0
         

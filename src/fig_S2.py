@@ -5,7 +5,6 @@ Created on Tue Apr 12 17:55:47 2022
 @author: jullienn
 """
 
-
 def compute_distances(eastings,northings):
     #This function is from plot_2002_2003.py, which was originally taken from MacFerrin et al., 2019
     '''Compute the distance (in m here, not km as written originally) of the traces in the file.'''
