@@ -634,11 +634,16 @@ if (identification_exclusions_april2022 == 'TRUE'):
     #Loop over the dates
     for indiv_trace in list(datetrack_toread):
         
+        '''
         if (int(indiv_trace[0][0:4])<2014):
             count=count+1
             continue
-        
+        '''
         print(count/len(list(datetrack_toread))*100,' %')
+
+        if ((count/len(list(datetrack_toread))*100)<60):
+            count=count+1
+            continue
         
         #Define filename depth corrected
         filename_depth_corrected=indiv_trace[0]+'_DEPTH_CORRECTED.pickle'
