@@ -1616,10 +1616,11 @@ class IceBridgeGPR_Track_v2():
             #pdb.set_trace()
             if self.VERBOSE:
                 print("Surface mismatches.  Correcting {0} values.".format(numpy.sum(mismatched_mask)))
+            '''
             closest_matches_i = numpy.argmin(abs(sample_time - surface_picks[mismatched_mask]), axis=1)
             '''
             closest_matches_i = numpy.argmin(sample_time - surface_picks[mismatched_mask], axis=1)
-            '''
+            
             # Assign these "closest matches" as the matches themselves
             match_outputs[mismatched_mask, closest_matches_i] = True
 
