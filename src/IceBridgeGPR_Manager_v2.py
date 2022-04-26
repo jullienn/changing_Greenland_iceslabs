@@ -17,6 +17,7 @@ from GPR_FileData import ICEBRIDGE_DATA_FOLDER, \
                          ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE, \
                          ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, \
                          ICEBRIDGE_EXCLUSIONS_16M, \
+                         ICEBRIDGE_EXCLUSIONS_DRY_FIRN, \
                          ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, \
                          ICEBRIDGE_ROLL_CORRECTED_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_DEPTH_CORRECTED_PICKLEFILE_FOLDER, \
@@ -367,9 +368,16 @@ class IceBridgeGPR_Manager_v2():
         #pdb.set_trace()
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
-
+                
         for track in tracks:
+            
             print(track.NAME, end=' ')
+            '''
+            if (not(track.NAME == '20170511_01_010_025')):
+                continue
+            else:
+                pdb.set_trace()
+            '''
             lats, lons, distances, ice_contents = track.return_ice_layers_lat_lon_distance_thickness(masked=False)
             # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
             if track.NAME == "20120412_01_095_095":
@@ -573,7 +581,7 @@ class Mask_Manager():
         ###############################################
         ## FILES/VARIABLES FOR MASKING OUT PIXELS
         self.mask_dictionary = None
-        self.valid_mask_filenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE, ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
+        self.valid_mask_filenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE, ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN]#, ICEBRIDGE_EXCLUSIONS_16M]
         self._initialize_mask_dictionary()
         ###############################################
 
@@ -1590,22 +1598,32 @@ class IceBridgeGPR_Track_v2():
         surface_picks.shape = (surface_picks.shape[0], 1)
         sample_time.shape   = (1, sample_time.shape[0])
         match_outputs = (surface_picks == sample_time)
-
+        
+        '''
+        if (self.NAME == '20170329_01_001_001'):
+            pdb.set_trace()
+        '''
+        
         # Make sure every surface pick actually had an index in the array.
         if not numpy.all(numpy.any(match_outputs, axis=1)):
             # Some of the surface picks don't seem to actually line up with time sample values.
             # We can fix this by simply getting the "closest" pick to it.
             mismatched_mask = ~numpy.any(match_outputs, axis=1)
+            #pdb.set_trace()
             if self.VERBOSE:
                 print("Surface mismatches.  Correcting {0} values.".format(numpy.sum(mismatched_mask)))
+            closest_matches_i = numpy.argmin(abs(sample_time - surface_picks[mismatched_mask]), axis=1)
+            '''
             closest_matches_i = numpy.argmin(sample_time - surface_picks[mismatched_mask], axis=1)
+            '''
             # Assign these "closest matches" as the matches themselves
             match_outputs[mismatched_mask, closest_matches_i] = True
 
         # Get the indices of the closest matches along that axis.
         output_array = numpy.where(match_outputs)[1]
-
+                
         self.LIST_original_surface_indices = output_array
+        
         #print('-------------------- OUT _compute_original_surface_indices --------------------')
         return output_array
 
@@ -1935,7 +1953,7 @@ class IceBridgeGPR_Track_v2():
         pathname = os.path.join(ICEBRIDGE_SURFACE_SLICE_PICKLEFILE_FOLDER, fname)
 
         # Get the masks that tell us where we need to mask stuff out.
-        maskfilenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
+        maskfilenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN]#, ICEBRIDGE_EXCLUSIONS_16M]
         # Get the surface indices and traces, mask them out according to masks above.
         surface_indices = self.compute_surface_picks(export=False)
 
@@ -2014,7 +2032,7 @@ class IceBridgeGPR_Track_v2():
 
         ####################################
         ## 1) Read surface slice... potentially from files created above in ::compute_surface_picks().
-        trace_masks = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
+        trace_masks = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN]#, ICEBRIDGE_EXCLUSIONS_16M]
         # Read the raw traces
 
         traces = self.get_radar_slice_100m()
@@ -3107,4 +3125,9 @@ if __name__ == "__main__":
     #pdb.set_trace()
 
     for track in ib.tracks:
+        '''
+        if (not(track == '20170511_01_010_025')):
+            continue
+            pdb.set_trace()
+        '''
         track.DO_IT_ALL()
