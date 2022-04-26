@@ -1613,7 +1613,7 @@ class IceBridgeGPR_Track_v2():
             # Some of the surface picks don't seem to actually line up with time sample values.
             # We can fix this by simply getting the "closest" pick to it.
             mismatched_mask = ~numpy.any(match_outputs, axis=1)
-            #pdb.set_trace()
+
             if self.VERBOSE:
                 print("Surface mismatches.  Correcting {0} values.".format(numpy.sum(mismatched_mask)))
             '''
