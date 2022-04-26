@@ -19,7 +19,7 @@ import os.path
 import os
 import csv
 
-year_to_download='2018'#'2010_2014'
+year_to_download='2017'#'2010_2014'
 
 ############################ Download old AR data #############################
 if (year_to_download=='old'):
@@ -300,10 +300,10 @@ if (year_to_download=='2010_2014'):
 #Code from: https://gist.github.com/nasrulhazim/cfd5f01e3b261b09d54f721cc1a7c50d
 if (year_to_download=='2017'):
     #pdb.set_trace()
-    path_file='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/intial_selection_20172018/'
-
+    path_file='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
+    
     #Read text file of all the data that need to be downloaded
-    intial_data_selection = pd.read_csv(path_file+'current_intial_data_selection_20172018.txt', header=None)
+    intial_data_selection = pd.read_csv(path_file+'datetrack_20102018.txt', header=None)
     intial_data_selection.columns = ["datetrack"]
     
     #Store start and end files
@@ -363,7 +363,7 @@ if (year_to_download=='2017'):
                 path_save=path_save + folder_year + '/images/'
             
             if(download_mat=='TRUE'):
-                folder_year_name=path + folder_year + '/CSARP_mvdr/'
+                folder_year_name=path + folder_year + '/CSARP_standard/'
                 path_save=path_save + folder_year + '/CSARP_qlook/'
             
             #Go to folder to download
@@ -410,10 +410,12 @@ if (year_to_download=='2017'):
                         #If the file is to be downloaded, check if existent. If not, download
                         if ((file[0:15]+'.mat') in list(indiv_filenames)):
                             #this file is to be downloaded. Is is already?
+                            '''
                             if (os.path.isfile(path_to_save + file)):
                                 #If the file have already been downloaded, continue
                                 print(file+' have already been downloaded. Continue ...')
                                 continue
+                            '''
                             #If not, download it
                             print("Downloading..." + file)
                             ftp.retrbinary("RETR " + file ,open(path_to_save + file, 'wb').write)
@@ -428,7 +430,13 @@ if (year_to_download=='2017'):
                             #If the file is to be downloaded, check if existent. If not, download
                             if (file[5:24] in list(indiv_filenames)):
                                 #this file is to be downloaded. Is is already?
+                                '''
                                 if (os.path.isfile(path_to_save + file)):
+                                    #If the file have already been downloaded, continue
+                                    print(file+' have already been downloaded. Continue ...')
+                                    continue
+                                '''
+                                if (int(file[5:13])<20170421):
                                     #If the file have already been downloaded, continue
                                     print(file+' have already been downloaded. Continue ...')
                                     continue
