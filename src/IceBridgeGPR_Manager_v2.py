@@ -17,10 +17,6 @@ from GPR_FileData import ICEBRIDGE_DATA_FOLDER, \
                          ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE, \
                          ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, \
                          ICEBRIDGE_EXCLUSIONS_16M, \
-                         ICEBRIDGE_EXCLUSIONS_DRY_FIRN, \
-                         ICEBRIDGE_EXCLUSIONS_ABLATION, \
-                         ICEBRIDGE_EXCLUSIONS_OBVIOUS, \
-                         ICEBRIDGE_EXCLUSIONS_FAIL_ROLL, \
                          ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, \
                          ICEBRIDGE_ROLL_CORRECTED_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_DEPTH_CORRECTED_PICKLEFILE_FOLDER, \
@@ -371,23 +367,16 @@ class IceBridgeGPR_Manager_v2():
         #pdb.set_trace()
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
-                
+
         for track in tracks:
-            
             print(track.NAME, end=' ')
-            '''
-            if (not(track.NAME == '20170511_01_010_025')):
-                continue
-            else:
-                pdb.set_trace()
-            '''
             lats, lons, distances, ice_contents = track.return_ice_layers_lat_lon_distance_thickness(masked=False)
             # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
             if track.NAME == "20120412_01_095_095":
                 ice_contents[0:9000] = 0.0
 
             assert len(lats) == len(lons) == len(ice_contents)
-            tracenums = numpy.arange(len(lats), dtype=int)
+            tracenums = numpy.arange(len(lats), dtype=numpy.int)
 
             tracecount = 0
             for lat, lon, tracenum, distance, ice_content in zip(lats, lons, tracenums, distances, ice_contents):
@@ -585,7 +574,6 @@ class Mask_Manager():
         ## FILES/VARIABLES FOR MASKING OUT PIXELS
         self.mask_dictionary = None
         self.valid_mask_filenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE, ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
-        #self.valid_mask_filenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE, ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN, ICEBRIDGE_EXCLUSIONS_OBVIOUS, ICEBRIDGE_EXCLUSIONS_ABLATION, ICEBRIDGE_EXCLUSIONS_FAIL_ROLL]#, ICEBRIDGE_EXCLUSIONS_16M]
         self._initialize_mask_dictionary()
         ###############################################
 
@@ -692,7 +680,7 @@ class Mask_Manager():
             assert type(mask_filenames) in (list,tuple)
             assert numpy.all([(fname in self.valid_mask_filenames) for fname in mask_filenames])
 
-        boolean_array = numpy.ones((array_length,), dtype=bool)
+        boolean_array = numpy.ones((array_length,), dtype=numpy.bool)
 
         # Iterate over just one file, or all of them.
         if type(mask_filenames) == str:
@@ -1138,8 +1126,8 @@ class IceBridgeGPR_Track_v2():
         # Create a "perfect" track that identifies all pixels w/ >= 50% ice lenses
         # from GPR data as 1, all pixels <50% ice lens data as 0.  See what the "best case" score is there.
         PERFECT_TRACK = (GPR_resampled >= 0.50)
-        ALL_ZEROS = numpy.zeros(GPR_resampled.shape, dtype=bool)
-        ALL_ONES  = numpy.ones(GPR_resampled.shape, dtype=bool)
+        ALL_ZEROS = numpy.zeros(GPR_resampled.shape, dtype=numpy.bool)
+        ALL_ONES  = numpy.ones(GPR_resampled.shape, dtype=numpy.bool)
 
         print("ZEROS:  ", self._compute_score_accuracy_wrt_reference_track(ALL_ZEROS, GPR_resampled), "(all false negatives)")
         print("ONES:   ", self._compute_score_accuracy_wrt_reference_track(ALL_ONES , GPR_resampled), "(all false positives)")
@@ -1184,7 +1172,7 @@ class IceBridgeGPR_Track_v2():
             for i in range(len(algorithm_names)):
                 group_id_arrays[i], group_size_dicts[i] = self._caluculate_icelens_connectedness(boolean_arrays[i])
 
-            boolean_image_blank = numpy.zeros(boolean_arrays[0].shape, dtype=bool)
+            boolean_image_blank = numpy.zeros(boolean_arrays[0].shape, dtype=numpy.bool)
 
             for continuity_t in continuity_thresholds:
                 for name, boolean_array, group_id_array, group_size_dict in zip(algorithm_names,
@@ -1221,8 +1209,8 @@ class IceBridgeGPR_Track_v2():
 
         '''A parent function that iterates over an image until all pixels have found which "group" they belong to.
         Return an int array of group_ID numbers (zero are empty pixels), and a dictionary of (ID:size) pairs.'''
-        group_id_array = numpy.zeros(boolean_image.shape, dtype=int)
-        visited_mask_empty = numpy.zeros(boolean_image.shape, dtype=bool)
+        group_id_array = numpy.zeros(boolean_image.shape, dtype=numpy.int)
+        visited_mask_empty = numpy.zeros(boolean_image.shape, dtype=numpy.bool)
         # Visited mask cumulative -- a boolean array of all the pixels we've visited.  Starts out empty, should match boolean_image in the end
         visited_mask_cumulative = visited_mask_empty.copy()
         # Keeps track of how many pixels are in each group.
@@ -1602,33 +1590,22 @@ class IceBridgeGPR_Track_v2():
         surface_picks.shape = (surface_picks.shape[0], 1)
         sample_time.shape   = (1, sample_time.shape[0])
         match_outputs = (surface_picks == sample_time)
-        
-        '''
-        if (self.NAME == '20170329_01_001_001'):
-            pdb.set_trace()
-        '''
-        
+
         # Make sure every surface pick actually had an index in the array.
         if not numpy.all(numpy.any(match_outputs, axis=1)):
             # Some of the surface picks don't seem to actually line up with time sample values.
             # We can fix this by simply getting the "closest" pick to it.
             mismatched_mask = ~numpy.any(match_outputs, axis=1)
-
             if self.VERBOSE:
                 print("Surface mismatches.  Correcting {0} values.".format(numpy.sum(mismatched_mask)))
-            '''
-            closest_matches_i = numpy.argmin(abs(sample_time - surface_picks[mismatched_mask]), axis=1)
-            '''
             closest_matches_i = numpy.argmin(sample_time - surface_picks[mismatched_mask], axis=1)
-            
             # Assign these "closest matches" as the matches themselves
             match_outputs[mismatched_mask, closest_matches_i] = True
 
         # Get the indices of the closest matches along that axis.
         output_array = numpy.where(match_outputs)[1]
-                
+
         self.LIST_original_surface_indices = output_array
-        
         #print('-------------------- OUT _compute_original_surface_indices --------------------')
         return output_array
 
@@ -1959,7 +1936,6 @@ class IceBridgeGPR_Track_v2():
 
         # Get the masks that tell us where we need to mask stuff out.
         maskfilenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
-        #maskfilenames = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN, ICEBRIDGE_EXCLUSIONS_OBVIOUS, ICEBRIDGE_EXCLUSIONS_ABLATION, ICEBRIDGE_EXCLUSIONS_FAIL_ROLL]#, ICEBRIDGE_EXCLUSIONS_16M]
         # Get the surface indices and traces, mask them out according to masks above.
         surface_indices = self.compute_surface_picks(export=False)
 
@@ -2039,7 +2015,6 @@ class IceBridgeGPR_Track_v2():
         ####################################
         ## 1) Read surface slice... potentially from files created above in ::compute_surface_picks().
         trace_masks = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE]#, ICEBRIDGE_EXCLUSIONS_16M]
-        #trace_masks = [ICEBRIDGE_EXCLUSIONS_SURFACE_PICK_FILE,ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, ICEBRIDGE_EXCLUSIONS_DRY_FIRN, ICEBRIDGE_EXCLUSIONS_OBVIOUS, ICEBRIDGE_EXCLUSIONS_ABLATION, ICEBRIDGE_EXCLUSIONS_FAIL_ROLL]#, ICEBRIDGE_EXCLUSIONS_16M]
         # Read the raw traces
 
         traces = self.get_radar_slice_100m()
@@ -2681,7 +2656,7 @@ class IceBridgeGPR_Track_v2():
 
             # Perform the continuity thresholding.
             group_id_array, group_size_dict = self._caluculate_icelens_connectedness(boolean_traces)
-            ice_lenses_above_cutoff_size = numpy.zeros(boolean_traces.shape, dtype=bool)
+            ice_lenses_above_cutoff_size = numpy.zeros(boolean_traces.shape, dtype=numpy.bool)
 
             # Set each group of pixels in that category to True, only for groups larger than the cutoff
             for group_ID in [ID for (ID,size) in list(group_size_dict.items()) if size >= continuity_threshold]:
@@ -3132,9 +3107,4 @@ if __name__ == "__main__":
     #pdb.set_trace()
 
     for track in ib.tracks:
-        '''
-        if (not(track == '20170511_01_010_025')):
-            continue
-            pdb.set_trace()
-        '''
         track.DO_IT_ALL()
