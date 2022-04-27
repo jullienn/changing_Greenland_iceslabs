@@ -638,7 +638,7 @@ if (identification_exclusions_april2022 == 'TRUE'):
             count=count+1
             continue
         '''
-        if (int(indiv_trace[0][0:4])<2018):
+        if (int(indiv_trace[0][0:4])<2017):
             count=count+1
             continue
         
@@ -699,22 +699,22 @@ if (identification_exclusions_april2022 == 'TRUE'):
         ax1.set_title(indiv_trace[0]+' - raw 20m')
         ax1.imshow(img_raw_20m,cmap='gray')
         ax1.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
-        #ax1.set_aspect(4)
+        ax1.set_aspect(4)
 
         ax2.set_title(indiv_trace[0]+' - depth corrected 20m')
         ax2.imshow(depth_corrected_20m,cmap='gray')
         ax2.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
-        #ax2.set_aspect(4)
+        ax2.set_aspect(4)
 
         ax3.set_title(indiv_trace[0]+' - probability')
         ax3.imshow(probability_file,cmap='gray_r')
         ax3.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
-        #ax3.set_aspect(4)
+        ax3.set_aspect(4)
 
         ax4.set_title(indiv_trace[0]+' - probability after DF')
         ax4.imshow(probability_after_DF_file,cmap='gray_r')
         ax4.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
-        #ax4.set_aspect(4)
+        ax4.set_aspect(4)
 
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
@@ -725,7 +725,13 @@ if (identification_exclusions_april2022 == 'TRUE'):
 
 
 
-
+xlim_s=0
+xim_u=xlim_s+3000
+ax1.set_xlim(xlim_s,xim_u)
+ax2.set_xlim(xlim_s,xim_u)
+ax3.set_xlim(xlim_s,xim_u)
+ax4.set_xlim(xlim_s,xim_u)
+plt.show()
 
 
 

@@ -70,7 +70,7 @@ import glob
 
 generate_probability_iceslabs_files='TRUE'
 apply_dry_firn_exclusions='TRUE'
-generate_excel_file='TRUE'
+generate_excel_file='FALSE'
 
 #Identify all the datetraces to process
 '''
@@ -105,12 +105,12 @@ if (generate_probability_iceslabs_files=='TRUE'):
         
     #II. Loop over these datetracks, and perform probability calculation:
     for indiv_trace in datetrack_toread:
-        '''
-        #We want to process only 2017 and 2018
-        if (not(indiv_trace[0][0:4] in list(['2017','2018']))):
-            print(indiv_trace[0],' not 2017 nor 2018, continue')
+        
+        #We want to process only 2017
+        if (not(indiv_trace[0][0:4] in list(['2017']))):
+            print(indiv_trace[0],' not 2017, continue')
             continue
-        '''
+        
         #If pickle files have already been created, do not process and continue
         filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/before_DF_appliance/pickles/'+indiv_trace[0]+'*'
         #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
