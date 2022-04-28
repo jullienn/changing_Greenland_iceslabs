@@ -270,7 +270,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         ax1.set_ylabel('Depth [m]')
                 
         #Save the figure
-        plt.savefig(fig_name,dpi=2000)
+        plt.savefig(fig_name,dpi=300)
         plt.close(fig)
         
         #Update count
@@ -469,7 +469,7 @@ import sklearn.preprocessing
 #Define speed
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-
+'''
 #Define paths
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 path_roll_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Roll_Corrected_Picklefiles/'
@@ -479,22 +479,22 @@ path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010
 path_data='/flash/jullienn/data/threshold_processing/'
 path_roll_corrected='/flash/jullienn/data/threshold_processing/Roll_Corrected_Picklefiles/'
 path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
-'''
-#I. Identify all the datetraces to process
 
+#I. Identify all the datetraces to process
+'''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-'''
+
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Open the quantile file over which we will loop
 quantiles_file=np.arange(0.65,0.79,0.01)
-
+'''
 filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'_onfulltrace.txt'
 '''
 filename_quantiles='/flash/jullienn/data/threshold_processing/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'_onfulltrace.txt'
-'''
+
 quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None))
 
 #List of traces where iceslabs likelihood identification have failed
@@ -513,7 +513,7 @@ for indiv_trace in datetrack_toread:
     if (not(indiv_trace[0][0:4] in list(['2018']))):
         print(indiv_trace[0],' not 2017, continue')
         continue
-    
+    '''
     #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
     filename_to_check='/flash/jullienn/data/threshold_processing_output/pickles/'+indiv_trace[0]+'*'
@@ -521,7 +521,7 @@ for indiv_trace in datetrack_toread:
     if (len(glob.glob(filename_to_check))>0):
         print(indiv_trace[0],': files already existent, move on to the next date')
         continue
-    '''
+    
     start = time.time()
 
     print(indiv_trace[0])
@@ -663,8 +663,7 @@ for indiv_trace in datetrack_toread:
     
     boolean_slabs=identify_ice_lenses(traces_20m,dataframe['depth_corrected_after_surf_removal_without_norm'],dataframe['depth'],dataframe['mask'],dataframe['datetrack'],quantile_file[1,:],quantile_file[0,:])
     
-    pdb.set_trace()
-    
+        
     #8. Save the 30m-depth corrected trace image   
     fig_name='/flash/jullienn/data/threshold_processing_output/images/'+dataframe['datetrack']+'_Depth_Corrected_surf_removal_30m_image.png'
 

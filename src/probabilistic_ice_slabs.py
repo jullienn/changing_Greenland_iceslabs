@@ -126,7 +126,7 @@ if (generate_probability_iceslabs_files=='TRUE'):
         print(count_time/len(datetrack_toread)*100,'%')
         
         #Must open the first quantile (0.65) to know the size 
-        filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str(0.65)+'_threshold_350.pickle'
+        filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str(0.65)+'_threshold_350_20m.pickle'
                              
         #Open the corresponding quantile 0.65 file
         f_quantile = open(path_quantiles_data+filename_quantile_open, "rb")
@@ -140,7 +140,7 @@ if (generate_probability_iceslabs_files=='TRUE'):
         for indiv_quantile in desired_quantiles:
             #print(str('%.2f' % indiv_quantile))
             #Define filename of quantiles of interest
-            filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str('%.2f' % indiv_quantile)+'_threshold_350.pickle'
+            filename_quantile_open=indiv_trace[0]+'_SG1_cutoffisquantile_'+str('%.2f' % indiv_quantile)+'_threshold_350_20m.pickle'
             
             #Open the corresponding quantile file
             f_quantile = open(path_quantiles_data+filename_quantile_open, "rb")
