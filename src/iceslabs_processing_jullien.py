@@ -114,6 +114,31 @@ def select_20m_slice_without_NaNs(slice_input,depth,mask):
     
     return traces_20m
 
+
+def select_30m_slice_without_NaNs(slice_input,depth,mask):
+    #I should input slices without the NaNs in it 
+    #Where mask is False
+    index_false=np.where(mask==False)[0]
+    #Where mask is True
+    index_true=np.where(mask==True)[0]
+    
+    #Prepare the mask for appliance
+    mask.shape=mask.shape[0],1
+    mask_matrix=np.repeat(mask,slice_input.shape[0],axis=1)
+    mask_matrix=np.transpose(mask_matrix)
+    #Apply the mask
+    slice_input_masked=slice_input[mask_matrix]
+    slice_input_masked=slice_input_masked.reshape((slice_input.shape[0],(slice_input.shape[1])-len(index_false)))
+    
+    #Keep only the first 30m of slices
+    boolean_30m=depth <= 30
+    ind_30m=np.where(boolean_30m==True)[0]
+    
+    traces=slice_input_masked
+    traces_30m=traces[ind_30m,:]
+    
+    return traces_30m
+
 def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without_norm,depth,mask,datetrack,quantile_investigation,desired_quantiles):
     #traces_20m should be the 20m traces
     
@@ -208,7 +233,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         '''
         filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
         '''
-        filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.pickle'
+        filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'_20m.pickle'
         
         outfile= open(filename_tosave, "wb" )
         pickle.dump(boolean_full_slabs,outfile)
@@ -219,7 +244,7 @@ def identify_ice_lenses(traces,slices_depth_corrected_after_surf_removal_without
         '''
         fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/custom_threshold_method/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
         '''
-        fig_name='/flash/jullienn/data/threshold_processing_output/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'.png'
+        fig_name='/flash/jullienn/data/threshold_processing_output/images/'+datetrack+'_'+algorithm+'_cutoffisquantile_'+cutoff_q_save+'_threshold_'+str(continuity_threshold)+'_20m.png'
         
         #Prepare the plot
         fig, (ax1) = plt.subplots(1, 1)
@@ -444,7 +469,7 @@ import sklearn.preprocessing
 #Define speed
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
-'''
+
 #Define paths
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 path_roll_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Roll_Corrected_Picklefiles/'
@@ -454,57 +479,40 @@ path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010
 path_data='/flash/jullienn/data/threshold_processing/'
 path_roll_corrected='/flash/jullienn/data/threshold_processing/Roll_Corrected_Picklefiles/'
 path_mask='/flash/jullienn/data/threshold_processing/Boolean_Array_Picklefiles/'
-
-#I. Identify all the datetraces to process
 '''
-path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+#I. Identify all the datetraces to process
+
+path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-
+'''
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Open the quantile file over which we will loop
 quantiles_file=np.arange(0.65,0.79,0.01)
-'''
-filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'.txt'
+
+filename_quantiles='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'_onfulltrace.txt'
 '''
 filename_quantiles='/flash/jullienn/data/threshold_processing/quantile_file_'+str(np.round(quantiles_file[0],2))+'_'+str(np.round(quantiles_file[-1],2))+'_onfulltrace.txt'
+'''
 quantile_file = np.asarray(pd.read_csv(filename_quantiles, sep=" ", header=None))
 
-'''
 #List of traces where iceslabs likelihood identification have failed
-list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20130423_01_125_125',
-                        '20130423_01_127_127','20130426_01_089_089','20140419_01_016_017',
-                        '20140419_01_028_028','20140419_03_075_075','20140516_02_031_034',
-                        '20180419_02_024_033','20180419_02_035_036','20180419_02_105_106',
-                        '20180427_01_170_172','20180429_01_008_014','20110509_01_001_001',
-                        '20120511_01_059_059','20140409_10_036_038',
-                        '20170414_01_022_024','20170414_01_042_042','20170414_01_051_056',
-                        '20170417_01_104_106','20170421_01_171_174','20170422_01_168_171',
-                        '20170417_01_060_068','20170502_01_041_060',
-                        '20170502_01_120_122',
-                        '20180405_01_022_024','20180405_01_051_056','20180405_01_078_082',
-                        '20180405_01_008_011','20180405_01_160_161','20180421_01_174_177',
-                        '20180423_01_180_182','20180426_01_004_006',
-                        '20120418_01_005_007','20120423_01_006_007','20120423_01_137_138',
-                        '20170412_01_070_070','20170412_01_150_151',
-                        '20170429_01_036_037','20170510_02_089_093','20170510_02_080_083',
-                        '20170510_02_101_109','20170510_02_115_121',
-                        '20180404_02_002_005','20180426_01_018_018','20170501_04_041_043',
-                        '20170501_02_009_016','20170410_01_132_133','20170424_01_008_012',
-                        '20170501_04_011_013','20180425_01_167_169','20180501_01_007_009'])
-'''
+list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20120502_01_016_016',
+                        '20130423_01_125_125','20130423_01_127_127','20130426_01_089_089',
+                        '20140419_01_016_017','20140419_01_028_028','20140419_03_075_075',
+                        '20140516_02_031_034','20170412_01_070_070','20180419_02_032_033',
+                        '20180419_02_035_036','20180429_01_008_014'])
+
 #intialize counter to 0
 count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:
-    
-    
+    '''
     #We want to process only 2017
-    if (not(indiv_trace[0][0:4] in list(['2017']))):
+    if (not(indiv_trace[0][0:4] in list(['2018']))):
         print(indiv_trace[0],' not 2017, continue')
         continue
-    
     
     #pdb.set_trace()
     #If pickle files have already been created, do not process and continue
@@ -513,7 +521,7 @@ for indiv_trace in datetrack_toread:
     if (len(glob.glob(filename_to_check))>0):
         print(indiv_trace[0],': files already existent, move on to the next date')
         continue
-    
+    '''
     start = time.time()
 
     print(indiv_trace[0])
@@ -622,6 +630,7 @@ for indiv_trace in datetrack_toread:
     dataframe['depth_corrected_after_surf_removal_without_norm']=np.nan
     dataframe['datetrack']=indiv_trace[0]
     
+    pdb.set_trace()
     ###########################################################################
     ###                       Load and organise data                        ###
     ###########################################################################
@@ -638,12 +647,12 @@ for indiv_trace in datetrack_toread:
     else:
         dataframe['depth_corrected_after_surf_removal_without_norm']=apply_depth_correction(dataframe['roll_corrected_after_surf_removal'],dataframe['mask'],dataframe['depth'][0:201])
     
-    #Save as the depth corrected trace as pickle file     
-    filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+dataframe['datetrack']+'_Depth_Corrected_surf_removal.pickle'
+    #Save the 100m-depth corrected trace as pickle file     
+    filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+dataframe['datetrack']+'_Depth_Corrected_surf_removal_100m.pickle'
     outfile= open(filename_tosave, "wb" )
     pickle.dump(dataframe['depth_corrected_after_surf_removal_without_norm'],outfile)
     outfile.close()
-    print('   Exporting '+dataframe['datetrack']+' depth corrected pickle file')
+    print('   Exporting '+dataframe['datetrack']+' depth corrected pickle file')  
     
     #7.Perform ice slabs identification (thresholding and smoothing)
     print('   Perform iceslabs identification')
@@ -653,6 +662,24 @@ for indiv_trace in datetrack_toread:
     #Identify ice slabs
     
     boolean_slabs=identify_ice_lenses(traces_20m,dataframe['depth_corrected_after_surf_removal_without_norm'],dataframe['depth'],dataframe['mask'],dataframe['datetrack'],quantile_file[1,:],quantile_file[0,:])
+    
+    pdb.set_trace()
+    
+    #8. Save the 30m-depth corrected trace image   
+    fig_name='/flash/jullienn/data/threshold_processing_output/images/'+dataframe['datetrack']+'_Depth_Corrected_surf_removal_30m_image.png'
+
+    #Keep only the first 30m of slices
+    boolean_30m=dataframe['depth'] <= 30
+    ind_30m=np.where(boolean_30m==True)[0]
+    
+    depth_cor_save=dataframe['depth_corrected_after_surf_removal_without_norm']
+    depth_cor_save_30m=depth_cor_save[ind_30m,:]
+    #Prepare matrix for png plot
+    depth_cor_save_30m_png=_export_to_8bit_array(depth_cor_save_30m)
+    
+    #Save the image
+    png_to_save=png.from_array(depth_cor_save_30m_png, mode='L')
+    png_to_save.save(fig_name)
     
     #update counter
     count_time=count_time+1
@@ -670,3 +697,219 @@ for indiv_trace in datetrack_toread:
     #7. Create excel files of summary data.
 
 print('End of processing')
+
+
+#Stop here for 2017-2017 exclusion of dry firn
+
+##############################################################################
+################# Perform rescaling for date who have failed #################
+##############################################################################
+
+#open all the 30m depth corrected pickles files and extract the distributution of signal return
+#then rescale the dates which are problematic with the e.g. 5-95 percentiles of the ditribution
+#This requires to create the depth corrected files
+
+appended_radar_slices=[]
+print('   ')
+print('Gather all the distributions to perform rescaling')
+path_depth_corrected='/flash/jullienn/data/threshold_processing_output/pickles/'
+#Loop over the dates
+for indiv_date in datetrack_toread:
+    
+    if (indiv_date[0] in list_trace_failed):
+        print('   ',indiv_date[0],' have failed, continue')
+        continue
+    print('   ',indiv_date[0])
+    
+    #Define filename
+    filename_depth_corrected=indiv_date[0]+'_Depth_Corrected_surf_removal_100m.pickle'
+    
+    #Open the depth corrected file of the corresponding date
+    f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+    slice_depth_corrected = pickle.load(f_depth_corrected)
+    f_depth_corrected.close()
+    
+    pdb.set_trace()
+    
+    #Select only the first 30m (<30m)
+    #For 2010-2011, index is from 0 to 128 included. From 2012 to 2018, index is from 0:60 included
+    if (indiv_date[0][0:4] in list(['2010','2011'])):
+        ind_30m=np.arange(0,129)
+    elif (indiv_date[0][0:4] in list(['2012','2013','2014','2017','2018'])):
+        ind_30m=np.arange(0,61)
+    else:
+        print('Error, year not known')
+    
+    #Extract slice
+    slice_depth_corrected_30m=slice_depth_corrected[ind_30m,:]
+    
+    #Reshape into a vector
+    slice_depth_corrected_array=np.asarray(slice_depth_corrected_30m).reshape(-1)
+    
+    #Extract the value of the 5th and 95th quantile of the 30m depth corrected slices
+    appended_radar_slices=np.append(appended_radar_slices,slice_depth_corrected_array)
+
+print('   ')
+print('Perform rescaling')
+for indiv_file in list_trace_failed:
+    #pdb.set_trace()
+    '''
+    #We want to process only 2017 and 2018
+    if (not(indiv_file[0:4] in list(['2017','2018']))):
+        print(indiv_file,' not 2017 nor 2018, continue')
+        continue
+    '''
+    #Define filename
+    filename_depth_corrected=indiv_file+'_Depth_Corrected_surf_removal_100m.pickle'
+    #Open the depth corrected file of the corresponding date
+    f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
+    slice_depth_corrected = pickle.load(f_depth_corrected)
+    f_depth_corrected.close()
+    
+    
+    filename_mask=indiv_file+'_mask.pickle'
+    #Open the mask file of the corresponding date
+    f_mask = open(path_mask+filename_mask, "rb")
+    mask = pickle.load(f_mask)
+    f_mask.close()  
+    
+    ###2. Load the time
+    #Create list of dates
+    start_trace=int(indiv_file[12:15])
+    end_trace=int(indiv_file[16:19])
+    
+    single_year=int(indiv_file[0:4])
+    
+    lat_appended=[]
+    lon_appended=[]
+        
+    for nb_trace in np.arange(start_trace,end_trace+1,1):
+        
+        #Reconstruct the name of the file
+        if (nb_trace<10):
+            indiv_file_load='Data_'+indiv_file[0:12]+'00'+str(nb_trace)+'.mat'
+        elif ((nb_trace>=10)&(nb_trace<100)):
+            indiv_file_load='Data_'+indiv_file[0:12]+'0'+str(nb_trace)+'.mat'
+        else:
+            indiv_file_load='Data_'+indiv_file[0:12]+str(nb_trace)+'.mat'
+        
+        print('  ',indiv_file_load)
+        #pdb.set_trace()
+        #Create the path
+        path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
+        
+        #Load data
+        if (single_year>=2014):
+            
+            fdata_filename = h5py.File(path_raw_data+indiv_file_load)
+            time_filename=fdata_filename['Time'][:,:]
+            
+        else:
+            fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
+            time_filename = fdata_filename['Time']
+    
+    #3. Calculate the depth from the time
+    #########################################################################
+    # From plot_2002_2003.py - BEGIN
+    #########################################################################
+    depth_check = v * time_filename / 2.0
+    
+    #If 2014, transpose the vector
+    if (str(single_year)>='2014'):
+        depth_check=np.transpose(depth_check)
+    
+    #Reset times to zero! This is from IceBridgeGPR_Manager_v2.py
+    if (depth_check[10]<0):
+        #depth_check[10] so that I am sure that the whole vector is negative and
+        #not the first as can be for some date were the proccessing is working
+        depth_check=depth_check+abs(depth_check[0])
+        depth = depth_check
+    else:
+        depth = depth_check
+    
+    if (str(single_year) in list(['2011','2012','2014','2017','2018'])):
+        if (depth_check[10]>1):
+            #depth_check[10] so that I am sure that the whole vector is largely positive and
+            #not the first as can be for some date were the proccessing is working
+            depth_check=depth_check-abs(depth_check[0])
+            depth = depth_check
+    
+    #########################################################################
+    # From plot_2002_2003.py - END
+    #########################################################################
+        
+    #Identify the index where depth <=30m
+    boolean_30m=depth <= 30
+    ind_30m=np.where(boolean_30m==True)[0]
+    #Extract slice to plot
+    slice_depth_corrected_30m=slice_depth_corrected[ind_30m,:]
+    
+    #Extract NaN from slice
+    slice_depth_corrected_30m_without_nans=select_30m_slice_without_NaNs(slice_depth_corrected_30m,depth,mask)
+    #Apply rescaling
+    rescaled_slice=sklearn.preprocessing.minmax_scale(slice_depth_corrected_30m_without_nans, feature_range=(np.nanpercentile(appended_radar_slices,5),np.nanpercentile(appended_radar_slices,95)))
+    
+    #Reconsruct full slice with NaNs
+    full_rescaled_slice=reconstruct_with_NaNs_rescaling(slice_depth_corrected_30m,mask,rescaled_slice)
+    
+    #pdb.set_trace()
+    #Display the results
+    
+    #Plot to briefly check
+    fig, (ax1,ax2) = plt.subplots(2, 1)
+    fig.suptitle(indiv_file)
+    
+    cb=ax1.imshow(slice_depth_corrected_30m,cmap=plt.get_cmap('gray'))
+    fig.colorbar(cb,ax=ax1)
+    ax1.set_ylim(ind_30m[-1],0)
+    ax1.set_title('Depth corrected trace')
+    
+    cb2=ax2.imshow(full_rescaled_slice,cmap=plt.get_cmap('gray'))
+    fig.colorbar(cb2,ax=ax2)
+    ax2.set_ylim(ind_30m[-1],0)
+    ax2.set_title('Rescaled slice 5-95th percentiles')
+    
+    #Save the figures
+    plt.savefig('/flash/jullienn/data/threshold_processing_output/images/'+indiv_file[0:19]+'_rescaling_30m.png',dpi=2000)
+    plt.close(fig)
+    
+    
+    #Save the 30m-rescaled depth corrected trace image   
+    fig_name='/flash/jullienn/data/threshold_processing_output/images/'+dataframe['datetrack']+'_Depth_Corrected_surf_removal_rescaled_30m_image.png'
+
+    #Prepare matrix for png plot
+    full_rescaled_slice_30m_png=_export_to_8bit_array(full_rescaled_slice)
+    
+    #Save the image
+    png_to_save=png.from_array(full_rescaled_slice_30m_png, mode='L')
+    png_to_save.save(fig_name)
+    
+    #pdb.set_trace()
+     
+    #Save the 30m-depth corrected rescaled slices as pickle files
+    filename_tosave=path_depth_corrected+indiv_file[0:19]+'_Depth_Corrected_surf_removal_rescaled_30m.pickle'
+    outfile= open(filename_tosave, "wb" )
+    pickle.dump(full_rescaled_slice,outfile)
+    outfile.close()
+    print('      Exporting '+indiv_file[0:19]+' depth corrected pickle file')
+    
+    #7.Perform ice slabs identification (thresholding and smoothing)
+    print('      Perform iceslabs identification')
+    
+    #Extract the 20m slices and get rid of exclusions
+    traces_20m=select_20m_slice_without_NaNs(full_rescaled_slice,depth,mask)
+    #Identify ice slabs
+        
+    boolean_slabs=identify_ice_lenses(traces_20m,full_rescaled_slice,depth,mask,indiv_file[0:19],quantile_file[1,:],quantile_file[0,:])
+    
+    
+#Plot the distribution of 2010-2018 radar signal strenght
+fig, (ax1) = plt.subplots(1, 1)
+ax1.set_title('2010-2018 30m-depth corrected radar signal strength distribution')
+ax1.hist(appended_radar_slices,bins=100)
+#Save the figure
+plt.savefig(path_depth_corrected+'distribution_for_rescaling_30m.png',dpi=2000)
+plt.close(fig)
+
+print('   ')
+print(' --- End of processing --- ')
