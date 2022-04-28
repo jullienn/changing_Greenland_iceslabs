@@ -2869,6 +2869,7 @@ class IceBridgeGPR_Track_v2():
             assert len(array.shape) == 2
             array_expanded[:,:] = numpy.nan if array.dtype not in (bool,int) else 0
             array_expanded[:,mask] = array
+        
         #print('-------------------- OUT _refill_array --------------------')
 
         return array_expanded
