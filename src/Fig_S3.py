@@ -36,6 +36,10 @@ path_new_method='C:/Users/jullienn/switchdrive/Private/research/RT1/final_datase
 
 #Choose the date to illustrate the process
 chosen_trace='20100507_01_008_010'
+chosen_trace='20140416_05_035_037'
+#back_up_trace ='20170429_01_148_154'
+
+path_temp='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/temp_fig_s3/'
 
 #1. Import original radar trace
 path_data_open=general_path+'data/'+chosen_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+chosen_trace[0:11]+'/'
@@ -59,6 +63,7 @@ for indiv_nb in range(int(chosen_trace[12:15]),int(chosen_trace[16:19])+1):
         lat_variable=fdata_filename['Latitude'][:,:]
         lon_variable=fdata_filename['Longitude'][:,:]
         time_variable=fdata_filename['Time'][:,:]
+        time_variable=np.transpose(time_variable)
         radar_variable=fdata_filename['Data'][:,:]
     else:
         fdata_filename = scipy.io.loadmat(path_data_open+'Data_'+indiv_filename+'.mat')
@@ -72,9 +77,15 @@ for indiv_nb in range(int(chosen_trace[12:15]),int(chosen_trace[16:19])+1):
     lon_appended=np.append(lon_appended,lon_variable)
     
     if(indiv_nb==int(chosen_trace[12:15])):
-        radar_appended=radar_variable
+        if (int(chosen_trace[0:4])>=2014):
+            radar_appended=np.transpose(radar_variable)
+        else:
+            radar_appended=radar_variable
     else:
-        radar_appended=np.append(radar_appended,radar_variable,axis=1)
+        if (int(chosen_trace[0:4])>=2014):
+            radar_appended=np.append(radar_appended,np.transpose(radar_variable),axis=1)
+        else:
+            radar_appended=np.append(radar_appended,radar_variable,axis=1)
 
 #Compute the speed (Modified Robin speed):
 # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
@@ -101,7 +112,8 @@ distances_with_start_transect=compute_distances(lon_3413,lat_3413)
 
 #2. Show after surface picking - Let's do it manually
 #Load surface pick
-path_surfacepick=general_path+'data/exported/Surface_Indices_Picklefiles/'
+#path_surfacepick=general_path+'data/exported/Surface_Indices_Picklefiles/'
+path_surfacepick=path_temp
 filename_surfacepick=chosen_trace+'_SURFACE.pickle'
 f_surfacepick = open(path_surfacepick+filename_surfacepick, "rb")
 surfacepick_file = pickle.load(f_surfacepick)
@@ -131,7 +143,8 @@ for i in range(0,len(surfacepick_file)):
     raw_data[:,i]=radar_appended[surfacepick_file[0]-250:surfacepick_file[0]-250+for_raw,i]
 
 #3. After lakes and other exclusions - We need to use the file _SURFACE_SLICE_100M.pickle
-path_lakes_excl=general_path+'data/exported/Surface_Slice_100m_Picklefiles/'
+#path_lakes_excl=general_path+'data/exported/Surface_Slice_100m_Picklefiles/'
+path_lakes_excl=path_temp
 filename_lakes_excl=chosen_trace+'_SURFACE_SLICE_100M.pickle'
 f_lakes_excl = open(path_lakes_excl+filename_lakes_excl, "rb")
 lakes_excl_file = pickle.load(f_lakes_excl)
@@ -140,7 +153,8 @@ f_lakes_excl.close()
 lakes_excl_file_20m=lakes_excl_file[ind_lower_20m,:]
 
 #4. After roll correction
-path_roll_corrected=general_path+'data/exported/Roll_Corrected_Picklefiles/'
+path_roll_corrected=path_temp
+#path_roll_corrected=general_path+'data/exported/Roll_Corrected_Picklefiles/'
 filename_roll_corrected=chosen_trace+'_ROLL_CORRECTED.pickle'
 f_roll_corrected = open(path_roll_corrected+filename_roll_corrected, "rb")
 roll_corrected_file = pickle.load(f_roll_corrected)
@@ -150,7 +164,8 @@ roll_corrected_20m=roll_corrected_file[ind_lower_20m,:]
 
 #5. After surface removal
 filename_aft_surf_removal=chosen_trace+'_Roll_Corrected_surf_removal_100m.pickle'
-f_aft_surf_removal = open(general_path+'/inspection_april2022/indiv_prob/'+filename_aft_surf_removal, "rb")
+#f_aft_surf_removal = open(general_path+'/inspection_april2022/indiv_prob/'+filename_aft_surf_removal, "rb")
+f_aft_surf_removal = open(path_temp+filename_aft_surf_removal, "rb")
 aft_surf_removal_file = pickle.load(f_aft_surf_removal)
 f_aft_surf_removal.close()
 #Select only the first 20m!
@@ -160,8 +175,9 @@ aft_surf_removal_file_20m=aft_surf_removal_file[ind_lower_20m,:]
 '''
 path_depth_corrected=path_new_method+'ii_out_from_iceslabs_processing_jullien.py/pickles/'
 '''
-path_depth_corrected=general_path+'/inspection_april2022/indiv_prob/'
-filename_depth_corrected=chosen_trace+'_Depth_Corrected_surf_removal.pickle'
+#path_depth_corrected=general_path+'/inspection_april2022/indiv_prob/'
+path_depth_corrected=path_temp
+filename_depth_corrected=chosen_trace+'_Depth_Corrected_surf_removal_100m.pickle'
 f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
 depth_corrected_file = pickle.load(f_depth_corrected)
 f_depth_corrected.close()
@@ -172,7 +188,8 @@ depth_corrected_20m=depth_corrected_file[ind_lower_20m,:]
 '''
 path_likelihood=path_new_method+'/iii_out_from_probabilistic_iceslabs.py/before_DF_exclusion/pickles/'
 '''
-path_likelihood=general_path+'/inspection_april2022/probability_iceslabs/before_DF_appliance/pickles/'
+#path_likelihood=general_path+'/inspection_april2022/probability_iceslabs/before_DF_appliance/pickles/'
+path_likelihood=path_temp
 filename_likelihood=chosen_trace+'_probability_iceslabs_presence.pickle'
 f_likelihood = open(path_likelihood+filename_likelihood, "rb")
 likelihood_file = pickle.load(f_likelihood)
@@ -183,7 +200,8 @@ f_likelihood.close()
 '''
 path_likelihood_after_DF=path_new_method+'/iii_out_from_probabilistic_iceslabs.py/after_DF_exclusion/pickles/'
 '''
-path_likelihood_after_DF=general_path+'/inspection_april2022/probability_iceslabs/after_DF_appliance/pickles/'
+#path_likelihood_after_DF=general_path+'/inspection_april2022/probability_iceslabs/after_DF_appliance/pickles/'
+path_likelihood_after_DF=path_temp
 filename_likelihood_after_DF=chosen_trace+'_probability_iceslabs_presence_after_DF.pickle'
 f_likelihood_after_DF = open(path_likelihood_after_DF+filename_likelihood_after_DF, "rb")
 likelihood_file_after_DF = pickle.load(f_likelihood_after_DF)
