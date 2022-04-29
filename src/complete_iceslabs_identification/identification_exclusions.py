@@ -621,6 +621,14 @@ if (identification_dry_firn_exclusions == 'TRUE'):
         count=count+1
 
 
+
+#List of traces where iceslabs likelihood identification have failed
+list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20120502_01_016_016',
+                        '20130423_01_125_125','20130423_01_127_127','20130426_01_089_089',
+                        '20140419_01_016_017','20140419_01_028_028','20140419_03_075_075',
+                        '20140516_02_031_034','20170412_01_070_070','20180419_02_032_033',
+                        '20180419_02_035_036','20180429_01_008_014'])
+
 if (identification_exclusions_april2022 == 'TRUE'):
     count=0
     count_display=0
@@ -637,8 +645,13 @@ if (identification_exclusions_april2022 == 'TRUE'):
         if ((count/len(list(datetrack_toread))*100)<60):
             count=count+1
             continue
-        '''
+        
         if (int(indiv_trace[0][0:4])<2017):
+            count=count+1
+            continue
+        '''
+        
+        if (indiv_trace[0] not in list_trace_failed):
             count=count+1
             continue
         
@@ -699,22 +712,22 @@ if (identification_exclusions_april2022 == 'TRUE'):
         ax1.set_title(indiv_trace[0]+' - raw 20m')
         ax1.imshow(img_raw_20m,cmap='gray')
         ax1.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
-        ax1.set_aspect(4)
+        #ax1.set_aspect(4)
 
         ax2.set_title(indiv_trace[0]+' - depth corrected 20m')
         ax2.imshow(depth_corrected_20m,cmap='gray')
         ax2.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
-        ax2.set_aspect(4)
+        #ax2.set_aspect(4)
 
         ax3.set_title(indiv_trace[0]+' - probability')
         ax3.imshow(probability_file,cmap='gray_r')
         ax3.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
-        ax3.set_aspect(4)
+        #ax3.set_aspect(4)
 
         ax4.set_title(indiv_trace[0]+' - probability after DF')
         ax4.imshow(probability_after_DF_file,cmap='gray_r')
         ax4.set_aspect(np.abs(img_raw_20m.shape[1])/img_raw_20m.shape[0]/17)
-        ax4.set_aspect(4)
+        #ax4.set_aspect(4)
 
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
