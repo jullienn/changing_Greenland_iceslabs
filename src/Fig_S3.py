@@ -149,8 +149,12 @@ f_roll_corrected.close()
 roll_corrected_20m=roll_corrected_file[ind_lower_20m,:]
 
 #5. After surface removal
-#GENERATE IT!!!
-
+filename_aft_surf_removal=chosen_trace+'_Roll_Corrected_surf_removal_100m.pickle'
+f_aft_surf_removal = open(general_path+'/inspection_april2022/indiv_prob/'+filename_aft_surf_removal, "rb")
+aft_surf_removal_file = pickle.load(f_aft_surf_removal)
+f_aft_surf_removal.close()
+#Select only the first 20m!
+aft_surf_removal_file_20m=aft_surf_removal_file[ind_lower_20m,:]
 
 #6. After depth correction
 '''
@@ -185,8 +189,6 @@ f_likelihood_after_DF = open(path_likelihood_after_DF+filename_likelihood_after_
 likelihood_file_after_DF = pickle.load(f_likelihood_after_DF)
 f_likelihood_after_DF.close()
 
-print('ATTENTION, b IS RESCALED AS WENT THROUGH THE RESCALING PROCEDURE WHILE EXPORTING')
-print('=> EITHER EXTRACT THE NON RESCALED SLICE OR RESCALE ALL THE REMAINING!')
 print('NEED TO SHOW INFLUENCE, THUS CONSIDER FIXING COLORBAR TO ALL SUBPLOTS')
 #Create the figure
 fig = plt.figure(figsize=(24,10))
@@ -235,6 +237,12 @@ ax4.set_ylim(20,0)
 ax4.text(0.01, 0.75,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax5 is after surface removal
+ax5.pcolor(distances_with_start_transect, depths[ind_lower_20m], aft_surf_removal_file_20m,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+ax5.invert_yaxis() #Invert the y axis = avoid using flipud.    
+ax5.set_ylim(20,0)
+#ax4.setp(ax4.get_xticklabels(), visible=False)
+#ax4.set_yticklabels(['0','10',''])
+ax5.text(0.01, 0.75,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax6 is after depth correction
 ax6.pcolor(distances_with_start_transect, depths[ind_lower_20m], depth_corrected_20m,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)

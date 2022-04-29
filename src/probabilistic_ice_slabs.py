@@ -68,9 +68,9 @@ import time
 import os.path
 import glob
 
-generate_probability_iceslabs_files='TRUE'
-apply_dry_firn_exclusions='TRUE'
-generate_excel_file='FALSE'
+generate_probability_iceslabs_files='FALSE'
+apply_dry_firn_exclusions='FALSE'
+generate_excel_file='TRUE'
 
 #Identify all the datetraces to process
 '''
@@ -106,11 +106,12 @@ if (generate_probability_iceslabs_files=='TRUE'):
     #II. Loop over these datetracks, and perform probability calculation:
     for indiv_trace in datetrack_toread:
         
+        '''
         #We want to process only 2017
         if (not(indiv_trace[0][0:4] in list(['2017']))):
             print(indiv_trace[0],' not 2017, continue')
             continue
-        
+        '''
         #If pickle files have already been created, do not process and continue
         filename_to_check='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/before_DF_appliance/pickles/'+indiv_trace[0]+'*'
         #filename_to_check='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'+indiv_trace[0]+'_probability_iceslabs_presence.pickle'
@@ -392,8 +393,8 @@ if (generate_excel_file=='TRUE'):
         #Let's transform the probabilistic ice slabs into an ice content
         #We must derive a low end and high end of ice slabs likelihood
         #for low end: slabs identified in 15 quantiles out of 15 => likelihood = 15/15=1
-        #for high end: slabs identified in 1 quantile out of 15 => likelihood = 1/15 = 0.06667
-        index_prob=indiv_probability_slice>=0.0665
+        #for high end: slabs identified in 1 quantile out of 15 => likelihood = 1/15 = 0.06667 = 0.0665
+        index_prob=indiv_probability_slice>=1
         
         #Create slice full of nans
         slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
