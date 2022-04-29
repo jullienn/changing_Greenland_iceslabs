@@ -5,6 +5,35 @@ Created on Thu Oct  7 18:32:14 2021
 @author: jullienn
 """
 
+def _export_to_8bit_array(array):
+    #This is from MacFerrin et al., 2019, IceBridgeGPR_Manager_v2.py
+    '''In order to export a function to a PNG image, use this funciton to
+    export to an 8 bit unsigned integer array of scaled values.'''
+
+    output_array = np.zeros(array.shape, dtype=np.uint8)
+    excluded_mask = np.isnan(array)
+
+    range_min = 0
+    range_max = 2**8 - 1
+    # Get the data minimum and maximum while cutting off 0.5% of outliers
+    nonzero_values = array[~excluded_mask]
+    #pdb.set_trace()
+    data_cutoff_min = np.percentile(nonzero_values,  0.5)
+    data_cutoff_max = np.percentile(nonzero_values, 99.5)
+
+    export_array_rescaled = (array - data_cutoff_min) / (data_cutoff_max - data_cutoff_min) * range_max
+    # Round to integer values
+    export_array_rescaled_int = np.rint(export_array_rescaled)
+    # Saturate at top & bottom
+    export_array_rescaled_int[export_array_rescaled_int < range_min] = range_min
+    export_array_rescaled_int[export_array_rescaled_int > range_max] = range_max
+    # Set all numpy.nan values to zero
+    export_array_rescaled_int[excluded_mask] = range_min
+    # plug into the integer array (conversion from larger to smaller integers)
+    output_array[:,:] = export_array_rescaled_int[:,:]
+    
+    return output_array
+
 def extract_surface_return(slice_roll_corrected):
     
     #slice_roll_corrected is dataframe['roll_corrected']
@@ -465,6 +494,7 @@ import time
 import os.path
 import glob
 import sklearn.preprocessing
+import png
 
 #Define speed
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
@@ -508,13 +538,14 @@ list_trace_failed=list(['20110416_01_053_055','20120421_01_052_052','20120502_01
 count_time=0
 #II. Loop over these traces, and do the following:
 for indiv_trace in datetrack_toread:
+    
     '''
     #We want to process only 2017
     if (not(indiv_trace[0][0:4] in list(['2018']))):
         print(indiv_trace[0],' not 2017, continue')
         continue
     '''
-    #pdb.set_trace()
+    
     #If pickle files have already been created, do not process and continue
     filename_to_check='/flash/jullienn/data/threshold_processing_output/pickles/'+indiv_trace[0]+'*'
     
@@ -630,7 +661,6 @@ for indiv_trace in datetrack_toread:
     dataframe['depth_corrected_after_surf_removal_without_norm']=np.nan
     dataframe['datetrack']=indiv_trace[0]
     
-    pdb.set_trace()
     ###########################################################################
     ###                       Load and organise data                        ###
     ###########################################################################
@@ -639,6 +669,13 @@ for indiv_trace in datetrack_toread:
     print('   Perform depth correction')
     #Extract surface return
     dataframe['roll_corrected_after_surf_removal']=extract_surface_return(dataframe['roll_corrected'])
+    
+    #Save the 100m-roll corrected trace after surface removal  pickle file     
+    filename_tosave='/flash/jullienn/data/threshold_processing_output/pickles/'+dataframe['datetrack']+'_Roll_Corrected_surf_removal_100m.pickle'
+    outfile= open(filename_tosave, "wb" )
+    pickle.dump(dataframe['roll_corrected_after_surf_removal'],outfile)
+    outfile.close()
+    print('   Exporting '+dataframe['datetrack']+' roll corrected after surf removal pickle file')  
     
     #6. Perform depth correction
     #if 2010 or 2011, depth is from 0:428
@@ -697,7 +734,6 @@ for indiv_trace in datetrack_toread:
 
 print('End of processing')
 
-
 #Stop here for 2017-2017 exclusion of dry firn
 
 ##############################################################################
@@ -712,6 +748,7 @@ appended_radar_slices=[]
 print('   ')
 print('Gather all the distributions to perform rescaling')
 path_depth_corrected='/flash/jullienn/data/threshold_processing_output/pickles/'
+
 #Loop over the dates
 for indiv_date in datetrack_toread:
     
@@ -727,9 +764,7 @@ for indiv_date in datetrack_toread:
     f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
     slice_depth_corrected = pickle.load(f_depth_corrected)
     f_depth_corrected.close()
-    
-    pdb.set_trace()
-    
+        
     #Select only the first 30m (<30m)
     #For 2010-2011, index is from 0 to 128 included. From 2012 to 2018, index is from 0:60 included
     if (indiv_date[0][0:4] in list(['2010','2011'])):
@@ -758,6 +793,7 @@ for indiv_file in list_trace_failed:
         print(indiv_file,' not 2017 nor 2018, continue')
         continue
     '''
+
     #Define filename
     filename_depth_corrected=indiv_file+'_Depth_Corrected_surf_removal_100m.pickle'
     #Open the depth corrected file of the corresponding date
@@ -882,9 +918,7 @@ for indiv_file in list_trace_failed:
     #Save the image
     png_to_save=png.from_array(full_rescaled_slice_30m_png, mode='L')
     png_to_save.save(fig_name)
-    
-    #pdb.set_trace()
-     
+         
     #Save the 30m-depth corrected rescaled slices as pickle files
     filename_tosave=path_depth_corrected+indiv_file[0:19]+'_Depth_Corrected_surf_removal_rescaled_30m.pickle'
     outfile= open(filename_tosave, "wb" )
