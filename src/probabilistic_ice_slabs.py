@@ -68,8 +68,8 @@ import time
 import os.path
 import glob
 
-generate_probability_iceslabs_files='TRUE'
-apply_dry_firn_exclusions='TRUE'
+generate_probability_iceslabs_files='FALSE'
+apply_dry_firn_exclusions='FALSE'
 generate_excel_file='TRUE'
 
 #Identify all the datetraces to process
@@ -282,7 +282,7 @@ if (generate_excel_file=='TRUE'):
     '''
     filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv'
     '''
-    filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
+    filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv'
     
     #Open filename (same procedure as MacFerrin et al., 2019)
     fout = open(filename_excel_output, 'w')
@@ -394,7 +394,7 @@ if (generate_excel_file=='TRUE'):
         #We must derive a low end and high end of ice slabs likelihood
         #for low end: slabs identified in 15 quantiles out of 15 => likelihood = 15/15=1
         #for high end: slabs identified in 1 quantile out of 15 => likelihood = 1/15 = 0.06667 = 0.0665
-        index_prob=indiv_probability_slice>=1
+        index_prob=indiv_probability_slice>=0.0665
         
         #Create slice full of nans
         slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
