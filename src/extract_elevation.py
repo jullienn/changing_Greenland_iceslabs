@@ -5,40 +5,14 @@ Created on Mon May  2 16:33:27 2022
 @author: jullienn
 """
 #Import packages
-#import rasterio
-#from rasterio.plot import show
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-import pandas as pd
-from os import listdir
-from os.path import isfile, join
-import pickle
-#from pysheds.grid import Grid
-import pdb
-import numpy as np
-from pyproj import Transformer
-import matplotlib.gridspec as gridspec
-import scipy.io
-from osgeo import gdal
 import geopandas as gpd  # Requires the pyshp package
-
-from matplotlib.colors import ListedColormap, BoundaryNorm
+import pickle
+import numpy as np
+import pandas as pd
 from shapely.geometry import Point, Polygon
-from matplotlib.patches import Patch
+from pyproj import Transformer
+import pdb
 import cartopy.crs as ccrs
-from matplotlib.lines import Line2D
-
-import seaborn as sns
-sns.set_theme(style="whitegrid")
-from scalebar import scale_bar
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-
-
-#Set fontsize plot
-plt.rcParams.update({'font.size': 10})
-
-create_elevation_dictionaries='FALSE'
-#pdb.set_trace()
 
 ### -------------------------- Load GrIS DEM ----------------------------- ###
 #https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
@@ -47,29 +21,17 @@ from rasterio.plot import show
 
 path_GrIS_DEM = r'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
 GrIS_DEM = rasterio.open(path_GrIS_DEM)
-
-#fig, axs = plt.subplots()
-#show(img,ax=axs)
 ### -------------------------- Load GrIS DEM ----------------------------- ###
 
 ### -------------------------- Load shapefiles --------------------------- ###
 #from https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python
+#Load MAcFerrin et al., 2019 shapefile
 path_IceBridgeArea_Shape='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/IceBridge Area Shapefiles/IceBridge Area Shapefiles/'
 IceBridgeArea_Shape=gpd.read_file(path_IceBridgeArea_Shape+'IceBridgeArea_Shape.shp')
-
-path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
-
-NW_icecap_greenland_mask=gpd.read_file(path_regional_masks+'/NW_icecap_greenland_mask_3413.shp')
-NW_north_greenland_mask=gpd.read_file(path_regional_masks+'/NW_north_greenland_mask_3413.shp')
-NW_west_greenland_mask=gpd.read_file(path_regional_masks+'/NW_west_greenland_mask_3413.shp')
-SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_mask_3413.shp')
-SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
-SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
 
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
 GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
-
 #Extract indiv regions and create related indiv shapefiles
 NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
 NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
@@ -85,8 +47,7 @@ GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
 ### -------------------------- Load shapefiles --------------------------- ###
 
 
-
-################### Load 2002-2003 ice lenses location ##################
+### ---------------- Load 2002-2003 ice lenses location ------------------ ###
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
   
 #Open the file and read it
@@ -121,9 +82,9 @@ df_2002_2003=pd.DataFrame(lat_icelens, columns =['lat_3413'])
 df_2002_2003['lon_3413']=lon_icelens
 df_2002_2003['colorcode_icelens']=colorcode_icelens
 df_2002_2003['Track_name']=Track_name
-################### Load 2002-2003 ice lenses location ##################
+### ---------------- Load 2002-2003 ice lenses location ------------------ ###
 
-################### Load 2010-2018 ice slabs location ##################
+### --------------------- Load 2010-2018 ice slabs ----------------------- ###
 #Load the data
 filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv'
 df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
@@ -135,13 +96,6 @@ points=transformer.transform(np.array(df_20102018.lon),np.array(df_20102018.lat)
 
 lon_3413_20102018=points[0]
 lat_3413_20102018=points[1]
-################### Load 2010-2018 ice slabs location ##################
-
-#######################################################################
-###          Inland expansion of iceslabs from 2002 to 2018         ###
-#######################################################################
-
-# compare min and max of lat/lon of the track with respect to shapefile
 
 #Store lat/lon 3413
 df_20102018['lat_3413']=lat_3413_20102018
@@ -151,11 +105,10 @@ df_20102018['lon_3413']=lon_3413_20102018
 df_20102018['key_shp']=np.nan
 df_20102018['elevation']=np.nan
 df_20102018['year']=np.nan
+### --------------------- Load 2010-2018 ice slabs ----------------------- ###
 
-#I. Load regional shapefile I have created on QGIS
-#Done before the if statement
 
-#II. Do the intersection between the mask and 2010-2018 data and keep only the matching one
+### ----------- Extract elevation and region for 2010-2018 --------------- ###
 
 #This part of code is from 'refine_location_2017_2018.py'
 #Loop over all data point to check whether it belongs to one of the four shapefile
@@ -208,11 +161,9 @@ filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_datase
 outfile= open(filename_tosave, "wb" )
 pickle.dump(df_20102018,outfile)
 outfile.close()
+### ----------- Extract elevation and region for 2010-2018 --------------- ###
 
-pdb.set_trace()
-
-#III. Do the intersection between the mask and 2002-2003 data
-
+### ----------- Extract elevation and region for 2002-2003 --------------- ###
 #Initialise the shapefile belonging column
 df_2002_2003['key_shp']=np.nan
 df_2002_2003['elevation']=np.nan
