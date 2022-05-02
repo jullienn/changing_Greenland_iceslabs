@@ -68,8 +68,8 @@ import time
 import os.path
 import glob
 
-generate_probability_iceslabs_files='FALSE'
-apply_dry_firn_exclusions='FALSE'
+generate_probability_iceslabs_files='TRUE'
+apply_dry_firn_exclusions='TRUE'
 generate_excel_file='TRUE'
 
 #Identify all the datetraces to process
