@@ -601,7 +601,6 @@ ax_legend.set_title('Legend')
 plt.show()
 ax7t.legend_.remove()
 
-pdb.set_trace()
 #Save the figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v6/fig2.png',dpi=500)
 

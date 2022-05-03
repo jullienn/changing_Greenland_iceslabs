@@ -26,7 +26,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
     #Define the probability
-    prob=0.3
+    prob=0
     
     ###########################################################################
     ###                    Display thickness evolution                      ###
@@ -123,7 +123,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     app_q075=[]
     app_stddev=[]
     
-    #Loop over every year (2012, 2013, 2014, 2017, 2018) expect 2010, 2011
+    #Loop over every year (2012, 2013, 2014, 2017, 2018) except 2010, 2011
     for indiv_year in range(2012,2019):
         
         #Get data for that specific time period
@@ -163,11 +163,11 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
                 else:
                     #Append data to each other -data
                     #app_Track_name=np.append(app_Track_name,np.asarray(df_select['Track_name'].unique()))
-                    app_mean=np.append(app_mean,np.asarray(np.nanmean(df_select['20m_ice_content_m'])))
-                    app_median=np.append(app_median,np.asarray(np.nanmedian(df_select['20m_ice_content_m'])))
-                    app_q025=np.append(app_q025,np.asarray(np.nanquantile(df_select['20m_ice_content_m'],0.25)))
-                    app_q075=np.append(app_q075,np.asarray(np.nanquantile(df_select['20m_ice_content_m'],0.75)))
-                    app_stddev=np.append(app_stddev,np.asarray(np.nanstd(df_select['20m_ice_content_m'])))
+                    app_mean=np.append(app_mean,df_select["20m_ice_content_m"].mean())
+                    app_median=np.append(app_median,df_select["20m_ice_content_m"].median())
+                    app_q025=np.append(app_q025,df_select["20m_ice_content_m"].quantile(q=0.25))
+                    app_q075=np.append(app_q075,df_select["20m_ice_content_m"].quantile(q=0.75))
+                    app_stddev=np.append(app_stddev,df_select["20m_ice_content_m"].std())
 
                 #Update bound_nb
                 bound_nb=bound_nb+1
@@ -251,7 +251,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     #Set the xticks
     axt.set_xticks(xtick_distance)
     
-    #Find closest corresponding elevation
+    #Find closest corresponding elevation. Use only the 2013 transect to ensure we are correctly picking up elevation along a transect
+    df_for_elev_sorted_2013=df_for_elev_sorted[df_for_elev_sorted['year']==2013]
     #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
     elevation_display=[np.nan]*len(xtick_distance)
     count=0
@@ -260,15 +261,15 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             elevation_display[count]=''
         else:
             #Extract index where distance is minimal
-            index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)))
+            index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted_2013['distances'])-np.abs(indiv_dist)))
             #If minimum distance is higher than 1km, store nan. If not, store corresponding elevation
-            if (np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)).iloc[index_closest] > 1000):
+            if (np.abs(np.abs(df_for_elev_sorted_2013['distances'])-np.abs(indiv_dist)).iloc[index_closest] > 1000):
                 elevation_display[count]=''
             else:
-                elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation']).astype(int)
+                elevation_display[count]=np.round(df_for_elev_sorted_2013.iloc[index_closest]['elevation']).astype(int)
             
         count=count+1
-        
+
     #Display elevation on the top xticklabels
     #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
     ax_t = axt.secondary_xaxis('top')
@@ -351,9 +352,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     plt.show()
     '''
     #Calculate the difference
-    diff_20182012=np.asarray(df_2018_filling_focused['ice_content'])-np.asarray(df_2012_filling_focused['ice_content'])
-    #np.median(diff_20182012)
-    #np.mean(diff_20182012)
+    diff_20182012_filling=np.asarray(df_2018_filling_focused['ice_content'])-np.asarray(df_2012_filling_focused['ice_content'])
+    #np.median(diff_20182012_filling)
+    #np.mean(diff_20182012_filling)
     ########################## Ice slabs filling #############################
 
     ########################## Ice slabs accretion #############################
@@ -372,9 +373,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     plt.show()
     '''
     #Calculate the difference
-    diff_20182012=np.asarray(df_2018_accretion_focused['ice_content'])-np.asarray(df_2012_accretion_focused['ice_content'])
-    #np.median(diff_20182012)
-    #np.mean(diff_20182012)
+    diff_20182012_accretion=np.asarray(df_2018_accretion_focused['ice_content'])-np.asarray(df_2012_accretion_focused['ice_content'])
+    #np.median(diff_20182012_accretion)
+    #np.mean(diff_20182012_accretion)
     ########################## Ice slabs accretion #############################
 
     ###########################################################################
@@ -492,7 +493,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         C=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
     
         #Display only where probability is higher or equal than prob
-        C_bool=(C>=prob).astype(int)
+        C_bool=(C>=0.00001).astype(int)
         C_bool_plot=np.zeros([C_bool.shape[0],C_bool.shape[1]])
         C_bool_plot[:]=np.nan
         C_bool_plot[C_bool==1]=1
@@ -688,9 +689,9 @@ investigation_year={2010:'empty',
 '''
 #Define paths
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
-path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean_Array_Picklefiles/'
-path_probabilistic='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
+path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean Array Picklefiles/'
+path_probabilistic='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
 
 #Define transformer for coordinates transform from "EPSG:4326" to "EPSG:3413"
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
@@ -731,9 +732,9 @@ for single_year in investigation_year.keys():
         filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal_rescaled.pickle'
     '''
     
-    filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
+    filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal_100m.pickle'
     filename_mask=date_track+'_mask.pickle'
-    filename_probabilistic=date_track+'_probability_iceslabs_presence.pickle'
+    filename_probabilistic=date_track+'_probability_iceslabs_presence_after_DF.pickle'
     
     #Open files
     f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
@@ -757,10 +758,6 @@ for single_year in investigation_year.keys():
         
         #Create the path
         path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
-
-        # If 20180421_01_007, different path
-        if (indiv_file_load=='Data_20180421_01_007.mat'):
-            path_raw_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/2018_Greenland_P3/'
         
         #Load data
         if (single_year>=2014):
@@ -839,8 +836,8 @@ for single_year in investigation_year.keys():
 
 
 #Load all 2010-2018 data without spatial aggregation
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/'
-df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv',delimiter=',',decimal='.')
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/'
+df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv',delimiter=',',decimal='.')
 
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
@@ -851,17 +848,10 @@ df_2010_2018_csv['lon_3413']=points[0]
 df_2010_2018_csv['lat_3413']=points[1]
 
 #Load 2010-2018 elevation dataset
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/old_elevation_computation/' 
-f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_prob00_rignotetalregions', "rb")
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/' 
+f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
-
-#Load all 2010-2018 columnal likelihood data without spatial aggregation
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate_and_columnal_likelihood/'
-df_2010_2018_csv_likelihood = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
-
-#Store likelihood in df_2010_2018_csv
-df_2010_2018_elevation['likelihood']=np.asarray(df_2010_2018_csv_likelihood['likelihood'])
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
@@ -942,7 +932,7 @@ figManager.window.showMaximized()
 
 pdb.set_trace()
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig3_final_prob03.png',dpi=1000)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v4/fig3.png',dpi=300)
 
 #Create a new figure for the PDH and total columnal ice content
 fig = plt.figure()
