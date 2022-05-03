@@ -337,15 +337,6 @@ import matplotlib.ticker as mticker
 plt.rcParams.update({'font.size': 10})
 
 ### -------------------------- Load shapefiles --------------------------- ###
-path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
-
-NW_icecap_greenland_mask=gpd.read_file(path_regional_masks+'/NW_icecap_greenland_mask_3413.shp')
-NW_north_greenland_mask=gpd.read_file(path_regional_masks+'/NW_north_greenland_mask_3413.shp')
-NW_west_greenland_mask=gpd.read_file(path_regional_masks+'/NW_west_greenland_mask_3413.shp')
-SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_mask_3413.shp')
-SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
-SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
-
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
 GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
@@ -359,7 +350,7 @@ CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 ### -------------------------- Load shapefiles --------------------------- ###
 
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate/'
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/'
 
 #Load all 2010-2018 data without spatial aggregation
 df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv',delimiter=',',decimal='.')
@@ -370,136 +361,6 @@ points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2
 #Store lat/lon in 3413
 df_2010_2018_csv['lon_3413']=points[0]
 df_2010_2018_csv['lat_3413']=points[1]
-
-'''
-#Load the spatial aggregated data. All the points within a radius of 100m are averaged
-df_2010_2018_spatially_aggregated = pd.read_csv(path+'jullien_etal_20102018_spatial_aggregation_grid_1000_prob00.csv',delimiter=';',decimal=',')
-
-#Loop over the keys and create 1 dataframe per year. Where no data for this particular year, store a nan
-#Create empty arrays
-nan_array=np.zeros((1,7))
-nan_array[:]=np.nan
-
-array_2010=np.zeros((1,7))
-array_2010[:]=np.nan
-
-array_2011=np.zeros((1,7))
-array_2011[:]=np.nan
-
-array_2012=np.zeros((1,7))
-array_2012[:]=np.nan
-
-array_2013=np.zeros((1,7))
-array_2013[:]=np.nan
-
-array_2014=np.zeros((1,7))
-array_2014[:]=np.nan
-
-array_2017=np.zeros((1,7))
-array_2017[:]=np.nan
-
-array_2018=np.zeros((1,7))
-array_2018[:]=np.nan
-
-#Loop over the keys
-for indiv_key in np.unique(df_2010_2018_spatially_aggregated.key):
-    
-    #Select data where key
-    df_key=df_2010_2018_spatially_aggregated[df_2010_2018_spatially_aggregated.key==indiv_key]
-    
-    # ----- 2010
-    if (not(2010 in np.asarray(df_key.year))):
-        #No data for this year, store NaNs
-        array_2010=np.append(array_2010,nan_array,axis=0)
-    else:
-        #There are data for this year, store them
-        array_2010=np.append(array_2010,np.asarray(df_key[df_key.year==2010]),axis=0)
-    # ----- 2010
-    
-    # ----- 2011
-    if (not(2011 in np.asarray(df_key.year))):
-        #No data for this year, store NaNs
-        array_2011=np.append(array_2011,nan_array,axis=0)
-    else:
-        #There are data for this year, store them
-        array_2011=np.append(array_2011,np.asarray(df_key[df_key.year==2011]),axis=0)
-    # ----- 2011
-    
-    # ----- 2012
-    if (not(2012 in np.asarray(df_key.year))):
-        #No data for this year, store NaNs
-        array_2012=np.append(array_2012,nan_array,axis=0)
-    else:
-        #There are data for this year, store them
-        array_2012=np.append(array_2012,np.asarray(df_key[df_key.year==2012]),axis=0)
-    # ----- 2012
-    
-    # ----- 2013
-    if (not(2013 in np.asarray(df_key.year))):
-        #No data for this year, store NaNs
-        array_2013=np.append(array_2013,nan_array,axis=0)
-    else:
-        #There are data for this year, store them
-        array_2013=np.append(array_2013,np.asarray(df_key[df_key.year==2013]),axis=0)
-    # ----- 2013
-    
-    # ----- 2014
-    if (not(2014 in np.asarray(df_key.year))):
-        #No data for this year, store NaNs
-        array_2014=np.append(array_2014,nan_array,axis=0)
-    else:
-        #There are data for this year, store them
-        array_2014=np.append(array_2014,np.asarray(df_key[df_key.year==2014]),axis=0)
-    # ----- 2014
-    
-    # ----- 2017
-    if (not(2017 in np.asarray(df_key.year))):
-        #No data for this year, store NaNs
-        array_2017=np.append(array_2017,nan_array,axis=0)
-    else:
-        #There are data for this year, store them
-        array_2017=np.append(array_2017,np.asarray(df_key[df_key.year==2017]),axis=0)
-    # ----- 2017
-    
-    # ----- 2018
-    if (not(2018 in np.asarray(df_key.year))):
-        #No data for this year, store NaNs
-        array_2018=np.append(array_2018,nan_array,axis=0)
-    else:
-        #There are data for this year, store them
-        array_2018=np.append(array_2018,np.asarray(df_key[df_key.year==2018]),axis=0)
-    # ----- 2018
-    
-    print(indiv_key/len(np.unique(df_2010_2018_spatially_aggregated.key))*100,' %')
-
-#Delete the first line of all the array_year because NaNs
-array_2010=np.delete(array_2010,0,0)
-array_2011=np.delete(array_2011,0,0)
-array_2012=np.delete(array_2012,0,0)
-array_2013=np.delete(array_2013,0,0)
-array_2014=np.delete(array_2014,0,0)
-array_2017=np.delete(array_2017,0,0)
-array_2018=np.delete(array_2018,0,0)
-
-#Store array as dataframes
-df_spatially_aggregated_2010=pd.DataFrame(data=array_2010,
-                                          columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
-df_spatially_aggregated_2011=pd.DataFrame(data=array_2011,
-                                          columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
-df_spatially_aggregated_2012=pd.DataFrame(data=array_2012,
-                                          columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
-df_spatially_aggregated_2013=pd.DataFrame(data=array_2013,
-                                          columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
-df_spatially_aggregated_2014=pd.DataFrame(data=array_2014,
-                                          columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
-df_spatially_aggregated_2017=pd.DataFrame(data=array_2017,
-                                          columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
-df_spatially_aggregated_2018=pd.DataFrame(data=array_2018,
-                                          columns=['index', 'avg_20m_icecontent', 'std_20m_icecontent', 'avg_lat_3413','avg_lon_3413', 'year', 'key'])
-
-
-list_high_end=list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])
-'''
 
 #Plot 2010, 2011, 2012, 2013, 2014 ,2017 2018, select overlapping case study: use clean and clear ice slabs tramsects
 
@@ -689,7 +550,7 @@ NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5)
 #plt.scatter(df_spatially_aggregated_2010['avg_lon_3413'],df_spatially_aggregated_2010['avg_lat_3413'],c=df_spatially_aggregated_2010['avg_20m_icecontent'],s=0.2)
 
 #Load 2010-2018 elevation dataset
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/' 
 f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
@@ -742,7 +603,7 @@ ax7t.legend_.remove()
 
 pdb.set_trace()
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v5/fig2.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v6/fig2.png',dpi=500)
 
 
 '''
