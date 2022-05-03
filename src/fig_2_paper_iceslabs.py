@@ -29,9 +29,7 @@ def compute_distances_pyproj(eastings,northings):
     
     for line_length in geod.line_lengths(northings, eastings):
         distances=np.append(distances,line_length)
-    
-    pdb.set_trace()
-    
+        
     return return_cumsum_distances
 
 def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,custom_angle,offset_x,offset_y,casestudy_nb):
@@ -58,7 +56,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         ax1.scatter(df_for_elev_temp['lon_3413'],
                     df_for_elev_temp['lat_3413'],
                     s=0.1,color='#737373')
-            
+        
     #Display rectangle around data    
     x=(np.min(df_for_elev.lon_3413)-offset_x)
     y=(np.min(df_for_elev.lat_3413)-offset_y)
@@ -192,11 +190,11 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
                 else:
                     #Append data to each other -data
                     #app_Track_name=np.append(app_Track_name,np.asarray(df_select['Track_name'].unique()))
-                    app_mean=np.append(app_mean,np.asarray(np.nanmean(df_select['20m_ice_content_m'])))
-                    app_median=np.append(app_median,np.asarray(np.nanmedian(df_select['20m_ice_content_m'])))
-                    app_q025=np.append(app_q025,np.asarray(np.nanquantile(df_select['20m_ice_content_m'],0.25)))
-                    app_q075=np.append(app_q075,np.asarray(np.nanquantile(df_select['20m_ice_content_m'],0.75)))
-                    app_stddev=np.append(app_stddev,np.asarray(np.nanstd(df_select['20m_ice_content_m'])))
+                    app_mean=np.append(app_mean,df_select["20m_ice_content_m"].mean())
+                    app_median=np.append(app_median,df_select["20m_ice_content_m"].median())
+                    app_q025=np.append(app_q025,df_select["20m_ice_content_m"].quantile(q=0.25))
+                    app_q075=np.append(app_q075,df_select["20m_ice_content_m"].quantile(q=0.75))
+                    app_stddev=np.append(app_stddev,df_select["20m_ice_content_m"].std())
 
                 #Update bound_nb
                 bound_nb=bound_nb+1
@@ -299,7 +297,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     ax_t.tick_params(pad=1.2)
 
     #Set xlims
-    axt.set_xlim(0,70000)
+    #axt.set_xlim(0,70000)
     
     '''
     # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
