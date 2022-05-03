@@ -910,7 +910,7 @@ for indiv_file in list_trace_failed:
     
     
     #Save the 30m-rescaled depth corrected trace image   
-    fig_name='/flash/jullienn/data/threshold_processing_output/images/'+dataframe['datetrack']+'_Depth_Corrected_surf_removal_rescaled_30m_image.png'
+    fig_name='/flash/jullienn/data/threshold_processing_output/images/'+indiv_file[0:19]+'_Depth_Corrected_surf_removal_rescaled_30m_image.png'
 
     #Prepare matrix for png plot
     full_rescaled_slice_30m_png=_export_to_8bit_array(full_rescaled_slice)

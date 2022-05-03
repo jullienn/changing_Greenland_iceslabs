@@ -19,6 +19,8 @@ import cartopy.crs as ccrs
 import rasterio
 from rasterio.plot import show
 
+desired_dataset='low_estimate'
+
 path_GrIS_DEM = r'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
 GrIS_DEM = rasterio.open(path_GrIS_DEM)
 ### -------------------------- Load GrIS DEM ----------------------------- ###
@@ -86,7 +88,7 @@ df_2002_2003['Track_name']=Track_name
 
 ### --------------------- Load 2010-2018 ice slabs ----------------------- ###
 #Load the data
-filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv'
+filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/'+desired_dataset+'/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_'+desired_dataset+'.csv'
 df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
 
 #Transform the coordinated from WGS84 to EPSG:3413
@@ -157,7 +159,7 @@ for i in range(0,lon_3413_20102018.size):
     print(i/lon_3413_20102018.size*100,'%')
 
 #Save the dictionary into a picke file
-filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_20102018_with_elevation_high_estimate_rignotetalregions'
+filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/'+desired_dataset+'/df_20102018_with_elevation_'+desired_dataset+'_rignotetalregions'
 outfile= open(filename_tosave, "wb" )
 pickle.dump(df_20102018,outfile)
 outfile.close()
@@ -226,7 +228,7 @@ for i in range(0,len(df_2002_2003)):
 df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
 
 #Save the dictionary into a picke file
-filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/df_2002_2003_with_elevation_rignotetalregions'
+filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/df_2002_2003_with_elevation_rignotetalregions'
 outfile= open(filename_tosave, "wb" )
 pickle.dump(df_2002_2003,outfile)
 outfile.close()

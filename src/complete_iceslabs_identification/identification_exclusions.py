@@ -634,10 +634,9 @@ if (identification_exclusions_april2022 == 'TRUE'):
     count_display=0
     
     #Define path of depth corrected
-    path_depth_corrected=path_data+'exported/Depth_Corrected_Picklefiles/'
-    path_probability='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/inspection_april2022/probability_iceslabs/before_DF_appliance/pickles/'
-    path_probability_after_DF='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/inspection_april2022/probability_iceslabs/after_DF_appliance/pickles/'
-    path_surface_slice=path_data+'exported/Surface_Slice_100m_Picklefiles/'
+    path_depth_corrected=path_data+'exported/Depth_Corrected_Picklefiles/'    
+    path_probability='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+    path_probability_after_DF=path_probability
     
     #Loop over the dates
     for indiv_trace in list(datetrack_toread):
@@ -650,10 +649,6 @@ if (identification_exclusions_april2022 == 'TRUE'):
             count=count+1
             continue
         '''
-        
-        if (indiv_trace[0] not in list_trace_failed):
-            count=count+1
-            continue
         
         print(count/len(list(datetrack_toread))*100,' %')
         
