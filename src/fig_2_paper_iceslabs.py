@@ -78,9 +78,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         #Add number of case study on fig localisation
         ax1.text(x-35000,y-15000,casestudy_nb,color='r',weight='bold',fontsize=12)
     
-    #pdb.set_trace()
     #Add number of case study on fig localisation    
-    axt.text(0.99, 0.825,casestudy_nb, ha='center', va='center', transform=axt.transAxes,fontsize=15)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    axt.text(-0.02, 0.5,casestudy_nb, ha='center', va='center', transform=axt.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -297,12 +296,15 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     ax_t.tick_params(pad=1.2)
 
     #Set xlims
-    #axt.set_xlim(0,70000)
-    
+    axt.set_xlim(0,75000)
+        
     '''
     # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
     axt.grid(False)
     '''
+    
+    #Set xticks in panel a
+    
     plt.show()
 
     print('End plotting fig 2')
