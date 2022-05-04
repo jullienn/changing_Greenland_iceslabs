@@ -39,8 +39,6 @@ path_new_method='C:/Users/jullienn/switchdrive/Private/research/RT1/final_datase
 chosen_trace='20140416_05_035_037'
 #back_up_trace ='20170429_01_148_154'
 
-path_temp='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/temp_fig_s3/'
-
 #1. Import original radar trace
 path_data_open=general_path+'data/'+chosen_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+chosen_trace[0:11]+'/'
 
@@ -161,19 +159,16 @@ roll_corrected_20m=roll_corrected_file[ind_lower_20m,:]
 
 #5. After surface removal
 filename_aft_surf_removal=chosen_trace+'_Roll_Corrected_surf_removal_100m.pickle'
-#f_aft_surf_removal = open(general_path+'/inspection_april2022/indiv_prob/'+filename_aft_surf_removal, "rb")
-f_aft_surf_removal = open(path_temp+filename_aft_surf_removal, "rb")
+path_aft_surf_removal=path_new_method+'ii_out_from_iceslabs_processing_jullien.py/pickles/'
+f_aft_surf_removal = open(path_aft_surf_removal+filename_aft_surf_removal, "rb")
 aft_surf_removal_file = pickle.load(f_aft_surf_removal)
 f_aft_surf_removal.close()
 #Select only the first 20m!
 aft_surf_removal_file_20m=aft_surf_removal_file[ind_lower_20m,:]
 
+
 #6. After depth correction
-'''
 path_depth_corrected=path_new_method+'ii_out_from_iceslabs_processing_jullien.py/pickles/'
-'''
-#path_depth_corrected=general_path+'/inspection_april2022/indiv_prob/'
-path_depth_corrected=path_temp
 filename_depth_corrected=chosen_trace+'_Depth_Corrected_surf_removal_100m.pickle'
 f_depth_corrected = open(path_depth_corrected+filename_depth_corrected, "rb")
 depth_corrected_file = pickle.load(f_depth_corrected)
@@ -182,11 +177,7 @@ f_depth_corrected.close()
 depth_corrected_20m=depth_corrected_file[ind_lower_20m,:]
 
 #7. After ice slabs likelihood computation
-'''
-path_likelihood=path_new_method+'/iii_out_from_probabilistic_iceslabs.py/before_DF_exclusion/pickles/'
-'''
-#path_likelihood=general_path+'/inspection_april2022/probability_iceslabs/before_DF_appliance/pickles/'
-path_likelihood=path_temp
+path_likelihood=path_new_method+'/iii_out_from_probabilistic_iceslabs.py/pickles/'
 filename_likelihood=chosen_trace+'_probability_iceslabs_presence.pickle'
 f_likelihood = open(path_likelihood+filename_likelihood, "rb")
 likelihood_file = pickle.load(f_likelihood)
@@ -194,11 +185,7 @@ f_likelihood.close()
 
 #8. After dry firn exclusion, final ice slab product, with average columnal ice
 #   likelihood displayed as colorshade at the surface??
-'''
-path_likelihood_after_DF=path_new_method+'/iii_out_from_probabilistic_iceslabs.py/after_DF_exclusion/pickles/'
-'''
-#path_likelihood_after_DF=general_path+'/inspection_april2022/probability_iceslabs/after_DF_appliance/pickles/'
-path_likelihood_after_DF=path_temp
+path_likelihood_after_DF=path_new_method+'/iii_out_from_probabilistic_iceslabs.py/pickles/'
 filename_likelihood_after_DF=chosen_trace+'_probability_iceslabs_presence_after_DF.pickle'
 f_likelihood_after_DF = open(path_likelihood_after_DF+filename_likelihood_after_DF, "rb")
 likelihood_file_after_DF = pickle.load(f_likelihood_after_DF)
