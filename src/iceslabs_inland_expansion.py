@@ -582,7 +582,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         if (hull_computation=='TRUE'):
             #Panel C
             #Load convex hull mask over which convex hull must be computed
-            path_convexhull_masks='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/shapefiles/'
+            path_convexhull_masks='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
             
             dictionnaries_convexhullmasks = {k: {} for k in list(['NE','NO','NW','CW','SW'])}
             dictionnaries_convexhullmasks['NE']={k: {} for k in list(['NE_CH_1','NE_CH_2','NE_CH_3','NE_CH_4'])}
@@ -829,7 +829,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     pdb.set_trace()
     
     #Save figure
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v3/fig1.png',dpi=1000)
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v4/fig1.png',dpi=1000)
 
 #Import packages
 #import rasterio
@@ -864,8 +864,6 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 #Set fontsize plot
 plt.rcParams.update({'font.size': 10})
 
-create_elevation_dictionaries='FALSE'
-#pdb.set_trace()
 
 ### -------------------------- Load GrIS DEM ----------------------------- ###
 #https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
@@ -883,15 +881,6 @@ GrIS_DEM = rasterio.open(path_GrIS_DEM)
 #from https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python
 path_IceBridgeArea_Shape='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/IceBridge Area Shapefiles/IceBridge Area Shapefiles/'
 IceBridgeArea_Shape=gpd.read_file(path_IceBridgeArea_Shape+'IceBridgeArea_Shape.shp')
-
-path_regional_masks='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/masks_for_2002_2003_calculations'
-
-NW_icecap_greenland_mask=gpd.read_file(path_regional_masks+'/NW_icecap_greenland_mask_3413.shp')
-NW_north_greenland_mask=gpd.read_file(path_regional_masks+'/NW_north_greenland_mask_3413.shp')
-NW_west_greenland_mask=gpd.read_file(path_regional_masks+'/NW_west_greenland_mask_3413.shp')
-SW_lower_greenland_mask=gpd.read_file(path_regional_masks+'/SW_lower_greenland_mask_3413.shp')
-SW_middle_greenland_mask=gpd.read_file(path_regional_masks+'/SW_middle_greenland_mask_3413.shp')
-SW_upper_greenland_mask=gpd.read_file(path_regional_masks+'/SW_upper_greenland_mask_3413.shp')
 
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
@@ -913,20 +902,19 @@ GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
 
 ### ---------------------------- Load dataset ---------------------------- ###
 #Dictionnaries have already been created, load them
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/' 
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/' 
 #Load 2002-2003
 f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_rignotetalregions', "rb")
-#f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_prob00', "rb")
 df_2002_2003 = pickle.load(f_20022003)
 f_20022003.close()
 
 #Load 2010-2018 high estimate
-f_20102018_high = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
+f_20102018_high = open(path_df_with_elevation+'high_estimate/df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
 df_2010_2018_high = pickle.load(f_20102018_high)
 f_20102018_high.close()
 
 #Load 2010-2018 low estimate
-f_20102018_low = open(path_df_with_elevation+'df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
+f_20102018_low = open(path_df_with_elevation+'low_estimate/df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
 df_2010_2018_low = pickle.load(f_20102018_low)
 f_20102018_low.close()
 ### ---------------------------- Load dataset ---------------------------- ###
@@ -955,8 +943,8 @@ df_firn_aquifer_all['lon_3413']=points[0]
 df_firn_aquifer_all['lat_3413']=points[1]
 
 #Load columnal likelihood file likelihood
-path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/high_estimate_and_columnal_likelihood/'
-df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv',delimiter=',',decimal='.')
+path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/'
+df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv',delimiter=',',decimal='.')
 #Transform miege coordinates from WGS84 to EPSG:3413
 points=transformer.transform(np.asarray(df_thickness_likelihood_20102018["lon"]),np.asarray(df_thickness_likelihood_20102018["lat"]))
 
