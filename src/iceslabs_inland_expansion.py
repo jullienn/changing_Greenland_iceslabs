@@ -554,7 +554,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axelev.text(ind[0],np.nanmax(max_elev_diff_NO)+55,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
         axelev.text(ind[1],np.nanmax(max_elev_diff_NW)+180,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
         axelev.text(ind[2],np.nanmax(max_elev_diff_CW)+30,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
-        axelev.text(ind[3],np.nanmax(max_elev_diff_SW)+85,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
+        axelev.text(ind[3],np.nanmax(max_elev_diff_SW)+90,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
         
         axelev.set_ylabel('Elevation [m]')
         
@@ -793,7 +793,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    axCW.text(-260000,-2368500,'[+'+str(low_end_change)+':+'+str(high_end_change)+']%')
+                    axCW.text(-270000,-2385000,'[+'+str(low_end_change)+':+'+str(high_end_change)+']%')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='SW'):
