@@ -626,18 +626,18 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             
             #Plot below ELA
             below_ELA.plot(ax=ax1c,color='red', edgecolor='black')
-            '''
+            
             #plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2010']['lat_3413'],s=1,color='#3690c0',label='2010-2014 ice slabs')
             plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2011']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2011']['lat_3413'],s=1,color='#3690c0')
             plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2012']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2012']['lat_3413'],s=1,color='#3690c0')
-            #plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2013']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0')
-            #plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2014']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0')
+            plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2013']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0')
+            plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2014']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0')
             plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2017']['lat_3413'],s=1,color='#a6bddb',label='2017-2018 ice slabs')
             plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2018']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2018']['lat_3413'],s=1,color='#a6bddb')
             
-            #plt.legend()
+            plt.legend()
             plt.show()
-            '''
+            
             pdb.set_trace()
             
             ####################### From concave hull computation #######################
