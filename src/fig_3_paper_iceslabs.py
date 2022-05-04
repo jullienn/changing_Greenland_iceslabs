@@ -612,6 +612,7 @@ import seaborn as sns
 sns.set_theme(style="whitegrid")
 import cartopy.crs as ccrs
 from pyproj import Transformer
+import rasterio
 
 #Define palette as a function of time
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -877,10 +878,57 @@ ax7r = plt.subplot(gs[20:23, 0:10])
 ax11t = plt.subplot(gs[28:36, 0:10])
 ax8map = plt.subplot(gs[28:36, 10:12],projection=crs)
 
-#Display GrIS drainage bassins on the map subplot
 SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
-CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
+CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5)
+'''
+#Open and display satelite image behind map
+from pyproj import CRS
+import rioxarray as rxr
+#This section of displaying sat data was coding using tips from
+#https://www.earthdatascience.org/courses/use-data-open-source-python/intro-raster-data-python/raster-data-processing/reproject-raster/
+#https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
 
+#Load data for plotting
+path_satellite='C:/Users/jullienn/Documents/working_environment/'
+satellite=rasterio.open(path_satellite+'T22WFV_20210823T145759_B2348.tif') #(Bands 2, 3, 4, 8 - Blue, Green, Red, NIR) 
+
+#Load data for extent derivation
+sat_for_extent = rxr.open_rasterio(path_satellite+'T22WFV_20210823T145759_B2348.tif',
+                              masked=True).squeeze()
+
+# Reproject the data using the crs from the roads layer
+sat_for_extent_3413 = sat_for_extent.rio.reproject(crs)
+sat_for_extent_3413.rio.crs
+
+#Define extents
+ease_extent = [-500000, 100000, -3000000, -2000000]
+#ease_extent = [west limit, east limit., south limit, north limit]
+extent_image = [np.asarray(sat_for_extent_3413.x[-1]), np.asarray(sat_for_extent_3413.x[0]), np.asarray(sat_for_extent_3413.y[0]), np.asarray(sat_for_extent_3413.y[-1])]
+
+plt.figure(figsize=(14,10))
+ax = plt.axes(projection=crs)
+ax.set_extent(ease_extent, crs=crs) 
+
+gamma = 2.2
+RGB = np.dstack([np.power(np.clip(satellite.read(4), 0, 1), 1/gamma),np.power(np.clip(satellite.read(3), 0, 1), 1/gamma),np.power(np.clip(satellite.read(2), 0, 1), 1/gamma)])
+
+ax.imshow(RGB, extent=extent_image, transform=crs,cmap='gist_rainbow', origin='upper')
+
+#lidar_dem_wgs84.plot.imshow(ax=ax,cmap='Greys')
+ax.gridlines(color='gray', linestyle='--')
+ax.coastlines()
+plt.tight_layout()
+
+
+from rasterio.plot import show
+show(sat_for_extent_3413[[4,3,2],:,:], transform=satellite.transform,cmap='Blues_r')
+
+ax8map.set_extent(ease_extent, crs=crs) 
+ax8map.imshow(satellite.read(2), extent=extent_image, transform=crs, origin='upper', cmap='gist_rainbow',zorder=10)
+
+#ax8map.gridlines(color='gray', linestyle='--')
+#ax8map.coastlines()
+'''
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
 min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,my_pal)
 
@@ -1021,7 +1069,7 @@ pdb.set_trace()
 
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v3/fig4_PDH.png',dpi=1000)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v4/fig4.png',dpi=300)
 
 #########################################################################
 ###                 Calculate slope and intercept                     ###
