@@ -110,7 +110,7 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
         summary_area[time_period]={k: {} for k in list(['NE','NO','NW','CW','SW'])}
                 
         #Loop over each region and do the hull for each region of the IS
-        for region in list(np.unique(df_time_period['key_shp'])):
+        for region in list(np.unique(df_time_period['key_shp'])):            
             print('   ',region)
             #Select the corresponding region
             df_time_period_region=df_time_period[df_time_period['key_shp']==region]
@@ -551,10 +551,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axelev.set_xticklabels(labels)
         axelev.set_ylim(1000,2050)
         
-        axelev.text(ind[0],np.nanmax(max_elev_diff_NO)+75,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
-        axelev.text(ind[1],np.nanmax(max_elev_diff_NW)+200,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
-        axelev.text(ind[2],np.nanmax(max_elev_diff_CW)+50,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
-        axelev.text(ind[3],np.nanmax(max_elev_diff_SW)+75,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
+        axelev.text(ind[0],np.nanmax(max_elev_diff_NO)+55,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
+        axelev.text(ind[1],np.nanmax(max_elev_diff_NW)+180,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
+        axelev.text(ind[2],np.nanmax(max_elev_diff_CW)+30,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
+        axelev.text(ind[3],np.nanmax(max_elev_diff_SW)+85,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
         
         axelev.set_ylabel('Elevation [m]')
         
@@ -570,7 +570,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                            #Line2D([0], [0], color='k', lw=2, label='Standard deviation around the mean')]
         axelev.legend(handles=legend_elements,loc='upper left')
         plt.legend()
-        pdb.set_trace()
         # -------------------------------- PANEL B --------------------------------    
     
     if (plot_panelc=='TRUE'):
@@ -627,18 +626,18 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             
             #Plot below ELA
             below_ELA.plot(ax=ax1c,color='red', edgecolor='black')
-            
-            plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2010']['lat_3413'],s=1,color='#3690c0',label='2010-2014 ice slabs')
+            '''
+            #plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2010']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2010']['lat_3413'],s=1,color='#3690c0',label='2010-2014 ice slabs')
             plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2011']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2011']['lat_3413'],s=1,color='#3690c0')
             plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2012']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2012']['lat_3413'],s=1,color='#3690c0')
-            plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2013']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0')
-            plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2014']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0')
+            #plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2013']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2013']['lat_3413'],s=1,color='#3690c0')
+            #plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2014']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2014']['lat_3413'],s=1,color='#3690c0')
             plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2017']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2017']['lat_3413'],s=1,color='#a6bddb',label='2017-2018 ice slabs')
             plt.scatter(df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2018']['lon_3413'],df_2010_2018_high[df_2010_2018_high.Track_name.str[:4]=='2018']['lat_3413'],s=1,color='#a6bddb')
             
-            plt.legend()
+            #plt.legend()
             plt.show()
-            
+            '''
             pdb.set_trace()
             
             ####################### From concave hull computation #######################
