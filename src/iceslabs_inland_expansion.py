@@ -343,7 +343,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
     return
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
-    plot_fig_S1='TRUE'
+    plot_fig_S1='FALSE'
     plot_panela='TRUE'
     plot_panelb='TRUE'
     plot_panelc='TRUE'
@@ -821,6 +821,11 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         # -------------------------------- PANELS C -------------------------------        
     #Force legend of pannel b to be upper left
     axelev.legend(handles=legend_elements,loc='upper left')
+    
+    #Display panels label
+    axmap.text(0, 0.85,'a', ha='center', va='center', transform=axmap.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    axNO.text(0, 0.45,'b', ha='center', va='center', transform=axNO.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    axelev.text(0, 1.05,'c', ha='center', va='center', transform=axelev.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Maximize plot size
     figManager = plt.get_current_fig_manager()

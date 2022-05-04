@@ -32,7 +32,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.image as mpimg
 
 general_path='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/'
-path_new_method='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/'
+path_new_method='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/'
 
 #Choose the date to illustrate the process
 #chosen_trace='20100507_01_008_010'
@@ -112,8 +112,7 @@ distances_with_start_transect=compute_distances(lon_3413,lat_3413)
 
 #2. Show after surface picking - Let's do it manually
 #Load surface pick
-#path_surfacepick=general_path+'data/exported/Surface_Indices_Picklefiles/'
-path_surfacepick=path_temp
+path_surfacepick=general_path+'data/exported/Surface_Indices_Picklefiles/'
 filename_surfacepick=chosen_trace+'_SURFACE.pickle'
 f_surfacepick = open(path_surfacepick+filename_surfacepick, "rb")
 surfacepick_file = pickle.load(f_surfacepick)
@@ -143,8 +142,7 @@ for i in range(0,len(surfacepick_file)):
     raw_data[:,i]=radar_appended[surfacepick_file[0]-250:surfacepick_file[0]-250+for_raw,i]
 
 #3. After lakes and other exclusions - We need to use the file _SURFACE_SLICE_100M.pickle
-#path_lakes_excl=general_path+'data/exported/Surface_Slice_100m_Picklefiles/'
-path_lakes_excl=path_temp
+path_lakes_excl=general_path+'data/exported/Surface_Slice_100m_Picklefiles/'
 filename_lakes_excl=chosen_trace+'_SURFACE_SLICE_100M.pickle'
 f_lakes_excl = open(path_lakes_excl+filename_lakes_excl, "rb")
 lakes_excl_file = pickle.load(f_lakes_excl)
@@ -153,8 +151,7 @@ f_lakes_excl.close()
 lakes_excl_file_20m=lakes_excl_file[ind_lower_20m,:]
 
 #4. After roll correction
-path_roll_corrected=path_temp
-#path_roll_corrected=general_path+'data/exported/Roll_Corrected_Picklefiles/'
+path_roll_corrected=general_path+'data/exported/Roll_Corrected_Picklefiles/'
 filename_roll_corrected=chosen_trace+'_ROLL_CORRECTED.pickle'
 f_roll_corrected = open(path_roll_corrected+filename_roll_corrected, "rb")
 roll_corrected_file = pickle.load(f_roll_corrected)
