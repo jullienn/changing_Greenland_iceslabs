@@ -1019,7 +1019,7 @@ ax10m.spines['left'].set_color('black') #from https://stackoverflow.com/question
 ax10m_second.spines['right'].set_color('indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
 ax10m_second.tick_params(axis='y', colors='indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
 ax10m_second.set_ylabel('Total columnal ice content [m]',color='indianred')
-
+pdb.set_trace()
 '''
 ax10m.legend_.remove()
 plt.show()

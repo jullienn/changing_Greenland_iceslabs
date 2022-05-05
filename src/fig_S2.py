@@ -101,14 +101,77 @@ lat3413_plot[dataframe['mask'][:,0]]=lat_3413[dataframe['mask'][:,0]]
 distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
 
 #Create the figure
-fig = plt.figure(figsize=(17,10))
-gs = gridspec.GridSpec(17, 10)
+fig = plt.figure(figsize=(8,20))
+gs = gridspec.GridSpec(14, 20)
 gs.update(wspace=0.001)
-ax1 = plt.subplot(gs[0:8, 0:10])
-ax2 = plt.subplot(gs[9:11, 0:10])
-ax3 = plt.subplot(gs[11:13, 0:10])
-ax4 = plt.subplot(gs[13:15, 0:10])
-ax5 = plt.subplot(gs[15:17, 0:10])
+ax2 = plt.subplot(gs[0:1, 0:20])
+ax3 = plt.subplot(gs[1:2, 0:20])
+ax4 = plt.subplot(gs[2:3, 0:20])
+ax5 = plt.subplot(gs[3:4, 0:20])
+
+#Display depth corrected radargram
+ax2.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+ax2.invert_yaxis() #Invert the y axis = avoid using flipud.    
+ax2.set_ylim(20,0)
+plt.setp(ax2.get_xticklabels(), visible=False)
+ax2.set_yticks([0,10,20])
+ax2.set_yticklabels(['0','10',''])
+ax2.text(0.01, 0.75,'a',ha='center', va='center', transform=ax2.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax2.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+
+#Display depth corrected radargram and manual mask over it
+ax3.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+ax3.invert_yaxis() #Invert the y axis = avoid using flipud.    
+ax3.set_ylim(20,0)
+plt.setp(ax3.get_xticklabels(), visible=False)
+ax3.set_yticks([0,10,20])
+ax3.set_yticklabels(['0','10',''])
+ax3.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_mask,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
+ax3.text(0.01, 0.75,'b',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax3.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+
+
+#Display depth corrected radargram and quantile 0.65 over it
+ax4.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+ax4.invert_yaxis() #Invert the y axis = avoid using flipud.    
+ax4.set_ylim(20,0)
+ax4.set_yticks([0,10,20])
+plt.setp(ax4.get_xticklabels(), visible=False)
+ax4.set_yticklabels(['0','10',''])
+ax4.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant065,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
+ax4.text(0.01, 0.75,'c',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax4.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+
+
+#Display depth corrected radargram and quantile 0.79 over it
+ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+ax5.invert_yaxis() #Invert the y axis = avoid using flipud.    
+ax5.set_ylim(20,0)
+ax5.set_ylabel('Depth [m]')
+ax5.set_yticks([0,10,20])
+ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant079,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
+ax5.text(0.01, 0.75,'d',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax5.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+
+#Set distance
+low_xlim=ax5.get_xlim()[0]
+high_xlim=ax5.get_xlim()[1]
+#Display bottom xtick in km instead of m
+xtick_distance=ax5.get_xticks()
+ax5.set_xticks(xtick_distance)
+ax5.set_xticklabels((xtick_distance/1000).astype(int))
+ax5.set_xlim(low_xlim,high_xlim)
+ax5.set_xlabel('Distance [km]')
+ax5.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+
+plt.show()
+
+pdb.set_trace()
+#Save figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/figS2_radargrams.png',dpi=300)
+
+#Create the figure
+fig,ax1 = plt.subplots()
 
 #Display histograms
 ax1.hist(iceslabs_distrib,bins=500,density=True,label='Ice')
@@ -127,59 +190,10 @@ ax1.axvline(x=quantile_investigation[-1],linestyle='--',color='k')
 ax1.text(quantile_investigation[0]-0.02, 0.85, 'quantile 0.65', rotation=90, va='center',fontsize=15)
 ax1.text(quantile_investigation[-1]+0.005, 0.85, 'quantile 0.79', rotation=90, va='center',fontsize=15)
 
-ax1.text(-0.6325, 3.75,'a',ha='center', va='center',fontsize=15,zorder=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
-#Display depth corrected radargram
-ax2.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
-ax2.invert_yaxis() #Invert the y axis = avoid using flipud.    
-ax2.set_ylim(20,0)
-plt.setp(ax2.get_xticklabels(), visible=False)
-ax2.set_yticklabels(['0','10',''])
-ax2.text(0.01, 0.75,'b',ha='center', va='center', transform=ax2.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
-#Display depth corrected radargram and manual mask over it
-ax3.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
-ax3.invert_yaxis() #Invert the y axis = avoid using flipud.    
-ax3.set_ylim(20,0)
-plt.setp(ax3.get_xticklabels(), visible=False)
-ax3.set_yticklabels(['0','10',''])
-ax3.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_mask,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
-ax3.text(0.01, 0.75,'c',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
-
-#Display depth corrected radargram and quantile 0.65 over it
-ax4.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
-ax4.invert_yaxis() #Invert the y axis = avoid using flipud.    
-ax4.set_ylim(20,0)
-plt.setp(ax4.get_xticklabels(), visible=False)
-ax4.set_yticklabels(['0','10',''])
-ax4.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant065,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
-ax4.text(0.01, 0.75,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
-
-#Display depth corrected radargram and quantile 0.79 over it
-ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
-ax5.invert_yaxis() #Invert the y axis = avoid using flipud.    
-ax5.set_ylim(20,0)
-ax5.set_ylabel('Depth [m]')
-ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant079,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
-ax5.text(0.01, 0.75,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
-#Set distance
-low_xlim=ax5.get_xlim()[0]
-high_xlim=ax5.get_xlim()[1]
-#Display bottom xtick in km instead of m
-xtick_distance=ax5.get_xticks()
-ax5.set_xticks(xtick_distance)
-ax5.set_xticklabels((xtick_distance/1000).astype(int))
-ax5.set_xlim(low_xlim,high_xlim)
-ax5.set_xlabel('Distance [km]')
-
-plt.show()
+#Save figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/figS2_distribution.png',dpi=300)
 
 pdb.set_trace()
-#Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/figS2_final.png',dpi=300)
 
 #Display for each quantile the ice slabs identification
 desired_quantiles=np.round(np.arange(0.60,0.91,0.01),2)
