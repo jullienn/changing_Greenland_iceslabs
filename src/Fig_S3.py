@@ -31,14 +31,29 @@ from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import matplotlib.image as mpimg
 
+
+#Set fontsize plot
+plt.rcParams.update({'font.size': 15})
+
 general_path='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/'
 path_new_method='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/'
 
 #Choose the date to illustrate the process
 #chosen_trace='20100507_01_008_010'
-#chosen_trace='20140416_05_035_037'
+#chosen_trace='20140416_05_035_037' best option so far
 #chosen_trace ='20170429_01_148_154'
-chosen_trace ='20110406_01_144_146' #Reference trace displayed in MacFerrin et al., 2019's supp materials
+#chosen_trace ='20110406_01_144_146' #Reference trace displayed in MacFerrin et al., 2019's supp materials
+#chosen_trace ='20170506_01_010_012'
+#chosen_trace ='20170502_01_142_144'
+#chosen_trace ='20170422_01_168_171'
+#chosen_trace ='20170417_01_132_134'
+#chosen_trace ='20170410_01_132_134' pas mal
+#chosen_trace ='20170410_01_086_088' overestimation
+#chosen_trace ='20170410_01_018_021' no dry firn removal
+#chosen_trace ='20170328_01_046_060' shit roll correction
+#chosen_trace ='20170327_04_050_066' shit roll correction
+#chosen_trace ='20140508_02_019_020' no need for roll correction
+chosen_trace ='20140416_05_007_009'
 
 #1. Import original radar trace
 path_data_open=general_path+'data/'+chosen_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+chosen_trace[0:11]+'/'
@@ -121,10 +136,11 @@ f_surfacepick.close()
 #For 2010-2011, 30m deep index is from 0 to 128 included. From 2012 to 2018, index is from 0:60 included
 if (chosen_trace[0:4] in list(['2010','2011'])):
     ind_30m=surfacepick_file+128
-    for_raw=428
+    for_raw=428#100m
 elif (chosen_trace[0:4] in list(['2012','2013','2014','2017','2018'])):
     ind_30m=surfacepick_file+60
-    for_raw=201
+    #for_raw=201#100m
+    for_raw=301#150m
 else:
     print('Error, year not known')
 
@@ -138,7 +154,7 @@ raw_data[:]=np.nan
 #Select radar data
 for i in range(0,len(surfacepick_file)):
     radar_30m[:,i]=radar_appended[surfacepick_file[i]:ind_30m[i],i]
-    raw_data[:,i]=radar_appended[surfacepick_file[0]-250:surfacepick_file[0]-250+for_raw,i]
+    raw_data[:,i]=radar_appended[surfacepick_file[0]-200:surfacepick_file[0]-200+for_raw,i]
 
 #3. After lakes and other exclusions - We need to use the file _SURFACE_SLICE_100M.pickle
 path_lakes_excl=general_path+'data/exported/Surface_Slice_100m_Picklefiles/'
@@ -193,8 +209,8 @@ likelihood_file_after_DF = pickle.load(f_likelihood_after_DF)
 f_likelihood_after_DF.close()
 
 #Create the figure
-fig = plt.figure(figsize=(24,21))
-gs = gridspec.GridSpec(24, 101)
+fig = plt.figure(figsize=(30,21))
+gs = gridspec.GridSpec(30, 101)
 ax1 = plt.subplot(gs[0:3, 0:100])
 ax2 = plt.subplot(gs[3:6, 0:100])
 ax3 = plt.subplot(gs[6:9, 0:100])
@@ -207,6 +223,9 @@ axc6 = plt.subplot(gs[15:18, 100:101])
 ax7 = plt.subplot(gs[18:21, 0:100])
 axc7 = plt.subplot(gs[18:21, 100:101])
 ax8 = plt.subplot(gs[21:24, 0:100])
+ax9 = plt.subplot(gs[24:27, 0:100])
+ax10 = plt.subplot(gs[27:30, 0:100])
+
 gs.update(wspace=0.5)
 gs.update(hspace=1)
 
@@ -214,9 +233,11 @@ gs.update(hspace=1)
 #ax1 = radar_appended
 cax1=ax1.pcolor(distances_with_start_transect, depths[0:raw_data.shape[0]], np.log10(raw_data),cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
 ax1.invert_yaxis() #Invert the y axis = avoid using flipud.    
-ax1.set_ylim(100,0)
+ax1.set_ylim(150,0)
 #ax2.setp(ax2.get_xticklabels(), visible=False)
 ax1.set_xticklabels([])
+ax1.set_yticks([0,50,100,150])
+ax1.set_yticklabels(['0','50','100',''])
 ax1.text(0.01, 0.75,'a',ha='center', va='center', transform=ax1.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax2 is after surface picking
@@ -225,6 +246,8 @@ ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax2.set_ylim(20,0)
 #ax2.setp(ax2.get_xticklabels(), visible=False)
 ax2.set_xticklabels([])
+ax2.set_yticks([0,10,20])
+ax2.set_yticklabels(['0','10',''])
 ax2.text(0.01, 0.75,'b',ha='center', va='center', transform=ax2.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax3 is after appliance of lakes and other exclusions
@@ -233,6 +256,8 @@ ax3.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax3.set_ylim(20,0)
 #ax3.setp(ax3.get_xticklabels(), visible=False)
 ax3.set_xticklabels([])
+ax3.set_yticks([0,10,20])
+ax3.set_yticklabels(['0','10',''])
 ax3.text(0.01, 0.75,'c',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax4 is after appliance of roll correction
@@ -241,6 +266,8 @@ ax4.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax4.set_ylim(20,0)
 #ax4.setp(ax4.get_xticklabels(), visible=False)
 ax4.set_xticklabels([])
+ax4.set_yticks([0,10,20])
+ax4.set_yticklabels(['0','10',''])
 ax4.text(0.01, 0.75,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax5 is after surface removal
@@ -249,6 +276,8 @@ ax5.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax5.set_ylim(20,0)
 #ax4.setp(ax4.get_xticklabels(), visible=False)
 ax5.set_xticklabels([])
+ax5.set_yticks([0,10,20])
+ax5.set_yticklabels(['0','10',''])
 ax5.text(0.01, 0.75,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 ax5.set_ylabel('Depth [m]')
 
@@ -258,6 +287,8 @@ ax6.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax6.set_ylim(20,0)
 #ax6.setp(ax6.get_xticklabels(), visible=False)
 ax6.set_xticklabels([])
+ax6.set_yticks([0,10,20])
+ax6.set_yticklabels(['0','10',''])
 ax6.text(0.01, 0.75,'f',ha='center', va='center', transform=ax6.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Where 0 => NaN so that white in the display
@@ -271,19 +302,70 @@ ax7.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax7.set_ylim(20,0)
 #ax7.setp(ax7.get_xticklabels(), visible=False)
 ax7.set_xticklabels([])
-ax7.text(0.01, 0.75,'g',ha='center', va='center', transform=ax7.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax7.set_yticks([0,10,20])
+ax7.set_yticklabels(['0','10',''])
+ax7.text(0.01, 0.75,'g',ha='center', va='center', transform=ax7.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
-#Where 0 => NaN so that white in the display
-likelihood_file_after_DF_semibool=np.zeros((likelihood_file_after_DF.shape[0],likelihood_file_after_DF.shape[1]))
-likelihood_file_after_DF_semibool[:]=np.nan
-likelihood_file_after_DF_semibool[likelihood_file_after_DF>0]=1
+################################ MODIFIED LOW END #############################
+#Where not 1 => NaN so that white in the display
+likelihood_file_semibool_lowend=np.zeros((likelihood_file_semibool.shape[0],likelihood_file_semibool.shape[1]))
+likelihood_file_semibool_lowend[:]=np.nan
+likelihood_file_semibool_lowend[likelihood_file_semibool==1]=1
 
-#ax8 is after appliance of dry firn exclusions appliance - final ice slabs product
-cax8=ax8.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_after_DF_semibool,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+#ax8 is without the appliance of dry firn exclusions appliance, only where prob=1
+cax8=ax8.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_semibool_lowend,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
 ax8.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax8.set_ylim(20,0)
 #ax8.setp(ax8.get_xticklabels(), visible=False)
-ax8.text(0.01, 0.75,'h',ha='center', va='center', transform=ax8.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax8.text(0.01, 0.75,'h',ha='center', va='center', transform=ax8.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax8.set_xticklabels([])
+ax8.set_yticks([0,10,20])
+ax8.set_yticklabels(['0','10',''])
+################################ MODIFIED LOW END #############################
+
+############################## MODIFIED HIGH END ##############################
+#Where 0 => NaN so that white in the display
+likelihood_file_semibool_highend=np.zeros((likelihood_file_semibool.shape[0],likelihood_file_semibool.shape[1]))
+likelihood_file_semibool_highend[:]=np.nan
+likelihood_file_semibool_highend[likelihood_file_semibool>0]=1
+
+#ax9 is after appliance of dry firn exclusions appliance - final high end ice slabs product
+cax9=ax9.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_semibool_highend,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+ax9.invert_yaxis() #Invert the y axis = avoid using flipud.    
+ax9.set_ylim(20,0)
+#ax9.setp(ax8.get_xticklabels(), visible=False)
+ax9.text(0.01, 0.75,'i',ha='center', va='center', transform=ax9.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax9.set_xticklabels([])
+ax9.set_yticks([0,10,20])
+ax9.set_yticklabels(['0','10',''])
+############################## MODIFIED HIGH END ##############################
+
+################################## HIGH END ###################################
+#Where 0 => NaN so that white in the display
+likelihood_file_after_DF_highend=np.zeros((likelihood_file_after_DF.shape[0],likelihood_file_after_DF.shape[1]))
+likelihood_file_after_DF_highend[:]=np.nan
+likelihood_file_after_DF_highend[likelihood_file_after_DF>0]=1
+
+#ax9 is after appliance of dry firn exclusions appliance - final high end ice slabs product
+cax10=ax10.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_after_DF_highend,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+ax10.invert_yaxis() #Invert the y axis = avoid using flipud.    
+ax10.set_ylim(20,0)
+ax10.set_yticks([0,10,20])
+ax10.set_yticklabels(['0','10','20'])
+#ax9.setp(ax8.get_xticklabels(), visible=False)
+ax10.text(0.01, 0.75,'j',ha='center', va='center', transform=ax10.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+#box around label from https://stackoverflow.com/questions/17086847/box-around-text-in-matplotlib
+#Set distance
+low_xlim=ax10.get_xlim()[0]
+high_xlim=ax10.get_xlim()[1]
+#Display bottom xtick in km instead of m
+xtick_distance=ax10.get_xticks()
+ax10.set_xticks(xtick_distance)
+ax10.set_xticklabels((xtick_distance/1000).astype(int))
+ax10.set_xlim(low_xlim,high_xlim)
+ax10.set_xlabel('Distance [km]')
+
+################################## HIGH END ###################################
 
 #Fixing colorbar for the first 4 plots,  #from https://stackoverflow.com/questions/3373256/set-colorbar-range-in-matplotlib
 cax1.set_clim(cax4.get_clim()[0],cax4.get_clim()[1])
@@ -294,7 +376,7 @@ cax7.set_clim(cax7.get_clim()[0],cax7.get_clim()[1])
 
 #Display colorbars, from https://stackoverflow.com/questions/13784201/how-to-have-one-colorbar-for-all-subplots
 cbar1_4=fig.colorbar(cax4, cax=axc1_4)
-cbar1_4.set_label('Signal strengh [dB]                                                                                                               ')
+cbar1_4.set_label('Signal strengh [dB]                                ',labelpad=20)
 
 cbar5=fig.colorbar(cax5, cax=axc5)
 #cbar5.set_label('Signal strengh [dB]')
@@ -303,8 +385,8 @@ cbar6=fig.colorbar(cax6, cax=axc6)
 #cbar6.set_label('Signal strengh [dB]')
 
 cbar7=fig.colorbar(cax7, cax=axc7)
-cbar7.set_label('Ice likelihood[ ]',labelpad=20)#labeldpad from https://stackoverflow.com/questions/67859935/how-to-set-distance-between-colorbar-and-its-label
+cbar7.set_label('Ice likelihood[ ]',labelpad=30)#labeldpad from https://stackoverflow.com/questions/67859935/how-to-set-distance-between-colorbar-and-its-label
 plt.show()
 
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S3/figS3_4.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S3/v2/figS3.png',dpi=500)
