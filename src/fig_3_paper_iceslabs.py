@@ -581,7 +581,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             
         
         #display loc on map
-        ax8map.scatter(lon3413_plot,lat3413_plot,c='k',s=0.5,zorder=10)
+        ax8map.scatter(lon3413_plot,lat3413_plot,c='k',s=0.1,zorder=10)
                 
         #Add year on radargram
         ax_plotting.text(0.975, 0.825,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
@@ -880,7 +880,7 @@ ax8map = plt.subplot(gs[28:36, 10:12],projection=crs)
 
 SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
 CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5)
-'''
+
 #Open and display satelite image behind map
 from pyproj import CRS
 import rioxarray as rxr
@@ -888,10 +888,7 @@ import rioxarray as rxr
 #https://www.earthdatascience.org/courses/use-data-open-source-python/intro-raster-data-python/raster-data-processing/reproject-raster/
 #https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
 
-#Load data for plotting
 path_satellite='C:/Users/jullienn/Documents/working_environment/'
-satellite=rasterio.open(path_satellite+'T22WFV_20210823T145759_B2348.tif') #(Bands 2, 3, 4, 8 - Blue, Green, Red, NIR) 
-
 #Load data for extent derivation
 sat_for_extent = rxr.open_rasterio(path_satellite+'T22WFV_20210823T145759_B2348.tif',
                               masked=True).squeeze()
@@ -903,32 +900,26 @@ sat_for_extent_3413.rio.crs
 #Define extents
 ease_extent = [-500000, 100000, -3000000, -2000000]
 #ease_extent = [west limit, east limit., south limit, north limit]
-extent_image = [np.asarray(sat_for_extent_3413.x[-1]), np.asarray(sat_for_extent_3413.x[0]), np.asarray(sat_for_extent_3413.y[0]), np.asarray(sat_for_extent_3413.y[-1])]
+extent_image = [np.asarray(sat_for_extent_3413.x[0]), np.asarray(sat_for_extent_3413.x[-1]), np.asarray(sat_for_extent_3413.y[0]), np.asarray(sat_for_extent_3413.y[-1])]
 
+'''
 plt.figure(figsize=(14,10))
 ax = plt.axes(projection=crs)
 ax.set_extent(ease_extent, crs=crs) 
-
-gamma = 2.2
-RGB = np.dstack([np.power(np.clip(satellite.read(4), 0, 1), 1/gamma),np.power(np.clip(satellite.read(3), 0, 1), 1/gamma),np.power(np.clip(satellite.read(2), 0, 1), 1/gamma)])
-
-ax.imshow(RGB, extent=extent_image, transform=crs,cmap='gist_rainbow', origin='upper')
-
-#lidar_dem_wgs84.plot.imshow(ax=ax,cmap='Greys')
+ax.imshow(sat_for_extent[3,:,:], extent=extent_image, transform=crs,cmap='gray', origin='lower') #NIR
 ax.gridlines(color='gray', linestyle='--')
 ax.coastlines()
+ax.set_xlim(extent_image[0],extent_image[1])
+ax.set_ylim(extent_image[3],extent_image[2])
 plt.tight_layout()
-
-
-from rasterio.plot import show
-show(sat_for_extent_3413[[4,3,2],:,:], transform=satellite.transform,cmap='Blues_r')
+'''
 
 ax8map.set_extent(ease_extent, crs=crs) 
-ax8map.imshow(satellite.read(2), extent=extent_image, transform=crs, origin='upper', cmap='gist_rainbow',zorder=10)
+ax8map.imshow(sat_for_extent[3,:,:], extent=extent_image, transform=crs, origin='lower', cmap='Blues_r',zorder=1)
 
 #ax8map.gridlines(color='gray', linestyle='--')
 #ax8map.coastlines()
-'''
+
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
 min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,my_pal)
 
@@ -953,20 +944,24 @@ ax4r.set_ylabel('Depth [m]')
 
 #Finalize map plot
 #Display flightlines correpsondance with year
-ax8map.text(-100400,-2505000,u'\u03B2')
-ax8map.text(-94240,-2554000,u'\u03B1')
+ax8map.text(-94000,-2505000,u'\u03B2')
+ax8map.text(-80990,-2570000,u'\u03B1')
 ax8map.text(-79280,-2522000,u'\u03B3')
-ax8map.text(-79280,-2533000,s=u'\u03B4')
+ax8map.text(-79280,-2534500,s=u'\u03B4')
 #Show KAN_U
 #Show pannel numbers on the map
 ax8map.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',label='KAN_U',zorder=10)
 #Add pannel label
-ax8map.text(-114400,-2505000,'j',ha='center', va='center',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax8map.text(-0.1,0.95,'j',ha='center', va='center',transform=ax8map.transAxes, fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
-ax8map.set_extent([-114500, -70280, -2556000, -2495000], crs=crs)
+#ax8map.set_extent([-114500, -70280, -2556000, -2495000], crs=crs)
+#ax8map.set_extent([-118943, -52166, -2573215, -2496127], crs=crs)
+#ax8map.set_extent([-108758, -54463, -2572722, -2497471], crs=crs)
+ax8map.set_extent([-114887, -54463, -2572722, -2497471], crs=crs)
+
 gl=ax8map.gridlines(draw_labels=True, xlocs=[-47, -47.5], ylocs=[67], x_inline=False, y_inline=False,linewidth=0.5)
 #Customize lat labels
 gl.ylabels_right = False

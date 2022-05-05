@@ -793,7 +793,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
                     
                     #Compute and display relative change
-                    axCW.text(-270000,-2385000,'[+'+str(low_end_change)+':+'+str(high_end_change)+']%')
+                    axCW.text(-285000,-2360000,'[+'+str(low_end_change)+':+'+str(high_end_change)+']%')
                     ################ DISPLAY AREA CHANGE #####################
                     
                 elif(region =='SW'):

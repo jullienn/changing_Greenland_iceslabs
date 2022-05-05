@@ -36,8 +36,9 @@ path_new_method='C:/Users/jullienn/switchdrive/Private/research/RT1/final_datase
 
 #Choose the date to illustrate the process
 #chosen_trace='20100507_01_008_010'
-chosen_trace='20140416_05_035_037'
-#back_up_trace ='20170429_01_148_154'
+#chosen_trace='20140416_05_035_037'
+#chosen_trace ='20170429_01_148_154'
+chosen_trace ='20110406_01_144_146' #Reference trace displayed in MacFerrin et al., 2019's supp materials
 
 #1. Import original radar trace
 path_data_open=general_path+'data/'+chosen_trace[0:4]+'_Greenland_P3/CSARP_qlook/'+chosen_trace[0:11]+'/'
@@ -204,8 +205,8 @@ axc5 = plt.subplot(gs[12:15, 100:101])
 ax6 = plt.subplot(gs[15:18, 0:100])
 axc6 = plt.subplot(gs[15:18, 100:101])
 ax7 = plt.subplot(gs[18:21, 0:100])
+axc7 = plt.subplot(gs[18:21, 100:101])
 ax8 = plt.subplot(gs[21:24, 0:100])
-axc7_8 = plt.subplot(gs[18:24, 100:101])
 gs.update(wspace=0.5)
 gs.update(hspace=1)
 
@@ -259,16 +260,26 @@ ax6.set_ylim(20,0)
 ax6.set_xticklabels([])
 ax6.text(0.01, 0.75,'f',ha='center', va='center', transform=ax6.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
+#Where 0 => NaN so that white in the display
+likelihood_file_semibool=np.zeros((likelihood_file.shape[0],likelihood_file.shape[1]))
+likelihood_file_semibool[:]=np.nan
+likelihood_file_semibool[likelihood_file>0]=likelihood_file[likelihood_file>0]
+
 #ax7 is after ice layer likelihood computation
-cax7=ax7.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file,cmap=plt.get_cmap('Blues'),zorder=-2)#,norm=divnorm)
+cax7=ax7.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_semibool,cmap=plt.get_cmap('Blues'),zorder=-2)#,norm=divnorm)
 ax7.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax7.set_ylim(20,0)
 #ax7.setp(ax7.get_xticklabels(), visible=False)
 ax7.set_xticklabels([])
 ax7.text(0.01, 0.75,'g',ha='center', va='center', transform=ax7.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
+#Where 0 => NaN so that white in the display
+likelihood_file_after_DF_semibool=np.zeros((likelihood_file_after_DF.shape[0],likelihood_file_after_DF.shape[1]))
+likelihood_file_after_DF_semibool[:]=np.nan
+likelihood_file_after_DF_semibool[likelihood_file_after_DF>0]=1
+
 #ax8 is after appliance of dry firn exclusions appliance - final ice slabs product
-cax8=ax8.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_after_DF,cmap=plt.get_cmap('Blues'),zorder=-2)#,norm=divnorm)
+cax8=ax8.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_after_DF_semibool,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
 ax8.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax8.set_ylim(20,0)
 #ax8.setp(ax8.get_xticklabels(), visible=False)
@@ -280,7 +291,6 @@ cax2.set_clim(cax4.get_clim()[0],cax4.get_clim()[1])
 cax3.set_clim(cax4.get_clim()[0],cax4.get_clim()[1])
 cax4.set_clim(cax4.get_clim()[0],cax4.get_clim()[1])
 cax7.set_clim(cax7.get_clim()[0],cax7.get_clim()[1])
-cax8.set_clim(cax7.get_clim()[0],cax7.get_clim()[1])
 
 #Display colorbars, from https://stackoverflow.com/questions/13784201/how-to-have-one-colorbar-for-all-subplots
 cbar1_4=fig.colorbar(cax4, cax=axc1_4)
@@ -292,8 +302,9 @@ cbar5=fig.colorbar(cax5, cax=axc5)
 cbar6=fig.colorbar(cax6, cax=axc6)
 #cbar6.set_label('Signal strengh [dB]')
 
-cbar7_8=fig.colorbar(cax7, cax=axc7_8)
-cbar7_8.set_label('Ice likelihood[ ]')
+cbar7=fig.colorbar(cax7, cax=axc7)
+cbar7.set_label('Ice likelihood[ ]',labelpad=20)#labeldpad from https://stackoverflow.com/questions/67859935/how-to-set-distance-between-colorbar-and-its-label
 plt.show()
 
-
+#Save the figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S3/figS3_4.png',dpi=500)
