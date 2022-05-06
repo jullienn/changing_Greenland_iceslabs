@@ -952,7 +952,7 @@ ax8map.text(-79280,-2534500,s=u'\u03B4')
 #Show pannel numbers on the map
 ax8map.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',label='KAN_U',zorder=10)
 #Add pannel label
-ax8map.text(-0.1,0.95,'j',ha='center', va='center',transform=ax8map.transAxes, fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax8map.text(-0.1,0.95,'i',ha='center', va='center',transform=ax8map.transAxes, fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py

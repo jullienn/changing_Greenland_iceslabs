@@ -313,7 +313,7 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_e
+investigation_year=panel_d
 
 fig = plt.figure()
 gs = gridspec.GridSpec(30, 10)
@@ -355,8 +355,8 @@ ax7_raw = plt.subplot(gs[24:28, 0:10])
 
 #Define paths
 path_data_MacFerrin='C:/Users/jullienn/switchdrive/Private/research/RT1/MacFerrin_FigShare/IceBridge_Accumulation_Radar/IceBridge_Accumulation_Radar/Images_PostProcessed_Greyscale/'
-path_data_Jullien='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/'
-path_data_Jullien_probability='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/images/'
+path_data_Jullien='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/'
+path_data_Jullien_probability='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/images/'
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 
 #Compute the speed (Modified Robin speed):
@@ -389,7 +389,7 @@ for single_year in investigation_year.keys():
     img = mpimg.imread(filename_image)
     
     #Load probability
-    path_prob=path_data_Jullien_probability+date_track+'_probability_iceslabs_presence.png'
+    path_prob=path_data_Jullien_probability+date_track+'_probability_iceslabs_presence_after_DF.png'
     #Load probability image
     img_prob = mpimg.imread(path_prob)
     

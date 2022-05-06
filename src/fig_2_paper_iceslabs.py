@@ -49,6 +49,11 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             #Do not keep where lon_3413 < -530298 because not monotoneously elevation increase
             df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon_3413']>=-530298]
         
+        if (casestudy_nb=='d'):
+            #If panel, d, then start only at lon=-47.8226
+            #Do not keep where lon < -47.8226 because bare ice
+            df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon']>=-47.8226]
+        
         #Append data to each other
         df_for_elev=df_for_elev.append(df_for_elev_temp)
                 
@@ -600,6 +605,8 @@ ax_legend.axis('off')
 ax_legend.set_title('Legend')
 plt.show()
 ax7t.legend_.remove()
+
+pdb.set_trace()
 
 #Save the figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v6/fig2.png',dpi=500)
