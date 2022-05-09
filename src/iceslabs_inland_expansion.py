@@ -1271,7 +1271,7 @@ for region in list(df_2010_2018_high['key_shp'].unique()):
     #Loop over the 5 time periods
     
     for time_period in list(['2002-2003','2010','2011-2012','2013-2014','2017-2018']):
-        dict_summary[region][time_period]={k: {} for k in list(['max_elev_mean','max_elev_median','max_elev_std'])}
+        dict_summary[region][time_period]={k: {} for k in list(['max_elev_mean','max_elev_median','max_elev_std','max_elev_max'])}
         
         #Take the average, median and std dev of high elevation where ice slabs have been
         #identified in this region, no matter the year in this specific time
@@ -1291,6 +1291,7 @@ for region in list(df_2010_2018_high['key_shp'].unique()):
         dict_summary[region][time_period]['max_elev_mean']=np.nanmean(dict_temp[:,1])
         dict_summary[region][time_period]['max_elev_median']=np.nanmedian(dict_temp[:,1])
         dict_summary[region][time_period]['max_elev_std']=np.nanstd(dict_temp[:,1])
+        dict_summary[region][time_period]['max_elev_max']=np.nanmax(dict_temp[:,1])
 
 
 ###############################################################################
