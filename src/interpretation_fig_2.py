@@ -313,7 +313,7 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_d
+investigation_year=panel_a
 
 fig = plt.figure()
 gs = gridspec.GridSpec(30, 10)
@@ -407,10 +407,6 @@ for single_year in investigation_year.keys():
         #Create the path
         path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
 
-        # If 20180421_01_007, different path
-        if (indiv_file_load=='Data_20180421_01_007.mat'):
-            path_raw_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/2018_Greenland_P3/'
-        
         #Load data
         if (single_year>=2014):
             

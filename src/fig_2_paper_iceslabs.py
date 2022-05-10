@@ -48,11 +48,26 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         if (casestudy_nb=='b'):
             #Do not keep where lon_3413 < -530298 because not monotoneously elevation increase
             df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon_3413']>=-530298]
+            
+        #If panel c, then start only at lon=-47.9337
+        if (casestudy_nb=='c'):
+            #Do not keep where lon < -47.9337 because bare ice
+            df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon']>=-47.9337]      
         
         if (casestudy_nb=='d'):
             #If panel, d, then start only at lon=-47.8226
             #Do not keep where lon < -47.8226 because bare ice
             df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon']>=-47.8226]
+            
+        if (casestudy_nb=='e'):
+            #If panel, e, then start only at lon=-47.4233
+            #Do not keep where lon < -47.4233 because bare ice
+            df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon']>=-47.4233]    
+        
+        if (casestudy_nb=='f'):
+            #If panel, e, then start only at lon=-48.2106
+            #Do not keep where lon < -48.2106 because bare ice
+            df_for_elev_temp=df_for_elev_temp[df_for_elev_temp['lon']>=-48.2106]
         
         #Append data to each other
         df_for_elev=df_for_elev.append(df_for_elev_temp)
@@ -301,14 +316,12 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     ax_t.tick_params(pad=1.2)
 
     #Set xlims
-    axt.set_xlim(0,75000)
+    axt.set_xlim(0,70000)
         
     '''
     # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
     axt.grid(False)
     '''
-    
-    #Set xticks in panel a
     
     plt.show()
 
@@ -609,7 +622,7 @@ ax7t.legend_.remove()
 pdb.set_trace()
 
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v6/fig2.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v7/fig2.png',dpi=500)
 
 
 '''
