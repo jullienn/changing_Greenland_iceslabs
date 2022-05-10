@@ -295,7 +295,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
     #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07)))],zorder=1,linestyle='--',color='k') #Ice slabs filling, line at km 
-    #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0449)))],zorder=1,linestyle='--',color='k') #Ice slabs accretion, line at km x
+    #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='k') #Ice slabs accretion, line at km x
 
     #Display KAN_U
     axt.scatter(dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.030473)))],15.5,s=10,c='#b2182b',zorder=10)
@@ -358,8 +358,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     ########################## Ice slabs filling #############################
 
     ########################## Ice slabs accretion #############################
-    #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs accretion on top pre existing lens/slab, i.e. between -47.0449 and -47.023
-    left_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0449)))]
+    #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs accretion on top pre existing lens/slab, i.e. between -47.0487 and -47.023
+    left_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0487)))]
     right_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))]
     
     #Extract within the bounds
@@ -546,20 +546,19 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         if (str(year) in list(['2012','2013','2018'])):
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
-            ##Ice slabs filling
-            #print(year)
+            
+            #Ice slabs filling
+            print(year)
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 15.6
-            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))])
+            print('filling: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))])
             
             ##Ice slabs accretion
-            #print(year)
-            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0449)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 16.7
-            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0449)))])
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 16.7
+            print('accretion: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))])
             
             #Full transect
-            #print(year)
-            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))])
-            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))])
+            print('full end: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))])
+            print('full start: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))])
 
         ###########################################################################
         ###                           Display radargrams                        ###
