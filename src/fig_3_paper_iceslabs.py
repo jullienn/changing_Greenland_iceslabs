@@ -320,12 +320,10 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             df_indiv_year=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
             #Keep only within studied area
             df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.023)]
-
             #Define the mean delta horizontal dimensions
             delta_horizontal_m = np.mean(np.asarray(df_studied_case['distances'][1:])-np.asarray(df_studied_case['distances'][:-1])) #This is inspired from probabilisitc_iceslabs.py
-            #Extract total ice content within this area (in m because vertical content [m] * horizontal content [m] / distance [m])
-            columnal_sum_studied_case[count_ice]=np.sum(df_studied_case['20m_ice_content_m']) * delta_horizontal_m / (df_studied_case['distances'].iloc[-1]-df_studied_case['distances'].iloc[0])
-            
+            #Extract total ice content within this area (in m2 because vertical content [m] * horizontal content [m] #/ distance [m])
+            columnal_sum_studied_case[count_ice]=np.sum(df_studied_case['20m_ice_content_m']) * delta_horizontal_m #/ (df_studied_case['distances'].iloc[-1]-df_studied_case['distances'].iloc[0]) #if average wanted
         #Update count_ice
         count_ice=count_ice+1
     
@@ -983,7 +981,7 @@ figManager.window.showMaximized()
 
 pdb.set_trace()
 #Save figure
-#plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v5/fig3.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v6/fig3.png',dpi=300)
 
 #Create a new figure for the PDH and total columnal ice content
 fig = plt.figure()
@@ -1009,7 +1007,7 @@ ax10m_second = ax10m.twinx()
 ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.2,color='indianred')
 ax10m_second.yaxis.set_label_position("right")
 ax10m_second.yaxis.tick_right()
-ax10m_second.set_ylabel('Total ice content [m]')
+ax10m_second.set_ylabel('Total ice content [$m^3$]')
 ax10m_second.set_xlim(0,8.6)
 
 ax10m.set_ylabel('PDH [°C]')
@@ -1026,7 +1024,7 @@ ax10m_second.grid(False)
 ax10m.spines['left'].set_color('black') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
 ax10m_second.spines['right'].set_color('indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
 ax10m_second.tick_params(axis='y', colors='indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
-ax10m_second.set_ylabel('Total ice content [m]',color='indianred')
+ax10m_second.set_ylabel('Total ice content [$m^3$]',color='indianred')
 pdb.set_trace()
 '''
 ax10m.legend_.remove()
@@ -1072,7 +1070,7 @@ pdb.set_trace()
 
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v5/fig4.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v6/fig4.png',dpi=300)
 
 #########################################################################
 ###                 Calculate slope and intercept                     ###
