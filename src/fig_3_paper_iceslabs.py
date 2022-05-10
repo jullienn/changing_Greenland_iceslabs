@@ -294,7 +294,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     #Display limits of area of focus
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
     axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
-    #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07492900582864)))],zorder=1,linestyle='--',color='k') #Ice slabs filling, line at km 15.4
+    #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07)))],zorder=1,linestyle='--',color='k') #Ice slabs filling, line at km 
     #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0449)))],zorder=1,linestyle='--',color='k') #Ice slabs accretion, line at km x
 
     #Display KAN_U
@@ -327,9 +327,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         count_ice=count_ice+1
     
     ########################## Ice slabs filling #############################
-    #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs filling beneath pre existing one, i.e. between -47.11 and -47.07492900582864
+    #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs filling beneath pre existing one, i.e. between -47.11 and -47.07
     left_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))]
-    right_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07492900582864)))]
+    right_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07)))]
     
     #Create a dataframe
     df_filling = pd.DataFrame(summary_filling_year,columns=['year'])
@@ -353,12 +353,12 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     '''
     #Calculate the difference
     diff_20182012_filling=np.asarray(df_2018_filling_focused['ice_content'])-np.asarray(df_2012_filling_focused['ice_content'])
-    #np.median(diff_20182012_filling)
-    #np.mean(diff_20182012_filling)
+    print('ice filling - median: ',np.median(diff_20182012_filling))
+    print('ice filling - mean: ',np.mean(diff_20182012_filling))
     ########################## Ice slabs filling #############################
 
     ########################## Ice slabs accretion #############################
-    #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs accretion on top pre existing lens/slab, i.e. between -47.05010052087395 and -47.023
+    #Calculate difference in columnal ice content between 2012 and 2018 for ice slabs accretion on top pre existing lens/slab, i.e. between -47.0449 and -47.023
     left_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0449)))]
     right_end=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))]
     
@@ -374,8 +374,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     '''
     #Calculate the difference
     diff_20182012_accretion=np.asarray(df_2018_accretion_focused['ice_content'])-np.asarray(df_2012_accretion_focused['ice_content'])
-    #np.median(diff_20182012_accretion)
-    #np.mean(diff_20182012_accretion)
+    print('ice accretion - median: ',np.median(diff_20182012_accretion))
+    print('ice accretion - mean: ',np.mean(diff_20182012_accretion))
+    
     ########################## Ice slabs accretion #############################
 
     ###########################################################################
@@ -545,15 +546,20 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         if (str(year) in list(['2012','2013','2018'])):
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
-            #Ice slabs filling
-            #ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07492900582864)))],zorder=1,linestyle='--',color='k')#Line at km 15.4
-            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07492900582864)))])
+            ##Ice slabs filling
+            #print(year)
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 15.6
+            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))])
             
-            #Ice slabs accretion
-            #ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0449)))],zorder=1,linestyle='--',color='k')#Line at km
+            ##Ice slabs accretion
+            #print(year)
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0449)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 16.7
             #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0449)))])
-        
+            
+            #Full transect
+            #print(year)
             #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))])
+            #print(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))])
 
         ###########################################################################
         ###                           Display radargrams                        ###
@@ -975,7 +981,7 @@ figManager.window.showMaximized()
 
 pdb.set_trace()
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v4/fig3.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v5/fig3.png',dpi=300)
 
 #Create a new figure for the PDH and total columnal ice content
 fig = plt.figure()
