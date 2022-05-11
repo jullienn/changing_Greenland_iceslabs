@@ -398,7 +398,7 @@ from PIL import Image
 from sklearn.metrics.cluster import contingency_matrix
 import pandas as pd
 
-create_pickle='TRUE'
+create_pickle='FALSE'
 display_pickle='FALSE'
 display_plots_quick_check='FALSE'
 
@@ -486,6 +486,8 @@ investigation_year={2010:'empty',
                     2017:'empty',
                     2018:['Data_20180427_01_004.mat','Data_20180427_01_005.mat','Data_20180427_01_006.mat']}
 '''
+
+pdb.set_trace()
 
 if (create_pickle == 'TRUE'):
     ##############################################################################
@@ -902,9 +904,10 @@ if (investigation_quantile=='TRUE'):
     
     #Define paths
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
-    path_boolean_remove_surf='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'
-    path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/pickles_and_images/Depth_Corrected_Picklefiles/'
-    
+    path_depth_coorected_surf_removal='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
+    path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Depth_Corrected_Picklefiles/'
+    path_indiv_files='C:/Users/jullienn/switchdrive/Private/research/RT1/masking_iceslabs/quantiles_threshold_application/'
+
     if (show_reference_trace=='TRUE'):
         
         #Define the year
@@ -916,15 +919,15 @@ if (investigation_quantile=='TRUE'):
         date_track=start_date_track[5:20]+'_'+end_date_track[17:20]
         
         #Define filename roll, depth corrected data and mask
-        filename_depth_corrected=date_track+'_DEPTH_CORRECTED_surf_removal.pickle'
+        filename_depth_corrected=date_track+'_DEPTH_CORRECTED_surf_removal_100m.pickle'
                      
         #Open the roll corrected file
-        f_depth_corrected = open(path_boolean_remove_surf+filename_depth_corrected, "rb")
+        f_depth_corrected = open(path_depth_coorected_surf_removal+filename_depth_corrected, "rb")
         depth_corrected = pickle.load(f_depth_corrected)
         f_depth_corrected.close()
         
         #Define the quantiles to open
-        quantiles_open=np.round(np.arange(0.63,0.82,0.01),2)
+        quantiles_open=np.round(np.arange(0.65,0.79,0.01),2)
         
         #pdb.set_trace()
         #Set dataframe
@@ -937,7 +940,7 @@ if (investigation_quantile=='TRUE'):
             filename_boolean_quantile=date_track+'_SG1_cutoff_'+str(indiv_quantile)+'_threshold_350.pickle'
             
             #Load boolean files
-            f_boolean_quantile = open(path_boolean_remove_surf+filename_boolean_quantile, "rb")
+            f_boolean_quantile = open(path_indiv_files+filename_boolean_quantile, "rb")
             dataframe[indiv_quantile] = pickle.load(f_boolean_quantile)
             f_boolean_quantile.close()
         
@@ -1037,7 +1040,7 @@ if (investigation_quantile=='TRUE'):
         ###                          Load and organise data                        ###
         ##############################################################################
         
-        #pdb.set_trace()
+        pdb.set_trace()
         
         #Extract overall accuracy and plot quatile VS accuracy
     
@@ -1079,7 +1082,7 @@ if (investigation_quantile=='TRUE'):
             
         
         fig, (ax1,ax2,ax3) = plt.subplots(1, 3)
-        fig.suptitle('Accuracy VS quantile')
+        #♣fig.suptitle('Accuracy VS quantile')
         
         #Plot OA
         ax1.plot(quantiles_open,OA)

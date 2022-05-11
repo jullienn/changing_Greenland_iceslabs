@@ -167,9 +167,10 @@ ax5.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_
 plt.show()
 
 pdb.set_trace()
+'''
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/figS2_radargrams.png',dpi=300)
-
+'''
 #Create the figure
 fig,ax1 = plt.subplots()
 
@@ -190,10 +191,23 @@ ax1.axvline(x=quantile_investigation[-1],linestyle='--',color='k')
 ax1.text(quantile_investigation[0]-0.02, 0.85, 'quantile 0.65', rotation=90, va='center',fontsize=15)
 ax1.text(quantile_investigation[-1]+0.005, 0.85, 'quantile 0.79', rotation=90, va='center',fontsize=15)
 
+'''
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/figS2_distribution.png',dpi=300)
-
+'''
 pdb.set_trace()
+
+#Display contingency table between mask, quantile 0.65 and quantile 0.79
+from sklearn.metrics.cluster import contingency_matrix
+#Replace NaNs by 0
+final_mask[np.isnan(final_mask)]=0
+final_quant065[np.isnan(final_quant065)]=0
+final_quant079[np.isnan(final_quant079)]=0
+
+#contingency matrix from https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cluster.contingency_matrix.html#sklearn-metrics-cluster-contingency-matrix
+contingency_matrix(final_mask,final_quant065) #contingency_matrix(labels_true, labels_pred)
+contingency_matrix(final_mask,final_quant079) #contingency_matrix(labels_true, labels_pred)
+
 
 #Display for each quantile the ice slabs identification
 desired_quantiles=np.round(np.arange(0.60,0.91,0.01),2)
