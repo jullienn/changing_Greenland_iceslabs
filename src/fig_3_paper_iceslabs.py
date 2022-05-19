@@ -600,6 +600,25 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
         ###########################################################################
         ###                       Display data localisation                     ###
         ###########################################################################
+        
+        if (str(year) in list(['2010','2011'])):
+            continue
+        else:
+            #Extract top of ice slabs depth
+            indexes_top_ice=np.logical_and(dataframe[str(year)]['lon_appended'][indexes_within_bounds]>=-47.0487,dataframe[str(year)]['lon_appended'][indexes_within_bounds]<=-47.023)
+            prob_top_ice=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
+            prob_top_ice=prob_top_ice[:,indexes_top_ice]
+            
+            top_of_ice=np.zeros((1,prob_top_ice.shape[1]))
+            for indiv_col in range (0,prob_top_ice.shape[1]):
+                top_of_ice[0,indiv_col]=np.min(np.where(prob_top_ice[:,indiv_col]>0))
+            
+            top_of_ice=top_of_ice.astype(int)
+            #Extract depth of corresponding top of ice
+            depth_top_of_ice=dataframe[str(year)]['depth'][top_of_ice[0]]
+            
+            print(str(year),' top of ice is: ',str(np.mean(depth_top_of_ice)),' +/- ',str(np.std(depth_top_of_ice)))
+            print(str(year),' distance_top ice: ',str(distances_with_start_transect[indexes_top_ice][-1]-distances_with_start_transect[indexes_top_ice][0]))
     
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
