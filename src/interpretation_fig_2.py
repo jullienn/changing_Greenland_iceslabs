@@ -305,6 +305,15 @@ panel_f={2010:['Data_20100513_01_001.mat','Data_20100513_01_002.mat'],
       2017:['Data_20170508_02_165.mat','Data_20170508_02_166.mat','Data_20170508_02_167.mat','Data_20170508_02_168.mat','Data_20170508_02_169.mat','Data_20170508_02_170.mat','Data_20170508_02_171.mat'],
       2018:'empty'}
 
+panel_tes={2010:'empty',
+      2011:'empty',
+      2012:'empty',
+      2013:'empty',
+      2014:['Data_20140408_04_001.mat','Data_20140408_04_002.mat','Data_20140408_04_003.mat'],
+      2017:['Data_20170508_02_011.mat','Data_20170508_02_012.mat','Data_20170508_02_013.mat'],
+      2018:'empty'}
+
+
 '''
 panel_f
 2011  is reversed
@@ -313,7 +322,7 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_f
+investigation_year=panel_e
 
 fig = plt.figure()
 gs = gridspec.GridSpec(30, 10)

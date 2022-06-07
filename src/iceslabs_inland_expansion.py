@@ -467,6 +467,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axmap.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,color='#969696')
         #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
         axmap.axis('off')
+        pdb.set_trace()
         ###################### From Tedstone et al., 2022 #####################        
         # -------------------------------- PANEL A --------------------------------
 
@@ -1339,6 +1340,24 @@ df_thickness_likelihood_20102018_all_GrIS=df_thickness_likelihood_20102018
 plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS,dict_summary)
 
 pdb.set_trace()
+
+
+#Save 2002-2003 green dataset
+#Open filename (same procedure as MacFerrin et al., 2019)
+filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/2002_2003_green_excel.csv'
+fout = open(filename_excel_output, 'w')
+header = "lat,lon,tracenum,key_shp,elevation,year\n"
+fout.write(header)
+
+tracecount = 0
+for lat, lon, tracenum, key, elev, year in zip(np.asarray(df_2002_2003_green['lat_3413']),np.asarray(df_2002_2003_green['lon_3413']),np.asarray(df_2002_2003_green['Track_name']),np.asarray(df_2002_2003_green['key_shp']),np.asarray(df_2002_2003_green['elevation']),np.asarray(df_2002_2003_green['year'])):
+
+    line = "{0},{1},{2},{3},{4},{5}\n".format(lat, lon, tracenum, key, elev, year)
+    fout.write(line)
+    tracecount += 1
+print()
+
+fout.close()
 
 
 '''
