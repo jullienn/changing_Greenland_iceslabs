@@ -324,6 +324,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     '''
     
     plt.show()
+    pdb.set_trace()
 
     print('End plotting fig 2')
     return 

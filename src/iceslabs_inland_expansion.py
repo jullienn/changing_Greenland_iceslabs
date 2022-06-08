@@ -344,7 +344,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S1='FALSE'
-    plot_panela='TRUE'
+    plot_panela='FALSE'
     plot_panelb='TRUE'
     plot_panelc='TRUE'
     
@@ -536,7 +536,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         max_elev_diff_SW=[dict_summary['SW']['2002-2003']['max_elev_median'],dict_summary['SW']['2010']['max_elev_median'],
                           dict_summary['SW']['2011-2012']['max_elev_median'],dict_summary['SW']['2013-2014']['max_elev_median'],
                           dict_summary['SW']['2017-2018']['max_elev_median']]
-        pdb.set_trace()
+
         #Barplot inspired from https://stackoverflow.com/questions/10369681/how-to-plot-bar-graphs-with-same-x-coordinates-side-by-side-dodged
         #Arguments for barplot
         width = 0.1# the width of the bars: can also be len(x) sequence
@@ -571,6 +571,59 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                            #Line2D([0], [0], color='k', lw=2, label='Standard deviation around the mean')]
         axelev.legend(handles=legend_elements,loc='upper left')
         plt.legend()
+        
+        '''
+        #Calculate ice slabs inland expansion rate
+        table_for_rate_max=np.zeros((4,5))
+        table_for_rate_max[:]=np.nan
+        
+        table_for_rate_median=np.zeros((4,5))
+        table_for_rate_median[:]=np.nan
+        
+        i_rate=0
+        for rate_region in list(['NO','NW','CW','SW']):
+            j_rate=0
+            for rate_year in list(['2002-2003','2010','2011-2012','2013-2014','2017-2018']):
+                table_for_rate_max[i_rate,j_rate]=dict_summary[rate_region][rate_year]['max_elev_max']
+                table_for_rate_median[i_rate,j_rate]=dict_summary[rate_region][rate_year]['max_elev_median']
+                j_rate=j_rate+1
+            i_rate=i_rate+1
+                
+        f, (ax1,ax2,ax3,ax4) = plt.subplots(1,4)
+        ax1.plot(np.array([2003,2010,2012,2014,2018]), table_for_rate_max[0,:])
+        ax1.scatter(np.array([2003,2010,2012,2014,2018]), table_for_rate_max[0,:])
+        ax2.plot(np.array([2003,2010,2012,2014,2018]), table_for_rate_max[1,:])
+        ax2.scatter(np.array([2003,2010,2012,2014,2018]), table_for_rate_max[1,:])
+        ax3.plot(np.array([2003,2010,2012,2014,2018]), table_for_rate_max[2,:])
+        ax3.scatter(np.array([2003,2010,2012,2014,2018]), table_for_rate_max[2,:])
+        ax4.plot(np.array([2003,2010,2012,2014,2018]), table_for_rate_max[3,:])
+        ax4.scatter(np.array([2003,2010,2012,2014,2018]), table_for_rate_max[3,:])
+        plt.show()
+        
+        f, (ax1,ax2,ax3,ax4) = plt.subplots(1,4)
+        ax1.plot(np.array([2003,2010,2012,2014,2018]), table_for_rate_median[0,:])
+        ax1.scatter(np.array([2003,2010,2012,2014,2018]), table_for_rate_median[0,:])
+        ax2.plot(np.array([2003,2010,2012,2014,2018]), table_for_rate_median[1,:])
+        ax2.scatter(np.array([2003,2010,2012,2014,2018]), table_for_rate_median[1,:])
+        ax3.plot(np.array([2003,2010,2012,2014,2018]), table_for_rate_median[2,:])
+        ax3.scatter(np.array([2003,2010,2012,2014,2018]), table_for_rate_median[2,:])
+        ax4.plot(np.array([2003,2010,2012,2014,2018]), table_for_rate_median[3,:])
+        ax4.scatter(np.array([2003,2010,2012,2014,2018]), table_for_rate_median[3,:])
+        plt.show()
+        
+        #rates:
+        #NO
+        print('Rate max NO:',str(np.round((table_for_rate_max[0,-1]-table_for_rate_max[0,0])/(2018-2003),2)),'m/yr')
+        #NW
+        print('Rate max NW:',str(np.round((table_for_rate_max[1,-1]-table_for_rate_max[1,1])/(2018-2010),2)),'m/yr')
+        #CW
+        print('Rate max CW:',str(np.round((table_for_rate_max[2,-1]-table_for_rate_max[2,0])/(2018-2003),2)),'m/yr')
+        #SW
+        print('Rate max SW:',str(np.round((table_for_rate_max[3,-1]-table_for_rate_max[3,0])/(2018-2003),2)),'m/yr')
+
+        '''
+        pdb.set_trace()
+
         # -------------------------------- PANEL B --------------------------------    
     
     if (plot_panelc=='TRUE'):
@@ -834,7 +887,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     pdb.set_trace()
     
     #Save figure
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v4/fig1.png',dpi=1000)
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v4/fig1c_last.png',dpi=1000)
 
 #Import packages
 #import rasterio
@@ -1019,8 +1072,9 @@ flightlines_20022018=flightlines_20022018.append(flightlines_20102018)
 
 #1. Create the latitudinal (resp. longitudinal) slices
 ############ Is this grid to change?? This is about 10km width but not even whether north or south!
-lat_slices=np.linspace(-3000000,-1150000,int((np.abs(-3000000)-np.abs(-1150000))/10000))
-lon_slices=np.linspace(-600000,650000,int((np.abs(650000)+np.abs(-600000))/10000))
+#lat_slices=np.arange(-2808967.3912300025,-1150000,10054.34783)#do not consider southern data
+lat_slices=np.linspace(-3000000,-1150000,int((np.abs(-3000000)-np.abs(-1150000))/10000))#original
+lon_slices=np.linspace(-600000,650000,int((np.abs(650000)+np.abs(-600000))/10000))#original
 
 #2. Select and store all the data belonging to the lon/lat slices in a dictionnary.
 #### ------------------------- 2010-2018 -------------------------------- ####
@@ -1237,6 +1291,10 @@ for trace in traces:
     
     if (len(data_trace)<1):
         #No green ice slabs, continue
+        continue
+    elif (trace[0] == 'may09_03_30_aggregated'):
+        #if the firn aquier region, continue
+        print('trace is ',str(trace[0]))
         continue
     else:
         #Identify the region
