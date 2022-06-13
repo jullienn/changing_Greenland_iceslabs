@@ -32,7 +32,7 @@ def compute_distances_pyproj(eastings,northings):
         
     return return_cumsum_distances
 
-def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,ax1,axt,custom_angle,offset_x,offset_y,casestudy_nb):
+def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,DEM_for_elevation,ax1,axt,custom_angle,offset_x,offset_y,casestudy_nb):
     
     #Define empty dictionnary for elevation slice definition
     df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
@@ -71,7 +71,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         
         #Append data to each other
         df_for_elev=df_for_elev.append(df_for_elev_temp)
-                
+             
         #Display data
         ax1.scatter(df_for_elev_temp['lon_3413'],
                     df_for_elev_temp['lat_3413'],
@@ -146,6 +146,33 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
             #c. Store the distances
             df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
+    
+    # ---------------------------- Extract elevation ------------------------ #
+    #Define the vectors of latitude and longitude for elevation sampling
+    increase_x=5000
+    lon_for_elevation_sampling=np.arange(df_for_elev_sorted['lon_3413'].iloc[0],df_for_elev_sorted['lon_3413'].iloc[-1]+increase_x,100)
+    #For a and c, the longitude is not constant
+    add_yx=(df_for_elev_sorted['lat_3413'].iloc[-1]-df_for_elev_sorted['lat_3413'].iloc[0])/(df_for_elev_sorted['lon_3413'].iloc[-1]-df_for_elev_sorted['lon_3413'].iloc[0])*increase_x
+    lat_for_elevation_sampling=np.linspace(df_for_elev_sorted['lat_3413'].iloc[0],df_for_elev_sorted['lat_3413'].iloc[-1]+add_yx,len(lon_for_elevation_sampling))
+    
+    #Compute distance along this transect
+    distances_for_elevation_sampling=compute_distances(lon_for_elevation_sampling,lat_for_elevation_sampling)
+
+    #Create the vector for elevations storing
+    vect_for_elevation=[]
+    '''
+    #Display on the map to make sure this is correct
+    ax1.scatter(lon_for_elevation_sampling,
+                lat_for_elevation_sampling,
+                s=0.1,color='red')
+    '''
+    #This is from extract_elevation.py
+    for i in range(0,len(lon_for_elevation_sampling)):
+        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
+        for val in GrIS_DEM.sample([(lon_for_elevation_sampling[i], lat_for_elevation_sampling[i])]):
+            #Calculate the corresponding elevation
+            vect_for_elevation=np.append(vect_for_elevation,val)
+    # ---------------------------- Extract elevation ------------------------ #
         
     #Define empty list
     app_time_period=[]
@@ -174,7 +201,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         else:
             print('Time period not known, break')
             break
-          
+        
         if (len(df_trace_year_sorted)==0):
             #No data in this time period, continue
             continue
@@ -279,6 +306,23 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.yaxis.tick_right()
         
     #4. Display elevation
+    #Set xlims
+    axt.set_xlim(0,70000)
+    #Set xticks, this is from https://stackoverflow.com/questions/12608788/changing-the-tick-frequency-on-x-or-y-axis-in-matplotlib
+    #start, end = axt.get_xlim()
+    if (casestudy_nb=='a'):
+        axt.xaxis.set_ticks(np.arange(0, 16000, 5000)) #ax.xaxis.set_ticks(np.arange(start, end, stepsize))
+    elif (casestudy_nb=='b'):
+        axt.xaxis.set_ticks(np.arange(0, 41000, 5000)) #ax.xaxis.set_ticks(np.arange(start, end, stepsize))
+    elif (casestudy_nb=='c'):
+        axt.xaxis.set_ticks(np.arange(0, 71000, 5000)) #ax.xaxis.set_ticks(np.arange(start, end, stepsize))
+    elif (casestudy_nb=='d'):
+        axt.xaxis.set_ticks(np.arange(0, 51000, 5000)) #ax.xaxis.set_ticks(np.arange(start, end, stepsize))
+    elif (casestudy_nb=='e'):
+        axt.xaxis.set_ticks(np.arange(0, 36000, 5000)) #ax.xaxis.set_ticks(np.arange(start, end, stepsize))
+    elif (casestudy_nb=='f'):
+        axt.xaxis.set_ticks(np.arange(0, 51000, 5000)) #ax.xaxis.set_ticks(np.arange(start, end, stepsize))
+    
     #Store the xticks for the distance
     xtick_distance=axt.get_xticks()
     #Set the xticks
@@ -293,15 +337,15 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             elevation_display[count]=''
         else:
             #Extract index where distance is minimal
-            index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)))
+            index_closest=np.argmin(np.abs(np.abs(distances_for_elevation_sampling)-np.abs(indiv_dist)))
             #If minimum distance is higher than 1km, store nan. If not, store corresponding elevation
-            if (np.abs(np.abs(df_for_elev_sorted['distances'])-np.abs(indiv_dist)).iloc[index_closest] > 1000):
+            if (np.abs(np.abs(distances_for_elevation_sampling)-np.abs(indiv_dist))[index_closest] > 1000):
                 elevation_display[count]=''
             else:
-                elevation_display[count]=np.round(df_for_elev_sorted.iloc[index_closest]['elevation']).astype(int)
+                elevation_display[count]=np.round(vect_for_elevation[index_closest]).astype(int)
             
         count=count+1
-        
+    
     #Display elevation on the top xticklabels
     #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
     ax_t = axt.secondary_xaxis('top')
@@ -314,15 +358,11 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Modify spacing between xticklabels and xticks
     axt.tick_params(pad=1.2)
     ax_t.tick_params(pad=1.2)
-
-    #Set xlims
-    axt.set_xlim(0,70000)
-        
+    
     '''
     # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
     axt.grid(False)
     '''
-    
     plt.show()
     
     #Calculate the slope of each transect
@@ -337,7 +377,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     print('Average slope is',str(np.nanmean(slope)))
     print('Gross average slope is',str(np.rad2deg(np.arcsin(np.abs((df_for_elev_sorted['elevation'].iloc[0]-df_for_elev_sorted['elevation'].iloc[-1])/(df_for_elev_sorted['distances'].iloc[0]-df_for_elev_sorted['distances'].iloc[-1]))))))
     print('------------------------------------------------------------------')
-    pdb.set_trace()
     print('End plotting fig 2')
     return 
 
@@ -393,6 +432,15 @@ points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2
 df_2010_2018_csv['lon_3413']=points[0]
 df_2010_2018_csv['lat_3413']=points[1]
 
+### -------------------------- Load GrIS DEM ----------------------------- ###
+#This is from extract_elevation.py
+#https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
+import rasterio
+from rasterio.plot import show
+
+path_GrIS_DEM = r'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
+GrIS_DEM = rasterio.open(path_GrIS_DEM)
+### -------------------------- Load GrIS DEM ----------------------------- ###
 #Plot 2010, 2011, 2012, 2013, 2014 ,2017 2018, select overlapping case study: use clean and clear ice slabs tramsects
 
 #CHOOSE LOC1, loc 2, loc 3, loc 15, loc 23
@@ -587,17 +635,17 @@ df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
 #Plot data
-plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
+plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
-plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
+plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax3t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
 #previousl b was loc8
-plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
+plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax4t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 
-plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
+plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax5t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
 
-plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax6t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
 
-plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
+plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
