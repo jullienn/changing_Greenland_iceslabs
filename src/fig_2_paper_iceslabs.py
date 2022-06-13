@@ -324,8 +324,20 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     '''
     
     plt.show()
+    
+    #Calculate the slope of each transect
+    ratio_for_slope=np.diff(df_for_elev_sorted['elevation'])/np.diff(df_for_elev_sorted['distances'])
+    slope=np.zeros(len(ratio_for_slope))
+    for i in range(0,len(ratio_for_slope)):
+        if (np.abs(ratio_for_slope[i])==0):
+            continue
+        else:
+            slope[i]=np.rad2deg(np.arcsin(np.abs(ratio_for_slope[i])))
+    print('------------------------------------------------------------------')
+    print('Average slope is',str(np.nanmean(slope)))
+    print('Gross average slope is',str(np.rad2deg(np.arcsin(np.abs((df_for_elev_sorted['elevation'].iloc[0]-df_for_elev_sorted['elevation'].iloc[-1])/(df_for_elev_sorted['distances'].iloc[0]-df_for_elev_sorted['distances'].iloc[-1]))))))
+    print('------------------------------------------------------------------')
     pdb.set_trace()
-
     print('End plotting fig 2')
     return 
 
