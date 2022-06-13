@@ -250,7 +250,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     #Find closest corresponding elevation. Use only the 2013 transect to ensure we are correctly picking up elevation along a transect
     df_for_elev_sorted_2013=df_for_elev_sorted[df_for_elev_sorted['year']==2013]
     #Define the vectors of latitude and longitude for elevation sampling
-    increase_x=5000
+    increase_x=7000
     lon_for_elevation_sampling=np.arange(df_for_elev_sorted_2013['lon_3413'].iloc[0],df_for_elev_sorted_2013['lon_3413'].iloc[-1]+increase_x,100)
     #For a and c, the longitude is not constant
     add_yx=(df_for_elev_sorted_2013['lat_3413'].iloc[-1]-df_for_elev_sorted_2013['lat_3413'].iloc[0])/(df_for_elev_sorted_2013['lon_3413'].iloc[-1]-df_for_elev_sorted_2013['lon_3413'].iloc[0])*increase_x
@@ -258,15 +258,16 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     
     #Compute distance along this transect
     distances_for_elevation_sampling=compute_distances(lon_for_elevation_sampling,lat_for_elevation_sampling)
-
+        
     #Create the vector for elevations storing
     vect_for_elevation=[]
     
+    '''
     #Display on the map to make sure this is correct
     ax8map.scatter(lon_for_elevation_sampling,
                 lat_for_elevation_sampling,
-                s=0.1,color='red')
-    
+                s=5,color='red')
+    '''
     #This is from extract_elevation.py
     for i in range(0,len(lon_for_elevation_sampling)):
         #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
@@ -319,7 +320,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     #Modify spacing between xticklabels and xticks
     axt.tick_params(pad=1.2)
     ax_t.tick_params(pad=1.2)
-    pdb.set_trace()
 
     #Use the 2018 dataset for displaying the dashed lines
     lon_for_dashed_lines=df_for_elev_sorted[df_for_elev_sorted['year']==2018]['lon']
@@ -619,9 +619,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             #Display KAN_U
             ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],1,s=10,c='#b2182b',zorder=10)
             
-        
         #display loc on map
-        ax8map.scatter(lon3413_plot,lat3413_plot,c='k',s=0.1,zorder=10)
+        ax8map.scatter(lon3413_plot[distances_with_start_transect<=40000],lat3413_plot[distances_with_start_transect<=40000],c='k',s=0.1,zorder=10)
                 
         #Add year on radargram
         ax_plotting.text(0.975, 0.825,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
@@ -674,8 +673,11 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
                 KAN_U_ice[0,indiv_col]=np.sum(prob_KAN_U[:,indiv_col]>0)*delta_vertical_m
             
             KAN_U_ice_mean=np.mean(KAN_U_ice)
+            '''
+            #Display where we extracted the values
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0329)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
+            '''
             print(str(year),' mean ice right at KAN_U: ',str(KAN_U_ice_mean))
             print(str(year),' distance ice right KAN_U: ',str(distances_with_start_transect[indexes_KAN_U][-1]-distances_with_start_transect[indexes_KAN_U][0]))
         ################## Ice slabs thick right at KAN_U #####################
@@ -1040,7 +1042,7 @@ ax4r.set_ylabel('Depth [m]')
 #Finalize map plot
 #Display flightlines correpsondance with year
 ax8map.text(-94000,-2505000,u'\u03B2')
-ax8map.text(-80990,-2570000,u'\u03B1')
+ax8map.text(-87990,-2562500,u'\u03B1')
 ax8map.text(-79280,-2522000,u'\u03B3')
 ax8map.text(-79280,-2534500,s=u'\u03B4')
 #Show KAN_U
@@ -1055,7 +1057,8 @@ ax8map.text(-0.1,0.95,'i',ha='center', va='center',transform=ax8map.transAxes, f
 #ax8map.set_extent([-114500, -70280, -2556000, -2495000], crs=crs)
 #ax8map.set_extent([-118943, -52166, -2573215, -2496127], crs=crs)
 #ax8map.set_extent([-108758, -54463, -2572722, -2497471], crs=crs)
-ax8map.set_extent([-114887, -54463, -2572722, -2497471], crs=crs)
+#ax8map.set_extent([-114887, -54463, -2572722, -2497471], crs=crs)
+ax8map.set_extent([-114887, -63700, -2564000, -2497471], crs=crs)
 
 gl=ax8map.gridlines(draw_labels=True, xlocs=[-47, -47.5], ylocs=[67], x_inline=False, y_inline=False,linewidth=0.5)
 #Customize lat labels
