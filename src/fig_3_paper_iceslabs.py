@@ -22,7 +22,7 @@ def compute_distances(eastings,northings):
     return return_cumsum_distances
 
 
-def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,my_pal):
+def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_DEM,axt,my_pal):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
     #Define the probability
@@ -245,14 +245,49 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     axt.yaxis.tick_left()
     axt.xaxis.tick_bottom()
         
+    # ---------------------------- Extract elevation ------------------------ #
+    #This is from fig_2_paper_iceslabs.py
+    #Find closest corresponding elevation. Use only the 2013 transect to ensure we are correctly picking up elevation along a transect
+    df_for_elev_sorted_2013=df_for_elev_sorted[df_for_elev_sorted['year']==2013]
+    #Define the vectors of latitude and longitude for elevation sampling
+    increase_x=5000
+    lon_for_elevation_sampling=np.arange(df_for_elev_sorted_2013['lon_3413'].iloc[0],df_for_elev_sorted_2013['lon_3413'].iloc[-1]+increase_x,100)
+    #For a and c, the longitude is not constant
+    add_yx=(df_for_elev_sorted_2013['lat_3413'].iloc[-1]-df_for_elev_sorted_2013['lat_3413'].iloc[0])/(df_for_elev_sorted_2013['lon_3413'].iloc[-1]-df_for_elev_sorted_2013['lon_3413'].iloc[0])*increase_x
+    lat_for_elevation_sampling=np.linspace(df_for_elev_sorted_2013['lat_3413'].iloc[0],df_for_elev_sorted_2013['lat_3413'].iloc[-1]+add_yx,len(lon_for_elevation_sampling))
+    
+    #Compute distance along this transect
+    distances_for_elevation_sampling=compute_distances(lon_for_elevation_sampling,lat_for_elevation_sampling)
+
+    #Create the vector for elevations storing
+    vect_for_elevation=[]
+    
+    #Display on the map to make sure this is correct
+    ax8map.scatter(lon_for_elevation_sampling,
+                lat_for_elevation_sampling,
+                s=0.1,color='red')
+    
+    #This is from extract_elevation.py
+    for i in range(0,len(lon_for_elevation_sampling)):
+        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
+        for val in GrIS_DEM.sample([(lon_for_elevation_sampling[i], lat_for_elevation_sampling[i])]):
+            #Calculate the corresponding elevation
+            vect_for_elevation=np.append(vect_for_elevation,val)
+    # ---------------------------- Extract elevation ------------------------ #
+
+    #Set xlims
+    axt.set_xlim(0,40000)
+    
+    # ---------------------------- Display elevation ------------------------ #
+    #This is from fig_2_paper_iceslabs.py
+    axt.xaxis.set_ticks(np.arange(0, 41000, 5000)) #ax.xaxis.set_ticks(np.arange(start, end, stepsize))
+
     #4. Display elevation
     #Store the xticks for the distance
     xtick_distance=axt.get_xticks()
     #Set the xticks
     axt.set_xticks(xtick_distance)
     
-    #Find closest corresponding elevation. Use only the 2013 transect to ensure we are correctly picking up elevation along a transect
-    df_for_elev_sorted_2013=df_for_elev_sorted[df_for_elev_sorted['year']==2013]
     #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
     elevation_display=[np.nan]*len(xtick_distance)
     count=0
@@ -261,14 +296,15 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
             elevation_display[count]=''
         else:
             #Extract index where distance is minimal
-            index_closest=np.argmin(np.abs(np.abs(df_for_elev_sorted_2013['distances'])-np.abs(indiv_dist)))
+            index_closest=np.argmin(np.abs(np.abs(distances_for_elevation_sampling)-np.abs(indiv_dist)))
             #If minimum distance is higher than 1km, store nan. If not, store corresponding elevation
-            if (np.abs(np.abs(df_for_elev_sorted_2013['distances'])-np.abs(indiv_dist)).iloc[index_closest] > 1000):
+            if (np.abs(np.abs(distances_for_elevation_sampling)-np.abs(indiv_dist))[index_closest] > 1000):
                 elevation_display[count]=''
             else:
-                elevation_display[count]=np.round(df_for_elev_sorted_2013.iloc[index_closest]['elevation']).astype(int)
+                elevation_display[count]=np.round(vect_for_elevation[index_closest]).astype(int)
             
         count=count+1
+    # ---------------------------- Display elevation ------------------------ #
 
     #Display elevation on the top xticklabels
     #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
@@ -283,10 +319,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,axt,m
     #Modify spacing between xticklabels and xticks
     axt.tick_params(pad=1.2)
     ax_t.tick_params(pad=1.2)
+    pdb.set_trace()
 
-    #Set xlims
-    axt.set_xlim(0,40000)
-    
     #Use the 2018 dataset for displaying the dashed lines
     lon_for_dashed_lines=df_for_elev_sorted[df_for_elev_sorted['year']==2018]['lon']
     dist_for_dashed_lines=df_for_elev_sorted[df_for_elev_sorted['year']==2018]['distances']
@@ -679,6 +713,16 @@ SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
 CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 ### -------------------------- Load shapefiles --------------------------- ###
 
+### -------------------------- Load GrIS DEM ----------------------------- ###
+#This is from extract_elevation.py
+#https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
+import rasterio
+from rasterio.plot import show
+
+path_GrIS_DEM = r'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
+GrIS_DEM = rasterio.open(path_GrIS_DEM)
+### -------------------------- Load GrIS DEM ----------------------------- ###
+
 #Best continuity between overlap through 2012-2018
 investigation_year={2010:['Data_20100515_01_007.mat','Data_20100515_01_008.mat','Data_20100515_01_009.mat'],
                     2011:['Data_20110408_01_087.mat','Data_20110408_01_088.mat','Data_20110408_01_089.mat',
@@ -972,7 +1016,7 @@ ax8map.imshow(sat_for_extent[3,:,:], extent=extent_image, transform=crs, origin=
 #ax8map.coastlines()
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
-min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,ax11t,my_pal)
+min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,GrIS_DEM,ax11t,my_pal)
 
 #Finalize axis ax11t
 ax11t.set_xlabel('Distance [km]')
