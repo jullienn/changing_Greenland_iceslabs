@@ -1073,7 +1073,7 @@ figManager.window.showMaximized()
 
 pdb.set_trace()
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v6/fig3.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v7/fig3.png',dpi=300)
 
 #Create a new figure for the PDH and total columnal ice content
 fig = plt.figure()
@@ -1162,7 +1162,7 @@ pdb.set_trace()
 
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v6/fig4.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v7/fig4.png',dpi=300)
 
 #########################################################################
 ###                 Calculate slope and intercept                     ###
