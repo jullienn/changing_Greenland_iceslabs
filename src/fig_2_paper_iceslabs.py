@@ -99,7 +99,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         ax1.text(x-35000,y-15000,casestudy_nb,color='r',weight='bold',fontsize=12)
     
     #Add number of case study on fig localisation    
-    axt.text(-0.02, 0.5,casestudy_nb, ha='center', va='center', transform=axt.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    axt.text(-0.02, 0.5,casestudy_nb, ha='center', va='center', transform=axt.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -173,7 +173,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             #Calculate the corresponding elevation
             vect_for_elevation=np.append(vect_for_elevation,val)
     # ---------------------------- Extract elevation ------------------------ #
-        
+    
     #Define empty list
     app_time_period=[]
     app_low_bound=[]
@@ -658,6 +658,10 @@ gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
 
+#Add shading where merging of diconsitnuous slabs
+ax5t.axvspan(23100, 24600, facecolor='gray', alpha=0.3)
+ax7t.axvspan(24600, 26700, facecolor='gray', alpha=0.3)
+
 #Display distance as Elevation [m]
 ax5t.yaxis.set_label_position("right")
 ax5t.set_ylabel('Column ice thickness [m]')
@@ -683,7 +687,7 @@ ax7t.legend_.remove()
 pdb.set_trace()
 
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v7/fig2.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v8/fig2.png',dpi=500)
 
 
 '''
