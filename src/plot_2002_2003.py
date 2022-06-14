@@ -848,14 +848,6 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 technique='perc_2p5_97p5'
 making_down_to_up='FALSE'
 plt.rcParams.update({'font.size': 7})
-########################## Load GrIS elevation ##########################
-#Open the DEM
-grid = Grid.from_raster("C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif",data_name='dem')
-#Minnor slicing on borders to enhance colorbars
-elevDem=grid.dem[:-1,:-1]              
-#Scale the colormap
-divnorm = mcolors.DivergingNorm(vmin=0, vcenter=1250, vmax=2500)
-########################## Load GrIS elevation ##########################
 
 ################# Load 2002-2003 flightlines coordinates ################
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
@@ -866,34 +858,48 @@ all_2002_3_flightlines = pickle.load(f_flightlines)
 f_flightlines.close()
 ################# Load 2002-2003 flightlines coordinates ################
 
-############################ Load DEM information ############################
-#Extract elevation from DEM to associated with coordinates. This piece of code
-#is from https://gis.stackexchange.com/questions/221292/retrieve-pixel-value-with-geographic-coordinate-as-input-with-gdal
-driver = gdal.GetDriverByName('GTiff')
-filename_raster = "C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif" #path to raster
+############################ Load GrIS elevation ##############################
+#This is from fig3_paper_iceslabs.py
+#Open and display satelite image behind map
+from pyproj import CRS
+import rioxarray as rxr
+import cartopy.crs as ccrs
+#This section of displaying sat data was coding using tips from
+#https://www.earthdatascience.org/courses/use-data-open-source-python/intro-raster-data-python/raster-data-processing/reproject-raster/
+#https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
 
-dataset_dem = gdal.Open(filename_raster)
-band = dataset_dem.GetRasterBand(1)
+path_DEM='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/'
+#Load DEM for display
+GrIS_DEM_display = rxr.open_rasterio(path_DEM+'greenland_dem_mosaic_100m_v3.0.tif',
+                              masked=True).squeeze()
+#Load DEM for display
+GrIS_DEM = rasterio.open(path_DEM+'greenland_dem_mosaic_100m_v3.0.tif')
 
-cols = dataset_dem.RasterXSize
-rows = dataset_dem.RasterYSize
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+# This can be converted into a `proj4` string/dict compatible with GeoPandas
+crs_proj4 = crs.proj4_init
+###################### From Tedstone et al., 2022 #####################
 
-transform_elev = dataset_dem.GetGeoTransform()
+#Define extents
+#ease_extent = [-500000, 100000, -3000000, -2000000]
+#ease_extent = [west limit, east limit., south limit, north limit]
+extent_DEM = [np.asarray(GrIS_DEM_display.x[0]), np.asarray(GrIS_DEM_display.x[-1]), np.asarray(GrIS_DEM_display.y[-1]), np.asarray(GrIS_DEM_display.y[0])]
 
-xOrigin = transform_elev[0]
-yOrigin = transform_elev[3]
-pixelWidth = transform_elev[1]
-pixelHeight = -transform_elev[5]
-
-data_dem = band.ReadAsArray(0, 0, cols, rows)
-
-#Define ther zero for longitude:
-#Where lon==0 is in may09_03_15:
-    #lon[886]=23.53372773084396 and lon[887]=-40.08804568537925
-    #lat[886]=-3120053.856912824, lat[887]=-3120048.666364133
-avg_lon_zero=(23.53372773084396+-40.08804568537925)/2
-index_lon_zero=int((avg_lon_zero-xOrigin) / pixelWidth)
-############################ Load DEM information ############################
+'''
+plt.figure(figsize=(14,10))
+ax = plt.axes(projection=crs)
+#ax.set_extent(ease_extent, crs=crs)
+ax.imshow(GrIS_DEM_display[:,:], extent=extent_DEM, transform=crs,cmap='gray', origin='upper') #NIR
+ax.gridlines(color='gray', linestyle='--')
+ax.coastlines()
+#ax.set_xlim(extent_image[0],extent_image[1])
+#ax.set_ylim(extent_image[3],extent_image[2])
+plt.tight_layout()
+'''
+############################ Load GrIS elevation ##############################
 
 lat_all=[]
 lon_all=[]
@@ -914,15 +920,22 @@ for year in list(all_2002_3_flightlines.keys()):
                 continue
             else:
                 print(indiv_file)
-                lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
-                lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
-                #Extract the elevation:
                 lat_elev=[]
                 lon_elev=[]
                 if (days=='jun04'):
-                    lat_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][0])
-                    lon_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][1])
+                    #Append all the flightlines
+                    lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0][0])
+                    lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1][0])
+                    
+                    #For elevation extraction:
+                    lat_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][0][0])
+                    lon_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][1][0])
                 else:
+                    #Append all the flightlines
+                    lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
+                    lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
+                    
+                    #For elevation extraction:
                     lat_elev=all_2002_3_flightlines[year][days][indiv_file][0]
                     lon_elev=all_2002_3_flightlines[year][days][indiv_file][1]
                 
@@ -935,22 +948,15 @@ for year in list(all_2002_3_flightlines.keys()):
                         #elev_all=np.append(elev_all,np.nan)
                         elev_indiv_file=np.append(elev_indiv_file,np.nan)
                     else:
-                        #The origin is top left corner!!
-                        #y will always be negative
-                        row = int((yOrigin - indiv_coord[1] ) / pixelHeight)
-                        if (indiv_coord[0]<0):
-                            # if x negative
-                            col = index_lon_zero-int((-indiv_coord[0]-0) / pixelWidth)
-                        elif (indiv_coord[0]>0):
-                            # if x positive
-                            col = index_lon_zero+int((indiv_coord[0]-0) / pixelWidth)
-                        #Read the elevation
-                        #elev_all=np.append(elev_all,data_dem[row][col])
-                        elev_indiv_file=np.append(elev_indiv_file,data_dem[row][col])
+                        #This is adpated from fi3_paper_iceslabs.py, originally from extract_elevation.py
+                        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
+                        for val in GrIS_DEM.sample([(indiv_coord[0], indiv_coord[1])]):
+                            #Calculate the corresponding elevation
+                            elev_indiv_file=np.append(elev_indiv_file,val)
                 
                 #Store data into the dictionnary
                 elevation_dictionnary[year][days][indiv_file]=elev_indiv_file
-                
+
 ################# Load 2002-2003 flightlines coordinates ################
 
 ################### Load 2002-2003 ice lenses location ##################
@@ -988,45 +994,20 @@ df_2002_2003['colorcode_icelens']=colorcode_icelens
 df_2002_2003['Track_name']=Track_name
 ################### Load 2002-2003 ice lenses location ##################
 
-################### Load 2010-2014 ice slabs location ##################
+######## Load 2010-2018 ice slabs location from Jullien et al., 2022 ##########
 #Load the data
-filename_MacFerrin= 'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/MacFerrin_etal2019_iceslabs.xlsx'
-#Read MacFerrin data thanks to https://stackoverflow.com/questions/65254535/xlrd-biffh-xlrderror-excel-xlsx-file-not-supported
-df_MacFerrin = pd.read_excel(filename_MacFerrin,engine='openpyxl')
-
-#Transform the coordinated from WGS84 to EPSG:3413
-#Example from: https://pyproj4.github.io/pyproj/stable/examples.html
-transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.array(df_MacFerrin.lon),np.array(df_MacFerrin.lat))
-
-lon_3413_MacFerrin=points[0]
-lat_3413_MacFerrin=points[1]
-################### Load 2010-2014 ice slabs location ##################
-
-################### Load 2017-2018 ice slabs location ##################
-#Load the data
-filename_Jullien= 'C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/excel_spatial_aggreation_and_other/final_excel/prob00/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_prob00.csv'
+filename_Jullien= 'C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv'
 #Read Jullien data thanks to https://stackoverflow.com/questions/65254535/xlrd-biffh-xlrderror-excel-xlsx-file-not-supported
-df_jullien = pd.read_csv(filename_Jullien,delimiter=',',decimal='.')
-
-#Keep only 2017-2018 data
-year=df_jullien.Track_name.str[:4]
-year_int=year.astype(str).astype(int)
-
-index_2017=(df_jullien.Track_name.str[:4] == '2017')
-index_2018=(df_jullien.Track_name.str[:4] == '2018')
-
-df_2017_2018=df_jullien[index_2017]
-df_2017_2018=df_2017_2018.append(df_jullien[index_2018])
+df_20102018 = pd.read_csv(filename_Jullien,delimiter=',',decimal='.')
 
 #Transform the coordinated from WGS84 to EPSG:3413
 #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.array(df_2017_2018.lon),np.array(df_2017_2018.lat))
+points=transformer.transform(np.array(df_20102018.lon),np.array(df_20102018.lat))
 
-lon_3413_2017_2018=points[0]
-lat_3413_2017_2018=points[1]
-################### Load 2017-2018 ice slabs location ##################
+lon_3413_20102018=points[0]
+lat_3413_20102018=points[1]
+######## Load 2010-2018 ice slabs location from Jullien et al., 2022 ##########
 
 ################################### Plot ##################################
 #Prepare plot
@@ -1035,7 +1016,7 @@ fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
 gs = gridspec.GridSpec(10, 20)
 gs.update(wspace=0.1)
 gs.update(wspace=0.001)
-ax1 = plt.subplot(gs[0:10, 10:20])
+ax1 = plt.subplot(gs[0:10, 10:20],projection=crs)
 ax2 = plt.subplot(gs[0:2, 0:10])
 ax3 = plt.subplot(gs[2:4, 0:10])
 ax4 = plt.subplot(gs[4:6, 0:10])
@@ -1043,18 +1024,20 @@ ax5 = plt.subplot(gs[6:8, 0:10])
 ax6 = plt.subplot(gs[8:10, 0:10])
 
 #Display elevation
-cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
-#cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
-#ax1.grid()
-ax1.set_title('Ice lenses and slabs location')
+#cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+cb1=ax1.imshow(GrIS_DEM_display[:,:], extent=extent_DEM, transform=crs, origin='upper', cmap='Blues_r',zorder=1,alpha=0.5)
+cbar1=fig.colorbar(cb1, ax=[ax1], location='right')
+ease_extent = [-380100, 106800, -2810000, -2215200]
+ax1.set_extent(ease_extent, crs=crs) 
 
-#Plot all the 2010-2014 icelenses
-ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=1,facecolors='cornflowerblue', edgecolors='none')
+#Plot all the 2010-2018 ice slabs
+ax1.scatter(lon_3413_20102018, lat_3413_20102018,s=1,facecolors='cornflowerblue', edgecolors='none')
 #ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,color='red',marker='o',alpha=0.2)
 
 #Plot all the 2002-2003 flightlines
 ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
 ################################### Plot ##################################
+pdb.set_trace()
 
 #Open several files to display on top of the map
 
@@ -1073,7 +1056,7 @@ xls_icelenses = pd.read_excel(filename_icelenses, sheet_name=None,header=2)
 trafic_light=pd.read_excel(filename_icelenses, sheet_name=None,header=1)
 
 #Specify the general path name
-path_radar_data='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/iceslabs_MacFerrin/data'
+path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
 
 #Plot date 1
 folder_year='2003'
@@ -1119,10 +1102,6 @@ ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_20
 #Purple
 ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=1,facecolors='purple', edgecolors='none')
 
-#Zoom on SW Greenland
-ax1.set_xlim(-380100,106800)
-ax1.set_ylim(-2810000,-2215200)
-
 #Custom ylabel
 ax6.set_ylim(950,2600)
 start_ytick_elev, end_ytick_elev = ax6.get_ylim()
@@ -1136,6 +1115,9 @@ ax6.set_xticks(ticks_xplot_elev)
 ax6.set_xticklabels([])
 ax6.set_xlim(0,1000)
 ax6.grid()
+
+plt.show()
+pdb.set_trace()
 
 ##Save the figure
 #fig_name=[]
