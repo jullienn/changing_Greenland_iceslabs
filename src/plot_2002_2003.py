@@ -354,7 +354,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
             perc_upper_end=0.7572821079440079      
     
     #Generate the pick for vertical distance display
-    ticks_yplot=np.arange(0,radar_slice.shape[0],20)
+    ticks_yplot=np.linspace(0,radar_slice.shape[0],4).astype(int)
     
     #Plot the radar slice
     cb2=ax_plot.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
@@ -370,14 +370,12 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     
     #Set the y ticks
     ax_plot.set_yticks(ticks_yplot) 
-    ax_plot.set_yticklabels(np.round(depths[ticks_yplot]))
+    ax_plot.set_yticklabels(np.round(depths[ticks_yplot]).astype(int))
     
     #Set the x ticks
     #remove xtick
     #ax_plot.set_xticks([])
-    
-    #pdb.set_trace()
-    
+        
     #Distance from start of the trace
     if (ax_nb==2):
         #ax_plot.set_title('Ablation zone',fontsize=10)
@@ -386,36 +384,36 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
         
         letter_elev='a'
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(-0.1, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plot.text(-0.15, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413)-15000,np.nanmedian(lat_3413),'a',color='black',fontsize=20)
     
     elif (ax_nb==3):
         #ax_plot.set_title('Percolation zone - ice lenses',fontsize=10)
-        
+
         letter_elev='b'
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(-0.1, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plot.text(-0.15, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(lon_3413)-5000,np.nanmedian(lat_3413)+5000,'b',color='black',fontsize=20)
+        ax_map.text(np.nanmedian(lon_3413)-30000,np.nanmedian(lat_3413)-10000,'b',color='black',fontsize=20)
     
     elif (ax_nb==4):
         #ax_plot.set_title('Percolation zone - ice slabs',fontsize=10)
-        
+
         letter_elev='c'
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(-0.1, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plot.text(-0.15, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(lon_3413),np.nanmedian(lat_3413)+4000,'c',color='black',fontsize=20)
+        ax_map.text(np.nanmedian(lon_3413)-30000,np.nanmedian(lat_3413)-15000,'c',color='black',fontsize=20)
     
     elif (ax_nb==5):
         #ax_plot.set_title('Dry snow zone',fontsize=10)
-        
+
         letter_elev='d'
         #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(-0.1, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plot.text(-0.15, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(lon_3413)-11000,np.nanmedian(lat_3413),'d',color='black',fontsize=20)
+        ax_map.text(np.nanmedian(lon_3413),np.nanmedian(lat_3413)-37000,'d',color='black',fontsize=20)
         
     #Display the ice lenses identification:
     #pdb.set_trace()
@@ -441,15 +439,18 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
                 color_to_display='#00441b'
             elif (trafic_light_indiv_color[0:3]=='ora'):
                 color_to_display='#fed976'
+                continue
             elif (trafic_light_indiv_color[0:3]=='red'):
                 color_to_display='#c9662c'
+                continue
             elif (trafic_light_indiv_color[0:3]=='pur'):
                 color_to_display='purple'
+                continue
             else:
                 print('The color is not known!')
             
             #Display ice lens
-            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.5)
+            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=1)
     
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
@@ -490,21 +491,21 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     #Set x ticks
     ax_plot.set_xticks(ticks_xplot) 
     #Display the distances from the origin as being the x label
-    ax_plot.set_xticklabels(np.round(distances[ticks_xplot]))
+    ax_plot.set_xticklabels(np.round(distances[ticks_xplot]).astype(int))
     
     #Define the elevation to plot the letter
     if (ax_nb==2):
         #Display which elevation line correspond to which trace
-        ax_elevation.text(950,elevation_vector[950]-150,letter_elev)
+        ax_elevation.text(950,elevation_vector[950]-200,letter_elev)
     elif (ax_nb==3):
         #Display which elevation line correspond to which trace
-        ax_elevation.text(950,elevation_vector[50]-150,letter_elev)
+        ax_elevation.text(950,elevation_vector[50]-200,letter_elev)
     elif (ax_nb==4):
         #Display which elevation line correspond to which trace
-        ax_elevation.text(950,elevation_vector[50]-150,letter_elev)
+        ax_elevation.text(950,elevation_vector[50]-200,letter_elev)
     elif (ax_nb==5):
         #Display which elevation line correspond to which trace
-        ax_elevation.text(950,elevation_vector[50]-150,letter_elev)
+        ax_elevation.text(950,elevation_vector[50]-200,letter_elev)
 
     return
 
@@ -1023,6 +1024,8 @@ SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
 CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 
 ### -------------------------- Load shapefiles --------------------------- ###
+#Set fontsize
+plt.rcParams.update({'font.size': 15}) #from https://stackoverflow.com/questions/3899980/how-to-change-the-font-size-on-a-matplotlib-plot
 
 ################################### Plot ##################################
 #Prepare plot
@@ -1061,11 +1064,27 @@ indiv_icecap.plot(ax=ax1,color='white', facecolor='white', edgecolor='white',lin
 SW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
 CW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
 
+#Add region names
+ax1.text(0,-2580000,'SW',color='#081d58')
+ax1.text(24110,-2267000,'CW',color='#081d58')
+ax1.text(65000,-2663000,'SE',color='#081d58')
+
 #Display coastlines
 ax1.coastlines(edgecolor='black',linewidth=0.75)
 
 #Display contours
 cont=ax1.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1500,3750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.25)
+
+#Add elevation contour values
+ax1.text(0.375, -0.03,'1500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.42, -0.03,'1750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.465, -0.03,'2000', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.53, -0.03,'2250', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.65, -0.03,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.78, -0.03,'2750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.88, -0.03,'2750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.965, -0.03,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(1.04, 0.26,'2250', ha='center', va='center',transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Zoom over SW Greenland
 ease_extent = [-380100, 106800, -2810000, -2215200]
@@ -1075,7 +1094,7 @@ ax1.set_extent(ease_extent, crs=crs)
 ax1.scatter(lon_3413_20102018, lat_3413_20102018,s=1,facecolors='#0570b0', edgecolors='none')
 
 #Plot all the 2002-2003 flightlines
-ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
+ax1.scatter(lon_all, lat_all,s=1,facecolors='#969696', edgecolors='none',alpha=0.1)
 ################################### Plot ##################################
 
 #Open several files to display on top of the map
@@ -1159,12 +1178,33 @@ ax6.set_xlim(0,1000)
 ax6.grid()
 
 #Add pannel label to elevation panel
-ax6.text(-0.1, 0.5,'e', ha='center', va='center', transform=ax5.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax6.text(-0.15, 0.5,'e', ha='center', va='center', transform=ax6.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Display lat/lon lines in map
 gl=ax1.gridlines(draw_labels=True, xlocs=[-44, -48, -52], ylocs=[65, 67, 69], x_inline=False, y_inline=False,linewidth=0.5)
+#Customize lat and lon labels
+gl.ylabels_left = False
+gl.xlabels_bottom = False
 
-#Add legend!!
+#Display the map panel label
+ax1.text(0, 1.04,'f', ha='center', va='center', transform=ax1.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+
+#Add legend
+from matplotlib.patches import Patch
+from matplotlib.lines import Line2D
+
+#Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
+legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='#081d58', linewidth=0.5),
+                   Line2D([0], [0], label='Elevation contours', color='#8c510a'),
+                   Line2D([0], [0], label='2002-2003 flightlines', color='#969696'),
+                   Line2D([0], [0], label='Transects of interest', color='k'),
+                   Line2D([0], [0], marker='o', linestyle='none', label='2010-2018 ice slabs', color='#0570b0'),
+                   Line2D([0], [0], marker='o', linestyle='none', label='2002-2003 ice layers', color='#238b45')]
+
+ax1.legend(handles=legend_elements,loc='lower right',fontsize=12)
+plt.legend()
+ax6.legend_.remove()
 
 plt.show()
 pdb.set_trace()

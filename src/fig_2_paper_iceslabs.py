@@ -380,8 +380,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     print('------------------------------------------------------------------')
     print('End plotting fig 2')
     
-    pdb.set_trace()
-
     return 
 
 ###     This is from iceslabs_20102018_thickening_analysis.py       ###
