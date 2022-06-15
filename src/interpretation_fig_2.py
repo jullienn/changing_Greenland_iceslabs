@@ -322,7 +322,7 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_f
+investigation_year=panel_a
 
 fig = plt.figure()
 gs = gridspec.GridSpec(30, 10)

@@ -364,7 +364,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.grid(False)
     '''
     plt.show()
-    
+        
     #Calculate the slope of each transect
     ratio_for_slope=np.diff(df_for_elev_sorted['elevation'])/np.diff(df_for_elev_sorted['distances'])
     slope=np.zeros(len(ratio_for_slope))
@@ -373,11 +373,15 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             continue
         else:
             slope[i]=np.rad2deg(np.arcsin(np.abs(ratio_for_slope[i])))
+
     print('------------------------------------------------------------------')
-    print('Average slope is',str(np.nanmean(slope)))
+    #print('Average slope is',str(np.nanmean(slope)))
     print('Gross average slope is',str(np.rad2deg(np.arcsin(np.abs((df_for_elev_sorted['elevation'].iloc[0]-df_for_elev_sorted['elevation'].iloc[-1])/(df_for_elev_sorted['distances'].iloc[0]-df_for_elev_sorted['distances'].iloc[-1]))))))
     print('------------------------------------------------------------------')
     print('End plotting fig 2')
+    
+    pdb.set_trace()
+
     return 
 
 ###     This is from iceslabs_20102018_thickening_analysis.py       ###

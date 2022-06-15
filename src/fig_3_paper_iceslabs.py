@@ -1099,7 +1099,7 @@ ax10m_second = ax10m.twinx()
 ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.2,color='indianred')
 ax10m_second.yaxis.set_label_position("right")
 ax10m_second.yaxis.tick_right()
-ax10m_second.set_ylabel('Total ice content [$m^3$]')
+ax10m_second.set_ylabel('Total ice content [$m^2$]')
 ax10m_second.set_xlim(0,8.6)
 
 ax10m.set_ylabel('PDH [°C]')
@@ -1116,7 +1116,7 @@ ax10m_second.grid(False)
 ax10m.spines['left'].set_color('black') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
 ax10m_second.spines['right'].set_color('indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
 ax10m_second.tick_params(axis='y', colors='indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
-ax10m_second.set_ylabel('Total ice content [$m^3$]',color='indianred')
+ax10m_second.set_ylabel('Total ice content [$m^2$]',color='indianred')
 pdb.set_trace()
 '''
 ax10m.legend_.remove()

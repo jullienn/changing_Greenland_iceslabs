@@ -376,7 +376,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     #remove xtick
     #ax_plot.set_xticks([])
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     #Distance from start of the trace
     if (ax_nb==2):
