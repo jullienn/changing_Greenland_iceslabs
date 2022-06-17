@@ -1209,10 +1209,11 @@ ax6.legend_.remove()
 plt.show()
 pdb.set_trace()
 
-##Save the figure
-#fig_name=[]
+#Save the figure
+fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-#plt.savefig(fig_name,dpi=1000)
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4/v1/Fig_A1.png'
+plt.savefig(fig_name,dpi=300)
 print('Done with SW Greenland plot')
 
 #Plot the whole GrIS 2002-2003 radar tracks

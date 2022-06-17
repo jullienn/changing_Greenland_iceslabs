@@ -1102,7 +1102,7 @@ ax10m_second.yaxis.tick_right()
 ax10m_second.set_ylabel('Total ice content [$m^2$]')
 ax10m_second.set_xlim(0,8.6)
 
-ax10m.set_ylabel('PDH [°C]')
+ax10m.set_ylabel('PDH [°C year ^{-1]}]')
 ax10m.set_xlabel('Year')
 ax10m.set_xlim(-0.5,8.6) #From 2009 to 2017
 #Activate ticks xlabel
