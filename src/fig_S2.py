@@ -100,6 +100,51 @@ lat3413_plot[dataframe['mask'][:,0]]=lat_3413[dataframe['mask'][:,0]]
 #Calculate distances
 distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
 
+'''
+########################### For WSL Symposium poster ##########################
+fig = plt.figure(figsize=(8,20))
+gs = gridspec.GridSpec(14, 20)
+gs.update(wspace=0.001)
+ax2 = plt.subplot(gs[0:1, 0:20])
+
+#Display depth corrected radargram
+ax2.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+ax2.invert_yaxis() #Invert the y axis = avoid using flipud.    
+ax2.set_ylim(20,0)
+ax2.set_yticks([0,10,20])
+ax2.set_yticklabels(['0','10','20'])
+ax2.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+
+#For contour display
+final_mask[np.isnan(final_mask)]=0
+final_mask[final_mask.shape[0]-1,:]=np.zeros((1,final_mask.shape[1]))
+final_mask[:,0]=np.zeros(final_mask.shape[0])
+
+#Meshgrid for contour display
+X, Y = np.meshgrid(distances_with_start_transect, dataframe['depth'][ind_20m])
+
+#Display contour
+ax2.contour(X, Y,final_mask,0,colors='red',zorder=2)#,norm=divnorm)
+
+#Set distance
+low_xlim=ax2.get_xlim()[0]
+high_xlim=ax2.get_xlim()[1]
+#Display bottom xtick in km instead of m
+xtick_distance=ax2.get_xticks()
+ax2.set_xticks(xtick_distance)
+ax2.set_xticklabels((xtick_distance/1000).astype(int))
+ax2.set_xlim(low_xlim,high_xlim)
+ax2.set_xlabel('Distance [km]')
+ax2.set_xlim(5000,37000)
+ax2.set_ylabel('Depth [m]')
+
+plt.show()
+pdb.set_trace()
+
+#Save figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/conferences/WSL_symposium_2021/fig2_wsl.png',dpi=300)
+########################### For WSL Symposium poster ##########################
+'''
 #Create the figure
 fig = plt.figure(figsize=(8,20))
 gs = gridspec.GridSpec(14, 20)
