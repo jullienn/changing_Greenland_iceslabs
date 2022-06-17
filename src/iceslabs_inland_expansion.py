@@ -344,7 +344,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S1='FALSE'
-    plot_panela='TRUE'
+    plot_panela='FALSE'
     plot_panelb='TRUE'
     plot_panelc='TRUE'
     
