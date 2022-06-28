@@ -425,8 +425,27 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
 
     #Calculate the difference
     diff_20142013_filling=np.asarray(df_2014_filling_focused['ice_content'])-np.asarray(df_2013_filling_focused['ice_content'])
-    print('Spatial variability - median: ',np.median(diff_20142013_filling))
-    print('Spatial variability - mean: ',np.mean(diff_20142013_filling))
+    print('DO NOT CONSIDER - Spatial variability - median: ',np.median(diff_20142013_filling))
+    print('DO NOT CONSIDER - Spatial variability - mean: ',np.mean(diff_20142013_filling))
+    
+    count_ice_sp=0
+    columnal_sum_spatial_variability=np.zeros(len(np.arange(2013,2015)))
+    columnal_sum_spatial_variability[:]=np.nan
+        
+    for indiv_year in np.arange(2013,2015):
+        print(indiv_year)
+        #Select data
+        df_indiv_year=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
+        #Keep only within studied area
+        df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.07)]
+        #Define the mean delta horizontal dimensions
+        delta_horizontal_m = np.mean(np.asarray(df_studied_case['distances'][1:])-np.asarray(df_studied_case['distances'][:-1])) #This is inspired from probabilisitc_iceslabs.py
+        #Extract total ice content within this area (in m2 because vertical content [m] * horizontal content [m] #/ distance [m])
+        columnal_sum_spatial_variability[count_ice_sp]=np.sum(df_studied_case['20m_ice_content_m']) * delta_horizontal_m #/ (df_studied_case['distances'].iloc[-1]-df_studied_case['distances'].iloc[0]) #if average wanted
+        #Update count_ice_sp
+        count_ice_sp=count_ice_sp+1
+    
+    print('Spatial variability difference (2013-2014)/2014*100: ',(columnal_sum_spatial_variability[0]-columnal_sum_spatial_variability[1])/columnal_sum_spatial_variability[1]*100)
     ######################### Spatial variability #############################
 
     ###########################################################################
