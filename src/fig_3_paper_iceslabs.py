@@ -375,7 +375,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     #Extract the years
     df_2012_filling=df_filling[df_filling['year']==2012]
     df_2018_filling=df_filling[df_filling['year']==2018]
-    
+
     #Extract within the bounds
     df_2012_filling_focused=df_2012_filling[np.logical_and(df_2012_filling['low_bound']>=left_end,df_2012_filling['low_bound']<=right_end)]
     df_2018_filling_focused=df_2018_filling[np.logical_and(df_2018_filling['low_bound']>=left_end,df_2018_filling['low_bound']<=right_end)]
@@ -413,6 +413,21 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     print('ice accretion - mean: ',np.mean(diff_20182012_accretion))
     
     ########################## Ice slabs accretion #############################
+    
+    ######################### Spatial variability #############################
+    #Extract the years
+    df_2013_filling=df_filling[df_filling['year']==2013]
+    df_2014_filling=df_filling[df_filling['year']==2014]
+
+    #Extract within ice filling sector
+    df_2013_filling_focused=df_2013_filling[np.logical_and(df_2013_filling['low_bound']>=left_end,df_2013_filling['low_bound']<=right_end)]
+    df_2014_filling_focused=df_2014_filling[np.logical_and(df_2014_filling['low_bound']>=left_end,df_2014_filling['low_bound']<=right_end)]
+
+    #Calculate the difference
+    diff_20142013_filling=np.asarray(df_2014_filling_focused['ice_content'])-np.asarray(df_2013_filling_focused['ice_content'])
+    print('Spatial variability - median: ',np.median(diff_20142013_filling))
+    print('Spatial variability - mean: ',np.mean(diff_20142013_filling))
+    ######################### Spatial variability #############################
 
     ###########################################################################
     ###      Extract total columnal ice content inside area of focus        ###
@@ -598,7 +613,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
         ###########################################################################
         ###                           Display radargrams                        ###
         ###########################################################################
-        
+                
         #Do not dispay x ticks in 2012, 2013, 2014, 2017
         if (str(year) in list(['2012','2013','2014','2017'])):
             #Fix xticks
