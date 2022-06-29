@@ -386,10 +386,12 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     axt.scatter(df_2018_filling_focused['low_bound'],df_2018_filling_focused['ice_content'],c=my_pal[2018],s=5,alpha=1)
     plt.show()
     '''
+    '''
     #Calculate the difference
     diff_20182012_filling=np.asarray(df_2018_filling_focused['ice_content'])-np.asarray(df_2012_filling_focused['ice_content'])
     print('ice filling - median: ',np.median(diff_20182012_filling))
     print('ice filling - mean: ',np.mean(diff_20182012_filling))
+    '''
     ########################## Ice slabs filling #############################
 
     ########################## Ice slabs accretion #############################
@@ -407,27 +409,15 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     axt.scatter(df_2018_accretion_focused['low_bound'],df_2018_accretion_focused['ice_content'],c=my_pal[2018],s=5,alpha=1)
     plt.show()
     '''
+    '''
     #Calculate the difference
     diff_20182012_accretion=np.asarray(df_2018_accretion_focused['ice_content'])-np.asarray(df_2012_accretion_focused['ice_content'])
     print('ice accretion - median: ',np.median(diff_20182012_accretion))
     print('ice accretion - mean: ',np.mean(diff_20182012_accretion))
-    
+    '''
     ########################## Ice slabs accretion #############################
     
-    ######################### Spatial variability #############################
-    #Extract the years
-    df_2013_filling=df_filling[df_filling['year']==2013]
-    df_2014_filling=df_filling[df_filling['year']==2014]
-
-    #Extract within ice filling sector
-    df_2013_filling_focused=df_2013_filling[np.logical_and(df_2013_filling['low_bound']>=left_end,df_2013_filling['low_bound']<=right_end)]
-    df_2014_filling_focused=df_2014_filling[np.logical_and(df_2014_filling['low_bound']>=left_end,df_2014_filling['low_bound']<=right_end)]
-
-    #Calculate the difference
-    diff_20142013_filling=np.asarray(df_2014_filling_focused['ice_content'])-np.asarray(df_2013_filling_focused['ice_content'])
-    print('DO NOT CONSIDER - Spatial variability - median: ',np.median(diff_20142013_filling))
-    print('DO NOT CONSIDER - Spatial variability - mean: ',np.mean(diff_20142013_filling))
-    
+    ######################### Spatial variability #############################   
     count_ice_sp=0
     columnal_sum_spatial_variability=np.zeros(len(np.arange(2013,2015)))
     columnal_sum_spatial_variability[:]=np.nan
@@ -619,15 +609,15 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             #Ice slabs filling
             print(year)
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 15.6
-            print('filling: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))])
+            print('dist filling: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))])
             
             ##Ice slabs accretion
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 16.7
-            print('accretion: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))])
+            print('dist accretion: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))])
             
             #Full transect
-            print('full end: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))])
-            print('full start: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))])
+            print('dist full end: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))])
+            print('dist full start: ',distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))])
 
         ###########################################################################
         ###                           Display radargrams                        ###
@@ -715,6 +705,58 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             print(str(year),' mean ice right at KAN_U: ',str(KAN_U_ice_mean))
             print(str(year),' distance ice right KAN_U: ',str(distances_with_start_transect[indexes_KAN_U][-1]-distances_with_start_transect[indexes_KAN_U][0]))
         ################## Ice slabs thick right at KAN_U #####################
+        
+        ####################### Top ice accretion #############################
+        if (str(year) in list(['2010','2011','2014','2017'])):
+            continue
+        else:
+            #Extract sector of interest
+            indexes_iceacc=np.logical_and(dataframe[str(year)]['lon_appended'][indexes_within_bounds]>=-47.0487,dataframe[str(year)]['lon_appended'][indexes_within_bounds]<=-47.023)
+            prob_iceacc=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
+            prob_iceacc=prob_iceacc[:,indexes_iceacc]
+            
+            #Define the mean delta vertical dimensions
+            delta_vertical_m = np.mean(np.asarray(dataframe[str(year)]['depth'][1:])-np.asarray(dataframe[str(year)]['depth'][:-1])) #This is inspired from probabilisitc_iceslabs.py
+            
+            iceacc=np.zeros((1,prob_iceacc.shape[1]))
+            for indiv_col in range (0,prob_iceacc.shape[1]):
+                iceacc[0,indiv_col]=np.sum(prob_iceacc[:,indiv_col]>0)*delta_vertical_m
+            
+            '''
+            #Display where we extracted the values
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0329)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
+            '''
+            print('-----> To use:',str(year),' mean ice accretion: ',str(np.mean(iceacc)))
+            print('-----> To use:',str(year),' median ice accretion: ',str(np.median(iceacc)))
+            print(str(year),' distance ice accretion: ',str(distances_with_start_transect[indexes_iceacc][-1]-distances_with_start_transect[indexes_iceacc][0]))
+        ####################### Top ice accretion #############################
+        
+        ######################## In depth filling #############################
+        if (str(year) in list(['2010','2011','2014','2017'])):
+            continue
+        else:
+            #Extract sector of interest
+            indexes_icefill=np.logical_and(dataframe[str(year)]['lon_appended'][indexes_within_bounds]>=-47.11,dataframe[str(year)]['lon_appended'][indexes_within_bounds]<=-47.07)
+            prob_icefill=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
+            prob_icefill=prob_icefill[:,indexes_icefill]
+            
+            #Define the mean delta vertical dimensions
+            delta_vertical_m = np.mean(np.asarray(dataframe[str(year)]['depth'][1:])-np.asarray(dataframe[str(year)]['depth'][:-1])) #This is inspired from probabilisitc_iceslabs.py
+            
+            icefill=np.zeros((1,prob_icefill.shape[1]))
+            for indiv_col in range (0,prob_icefill.shape[1]):
+                icefill[0,indiv_col]=np.sum(prob_icefill[:,indiv_col]>0)*delta_vertical_m
+            
+            '''
+            #Display where we extracted the values
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0329)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
+            '''
+            print('-----> To use:',str(year),' mean ice filling: ',str(np.mean(icefill)))
+            print('-----> To use:',str(year),' median ice filling: ',str(np.median(icefill)))
+            print(str(year),' distance ice filling: ',str(distances_with_start_transect[indexes_iceacc][-1]-distances_with_start_transect[indexes_iceacc][0]))
+        ######################## In depth filling #############################
     
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
