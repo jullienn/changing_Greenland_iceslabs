@@ -218,13 +218,16 @@ plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/fi
 '''
 #Create the figure
 fig,ax1 = plt.subplots()
+plt.rcParams.update({'font.size': 15})
 
 #Display histograms
 ax1.hist(iceslabs_distrib,bins=500,density=True,label='Ice')
-ax1.hist(dryfirn_distrib,bins=500,density=True,alpha=0.2,label='Dry firn')
+ax1.hist(dryfirn_distrib,bins=500,density=True,alpha=0.2,label='Porous firn')
 ax1.legend()
-ax1.set_xlabel('Radar signal strength [dB]')
-ax1.set_ylabel('Probability density [ ]')
+ax1.set_xlabel('Radar signal strength [dB]',fontsize=15)
+ax1.set_ylabel('Probability density [ ]',fontsize=15)
+ax1.tick_params(axis='both', which='major', labelsize=15)
+
 #Define the desired quantiles
 desired_quantiles=np.arange(0.65,0.80,0.01)
 #Define quantiles for investigation of accuracy
@@ -233,12 +236,13 @@ quantile_investigation=np.quantile(iceslabs_distrib,desired_quantiles)
 
 ax1.axvline(x=quantile_investigation[0],linestyle='--',color='k')
 ax1.axvline(x=quantile_investigation[-1],linestyle='--',color='k')
-ax1.text(quantile_investigation[0]-0.02, 0.85, 'quantile 0.65', rotation=90, va='center',fontsize=15)
+ax1.text(quantile_investigation[0]-0.025, 0.85, 'quantile 0.65', rotation=90, va='center',fontsize=15)
 ax1.text(quantile_investigation[-1]+0.005, 0.85, 'quantile 0.79', rotation=90, va='center',fontsize=15)
 
+ax1.set_xlim(-0.5,0.5)
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/figS2_distribution.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/figS2_distribution_updated.png',dpi=300)
 '''
 pdb.set_trace()
 

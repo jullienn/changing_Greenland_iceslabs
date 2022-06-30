@@ -322,12 +322,13 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_a
+investigation_year=panel_b
 
 fig = plt.figure()
 gs = gridspec.GridSpec(30, 10)
 gs.update(wspace=0.1)
 #gs.update(wspace=0.001)
+
 ax1 = plt.subplot(gs[0:4, 0:10])
 ax2 = plt.subplot(gs[4:8, 0:10])
 ax3 = plt.subplot(gs[8:12, 0:10])

@@ -806,7 +806,6 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     ax_elevation.set_xlabel('Distance [km]')
     ax_elevation.set_ylabel('Elevation [m]')
     
-    #pdb.set_trace()
     return
 
 def calcul_elevation(lon,lat,data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero):

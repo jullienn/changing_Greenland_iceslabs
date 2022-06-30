@@ -818,7 +818,7 @@ if (create_pickle == 'TRUE'):
         fig1, (ax1) = plt.subplots(1, 1)
         #fig1.suptitle('Signal strenght distribution - Calibration trace in MacFerrin et al., 2019')
         ax1.hist(iceslabs,bins=500,density=True,label='Ice')
-        ax1.hist(dry_firn,bins=500,density=True,alpha=0.2,label='Dry firn')
+        ax1.hist(dry_firn,bins=500,density=True,alpha=0.2,label='Porous firn')
         ax1.legend()
         ax1.set_xlabel('Radar signal strength [dB]')
         ax1.set_ylabel('Probability density [ ]')

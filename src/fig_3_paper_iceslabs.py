@@ -757,7 +757,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             print('-----> To use:',str(year),' median ice filling: ',str(np.median(icefill)))
             print(str(year),' distance ice filling: ',str(distances_with_start_transect[indexes_iceacc][-1]-distances_with_start_transect[indexes_iceacc][0]))
         ######################## In depth filling #############################
-    
+        pdb.set_trace()
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
 
