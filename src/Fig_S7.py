@@ -299,6 +299,21 @@ def perform_depth_correction(traces_all,depths_all,surface_indices,trace_name,ex
 ############# Define function for depth correction of the traces #############
 ##############################################################################
 
+
+def compute_distances(eastings,northings):
+    #This function is from plot_2002_2003.py, which was originally taken from MacFerrin et al., 2019
+    '''Compute the distance (in m here, not km as written originally) of the traces in the file.'''
+    # C = sqrt(A^2  + B^2)
+    distances = np.power(np.power((eastings[1:] - eastings[:-1]),2) + np.power((northings[1:] - northings[:-1]),2), 0.5)
+
+    #Calculate the cumsum of the distances
+    cumsum_distances=np.nancumsum(distances)
+    #Seeting the first value of the cumsum to be zero as it is the origin
+    return_cumsum_distances=np.zeros(eastings.shape[0])
+    return_cumsum_distances[1:eastings.shape[0]]=cumsum_distances
+
+    return return_cumsum_distances
+
 #Import packages
 import scipy.io
 import rasterio
@@ -422,7 +437,34 @@ crs_proj4 = crs.proj4_init
 #ease_extent = [west limit, east limit., south limit, north limit]
 extent_DEM = [np.asarray(GrIS_DEM_display.x[0]), np.asarray(GrIS_DEM_display.x[-1]), np.asarray(GrIS_DEM_display.y[-1]), np.asarray(GrIS_DEM_display.y[0])]
 
+#Load DEM clipped over the SW
+GrIS_DEM_display_SW = rxr.open_rasterio(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW.tif',
+                              masked=True).squeeze()
+extent_DEM_SW = [np.asarray(GrIS_DEM_display_SW.x[0]), np.asarray(GrIS_DEM_display_SW.x[-1]), np.asarray(GrIS_DEM_display_SW.y[-1]), np.asarray(GrIS_DEM_display_SW.y[0])]
+
 ############################ Load GrIS elevation ##############################
+
+### -------------------------- Load shapefiles --------------------------- ###
+#Load Rignot et al., 2016 Greenland drainage bassins
+path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+
+#Extract indiv regions and create related indiv shapefiles
+NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
+NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
+SE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SE']
+SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
+CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
+NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
+### -------------------------- Load shapefiles --------------------------- ###
+
+### ---------------------- Load 2010-18 ice slabs  ------------------------ ###
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/' 
+#Load 2010-2018 high estimate
+f_20102018_high = open(path_df_with_elevation+'high_estimate/df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
+df_2010_2018_high = pickle.load(f_20102018_high)
+f_20102018_high.close()
+### ---------------------- Load 2010-18 ice slabs  ------------------------ ###
 
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
@@ -727,49 +769,73 @@ for folder_year in folder_years:
                     cbar2.set_label('Signal strength')
                     plt.show()
                                         
+                    #Compute distance
+                    distances=compute_distances(lon_3413[0],lat_3413[0])/1000
+                    
+                    # ---------------------------- Extract elevation ------------------------ #
+                    #Create the vector for elevations storing
+                    vect_for_elevation=[]
+                    #This is from extract_elevation.py
+                    for i in range(0,len(lon_3413[0])):
+                        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
+                        for val in GrIS_DEM.sample([(lon_3413[0][i], lat_3413[0][i])]):
+                            #Calculate the corresponding elevation
+                            vect_for_elevation=np.append(vect_for_elevation,val)
+                    # ---------------------------- Extract elevation ------------------------ #
+                    
                     #II.a.2 Create the subplot
-                    fig = plt.figure(figsize=(10,10))
-                    gs = gridspec.GridSpec(10, 10)
+                    fig = plt.figure(figsize=(10,12))
+                    gs = gridspec.GridSpec(10, 12)
                     plt.rcParams.update({'font.size': 15})
                     
                     #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-                    ax1 = plt.subplot(gs[0:3, 0:9])
+                    ax1 = plt.subplot(gs[0:3, 0:11])
                     ax2 = plt.subplot(gs[3:10, 0:2])
                     ax3 = plt.subplot(gs[3:10, 2:4])
                     ax4 = plt.subplot(gs[3:10, 4:6])
                     ax5 = plt.subplot(gs[3:10, 6:8])
                     ax6 = plt.subplot(gs[3:10, 8:10])
+                    #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
+                    #ax7_general = plt.subplot(gs[3:6, 10:12],projection=crs)
+                    ax7 = plt.subplot(gs[3:10, 10:12],projection=crs)
                     gs.update(wspace=0.1)
-                    gs.update(hspace=1)
+                    gs.update(hspace=4.5)
 
                     #Plot the radar slice
-                    cb1=ax1.pcolor(radar_slice,cmap=plt.get_cmap('gray'))
+                    cb1=ax1.pcolor(np.arange(0,radar_slice.shape[1]),depths[0:99],radar_slice,cmap=plt.get_cmap('gray'))
+                                        
+                    #Display the distance
+                    xticks_plot=np.array([0,200,400,600,800,999])                    
+                    ax1.set_xticks(xticks_plot)
                     
+                    #Display elevation on the top xticklabels
+                    #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
+                    ax1_elev = ax1.secondary_xaxis('top')
+                    ax1_elev.set_xticks(xticks_plot)
+                    
+                    #Display xticks labels
+                    ax1.set_xticklabels(np.round(distances[xticks_plot]).astype(int))
+                    ax1_elev.set_xticklabels((np.round(vect_for_elevation[xticks_plot]).astype(int)))
+
                     #Insert colorbar in plot from https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_inset_locator.html
                     from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-                    
-                    
                     axins1 = inset_axes(ax1,
                     width="2%",  # width = 50% of parent_bbox width
                     height="100%",  # height : 5%
                     loc='center right',
                     borderpad=-3) #For borderpad, fropm https://stackoverflow.com/questions/13310594/positioning-the-colorbar
-                    
-                    
+
                     ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
-                    ax1.set_aspect('equal') # X scale matches Y scale
-                    #In order to display the depth, I used the example 1 of the
-                    #following site: https://www.geeksforgeeks.org/matplotlib-axes-axes-set_yticklabels-in-python/
-                    ax1.set_yticks(ticks_yplot) 
-                    ax1.set_yticklabels(np.round(depths[ticks_yplot]))
+                    #ax1.set_aspect('equal') # X scale matches Y scale
                     ax1.set_ylabel('Depth [m]')
-                    ax1.set_xlabel('Horizontal distance [pixel]')
-                    ax1.text(0.01, 0.75,'a',ha='center', va='center', transform=ax1.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ax1.set_xlabel('Distance [km]')
+                    ax1_elev.set_xlabel('Elevation [m]')
+                    ax1.text(0.01, 0.78,'a',ha='center', va='center', transform=ax1.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
                     #Colorbar custom
                     cb1.set_clim(perc_lower_end,perc_upper_end)
                     cbar1=fig.colorbar(cb1, cax=axins1, orientation = 'vertical')
-                    cbar1.set_label('Signal strength')
+                    cbar1.set_label('Signal strength [dB]')
                     
                     ##Create figure or radar signal evolution
                     #start_vertical_cut=370
@@ -782,7 +848,6 @@ for folder_year in folder_years:
                     ax1.axvline(end_vertical_cut,color=color_plot)
                     #If several vertical lines to plot and plot average
                     for i in range (start_vertical_cut,end_vertical_cut+1):
-                        print(i)
                         ax2.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
                     ax2.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
                     ax2.invert_yaxis() #Invert the y axis
@@ -790,6 +855,8 @@ for folder_year in folder_years:
                     ax2.set_xlim(-6,6)
                     ax2.set_ylim(radar_slice.shape[0],-5)
                     ax2.text(0.04, 0.97,'b',ha='center', va='center', transform=ax2.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
                     color_plot='#2166ac'
                     start_vertical_cut=384
@@ -798,7 +865,6 @@ for folder_year in folder_years:
                     ax1.axvline(end_vertical_cut,color=color_plot)
                     #If several vertical lines to plot and plot average
                     for i in range (start_vertical_cut,end_vertical_cut+1):
-                        print(i)
                         ax3.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
                     ax3.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
                     ax3.invert_yaxis() #Invert the y axis
@@ -807,15 +873,16 @@ for folder_year in folder_years:
                     ax3.set_ylim(radar_slice.shape[0],-5)
                     ax3.set_yticklabels([])
                     ax3.text(0.04, 0.97,'c',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
-                    color_plot='#bf812d'
+                    color_plot='#feb24c'
                     start_vertical_cut=465
                     end_vertical_cut=start_vertical_cut+10
                     ax1.axvline(start_vertical_cut,color=color_plot)
                     ax1.axvline(end_vertical_cut,color=color_plot)
                     #If several vertical lines to plot and plot average
                     for i in range (start_vertical_cut,end_vertical_cut+1):
-                        print(i)
                         ax4.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
                     ax4.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
                     ax4.invert_yaxis() #Invert the y axis
@@ -824,15 +891,16 @@ for folder_year in folder_years:
                     ax4.set_ylim(radar_slice.shape[0],-5)
                     ax4.set_yticklabels([])
                     ax4.text(0.04, 0.97,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
-                    color_plot='#b2182b'
+                    color_plot='#c51b8a'
                     start_vertical_cut=490
                     end_vertical_cut=start_vertical_cut+10
                     ax1.axvline(start_vertical_cut,color=color_plot)
                     ax1.axvline(end_vertical_cut,color=color_plot)
                     #If several vertical lines to plot and plot average
                     for i in range (start_vertical_cut,end_vertical_cut+1):
-                        print(i)
                         ax5.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
                     ax5.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
                     ax5.invert_yaxis() #Invert the y axis
@@ -841,6 +909,8 @@ for folder_year in folder_years:
                     ax5.set_ylim(radar_slice.shape[0],-5)
                     ax5.set_yticklabels([])
                     ax5.text(0.04, 0.97,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
                     color_plot='#54278f'
                     start_vertical_cut=800
@@ -849,7 +919,6 @@ for folder_year in folder_years:
                     ax1.axvline(end_vertical_cut,color=color_plot)
                     #If several vertical lines to plot and plot average
                     for i in range (start_vertical_cut,end_vertical_cut+1):
-                        print(i)
                         ax6.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
                     ax6.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
                     ax6.invert_yaxis() #Invert the y axis
@@ -858,19 +927,78 @@ for folder_year in folder_years:
                     ax6.set_ylim(radar_slice.shape[0],-5)
                     ax6.set_yticklabels([])
                     ax6.text(0.04, 0.97,'f',ha='center', va='center', transform=ax6.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
                     #Finalize
                     ax2.set_yticks(ticks_yplot) 
                     ax2.set_yticklabels(np.round(depths[ticks_yplot]))                    
                     ax2.set_ylabel('Depth [m]')
                     ax4.set_xlabel('Radar signal strength [dB]')
+                                        
+                    ### ------------------ Display map ------------------- ###
+                    '''
+                    #Display regions
+                    SW_rignotetal.plot(ax=ax7,color='white', edgecolor='black',linewidth=0.5) 
+                    CW_rignotetal.plot(ax=ax7,color='white', edgecolor='black',linewidth=0.5)
+                    '''
+                    #Display contours
+                    cont=ax7.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1500,2750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.25)
                     
+                    #Display 2010-2018 high end ice slabs
+                    ax7.scatter(df_2010_2018_high['lon_3413'],df_2010_2018_high['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
+
+                    #Display the 2002-2003 trace of interest
+                    ax7.scatter(lon_3413,lat_3413,s=7,marker='.',linewidths=0,color='black')
+
+                    #Show KAN_U
+                    ax7.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',zorder=10)
+                    
+                    #Add legend
+                    from matplotlib.patches import Patch
+                    from matplotlib.lines import Line2D
+
+                    #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
+                    legend_elements = [Line2D([0], [0], label='Elevation contours', color='#8c510a'),
+                                       Line2D([0], [0], label='Radargram 02/06/2002', color='k'),
+                                       Line2D([0], [0], marker='o', linestyle='none', label='2010-2018 ice slabs', color='#4575b4'),
+                                       Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
+
+                    ax7.legend(handles=legend_elements,loc='lower center',fontsize=10)
+                    
+                    '''
+                    lgnd = ax7.legend(loc='lower center',fontsize=10)
+                    # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
+                    lgnd.legendHandles[0]._sizes = [100]
+                    lgnd.legendHandles[1]._sizes = [100]
+                    lgnd.legendHandles[2]._sizes = [20]
+                    #ax7.gridlines(color='gray', linestyle='--')
+                    #ax7.coastlines()
+                    '''
+                    #Set x lims
+                    ax7.set_xlim(-187234.32225556672, -62652.03297527041)
+                    ax7.set_ylim(-2757515.136754996, -2485033.0174200167)
+                    
+                    #Display lat/lon lines in map
+                    gl=ax7.gridlines(draw_labels=True, xlocs=[-47, -48, -49], ylocs=[65, 66, 67], x_inline=False, y_inline=False,linewidth=0.5)
+                    #Customize lat and lon labels
+                    gl.ylabels_left = False
+                    gl.xlabels_top = False
+                    
+                    #Add elevation contour values
+                    ax7.text(0.24, 0.72,'1500', ha='center', va='center', rotation=70,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ax7.text(0.48, 0.74,'1750', ha='center', va='center', rotation=70,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ax7.text(0.85, 0.74,'2000', ha='center', va='center', rotation=70,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ax7.text(0.89, 0.35,'2250', ha='center', va='center', rotation=60,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    
+                    ax7.text(0.04, 0.97,'g',ha='center', va='center', transform=ax7.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ### ------------------ Display map ------------------- ###
+
                     plt.show()
                     pdb.set_trace()
-                    plt.show()
-                    
+                                        
                     #Save the figure
-                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v1/figS7.png',dpi=500)
+                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v2/figS7.png',dpi=500)
                     
                     
 print('End of processing')

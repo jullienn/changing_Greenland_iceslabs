@@ -150,11 +150,12 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
                     if (do_plot=='TRUE'):
                         patch1 = PolygonPatch(concave_hull, zorder=2, alpha=set_alpha,color=col_year)
                         ax1c.add_patch(patch1)
-                        #ax1c.scatter(pnt_matched.lon_3413,pnt_matched.lat_3413,zorder=3)
+                        ax1c.scatter(pnt_matched.lon_3413,pnt_matched.lat_3413,zorder=3,s=0.1)
                         plt.show()
+                        pdb.set_trace()
                     
                     #Update area_region
-                    area_region=area_region+concave_hull.area #IS THAT CORRECT???
+                    area_region=area_region+concave_hull.area #I do not think this is correct. Look for 'area' on this webpage https://gist.github.com/dwyerk/10561690
             
             #Store total area per region and per time period
             summary_area[time_period][region]=area_region  
@@ -345,7 +346,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S1='FALSE'
     plot_panela='FALSE'
-    plot_panelb='TRUE'
+    plot_panelb='FALSE'
     plot_panelc='TRUE'
     
     if (plot_fig_S1 == 'TRUE'):
@@ -731,9 +732,9 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             ####################### From concave hull computation #######################
             
             #Calculate concave hull and extract low and high end areas
-            do_plot='FALSE'
+            do_plot='TRUE'
             high_end_summary=concave_hull_computation(df_2010_2018_high,dictionnaries_convexhullmasks,ax1c,do_plot,'high_end')
-            do_plot='FALSE'
+            do_plot='TRUE'
             low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot,'low_end')
                         
             #Display area change on the figure
