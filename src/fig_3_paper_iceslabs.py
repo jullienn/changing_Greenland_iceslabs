@@ -757,7 +757,33 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             print('-----> To use:',str(year),' median ice filling: ',str(np.median(icefill)))
             print(str(year),' distance ice filling: ',str(distances_with_start_transect[indexes_iceacc][-1]-distances_with_start_transect[indexes_iceacc][0]))
         ######################## In depth filling #############################
-        pdb.set_trace()
+        
+        ################ Near surface ice layer thickness #####################
+        if (str(year) in list(['2013'])):
+            
+            #Extract sector of interest
+            prob_nsil=dataframe[str(year)]['probabilistic']
+            prob_nsil=prob_nsil[:,1800:dataframe[str(year)]['probabilistic'].shape[1]]
+            
+            #Define the mean delta vertical dimensions
+            delta_vertical_m = np.mean(np.asarray(dataframe[str(year)]['depth'][1:])-np.asarray(dataframe[str(year)]['depth'][:-1])) #This is inspired from probabilisitc_iceslabs.py
+            
+            nsil=np.zeros((1,prob_nsil.shape[1]))
+            for indiv_col in range (0,prob_nsil.shape[1]):
+                nsil[0,indiv_col]=np.sum(prob_nsil[:,indiv_col]>0)*delta_vertical_m
+            
+            #Get rid of zeros
+            nsil[nsil==0]=np.nan
+            
+            '''
+            #Display where we extracted the values
+            ax_plotting.axvline(x=distances_with_start_transect[1800-665],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
+            '''
+            
+            print(str(year),' mean near-surface ice layer thickness: ',str(np.nanmean(nsil)))
+            print(str(year),' median near-surface ice layer thickness: ',str(np.nanmedian(nsil)))
+        ################ Near surface ice layer thickness #####################
+        
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
 

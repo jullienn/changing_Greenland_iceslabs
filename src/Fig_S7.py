@@ -996,7 +996,7 @@ for folder_year in folder_years:
 
                     plt.show()
                     pdb.set_trace()
-                                        
+                    
                     #Save the figure
                     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v2/figS7.png',dpi=500)
                     
