@@ -346,7 +346,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S1='FALSE'
     plot_panela='FALSE'
-    plot_panelb='FALSE'
+    plot_panelb='TRUE'
     plot_panelc='TRUE'
     
     if (plot_fig_S1 == 'TRUE'):
@@ -558,10 +558,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axelev.set_xticklabels(labels)
         axelev.set_ylim(1000,2050)
         
-        axelev.text(ind[0],np.nanmax(max_elev_diff_NO)+55,str(int(np.round(np.nanmax(max_elev_diff_NO)-np.nanmin(max_elev_diff_NO))))+' m')
+        axelev.text(ind[0],np.nanmax(max_elev_diff_NO)+55,str(int(np.round(max_elev_diff_NO[4]-max_elev_diff_NO[0])))+' m')
         #axelev.text(ind[1],np.nanmax(max_elev_diff_NW)+180,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
-        axelev.text(ind[2],np.nanmax(max_elev_diff_CW)+30,str(int(np.round(np.nanmax(max_elev_diff_CW)-np.nanmin(max_elev_diff_CW))))+' m')
-        axelev.text(ind[3],np.nanmax(max_elev_diff_SW)+90,str(int(np.round(np.nanmax(max_elev_diff_SW)-np.nanmin(max_elev_diff_SW))))+' m')
+        axelev.text(ind[2],np.nanmax(max_elev_diff_CW)+30,str(int(np.round(max_elev_diff_CW[4]-max_elev_diff_CW[0])))+' m')
+        axelev.text(ind[3],np.nanmax(max_elev_diff_SW)+90,str(int(np.round(max_elev_diff_SW[4]-max_elev_diff_SW[0])))+' m')
         
         axelev.set_ylabel('Elevation [m]')
         

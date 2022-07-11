@@ -330,8 +330,6 @@ panel_f
 '''
 #Define the panel to study
 investigation_year=panel_f
-#11h20-14h45
-#15h50
 
 plt.rcParams.update({'font.size': 20})
 
