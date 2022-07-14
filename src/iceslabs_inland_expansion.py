@@ -355,10 +355,10 @@ def display_shapefiles(ax_plot,region_rignot,x0,x1,y0,y1,flightlines_20022018,ic
     
     #Shapefiles
     # --- 2010-2018
-    iceslabs_jullien_highend_20102018.plot(ax=ax_plot,color='#d73027', edgecolor='black',linewidth=0.5, alpha=0.75)
+    iceslabs_jullien_highend_20102018.plot(ax=ax_plot,color='#d73027', edgecolor='none',linewidth=0.5)
     
     # --- 2010-11-12
-    iceslabs_jullien_highend_2010_11_12.plot(ax=ax_plot,color='#4575b4', edgecolor='black',linewidth=0.5, alpha=0.75)
+    iceslabs_jullien_highend_2010_11_12.plot(ax=ax_plot,color='#4575b4', edgecolor='none',linewidth=0.5)
     
     #Flightlines
     # --- 2010
@@ -375,6 +375,21 @@ def display_shapefiles(ax_plot,region_rignot,x0,x1,y0,y1,flightlines_20022018,ic
                 flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lat_3413'],
                 s=0.1,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
     
+    legend_display='FALSE'
+    
+    if (legend_display=='TRUE'):
+        #Display legend on the NE
+        if (np.array(region_rignot['SUBREGION1'])[0]=='NE'):
+            #Custom legend myself
+            from matplotlib.patches import Patch
+            from matplotlib.lines import Line2D
+            
+            legend_elements = [Patch(facecolor='#d73027',label='2010-18 extent'),
+                               Patch(facecolor='#4575b4',label='2010-12 extent'),
+                               Line2D([0], [0], color='#d9d9d9', lw=2, label='flightlines 2010-11-12'),
+                               Line2D([0], [0], color='#969696', lw=2, label='flightlines 2017-18')]
+            ax_plot.legend(handles=legend_elements,loc='upper right')
+            plt.legend()
     '''
     #Likelihood
     # --- 2010-11-12
@@ -518,8 +533,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axmap.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],df_all[df_all.str_year=='2002-2003']['lat_3413'],s=3,marker='.',linewidths=0,color='#2ECC71',label='2002-2003 ice slabs')
         
         #Display firn aquifers
-        axmap.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=3,marker='.',linewidths=0,color='#807dba',label='Firn aquifers')
-                
+        axmap.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=3,marker='.',linewidths=0,color='#fec44f',label='Firn aquifers')
+        # #ae017e ?? color firn aquifer
+        
+        
         #Display region name on panel a 
         axmap.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
         axmap.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
@@ -535,7 +552,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         lgnd.legendHandles[2]._sizes = [30]
         lgnd.legendHandles[3]._sizes = [30]
         lgnd.legendHandles[4]._sizes = [30]
-                
+        
         ###################### From Tedstone et al., 2022 #####################
         #from plot_map_decadal_change.py
         # x0, x1, y0, y1
@@ -1086,7 +1103,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                 else:
                     print('Region not known')
 
-    pdb.set_trace()
     # -------------------------------- PANELS C -------------------------------        
     #Force legend of pannel b to be upper left
     axelev.legend(handles=legend_elements,loc='upper left')
@@ -1103,7 +1119,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     pdb.set_trace()
     
     #Save figure
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v4/fig1c_last.png',dpi=1000)
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v5/fig1.png',dpi=1000)
 
 #Import packages
 #import rasterio
