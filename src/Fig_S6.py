@@ -239,6 +239,10 @@ sns.set_theme(style="whitegrid")
 import matplotlib.image as mpimg
 from pyproj import Transformer
 
+#Define palette for time periods, this is from fig2_paper_icelsabs.py
+#This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
+my_pal = {'2010': "#fdd49e", '2011': "#fc8d59", '2012': "#fc8d59", '2013':"#d7301f",'2014':"#d7301f",'2017':"#7f0000",'2018':"#7f0000"}
+
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
@@ -547,8 +551,8 @@ for single_year in investigation_year.keys():
     
     #plot data
     cb=ax_plot.pcolor(X, Y, C,cmap=plt.get_cmap('gray'),zorder=-1)#,norm=divnorm)
-    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.  
-
+    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
+    
     #Activate ticks ylabel
     ax_plot.yaxis.tick_left()
     
@@ -585,8 +589,10 @@ for single_year in investigation_year.keys():
     
     #Get rid of xticklabels
     ax_plot.set_xticklabels([])
-
-
+    
+    #Display year
+    ax_plot.text(0.98, 0.875,str(single_year),ha='center', va='center', transform=ax_plot.transAxes,weight='bold',fontsize=15,color=my_pal[str(single_year)])#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    
 if (investigation_year==panel_a):
     ax4.set_ylabel('Depth [m]')
     ax6.set_yticklabels(['0','10','20'])
@@ -661,7 +667,7 @@ plt.show()
 
 pdb.set_trace()
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v1/figS6_panelf.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v2/figS6_panelf.png',dpi=500)
 
 
 

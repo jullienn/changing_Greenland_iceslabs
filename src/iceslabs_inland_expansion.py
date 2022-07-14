@@ -343,9 +343,81 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
     ###################### From Tedstone et al., 2022 #####################
     return
 
+
+def display_shapefiles(ax_plot,region_rignot,x0,x1,y0,y1,flightlines_20022018,iceslabs_jullien_highend_20102018,iceslabs_jullien_highend_2010_11_12,df_thickness_likelihood_20102018,crs):
+    
+    
+    #Display coastlines
+    ax_plot.coastlines(edgecolor='black',linewidth=0.75)
+    
+    #Display GrIS drainage bassins of the specific region
+    region_rignot.plot(ax=ax_plot,color='white', edgecolor='#081d58',linewidth=0.5)
+    
+    #Shapefiles
+    # --- 2010-2018
+    iceslabs_jullien_highend_20102018.plot(ax=ax_plot,color='#d73027', edgecolor='black',linewidth=0.5, alpha=0.75)
+    
+    # --- 2010-11-12
+    iceslabs_jullien_highend_2010_11_12.plot(ax=ax_plot,color='#4575b4', edgecolor='black',linewidth=0.5, alpha=0.75)
+    
+    #Flightlines
+    # --- 2010
+    ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year=='2010']['lon_3413'],
+                flightlines_20022018[flightlines_20022018.str_year=='2010']['lat_3413'],
+                s=0.1,marker='.',linewidths=0,c='#d9d9d9',label='flightlines 2010')
+    # --- 2011-2012
+    ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lon_3413'],
+                flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lat_3413'],
+                s=0.1,marker='.',linewidths=0,c='#d9d9d9',label='flightlines 2011-2012')
+    
+    # --- 2017-2018
+    ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lon_3413'],
+                flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lat_3413'],
+                s=0.1,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
+    
+    '''
+    #Likelihood
+    # --- 2010-11-12
+    ax_plot.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2010']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2010']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2010']['likelihood'],
+                s=15,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
+    
+    ax_plot.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['likelihood'],
+                s=15,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
+    
+    lik_blues=ax_plot.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
+                s=15,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
+    
+    # --- 2017-2018            
+    ax_plot.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['likelihood'],
+                s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
+    lik_reds=ax_plot.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
+                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
+                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
+                s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
+    '''
+    ###################### From Tedstone et al., 2022 #####################
+    #from plot_map_decadal_change.py
+    # x0, x1, y0, y1
+    ax_plot.set_extent([x0, x1, y0, y1], crs=crs)
+    #ax_plot.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5)
+    #import scalebar
+    #scalebar.scale_bar(ax_plot, (0.65, 0.06), 300)
+    ax_plot.axis('off')
+    ###################### From Tedstone et al., 2022 #####################
+    return
+
+
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S1='FALSE'
-    plot_panela='FALSE'
+    plot_panela='TRUE'
     plot_panelb='TRUE'
     plot_panelc='TRUE'
     
@@ -416,15 +488,18 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     if (plot_panela=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
         axmap.set_facecolor('white')
-
+        
+        #Display coastlines
+        axmap.coastlines(edgecolor='black',linewidth=0.75)
+                
         #Display GrIS drainage bassins
-        NO_rignotetal.plot(ax=axmap,color='white', edgecolor='black')
-        NE_rignotetal.plot(ax=axmap,color='white', edgecolor='black') 
-        SE_rignotetal.plot(ax=axmap,color='white', edgecolor='black') 
-        SW_rignotetal.plot(ax=axmap,color='white', edgecolor='black') 
-        CW_rignotetal.plot(ax=axmap,color='white', edgecolor='black') 
-        NW_rignotetal.plot(ax=axmap,color='white', edgecolor='black')         
-
+        NO_rignotetal.plot(ax=axmap,color='white', edgecolor='#081d58',linewidth=0.5)
+        NE_rignotetal.plot(ax=axmap,color='white', edgecolor='#081d58',linewidth=0.5) 
+        SE_rignotetal.plot(ax=axmap,color='white', edgecolor='#081d58',linewidth=0.5) 
+        SW_rignotetal.plot(ax=axmap,color='white', edgecolor='#081d58',linewidth=0.5) 
+        CW_rignotetal.plot(ax=axmap,color='white', edgecolor='#081d58',linewidth=0.5) 
+        NW_rignotetal.plot(ax=axmap,color='white', edgecolor='#081d58',linewidth=0.5)         
+                
         #Display 2002-2018 flightlines
         axmap.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.1,marker='.',linewidths=0,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
         
@@ -460,12 +535,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         lgnd.legendHandles[2]._sizes = [30]
         lgnd.legendHandles[3]._sizes = [30]
         lgnd.legendHandles[4]._sizes = [30]
-        
-        pdb.set_trace()
-
-        #Display coastlines
-        axmap.coastlines(edgecolor='black',linewidth=0.75)
-        
+                
         ###################### From Tedstone et al., 2022 #####################
         #from plot_map_decadal_change.py
         # x0, x1, y0, y1
@@ -473,7 +543,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axmap.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,color='#969696')
         #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
         axmap.axis('off')
-        pdb.set_trace()
         ###################### From Tedstone et al., 2022 #####################        
         # -------------------------------- PANEL A --------------------------------
 
@@ -628,15 +697,15 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         print('Rate max SW:',str(np.round((table_for_rate_max[3,-1]-table_for_rate_max[3,0])/(2018-2003),2)),'m/yr')
 
         '''
-        pdb.set_trace()
-
+        
         # -------------------------------- PANEL B --------------------------------    
     
     if (plot_panelc=='TRUE'):
         
-        hull_computation='TRUE'
-        likelihood_display='TRUE'
-        
+        hull_computation='FALSE'
+        likelihood_display='FALSE'
+        shapefile_display='TRUE'        
+
         # -------------------------------- PANELS C -------------------------------        
         if (hull_computation=='TRUE'):
             #Panel C
@@ -876,8 +945,149 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     
                 else:
                     print('Region not known')
+        
+        
+        
+        if (shapefile_display=='TRUE'):
+            '''
+            crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.) 
+            fig = plt.figure(figsize=(14,50))
+            gs = gridspec.GridSpec(7, 25)
+            gs.update(wspace = 2.5)
+            ax_area = plt.subplot(gs[0:7, 0:25],projection=crs)
+            iceslabs_jullien_highend_20102018.plot(ax=ax_area,color='blue', edgecolor='black',linewidth=0.5)
+            iceslabs_jullien_highend_2010_11_12.plot(ax=ax_area,color='red', edgecolor='black',linewidth=0.5)
+            '''
+            #Open shapefiles for area change calculations
+            #Load high estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
+            path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
+            iceslabs_jullien_highend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018_ForCalculations.shp')
+            iceslabs_jullien_highend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12_ForCalculations.shp')
             
-        # -------------------------------- PANELS C -------------------------------        
+            print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000)))), 'km2')
+            
+            #Difference in km2. Divide by 1000000 to convert from m2 to km2
+            print('Difference 2018 VS 2012:', str(np.round(np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000)),2)), 'km2')
+
+            #Difference in %
+            print('Difference 2018 VS 2012:', str((np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000)))/np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000))*100),'%')
+            
+            #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
+            for region in list(['NE','NO','NW','CW','SW']):
+                if (region =='NE'):
+                    x0=283000
+                    x1=670000
+                    y0=-1300000
+                    y1=-940000
+                    #display shapefiles 10-11-12 and 17-18
+                    display_shapefiles(axNE,NE_rignotetal,x0,x1,y0,y1,flightlines_20022018,iceslabs_jullien_highend_20102018,iceslabs_jullien_highend_2010_11_12,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axNE.text(330000,-1280000,'NE',fontsize=15)
+                    
+                    #Extract and display area change in %
+                    #Keep only where name == region
+                    regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['name']==region].area/1000000)
+                    regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['name']==region].area/1000000)
+                    
+                    ################ DISPLAY AREA CHANGE #####################
+                    #Compute and display relative change
+                    high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
+                    axNE.text(325000,-1320000,'+'+str(int(np.round(high_end_change)))+' %')
+                    ################ DISPLAY AREA CHANGE #####################
+                                        
+                elif(region =='NO'):
+                    x0=-605000
+                    x1=302000
+                    y0=-1215000
+                    y1=-785000
+                    
+                    #display shapefiles 10-11-12 and 17-18
+                    display_shapefiles(axNO,NO_rignotetal,x0,x1,y0,y1,flightlines_20022018,iceslabs_jullien_highend_20102018,iceslabs_jullien_highend_2010_11_12,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axNO.text(-90000,-1170000,'NO',fontsize=15)
+                    
+                    #Extract and display area change in %
+                    #Keep only where name == region
+                    regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['name']==region].area/1000000)
+                    regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['name']==region].area/1000000)
+                    
+                    ################ DISPLAY AREA CHANGE #####################
+                    #Compute and display relative change
+                    high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
+                    axNO.text(-120000,-1240000,'+'+str(int(np.round(high_end_change)))+' %')
+                    ################ DISPLAY AREA CHANGE #####################
+                    
+                elif(region =='NW'):
+                    x0=-610000
+                    x1=-189000
+                    y0=-1140000
+                    y1=-1985000
+                    
+                    #display shapefiles 10-11-12 and 17-18
+                    display_shapefiles(axNW,NW_rignotetal,x0,x1,y0,y1,flightlines_20022018,iceslabs_jullien_highend_20102018,iceslabs_jullien_highend_2010_11_12,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axNW.text(-395000,-1400000,'NW',fontsize=15)
+                    
+                    #Extract and display area change in %
+                    #Keep only where name == region
+                    regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['name']==region].area/1000000)
+                    regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['name']==region].area/1000000)
+                    
+                    ################ DISPLAY AREA CHANGE #####################
+                    #Compute and display relative change
+                    high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
+                    axNW.text(-400000,-1480000,'+'+str(int(np.round(high_end_change)))+' %')
+                    ################ DISPLAY AREA CHANGE #####################
+                    
+                elif(region =='CW'):
+                    x0=-259000
+                    x1=-60500
+                    y0=-2385000
+                    y1=-1935000
+                    
+                    #display shapefiles 10-11-12 and 17-18
+                    display_shapefiles(axCW,CW_rignotetal,x0,x1,y0,y1,flightlines_20022018,iceslabs_jullien_highend_20102018,iceslabs_jullien_highend_2010_11_12,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axCW.text(-207500,-2327000,'CW',fontsize=15)
+                    
+                    #Extract and display area change in %
+                    #Keep only where name == region
+                    regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['name']==region].area/1000000)
+                    regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['name']==region].area/1000000)
+                    
+                    ################ DISPLAY AREA CHANGE #####################
+                    #Compute and display relative change
+                    high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
+                    axCW.text(-220000,-2360000,'+'+str(int(np.round(high_end_change)))+' %')
+                    ################ DISPLAY AREA CHANGE #####################
+                    
+                elif(region =='SW'):
+                    x0=-265000
+                    x1=-55600
+                    y0=-2899000
+                    y1=-2370000
+                    
+                    #display shapefiles 10-11-12 and 17-18
+                    display_shapefiles(axSW,SW_rignotetal,x0,x1,y0,y1,flightlines_20022018,iceslabs_jullien_highend_20102018,iceslabs_jullien_highend_2010_11_12,df_thickness_likelihood_20102018,crs)
+                    #Display region name
+                    axSW.text(-167000,-2800000,'SW',fontsize=15)
+                    
+                    #Extract and display area change in %
+                    #Keep only where name == region
+                    regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['name']==region].area/1000000)
+                    regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['name']==region].area/1000000)
+                    
+                    ################ DISPLAY AREA CHANGE #####################
+                    #Compute and display relative change
+                    high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
+                    axSW.text(-185000,-2840000,'+'+str(int(np.round(high_end_change)))+' %')
+                    ################ DISPLAY AREA CHANGE #####################
+                    
+                else:
+                    print('Region not known')
+
+    pdb.set_trace()
+    # -------------------------------- PANELS C -------------------------------        
     #Force legend of pannel b to be upper left
     axelev.legend(handles=legend_elements,loc='upper left')
     
@@ -962,6 +1172,21 @@ NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
 GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1_EPSG3413.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
 GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
+
+#Load high estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
+path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
+iceslabs_jullien_highend_20102018=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
+iceslabs_jullien_highend_2010_11_12=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12.shp')
+'''
+#Display extent 2010-18 and 2010-11-12
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.) 
+fig = plt.figure(figsize=(14,50))
+gs = gridspec.GridSpec(7, 25)
+gs.update(wspace = 2.5)
+ax1 = plt.subplot(gs[0:7, 0:25],projection=crs)
+iceslabs_jullien_highend_20102018.plot(ax=ax1,color='blue', edgecolor='black',linewidth=0.5)
+iceslabs_jullien_highend_2010_11_12.plot(ax=ax1,color='red', edgecolor='black',linewidth=0.5)
+'''
 ### -------------------------- Load shapefiles --------------------------- ###
 
 ### ---------------------------- Load dataset ---------------------------- ###
