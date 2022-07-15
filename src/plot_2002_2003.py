@@ -1022,6 +1022,10 @@ GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'G
 SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
 CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 
+#Load high estimates ice slabs extent 2010-2018, manually drawn on QGIS
+path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
+iceslabs_jullien_highend_20102018=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
+
 ### -------------------------- Load shapefiles --------------------------- ###
 #Set fontsize
 plt.rcParams.update({'font.size': 15}) #from https://stackoverflow.com/questions/3899980/how-to-change-the-font-size-on-a-matplotlib-plot
@@ -1089,9 +1093,14 @@ ax1.text(1.04, 0.26,'2250', ha='center', va='center',transform=ax1.transAxes,fon
 ease_extent = [-380100, 106800, -2810000, -2215200]
 ax1.set_extent(ease_extent, crs=crs) 
 
+#Shapefiles
+# --- 2010-2018
+iceslabs_jullien_highend_20102018.plot(ax=ax1,color='#6baed6', edgecolor='none',linewidth=0.5)
+
+'''
 #Plot all the 2010-2018 ice slabs
 ax1.scatter(lon_3413_20102018, lat_3413_20102018,s=1,facecolors='#0570b0', edgecolors='none')
-
+'''
 #Plot all the 2002-2003 flightlines
 ax1.scatter(lon_all, lat_all,s=1,facecolors='#969696', edgecolors='none',alpha=0.1)
 ################################### Plot ##################################
@@ -1198,7 +1207,7 @@ legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='#0
                    Line2D([0], [0], label='Elevation contours', color='#8c510a'),
                    Line2D([0], [0], label='2002-2003 flightlines', color='#969696'),
                    Line2D([0], [0], label='Transects of interest', color='k'),
-                   Line2D([0], [0], marker='o', linestyle='none', label='2010-2018 ice slabs', color='#0570b0'),
+                   Patch(facecolor='#6baed6',label='2010-2018 ice slabs'),
                    Line2D([0], [0], marker='o', linestyle='none', label='2002-2003 ice layers', color='#238b45')]
 
 ax1.legend(handles=legend_elements,loc='lower right',fontsize=12)
@@ -1211,7 +1220,7 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4/v1/Fig_A1.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4/v2/Fig_A1.png'
 plt.savefig(fig_name,dpi=300)
 print('Done with SW Greenland plot')
 
