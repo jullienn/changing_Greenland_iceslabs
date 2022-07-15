@@ -71,12 +71,16 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         
         #Append data to each other
         df_for_elev=df_for_elev.append(df_for_elev_temp)
-             
+                
         #Display data
         ax1.scatter(df_for_elev_temp['lon_3413'],
                     df_for_elev_temp['lat_3413'],
                     s=0.1,color='#737373')
         
+    #Save pandas dataframe into excel
+    path_transects='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/transects_Fig2/'
+    df_for_elev.to_csv(path_transects+'Fig2_transect_'+str(casestudy_nb)+'.csv',index=False)
+    
     #Display rectangle around data    
     x=(np.min(df_for_elev.lon_3413)-offset_x)
     y=(np.min(df_for_elev.lat_3413)-offset_y)
