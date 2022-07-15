@@ -333,7 +333,7 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_f
+investigation_year=panel_e
 
 plt.rcParams.update({'font.size': 20})
 
@@ -643,7 +643,8 @@ elif (investigation_year==panel_f):
 
 else:
     print('Wrong transect name input')
-    
+
+
 plot_dist=[]
 for indiv_tick in ticks_through:
     lon_diff=[]
@@ -653,6 +654,7 @@ for indiv_tick in ticks_through:
         plot_dist=np.append(plot_dist,999)
     else:
         plot_dist=np.append(plot_dist,dataframe[str(year_ticks)]['distances'][index_min]/1000-dataframe[str(year_ticks)]['distances'][np.argmin(np.abs(dataframe[str(year_ticks)]['lon_appended']-start_transect))]/1000)
+
 
 ax_tick_plot.xaxis.set_ticks_position('bottom') 
 ax_tick_plot.set_xticklabels(np.round(plot_dist).astype(int))
