@@ -214,7 +214,7 @@ plt.show()
 pdb.set_trace()
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/figS2_radargrams.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v4/figS4_radargrams.png',dpi=300)
 '''
 #Create the figure
 fig,ax1 = plt.subplots()
@@ -242,7 +242,7 @@ ax1.text(quantile_investigation[-1]+0.005, 0.85, 'quantile 0.79', rotation=90, v
 ax1.set_xlim(-0.5,0.5)
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v4/figS2_distribution_updated.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v4/figS5_distribution.png',dpi=300)
 '''
 pdb.set_trace()
 
@@ -293,4 +293,4 @@ for single_quantile in desired_quantiles:
     ax2.set_aspect(100)
     
     #Save figure
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/'+str(single_quantile)+'.png',dpi=300)
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v4/figS4_'+str(single_quantile)+'.png',dpi=300)
