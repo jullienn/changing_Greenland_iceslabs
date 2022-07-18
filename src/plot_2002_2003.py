@@ -1019,8 +1019,12 @@ path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private
 GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
 
 #Extract indiv regions and create related indiv shapefiles
+NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
+NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
+SE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SE']
 SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
 CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
+NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 
 #Load high estimates ice slabs extent 2010-2018, manually drawn on QGIS
 path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
@@ -1220,25 +1224,40 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4/v2/Fig_A1.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v3/Fig_S1.png'
 plt.savefig(fig_name,dpi=300)
 print('Done with SW Greenland plot')
 
 #Plot the whole GrIS 2002-2003 radar tracks
 #Prepare plot
-fig, (ax1) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-fig.suptitle('2002-2003 ice lensing overview')
+fig = plt.figure(figsize=(19,10))
+gs = gridspec.GridSpec(10, 20)
+ax1 = plt.subplot(gs[0:10, 0:20],projection=crs)
 
-#Display elevation
-cb=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),norm=divnorm,alpha=0.5)
-cbar=fig.colorbar(cb, ax=[ax1], location='left')
-cbar.set_label('Elevation [m]')
+#Display coastlines
+ax1.coastlines(edgecolor='black',linewidth=0.75)
 
-#Plot all the 2010-2014 icelenses
-ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=0.1,facecolors='cornflowerblue', edgecolors='none', label='2010-2014 ice slabs mapping by MacFerrin et al., 2019')
+#Display regions
+NO_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+NE_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+SE_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+CW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+SW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+NW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+
+#Display region name
+ax1.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+ax1.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+ax1.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+20000,np.asarray(SE_rignotetal.SUBREGION1)[0])
+ax1.text(SW_rignotetal.centroid.x,SW_rignotetal.centroid.y+20000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax1.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax1.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 
 #Plot all the 2002-2003 flightlines
 ax1.scatter(lon_all, lat_all,s=0.1,facecolors='lightgrey', edgecolors='none',alpha=0.1, label='2002-2003 flight lines')
+
+#Plot all the 2010-2018 ice slabs
+ax1.scatter(lon_3413_20102018, lat_3413_20102018,s=1,facecolors='#0570b0', label='2010-18 ice slabs')
 
 #Plot all the 2002-2003 icelenses according to their condifence color
 #1. Red
@@ -1253,16 +1272,35 @@ ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_20
 #Correct zoom
 ax1.set_xlim(-650000,900000)
 ax1.set_ylim(-3360000,-650000)
-plt.legend(loc='lower right')
-plt.show()
+plt.legend(loc='lower right', fontsize=9)
 
-##Save the figure
-#fig_name=[]
-#fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/whole_GrIS_2002_3.png'
-#plt.savefig(fig_name,dpi=1000)
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+# This can be converted into a `proj4` string/dict compatible with GeoPandas
+crs_proj4 = crs.proj4_init
+# x0, x1, y0, y1
+ax1.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+gl=ax1.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, color='#969696',linewidth=0.5)
+
+#Customize lat labels
+ax1.axis('off')
+#scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
+###################### From Tedstone et al., 2022 #####################
+
+plt.show()
+pdb.set_trace()
+
+#Save the figure
+fig_name=[]
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v3/Fig_20022003_icelenses.png'
+plt.savefig(fig_name,dpi=300)
 
 print('Done with whole GrIS plot')
 pdb.set_trace()
+
+### --------------------------- BELOW: NOT USED --------------------------- ### 
 #######################################################################
 ###                 Identification of deepest ice lenses            ###
 #######################################################################
