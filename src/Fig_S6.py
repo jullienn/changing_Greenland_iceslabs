@@ -669,7 +669,7 @@ plt.show()
 
 pdb.set_trace()
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v2/figS6_panelf.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v2/figS7_panelf.png',dpi=500)
 
 
 
