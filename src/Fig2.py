@@ -19,18 +19,6 @@ def compute_distances(eastings,northings):
 
     return return_cumsum_distances
 
-def compute_distances_pyproj(eastings,northings):
-    #This is from https://pyproj4.github.io/pyproj/stable/api/geod.html#pyproj.Geod.line_length
-    from pyproj import Geod
-    geod = Geod(ellps="WGS84")
-    
-    distances=[]
-    pdb.set_trace()
-    
-    for line_length in geod.line_lengths(northings, eastings):
-        distances=np.append(distances,line_length)
-        
-    return return_cumsum_distances
 
 def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,DEM_for_elevation,ax1,axt,custom_angle,offset_x,offset_y,casestudy_nb):
     
@@ -124,8 +112,6 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     #Compute distance between the westernmost and easternmost point
     bounds_distances=compute_distances(bounds_transect[:,0],bounds_transect[:,1])
-        
-    #grizou= compute_distances_pyproj(np.asarray(df_for_elev_sorted['lon']),np.asarray(df_for_elev_sorted['lat']))
     
     #Distance divide every 300m.
     dist_bin_desired=300
@@ -486,16 +472,6 @@ loc4={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
       2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
       2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
 
-'''
-#Only 2 years in SW, do not display it
-loc5={2010:'empty',
-      2011:'empty',
-      2012:['Data_20120412_01_095.mat'],
-      2013:'empty',
-      2014:'empty',
-      2017:'empty',
-      2018:['Data_20180421_01_174.mat','Data_20180421_01_175.mat','Data_20180421_01_176.mat','Data_20180421_01_177.mat']}
-'''
 loc6={2010:'empty',
       2011:['Data_20110516_01_009.mat','Data_20110516_01_010.mat'],
       2012:'empty',
@@ -503,17 +479,6 @@ loc6={2010:'empty',
       2014:'empty',
       2017:['Data_20170412_01_075.mat','Data_20170412_01_076.mat'],
       2018:'empty'}
-
-'''
-#loc7 is in NE but is curved
-loc7={2010:'empty',
-      2011:'empty',
-      2012:'empty',
-      2013:'empty',
-      2014:['Data_20140508_03_019.mat','Data_20140508_03_020.mat','Data_20140508_03_021.mat','Data_20140508_03_022.mat','Data_20140508_03_023.mat','Data_20140508_03_024.mat'],
-      2017:['Data_20170328_01_095.mat','Data_20170328_01_096.mat','Data_20170328_01_097.mat','Data_20170328_01_098.mat','Data_20170328_01_099.mat','Data_20170328_01_100.mat','Data_20170328_01_101.mat'],
-      2018:'empty'}
-'''
 
 loc8={2010:['Data_20100517_02_001.mat','Data_20100517_02_002.mat'],
       2011:['Data_20110502_01_171.mat'],
@@ -523,15 +488,6 @@ loc8={2010:['Data_20100517_02_001.mat','Data_20100517_02_002.mat'],
       2017:['Data_20170417_01_171.mat','Data_20170417_01_172.mat','Data_20170417_01_173.mat','Data_20170417_01_174.mat'],
       2018:'empty'}
 
-'''
-20100517_02_001_002, 20100519_01_005_005
-20110509_01_177_177, 20110502_01_171_171
-20120516_01_002_002, 20120330_01_124_125, 20120516_01_115_115
-20130419_01_004_005
-20140507_03_007_008, 20140514_02_087_089, #20140519_02_002_004 diverging at the start. do not consider 20140429_02_160_161
-20170417_01_171_174
-'''
-
 loc9={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
       2011:['Data_20110419_01_008.mat','Data_20110419_01_009.mat','Data_20110419_01_010.mat'],
       2012:['Data_20120418_01_129.mat','Data_20120418_01_130.mat','Data_20120418_01_131.mat'],
@@ -539,64 +495,6 @@ loc9={2010:['Data_20100508_01_114.mat','Data_20100508_01_115.mat'],
       2014:['Data_20140424_01_002.mat','Data_20140424_01_003.mat','Data_20140424_01_004.mat'],
       2017:['Data_20170422_01_168.mat','Data_20170422_01_169.mat','Data_20170422_01_170.mat','Data_20170422_01_171.mat'],
       2018:['Data_20180427_01_170.mat','Data_20180427_01_171.mat','Data_20180427_01_172.mat']}
-
-'''
-in the NO
-loc10={2010:'empty',
-       2011:'empty',
-       2012:'empty',
-       2013:['Data_20130420_08_045.mat','Data_20130420_08_046.mat','Data_20130420_08_047.mat','Data_20130420_08_048.mat'],
-       2014:['Data_20140519_08_066.mat','Data_20140519_08_067.mat','Data_20140519_08_068.mat','Data_20140519_08_069.mat'],
-       2017:['Data_20170413_01_126.mat','Data_20170413_01_127.mat','Data_20170413_01_128.mat',
-             'Data_20170413_01_129.mat','Data_20170413_01_130.mat','Data_20170413_01_131.mat',
-             'Data_20170413_01_132.mat','Data_20170413_01_133.mat','Data_20170413_01_134.mat'],
-       2018:'empty'}
-
-loc11={2010:'empty',
-       2011:'empty',
-       2012:['Data_20120511_01_059.mat'],
-       2013:'empty',
-       2014:'empty',
-       2017:['Data_20170417_01_104.mat','Data_20170417_01_105.mat','Data_20170417_01_106.mat'],
-       2018:'empty'}
-
-'''
-
-
-pkpas={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
-                    2011:'empty',
-                    2012:'empty',
-                    2013:'empty',
-                    2014:'empty',
-                    2017:'empty',
-                    2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
-
-pkpas={2010:'empty',
-                    2011:'empty',
-                    2012:'empty',
-                    2013:['Data_20130405_01_011.mat','Data_20130405_01_012.mat','Data_20130405_01_013.mat'],
-                    2014:['Data_20140424_03_046.mat','Data_20140424_03_047.mat','Data_20140424_03_048.mat'],
-                    2017:['Data_20170422_01_007.mat','Data_20170422_01_008.mat','Data_20170422_01_009.mat'],
-                    2018:'empty'}
-
-
-pkpas={2010:['Data_20100512_04_073.mat','Data_20100512_04_074.mat'],
-                    2011:'empty',
-                    2012:'empty',
-                    2013:'empty',
-                    2014:'empty',
-                    2017:['Data_20170421_01_171.mat','Data_20170421_01_172.mat','Data_20170421_01_173.mat','Data_20170421_01_174.mat'],
-                    2018:['Data_20180425_01_166.mat','Data_20180425_01_167.mat','Data_20180425_01_168.mat','Data_20180425_01_169.mat']}
-
-plutotbien={2010:'empty',
-            2011:'empty',
-            2012:['Data_20120418_01_005.mat','Data_20120418_01_006.mat','Data_20120418_01_007.mat'],
-            2013:'empty',
-            2014:'empty',
-            2017:['Data_20170505_02_181.mat','Data_20170505_02_182.mat','Data_20170505_02_183.mat'],
-            2018:'empty'}
-
-
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
@@ -694,9 +592,3 @@ pdb.set_trace()
 
 #Save the figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v8/fig2.png',dpi=500)
-
-
-'''
-#NW but requires additional coding + turning trace
-plot_thickness_evolution(loc7,df_2010_2018_csv,df_2010_2018_elevation,ax1,custom_angle=-90,offset_x=10000,offset_y=-5000)
-'''
