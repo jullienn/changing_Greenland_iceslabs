@@ -998,7 +998,7 @@ for folder_year in folder_years:
                     pdb.set_trace()
                     
                     #Save the figure
-                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v3/figS2.png',dpi=500)
+                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v2/figS2.png',dpi=500)
                     
                     
 print('End of processing')
