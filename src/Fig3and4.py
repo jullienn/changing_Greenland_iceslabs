@@ -840,53 +840,7 @@ investigation_year={2010:['Data_20100515_01_007.mat','Data_20100515_01_008.mat',
                     2014:['Data_20140416_05_035.mat','Data_20140416_05_036.mat','Data_20140416_05_037.mat'],
                     2017:['Data_20170502_01_171.mat','Data_20170502_01_172.mat','Data_20170502_01_173.mat'],
                     2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
-'''
-#Best absolute closest point for each year, without any overlapping consideration
-20180426_01_004_006
-20170506_01_010_012
-20170508_02_011_013
-20140408_04_001_003
-20130408_01_009_021
-20120423_01_137_138
-20110408_01_087_103
-20100515_01_007_009
 
-#Best trade off between continuity and overlap
-20180426_01_004_006
-20170508_02_011_013
-20140408_04_001_003
-20130409_01_010_012
-20120423_01_137_138
-2011 does not matter where
-2010 does not matter where
-
-#grouping overlapping
-#1
-20120423_01_137_138
-20130409_01_010_012
-20180421_01_004_007
-
-#2
-20140416_05_035_037
-20170502_01_171_173
-
-#3 closer to KAN_u compared to #2
-20140408_04_001_003
-20170508_02_011_013
-
-#4
-20180426_01_004_006
-'''
-'''
-#Closer to KAN_U
-investigation_year={2010:'empty',
-                    2011:'empty',
-                    2012:'empty',
-                    2013:['20130408_01_009_021'],
-                    2014:['20140408_04_001_003'],
-                    2017:['20170508_02_011_013'],
-                    2018:['20180426_01_004_006']}
-'''
 #Define paths
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
@@ -921,15 +875,6 @@ for single_year in investigation_year.keys():
     if (single_year==2018):
         date_track='20180421_01_004_007'
     #pdb.set_trace()
-    
-    '''
-    
-    '''
-    #Define filename of depth corrected and probabilistic data
-    if (date_track not in list_trace_failed):
-        filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal.pickle'
-    else:
-        filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal_rescaled.pickle'
     '''
     
     filename_depth_corrected=date_track+'_Depth_Corrected_surf_removal_100m.pickle'
@@ -1224,76 +1169,8 @@ pdb.set_trace()
 ax10m.legend_.remove()
 plt.show()
 '''
-
-'''
-######################## Assess the data coverage #############################
-
-#This is example from Andrew
-
-import pandas as pd
-import datetime as dt
-import matplotlib.pyplot as plt
-
-def _parse(y,m,d,h):
-    return dt.datetime(int(y),int(m),int(d),int(h))
-
-kan_u = pd.read_csv('/Users/tedstona/Desktop/KAN_U_hour_v03.txt',
-    parse_dates={'timestamp': [
-        'Year', 'MonthOfYear', 'DayOfMonth', 'HourOfDay(UTC)']},
-    index_col='timestamp',
-    date_parser=_parse,
-    delim_whitespace=True,
-    na_values=-999)
-
-melt = (kan_u['ShortwaveRadiationDown_Cor(W/m2)']-kan_u['ShortwaveRadiationUp_Cor(W/m2)'])+(kan_u['LongwaveRadiationDown(W/m2)']-kan_u['LongwaveRadiationUp(W/m2)'])+kan_u['SensibleHeatFlux(W/m2)']+kan_u['LatentHeatFlux(W/m2)']
-
-meltplus = melt[melt > 0]
-meltplus_summer = meltplus[(meltplus.index.month >= 5) & (meltplus.index.month <= 9)]
-
-
-meltplus_summer.resample('1AS').sum().plot.bar()
-
-nans = melt.isna()
-nans.resample('1AS').count().plot(marker='x')
-
-kan_u['AirTemperature(C)'][(kan_u.index.month >= 5) & (kan_u.index.month <= 9)].resample('1AS').mean().plot(marker='x')
-
-######################## Assess the data coverage #############################
-'''
 pdb.set_trace()
 
 
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v7/fig4.png',dpi=300)
-
-#########################################################################
-###                 Calculate slope and intercept                     ###
-#########################################################################
-fig = plt.figure()
-gs = gridspec.GridSpec(5, 10)
-gs.update(wspace=0.1)
-gs.update(hspace=0.1)
-
-ax_lin = plt.subplot(gs[0:5, 0:10])
-ax_lin.plot(np.array([0,314,1275]),np.array([0,1273,2233]))
-ax_lin.scatter(np.array([0,314,1275]),np.array([0,1273,2233]))
-
-plt.show()
-
-#This is from https://www.delftstack.com/howto/python/calculate-slope-python/
-from scipy.stats import linregress
-x = np.array([314,1275])
-y = np.array([1273,2233])
-slope, intercept, r_value, p_value, std_err = linregress(x, y)
-#########################################################################
-###                 Calculate slope and intercept                     ###
-#########################################################################
-
-pdb.set_trace()
-
-indiv_file_load='Data_20120423_01_137.mat'
-path_raw_data=path_data+str(2012)+'_Greenland_P3/CSARP_qlook/'+'20120423_01'+'/'
-
-fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
-lon_filename = fdata_filename['Longitude']
-
