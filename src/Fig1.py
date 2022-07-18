@@ -431,12 +431,12 @@ def display_shapefiles(ax_plot,region_rignot,x0,x1,y0,y1,flightlines_20022018,ic
 
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
-    plot_fig_S1='FALSE'
+    plot_fig_S6='FALSE'
     plot_panela='TRUE'
     plot_panelb='TRUE'
     plot_panelc='TRUE'
     
-    if (plot_fig_S1 == 'TRUE'):
+    if (plot_fig_S6 == 'TRUE'):
         # -------------------------------- FIG S1 --------------------------------
         ###################### From Tedstone et al., 2022 #####################
         #from plot_map_decadal_change.py
@@ -474,7 +474,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         figManager.window.showMaximized()
         
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v3/figS1.png',dpi=300)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v3/figS6.png',dpi=300)
         # -------------------------------- FIG S1 --------------------------------
     
     # --------------------------------- FIG 1 --------------------------------
