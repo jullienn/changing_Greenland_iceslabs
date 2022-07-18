@@ -47,11 +47,11 @@ path_new_method='C:/Users/jullienn/switchdrive/Private/research/RT1/final_datase
 #chosen_trace ='20170502_01_142_144'
 #chosen_trace ='20170422_01_168_171'
 #chosen_trace ='20170417_01_132_134'
-#chosen_trace ='20170410_01_132_134' pas mal
+#chosen_trace ='20170410_01_132_134' not bad
 #chosen_trace ='20170410_01_086_088' overestimation
 #chosen_trace ='20170410_01_018_021' no dry firn removal
-#chosen_trace ='20170328_01_046_060' shit roll correction
-#chosen_trace ='20170327_04_050_066' shit roll correction
+#chosen_trace ='20170328_01_046_060' bad roll correction
+#chosen_trace ='20170327_04_050_066' bad roll correction
 #chosen_trace ='20140508_02_019_020' no need for roll correction
 chosen_trace ='20140416_05_007_009'
 
