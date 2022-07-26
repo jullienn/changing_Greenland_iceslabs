@@ -1032,7 +1032,7 @@ import rioxarray as rxr
 #https://www.earthdatascience.org/courses/use-data-open-source-python/intro-raster-data-python/raster-data-processing/reproject-raster/
 #https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
 
-path_satellite='C:/Users/jullienn/Documents/working_environment/'
+path_satellite='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/satellite_image/'
 #Load data for extent derivation
 sat_for_extent = rxr.open_rasterio(path_satellite+'T22WFV_20210823T145759_B2348.tif',
                               masked=True).squeeze()
