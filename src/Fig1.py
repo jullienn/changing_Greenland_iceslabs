@@ -976,19 +976,31 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             iceslabs_jullien_highend_2010_11_12.plot(ax=ax_area,color='red', edgecolor='black',linewidth=0.5)
             '''
             #Open shapefiles for area change calculations
-            #Load high estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
+            #Load high and low estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
             path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
-            iceslabs_jullien_highend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018_ForCalculations.shp')
-            iceslabs_jullien_highend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12_ForCalculations.shp')
+            iceslabs_jullien_highend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
+            iceslabs_jullien_highend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12.shp')
+            iceslabs_jullien_lowend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_lowend_20102018.shp')
+            iceslabs_jullien_lowend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_lowend_2010_11_12.shp')
             
+            ### High end ###
+            print('--------------- High end ---------------')
             print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000)))), 'km2')
-            
             #Difference in km2. Divide by 1000000 to convert from m2 to km2
             print('Difference 2018 VS 2012:', str(np.round(np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000)),2)), 'km2')
-
             #Difference in %
             print('Difference 2018 VS 2012:', str((np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000)))/np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000))*100),'%')
-            
+            ### High end ###
+
+            ### Low end ###
+            print('--------------- Low end ---------------')
+            print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_lowend_20102018_ForCalculations.area/(1000000)))), 'km2')
+            #Difference in km2. Divide by 1000000 to convert from m2 to km2
+            print('Difference 2018 VS 2012:', str(np.round(np.sum(iceslabs_jullien_lowend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_lowend_2010_11_12_ForCalculations.area/(1000000)),2)), 'km2')
+            #Difference in %
+            print('Difference 2018 VS 2012:', str((np.sum(iceslabs_jullien_lowend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_lowend_2010_11_12_ForCalculations.area/(1000000)))/np.sum(iceslabs_jullien_lowend_2010_11_12_ForCalculations.area/(1000000))*100),'%')
+            ### High end ###
+
             #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
             for region in list(['NE','NO','NW','CW','SW']):
                 if (region =='NE'):
@@ -1005,7 +1017,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     #Keep only where name == region
                     regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['name']==region].area/1000000)
                     regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['name']==region].area/1000000)
-                    
+
                     ################ DISPLAY AREA CHANGE #####################
                     #Compute and display relative change
                     high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
@@ -1207,19 +1219,19 @@ iceslabs_jullien_highend_2010_11_12.plot(ax=ax1,color='red', edgecolor='black',l
 
 ### ---------------------------- Load dataset ---------------------------- ###
 #Dictionnaries have already been created, load them
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/' 
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/' 
 #Load 2002-2003
-f_20022003 = open(path_df_with_elevation+'df_2002_2003_with_elevation_rignotetalregions', "rb")
+f_20022003 = open(path_df_with_elevation+'2002_2003/df_2002_2003_with_elevation_rignotetalregions', "rb")
 df_2002_2003 = pickle.load(f_20022003)
 f_20022003.close()
 
 #Load 2010-2018 high estimate
-f_20102018_high = open(path_df_with_elevation+'high_estimate/df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
+f_20102018_high = open(path_df_with_elevation+'final_excel/high_estimate/df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
 df_2010_2018_high = pickle.load(f_20102018_high)
 f_20102018_high.close()
 
 #Load 2010-2018 low estimate
-f_20102018_low = open(path_df_with_elevation+'low_estimate/df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
+f_20102018_low = open(path_df_with_elevation+'final_excel/low_estimate/df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
 df_2010_2018_low = pickle.load(f_20102018_low)
 f_20102018_low.close()
 ### ---------------------------- Load dataset ---------------------------- ###
