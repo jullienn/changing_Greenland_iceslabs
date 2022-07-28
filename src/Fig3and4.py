@@ -642,10 +642,25 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             ax_plotting.set_xlim(0,40000)
             #Display KAN_U
             ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],1,s=10,c='#b2182b',zorder=10)
-            
-        #display loc on map
-        ax8map.scatter(lon3413_plot[distances_with_start_transect<=40000],lat3413_plot[distances_with_start_transect<=40000],c='k',s=0.1,zorder=10)
+        
+        ##### Same procedure of mask appliance for EPSG:32622 coordinates #####
+        #Create lat/lon vectors for display
+        lon32622_plot_int=dataframe[str(year)]['lon_32622'][indexes_within_bounds]
+        lat32622_plot_int=dataframe[str(year)]['lat_32622'][indexes_within_bounds]
+        
+        #Update lat/lon vectors for display with the masks
+        lon32622_plot=np.zeros(len(lon32622_plot_int))
+        lon32622_plot[:]=np.nan
+        lon32622_plot[mask_plot]=lon32622_plot_int[mask_plot]
+        
+        lat32622_plot=np.zeros(len(lat32622_plot_int))
+        lat32622_plot[:]=np.nan
+        lat32622_plot[mask_plot]=lat32622_plot_int[mask_plot]
+        ##### Same procedure of mask appliance for EPSG:32622 coordinates #####
                 
+        #display loc on map
+        ax8map.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='k',s=0.1,zorder=10,transform=crs)
+        
         #Add year on radargram
         ax_plotting.text(0.975, 0.825,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         
@@ -937,11 +952,21 @@ for single_year in investigation_year.keys():
         mask=np.flipud(mask)
         probabilistic_file=np.fliplr(probabilistic_file)
     
+    #Define transformer for coordinates transform from "EPSG:4326" to "EPSG:3413"
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
     #Transform the coordinated from WGS84 to EPSG:3413
     #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
     points=transformer.transform(np.array(lon_appended),np.array(lat_appended))
     lon_3413=points[0]
     lat_3413=points[1]
+    
+    #Define transformer for coordinates transform from "EPSG:4326" to "EPSG:32622" (=UTM 22N)
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:32622", always_xy=True)
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    points=transformer.transform(np.array(lon_appended),np.array(lat_appended))
+    lon_32622=points[0]
+    lat_32622=points[1]
     
     #Calculate the depth from the time
     #########################################################################
@@ -974,6 +999,8 @@ for single_year in investigation_year.keys():
                                  'lon_appended':lon_appended,
                                  'lat_3413':lat_3413,
                                  'lon_3413':lon_3413,
+                                 'lat_32622':lat_32622,
+                                 'lon_32622':lon_32622,
                                  'depth':depth,
                                  'radar':radar,
                                  'mask':mask,
@@ -985,10 +1012,20 @@ f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estima
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
+#Define transformer for coordinates transform from "EPSG:4326" to "EPSG:32622" (=UTM 22N)
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:32622", always_xy=True)
+
+#Transform the coordinated from "EPSG:4326" to "EPSG:32622"
+#Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+points=transformer.transform(np.array(df_2010_2018_elevation['lon']),np.array(np.array(df_2010_2018_elevation['lat'])))
+df_2010_2018_elevation['lon_32622']=points[0]
+df_2010_2018_elevation['lat_32622']=points[1]
+
+# Define CRS of the satelite image as being the base for plotting - from FigS9,py
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # Define the CartoPy CRS object.
-crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+crs = ccrs.UTM(zone=22)
 # This can be converted into a `proj4` string/dict compatible with GeoPandas
 crs_proj4 = crs.proj4_init
 ###################### From Tedstone et al., 2022 #####################
@@ -1009,9 +1046,6 @@ ax7r = plt.subplot(gs[20:23, 0:10])
 ax11t = plt.subplot(gs[28:36, 0:10])
 ax8map = plt.subplot(gs[28:36, 10:12],projection=crs)
 
-SW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5) 
-CW_rignotetal.plot(ax=ax8map,color='white', edgecolor='black',linewidth=0.5)
-
 #Open and display satelite image behind map
 from pyproj import CRS
 import rioxarray as rxr
@@ -1020,24 +1054,21 @@ import rioxarray as rxr
 #https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
 
 path_satellite='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/satellite_image/'
-#Load data for extent derivation
-sat_for_extent = rxr.open_rasterio(path_satellite+'T22WFV_20210823T145759_B2348.tif',
-                              masked=True).squeeze()
+#Load satelite data for display
+sat_image = rxr.open_rasterio(path_satellite+'T22WFV_20210823T145759_B2348.tif',
+                              masked=True).squeeze() #No need to reproject satelite image
 
-# Reproject the data using the crs from the roads layer
-sat_for_extent_3413 = sat_for_extent.rio.reproject(crs)
-sat_for_extent_3413.rio.crs
-
-#Define extents
-ease_extent = [-500000, 100000, -3000000, -2000000]
-#ease_extent = [west limit, east limit., south limit, north limit]
-extent_image = [np.asarray(sat_for_extent_3413.x[0]), np.asarray(sat_for_extent_3413.x[-1]), np.asarray(sat_for_extent_3413.y[0]), np.asarray(sat_for_extent_3413.y[-1])]
+#Define extents based on the satelite image
+extent_image = [np.asarray(sat_image.x[0]), np.asarray(sat_image.x[-1]), np.asarray(sat_image.y[-1]), np.asarray(sat_image.y[0])]#[west limit, east limit., south limit, north limit]
 
 '''
+#Define fontsize
+plt.rcParams.update({'font.size': 20})
+
 plt.figure(figsize=(14,10))
 ax = plt.axes(projection=crs)
-ax.set_extent(ease_extent, crs=crs) 
-ax.imshow(sat_for_extent[3,:,:], extent=extent_image, transform=crs,cmap='gray', origin='lower') #NIR
+ax.set_extent(extent_image, crs=crs) 
+ax.imshow(sat_image[3,:,:], extent=extent_image, transform=crs,cmap='gray', origin='lower') #NIR
 ax.gridlines(color='gray', linestyle='--')
 ax.coastlines()
 ax.set_xlim(extent_image[0],extent_image[1])
@@ -1045,11 +1076,8 @@ ax.set_ylim(extent_image[3],extent_image[2])
 plt.tight_layout()
 '''
 
-ax8map.set_extent(ease_extent, crs=crs) 
-ax8map.imshow(sat_for_extent[3,:,:], extent=extent_image, transform=crs, origin='lower', cmap='Blues_r',zorder=1)
-
-#ax8map.gridlines(color='gray', linestyle='--')
-#ax8map.coastlines()
+#Display satelite image
+ax8map.imshow(sat_image[3,:,:], extent=extent_image, transform=crs, origin='upper', cmap='Blues_r',zorder=1) #NIR
 
 #Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
 min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,GrIS_DEM,ax11t,my_pal)
@@ -1074,25 +1102,38 @@ ax7r.set_xlabel('Distance [km]')
 ax4r.set_ylabel('Depth [m]')
 
 #Finalize map plot
+#Define transformer for coordinates transform from "EPSG:3413" to "EPSG:32622"
+transformer = Transformer.from_crs("EPSG:3413", "EPSG:32622",always_xy=True)
+
 #Display flightlines correpsondance with year
-ax8map.text(-94000,-2505000,u'\u03B2')
-ax8map.text(-87990,-2562500,u'\u03B1')
-ax8map.text(-79280,-2522000,u'\u03B3')
-ax8map.text(-79280,-2534500,s=u'\u03B4')
+coord_u03B2=transformer.transform([-94000],[-2505000])
+ax8map.text(coord_u03B2[0][0],coord_u03B2[1][0],u'\u03B2')
+
+coord_u03B1=transformer.transform([-87990],[-2562500])
+ax8map.text(coord_u03B1[0][0],coord_u03B1[1][0],u'\u03B1')
+
+coord_u03B3=transformer.transform([-79280],[-2522000])
+ax8map.text(coord_u03B3[0][0],coord_u03B3[1][0],u'\u03B3')
+
+coord_uu03B4=transformer.transform([-79280],[-2534500])
+ax8map.text(coord_uu03B4[0][0],coord_uu03B4[1][0],s=u'\u03B4')
+
 #Show KAN_U
-#Show pannel numbers on the map
-ax8map.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',label='KAN_U',zorder=10)
+#Calculate coordinates in "EPSG:32622"
+#Define transformer for coordinates transform from "EPSG:4326" to "EPSG:32622"
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:32622",always_xy=True)
+KAN_U_coord=transformer.transform([-47.0253],[67.0003])
+ax8map.scatter(KAN_U_coord[0][0],KAN_U_coord[1][0],s=15,c='#b2182b',label='KAN_U',zorder=10,transform=crs)
+
 #Add pannel label
 ax8map.text(-0.1,0.95,'i',ha='center', va='center',transform=ax8map.transAxes, fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
+ax8map.set_xlim(644858, 699388)
+ax8map.set_ylim(7396158, 7459711)
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
-#ax8map.set_extent([-114500, -70280, -2556000, -2495000], crs=crs)
-#ax8map.set_extent([-118943, -52166, -2573215, -2496127], crs=crs)
-#ax8map.set_extent([-108758, -54463, -2572722, -2497471], crs=crs)
-#ax8map.set_extent([-114887, -54463, -2572722, -2497471], crs=crs)
-ax8map.set_extent([-114887, -63700, -2564000, -2497471], crs=crs)
+#ax8map.set_extent([121728, 178395, 12580458, 12519563], crs=crs)
 
 gl=ax8map.gridlines(draw_labels=True, xlocs=[-47, -47.5], ylocs=[67], x_inline=False, y_inline=False,linewidth=0.5)
 #Customize lat labels
@@ -1107,7 +1148,7 @@ figManager.window.showMaximized()
 
 pdb.set_trace()
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v7/fig3.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v8/fig3.png',dpi=300)
 
 #Create a new figure for the PDH and total columnal ice content
 fig = plt.figure()
