@@ -333,49 +333,55 @@ panel_f
 2017  is reversed
 '''
 #Define the panel to study
-investigation_year=panel_e
+investigation_year=panel_f
 
 plt.rcParams.update({'font.size': 20})
 
 fig = plt.figure()
-gs = gridspec.GridSpec(30, 10)
+gs = gridspec.GridSpec(30, 101)
 gs.update(wspace=0.1)
-#gs.update(wspace=0.001)
+gs.update(wspace=0.5)
 
 if (investigation_year==panel_a):
-    ax2 = plt.subplot(gs[0:4, 0:10])
-    ax4 = plt.subplot(gs[4:8, 0:10])
-    ax6 = plt.subplot(gs[8:12, 0:10])
+    ax2 = plt.subplot(gs[0:4, 0:100])
+    ax4 = plt.subplot(gs[4:8, 0:100])
+    ax6 = plt.subplot(gs[8:12, 0:100])
+    axc = plt.subplot(gs[0:12, 100:101])
 elif (investigation_year==panel_b):
-    ax1 = plt.subplot(gs[0:4, 0:10])
-    ax2 = plt.subplot(gs[4:8, 0:10])
-    ax3 = plt.subplot(gs[8:12, 0:10])
-    ax4 = plt.subplot(gs[12:16, 0:10])
-    ax5 = plt.subplot(gs[16:20, 0:10])
-    ax6 = plt.subplot(gs[20:24, 0:10])
+    ax1 = plt.subplot(gs[0:4, 0:100])
+    ax2 = plt.subplot(gs[4:8, 0:100])
+    ax3 = plt.subplot(gs[8:12, 0:100])
+    ax4 = plt.subplot(gs[12:16, 0:100])
+    ax5 = plt.subplot(gs[16:20, 0:100])
+    ax6 = plt.subplot(gs[20:24, 0:100])
+    axc = plt.subplot(gs[0:24, 100:101])
 elif (investigation_year==panel_c):
-    ax1 = plt.subplot(gs[0:4, 0:10])
-    ax2 = plt.subplot(gs[4:8, 0:10])
-    ax5 = plt.subplot(gs[8:12, 0:10])
-    ax6 = plt.subplot(gs[12:16, 0:10])
+    ax1 = plt.subplot(gs[0:4, 0:100])
+    ax2 = plt.subplot(gs[4:8, 0:100])
+    ax5 = plt.subplot(gs[8:12, 0:100])
+    ax6 = plt.subplot(gs[12:16, 0:100])
+    axc = plt.subplot(gs[0:16, 100:101])
 elif (investigation_year==panel_d):
-    ax1 = plt.subplot(gs[0:4, 0:10])
-    ax2 = plt.subplot(gs[4:8, 0:10])
-    ax3 = plt.subplot(gs[8:12, 0:10])
-    ax4 = plt.subplot(gs[12:16, 0:10])
-    ax5 = plt.subplot(gs[16:20, 0:10])
-    ax6 = plt.subplot(gs[20:24, 0:10])
-    ax7 = plt.subplot(gs[24:28, 0:10])
+    ax1 = plt.subplot(gs[0:4, 0:100])
+    ax2 = plt.subplot(gs[4:8, 0:100])
+    ax3 = plt.subplot(gs[8:12, 0:100])
+    ax4 = plt.subplot(gs[12:16, 0:100])
+    ax5 = plt.subplot(gs[16:20, 0:100])
+    ax6 = plt.subplot(gs[20:24, 0:100])
+    ax7 = plt.subplot(gs[24:28, 0:100])
+    axc = plt.subplot(gs[0:28, 100:101])
 elif (investigation_year==panel_e):
-    ax3 = plt.subplot(gs[0:4, 0:10])
-    ax4 = plt.subplot(gs[4:8, 0:10])
-    ax7 = plt.subplot(gs[8:12, 0:10])
+    ax3 = plt.subplot(gs[0:4, 0:100])
+    ax4 = plt.subplot(gs[4:8, 0:100])
+    ax7 = plt.subplot(gs[8:12, 0:100])
+    axc = plt.subplot(gs[0:12, 100:101])
 elif (investigation_year==panel_f):
-    ax1 = plt.subplot(gs[0:4, 0:10])
-    ax2 = plt.subplot(gs[4:8, 0:10])
-    ax3 = plt.subplot(gs[8:12, 0:10])
-    ax5 = plt.subplot(gs[12:16, 0:10])
-    ax6 = plt.subplot(gs[16:20, 0:10])
+    ax1 = plt.subplot(gs[0:4, 0:100])
+    ax2 = plt.subplot(gs[4:8, 0:100])
+    ax3 = plt.subplot(gs[8:12, 0:100])
+    ax5 = plt.subplot(gs[12:16, 0:100])
+    ax6 = plt.subplot(gs[16:20, 0:100])
+    axc = plt.subplot(gs[0:20, 100:101])
 else:
     print('Wrong transect name input')
 
@@ -516,6 +522,39 @@ for single_year in investigation_year.keys():
     if (investigation_year[single_year]=='empty'):
         continue
     print(single_year)
+    
+    if (investigation_year==panel_a):
+        start_transect=-64.6886
+        end_transect=-63.88337773831948
+        vmin_plot=-4.5
+        vmax_plot=4.5
+    elif (investigation_year==panel_b):
+        start_transect=-66.8557
+        end_transect=-65.48369681346244
+        vmin_plot=-4.5
+        vmax_plot=4.5
+    elif (investigation_year==panel_c):
+        start_transect=-47.566978989211904
+        end_transect=-46.088871815847654
+        vmin_plot=-4.5
+        vmax_plot=4.5
+    elif (investigation_year==panel_d):
+        start_transect=-47.70785561652585
+        end_transect=-46.41555609606877
+        vmin_plot=-4.5
+        vmax_plot=4.5
+    elif (investigation_year==panel_e):
+        start_transect=-47.42328169558814
+        end_transect=-46.56546212605787    
+        vmin_plot=-4.5
+        vmax_plot=4.5
+    elif (investigation_year==panel_f):
+        start_transect=-48.21060856534727
+        end_transect=-46.88764316176339
+        vmin_plot=-4.5
+        vmax_plot=4.5
+    else:
+        print('Wrong transect name input')
 
     if (single_year==2010):
         ax_plot=ax1
@@ -550,7 +589,7 @@ for single_year in investigation_year.keys():
     C=dataframe[str(single_year)]['depth_corr']
     
     #plot data
-    cb=ax_plot.pcolor(X, Y, C,cmap=plt.get_cmap('gray'),zorder=-1)#,norm=divnorm)
+    cb=ax_plot.pcolor(X, Y, C,cmap=plt.get_cmap('gray'),zorder=-1,vmin=vmin_plot, vmax=vmax_plot)
     ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
     
     #Activate ticks ylabel
@@ -562,27 +601,6 @@ for single_year in investigation_year.keys():
     #Set yticklabels
     ax_plot.set_yticks([0,10,20])
     ax_plot.set_yticklabels(['0','10',''])
-    
-    if (investigation_year==panel_a):
-        start_transect=-64.6886
-        end_transect=-63.88337773831948
-    elif (investigation_year==panel_b):
-        start_transect=-66.8557
-        end_transect=-65.48369681346244
-    elif (investigation_year==panel_c):
-        start_transect=-47.566978989211904
-        end_transect=-46.088871815847654
-    elif (investigation_year==panel_d):
-        start_transect=-47.70785561652585
-        end_transect=-46.41555609606877
-    elif (investigation_year==panel_e):
-        start_transect=-47.42328169558814
-        end_transect=-46.56546212605787
-    elif (investigation_year==panel_f):
-        start_transect=-48.21060856534727
-        end_transect=-46.88764316176339
-    else:
-        print('Wrong transect name input')
     
     #Set transect limits
     ax_plot.set_xlim(start_transect,end_transect)
@@ -645,6 +663,10 @@ else:
     print('Wrong transect name input')
 
 
+#Display colorbar. This is from FigS1.py
+cbar_depth=fig.colorbar(cb, cax=axc, aspect=5)#aspect is from https://stackoverflow.com/questions/33443334/how-to-decrease-colorbar-width-in-matplotlib
+cbar_depth.set_label('Radar signal strength [dB]')
+
 plot_dist=[]
 for indiv_tick in ticks_through:
     lon_diff=[]
@@ -669,7 +691,7 @@ plt.show()
 
 pdb.set_trace()
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v2/figS7_panelf.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v3/figS7_panelf.png',dpi=500)
 
 
 
