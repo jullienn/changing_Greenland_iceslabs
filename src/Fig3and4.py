@@ -979,19 +979,6 @@ for single_year in investigation_year.keys():
                                  'mask':mask,
                                  'probabilistic':probabilistic_file}
 
-
-#Load all 2010-2018 data without spatial aggregation
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/'
-df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv',delimiter=',',decimal='.')
-
-#Transform the coordinated from WGS84 to EPSG:3413
-transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2010_2018_csv["lat"]))
-
-#Store lat/lon in 3413
-df_2010_2018_csv['lon_3413']=points[0]
-df_2010_2018_csv['lat_3413']=points[1]
-
 #Load 2010-2018 elevation dataset
 path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/' 
 f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
