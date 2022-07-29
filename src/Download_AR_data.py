@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Dec  2 10:10:39 2020
-
 @author: JullienN
 """
 
