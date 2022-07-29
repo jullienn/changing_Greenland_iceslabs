@@ -7,7 +7,6 @@ Created on Thu Nov 25 18:53:55 2021
 This code is inspired from refine_location_2017_2018.py
 """
 
-
 # This code helps to fine the selection of data for 2017 and 2018 dataset
 # in order to process only data where iceslabs can be expected.
 # To do so, the coordinates of any track is checked whether it belongs to
