@@ -1177,7 +1177,7 @@ ax10m_second.yaxis.tick_right()
 ax10m_second.set_ylabel('Total ice content [$m^2$]')
 ax10m_second.set_xlim(0,8.6)
 
-ax10m.set_ylabel('PDH [°C$\cdot \mathrm{year^{-1}}$]')
+ax10m.set_ylabel('cPDH [°C]')
 ax10m.set_xlabel('Year')
 ax10m.set_xlim(-0.5,8.6) #From 2009 to 2017
 #Activate ticks xlabel
@@ -1201,4 +1201,4 @@ pdb.set_trace()
 
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v7/fig4.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v8/fig4.png',dpi=300)
