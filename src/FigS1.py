@@ -415,6 +415,10 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413),np.nanmedian(lat_3413)-37000,'d',color='black',fontsize=20)
         
+        #Display colorbar. This is from FigS1.py
+        cbar_depth=fig.colorbar(cb2, cax=axc)#aspect is from https://stackoverflow.com/questions/33443334/how-to-decrease-colorbar-width-in-matplotlib
+        cbar_depth.set_label('Radar signal strength [dB]')
+        
     #Display the ice lenses identification:
     #pdb.set_trace()
 
@@ -1038,15 +1042,16 @@ plt.rcParams.update({'font.size': 15}) #from https://stackoverflow.com/questions
 #Prepare plot
 fig = plt.figure(figsize=(19,10))
 #fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
-gs = gridspec.GridSpec(10, 20)
+gs = gridspec.GridSpec(10, 200)
 gs.update(wspace=0.1)
 gs.update(wspace=0.001)
-ax1 = plt.subplot(gs[0:10, 10:20],projection=crs)
-ax2 = plt.subplot(gs[0:2, 0:10])
-ax3 = plt.subplot(gs[2:4, 0:10])
-ax4 = plt.subplot(gs[4:6, 0:10])
-ax5 = plt.subplot(gs[6:8, 0:10])
-ax6 = plt.subplot(gs[8:10, 0:10])
+ax1 = plt.subplot(gs[0:10, 120:200],projection=crs)
+ax2 = plt.subplot(gs[0:2, 0:100])
+ax3 = plt.subplot(gs[2:4, 0:100])
+ax4 = plt.subplot(gs[4:6, 0:100])
+ax5 = plt.subplot(gs[6:8, 0:100])
+ax6 = plt.subplot(gs[8:10, 0:100])
+axc = plt.subplot(gs[0:8, 104:107])
 
 #Load DEM clipped over the SW
 GrIS_DEM_display_SW = rxr.open_rasterio(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW.tif',
@@ -1216,7 +1221,7 @@ legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='#0
 
 ax1.legend(handles=legend_elements,loc='lower right',fontsize=12)
 plt.legend()
-ax6.legend_.remove()
+axc.legend_.remove()
 
 plt.show()
 pdb.set_trace()
@@ -1224,7 +1229,7 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v3/Fig_S1.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v4/Fig_S1.png'
 plt.savefig(fig_name,dpi=300)
 print('Done with SW Greenland plot')
 
