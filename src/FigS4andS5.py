@@ -101,13 +101,14 @@ lat3413_plot[dataframe['mask'][:,0]]=lat_3413[dataframe['mask'][:,0]]
 distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
 
 #Create the figure
-fig = plt.figure(figsize=(8,20))
-gs = gridspec.GridSpec(14, 20)
+fig = plt.figure(figsize=(8,21))
+gs = gridspec.GridSpec(14, 51)
 gs.update(wspace=0.001)
-ax2 = plt.subplot(gs[0:1, 0:20])
-ax3 = plt.subplot(gs[1:2, 0:20])
-ax4 = plt.subplot(gs[2:3, 0:20])
-ax5 = plt.subplot(gs[3:4, 0:20])
+ax2 = plt.subplot(gs[0:1, 0:50])
+ax3 = plt.subplot(gs[1:2, 0:50])
+ax4 = plt.subplot(gs[2:3, 0:50])
+ax5 = plt.subplot(gs[3:4, 0:50])
+axc = plt.subplot(gs[0:4, 50:51])
 
 #Display depth corrected radargram
 ax2.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
@@ -144,7 +145,7 @@ ax4.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_
 
 
 #Display depth corrected radargram and quantile 0.79 over it
-ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+cb=ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
 ax5.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax5.set_ylim(20,0)
 ax5.set_ylabel('Depth [m]')
@@ -164,12 +165,16 @@ ax5.set_xlim(low_xlim,high_xlim)
 ax5.set_xlabel('Distance [km]')
 ax5.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
 
+
+#Display colorbar. This is from FigS1.py
+cbar_depth=fig.colorbar(cb, cax=axc)
+cbar_depth.set_label('Radar signal strength [dB]')
 plt.show()
 
 pdb.set_trace()
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v4/figS4_radargrams.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v5/figS4_radargrams.png',dpi=300)
 '''
 #Create the figure
 fig,ax1 = plt.subplots()
