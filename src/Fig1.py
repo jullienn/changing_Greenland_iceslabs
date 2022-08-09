@@ -222,8 +222,8 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
                             borderpad=0)
         
         cbar_blues=plt.colorbar(lik_blues, ax=ax_plot, cax=axins1, shrink=1,orientation='vertical')
-        cbar_blues.set_label('Columnal ice content [m]')
-    
+        cbar_blues.set_label('Total ice content [m]',fontsize=20)
+        cbar_blues.ax.tick_params(labelsize=20)#This is from https://stackoverflow.com/questions/15305737/python-matplotlib-decrease-size-of-colorbar-labels
     #Add label
     ax_plot.text(0, 1, label_panel,zorder=10, ha='center', va='center', transform=ax_plot.transAxes, weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
@@ -431,7 +431,7 @@ def display_shapefiles(ax_plot,region_rignot,x0,x1,y0,y1,flightlines_20022018,ic
 
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
-    plot_fig_S6='FALSE'
+    plot_fig_S6='TRUE'
     plot_panela='TRUE'
     plot_panelb='TRUE'
     plot_panelc='TRUE'
@@ -446,7 +446,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         # This can be converted into a `proj4` string/dict compatible with GeoPandas
         crs_proj4 = crs.proj4_init
         ###################### From Tedstone et al., 2022 #####################
-        
+        plt.rcParams.update({'font.size': 20})
+
         fig = plt.figure(figsize=(14,50))
         gs = gridspec.GridSpec(7, 25)
         gs.update(wspace = 2.5)
@@ -473,8 +474,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
         
+        pdb.set_trace()
+        
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v3/figS6.png',dpi=300)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v4/figS6.png',dpi=300)
         # -------------------------------- FIG S1 --------------------------------
     
     # --------------------------------- FIG 1 --------------------------------
