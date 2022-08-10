@@ -662,7 +662,7 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
         ax8map.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='k',s=0.1,zorder=10,transform=crs)
         
         #Add year on radargram
-        ax_plotting.text(0.975, 0.825,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plotting.text(0.9675, 0.775,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=15,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         
         #Add pannel label
         ax_plotting.text(0.01, 0.85,casestudy_nb,ha='center', va='center', transform=ax_plotting.transAxes,fontsize=15,zorder=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
@@ -1154,7 +1154,7 @@ figManager.window.showMaximized()
 
 pdb.set_trace()
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v8/fig3.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig3.png',dpi=300)
 
 #Create a new figure for the PDH and total columnal ice content
 fig = plt.figure()
