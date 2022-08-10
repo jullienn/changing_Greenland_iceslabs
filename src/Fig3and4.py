@@ -734,9 +734,13 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             delta_vertical_m = np.mean(np.asarray(dataframe[str(year)]['depth'][1:])-np.asarray(dataframe[str(year)]['depth'][:-1])) #This is inspired from probabilisitc_iceslabs.py
             
             iceacc=np.zeros((1,prob_iceacc.shape[1]))
+            slab_bottom=np.zeros((1,prob_iceacc.shape[1]))
+
             for indiv_col in range (0,prob_iceacc.shape[1]):
+                #Iceacc
                 iceacc[0,indiv_col]=np.sum(prob_iceacc[:,indiv_col]>0)*delta_vertical_m
-            
+                #Ice slab bottom depth
+                slab_bottom[0,indiv_col]=dataframe[str(year)]['depth'][np.where(prob_iceacc[:,indiv_col]!=0)[0][-1]][0]
             '''
             #Display where we extracted the values
             ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0329)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
@@ -744,6 +748,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             '''
             print('-----> To use:',str(year),' mean ice accretion: ',str(np.mean(iceacc)))
             print('-----> To use:',str(year),' median ice accretion: ',str(np.median(iceacc)))
+            print('-----> To use:',str(year),' mean ice bottom depth: ',str(np.mean(slab_bottom)))
+            print('-----> To use:',str(year),' median ice bottom depth: ',str(np.median(slab_bottom)))
             print(str(year),' distance ice accretion: ',str(distances_with_start_transect[indexes_iceacc][-1]-distances_with_start_transect[indexes_iceacc][0]))
         ####################### Top ice accretion #############################
         
