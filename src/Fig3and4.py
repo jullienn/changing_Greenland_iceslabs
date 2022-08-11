@@ -1177,7 +1177,7 @@ ax = sns.barplot(x="Year", y="PDH_temperature", data=df_KAN_U_csv,palette=['blac
 
 #This is from https://stackoverflow.com/questions/14762181/adding-a-y-axis-label-to-secondary-y-axis-in-matplotlib
 ax10m_second = ax10m.twinx()
-ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.2,color='indianred')
+ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.15,color='indianred')
 ax10m_second.yaxis.set_label_position("right")
 ax10m_second.yaxis.tick_right()
 ax10m_second.set_ylabel('Total ice content [$m^2$]')
@@ -1207,4 +1207,4 @@ pdb.set_trace()
 
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v8/fig4.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig4.png',dpi=300)
