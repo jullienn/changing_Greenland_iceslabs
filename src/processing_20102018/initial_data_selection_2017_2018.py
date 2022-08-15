@@ -16,6 +16,9 @@ This code is inspired from refine_location_2017_2018.py
 # within this shape to make sure I do not miss ice slabs below and above this
 # area. Then I can delete the remaining tracks.
 
+#Note on August 15th, 2022: the way of leading the GrIS DEM is not the most recent version,
+#which is not the most accurate one, although differences are minor.
+
 ##############################################################################
 ############### Define function for discrete colorbar display ###############
 ##############################################################################
