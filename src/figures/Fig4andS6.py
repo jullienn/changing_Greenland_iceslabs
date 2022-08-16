@@ -1151,35 +1151,27 @@ ax8map.axis('off')
 
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
-
+'''
 pdb.set_trace()
 
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig3.png',dpi=300)
-
+'''
 #################### Supp Fig showing top-down ice accretion ###################
 plt.rcParams.update({'font.size': 20})
-plt.rcParams["figure.figsize"] = (10,6)#from https://pythonguides.com/matplotlib-increase-plot-size/
+plt.rcParams["figure.figsize"] = (14,4)#from https://pythonguides.com/matplotlib-increase-plot-size/
 fig = plt.figure()
-gs = gridspec.GridSpec(12, 12)
-gs.update(wspace=0.1)
-gs.update(hspace=0.1)
+gs = gridspec.GridSpec(3, 14)
 
-ax1_details = plt.subplot(gs[0:6, 0:12])
-ax2_details  = plt.subplot(gs[6:12, 0:12])
+ax1_details = plt.subplot(gs[0:3, 0:14])
 
 ###########################################################################
 ###                           Display radargrams                        ###
 ###########################################################################
 #Loop over the years
-for year in np.asarray([2012,2018]):
-    if (str(year)=='2012'):
-        ax_plotting=ax1_details
-    elif (str(year)=='2018'):
-        ax_plotting=ax2_details
-    else:
-        print('Year not know')
-
+for year in np.asarray([2018,2012]):
+    #Set axis to plot
+    ax_plotting=ax1_details
     #Reset depths to 0
     dataframe[str(year)]['depth']=dataframe[str(year)]['depth']-dataframe[str(year)]['depth'][0]
     
@@ -1242,52 +1234,71 @@ for year in np.asarray([2012,2018]):
     
     #Calculate distances
     distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
-    
+    '''
     #Display radargram
     cb=ax_plotting.pcolor(distances_with_start_transect, Y_data, C_data,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+    '''
+
+    if (str(year)=='2018'):
+        #Display probability
+        cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=plt.get_cmap('bwr_r'),zorder=1,alpha=1, antialiased=True, linewidth=0.0)
+        #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
+    if (str(year)=='2012'):
+        cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=plt.get_cmap('PiYG_r'),zorder=1.5,alpha=0.8, antialiased=True, linewidth=0.0)
+    
     ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
     ax_plotting.set_ylim(20,0)
-
-    #Display probability
-    cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=plt.get_cmap('autumn'),zorder=-1,alpha=0.1, antialiased=True, linewidth=0.0)
-    #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
-    
-    #Add dashed lines such as in Fig. 3
-    ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
-    ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
-    ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 15.6
-    ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 16.7
     
     #Add yticks
     ax_plotting.yaxis.tick_left()
     
     #Set xlim
-    ax_plotting.set_xlim(13800,17700)
+    ax_plotting.set_xlim(13000,19000)
     
     #Display bottom xtick in km instead of m
     xtick_distance=ax_plotting.get_xticks()
     ax_plotting.set_xticks(xtick_distance)
     ax_plotting.set_xticklabels((xtick_distance/1000))
     
+    '''
     #Display year
     ax_plotting.text(0.96, 0.925,str(year), color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=20,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
-    if (str(year)=='2012'):
-        ax_plotting.set_xticklabels([])
-        ax_plotting.set_yticklabels(['0','5','10','15',''])
-
-    elif (str(year)=='2018'):
+    '''
+    
+    if (str(year)=='2018'):
         ax_plotting.xaxis.tick_bottom()
         #Add axis labels
         ax_plotting.set_ylabel('Depth [m]')
         ax_plotting.set_xlabel('Distance [km]')
+        
+        #Add dashed lines such as in Fig. 3
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=2,linestyle='--',color='k')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=2,linestyle='--',color='k')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=2,linestyle='--',color='k',linewidth=1)#Line at km 15.6
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=2,linestyle='--',color='k',linewidth=1)#Line at km 16.7
+        
     else:
         print('Year not know')
 
+#Display KAN_U
+ax1_details.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],0.5,s=20,c='#b2182b',zorder=10)
+
+#Add legend
+from matplotlib.patches import Patch
+from matplotlib.lines import Line2D
+
+#Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
+legend_elements = [Patch(facecolor='#528347',label='2012'),
+                   Patch(facecolor='#ff0000',label='2018'),
+                   Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
+
+ax1_details.legend(handles=legend_elements,loc='lower right',fontsize=12)
+plt.legend()
+plt.show()
 pdb.set_trace()
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/figS10/v1/figS10.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S10/v2/figS10.png',dpi=300)
 
 ###########################################################################
 ###                           Display radargrams                        ###
