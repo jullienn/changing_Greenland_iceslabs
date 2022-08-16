@@ -1153,8 +1153,148 @@ figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
 pdb.set_trace()
+
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig3.png',dpi=300)
+
+#################### Supp Fig showing top-down ice accretion ###################
+plt.rcParams.update({'font.size': 20})
+plt.rcParams["figure.figsize"] = (10,6)#from https://pythonguides.com/matplotlib-increase-plot-size/
+fig = plt.figure()
+gs = gridspec.GridSpec(12, 12)
+gs.update(wspace=0.1)
+gs.update(hspace=0.1)
+
+ax1_details = plt.subplot(gs[0:6, 0:12])
+ax2_details  = plt.subplot(gs[6:12, 0:12])
+
+###########################################################################
+###                           Display radargrams                        ###
+###########################################################################
+#Loop over the years
+for year in np.asarray([2012,2018]):
+    if (str(year)=='2012'):
+        ax_plotting=ax1_details
+    elif (str(year)=='2018'):
+        ax_plotting=ax2_details
+    else:
+        print('Year not know')
+
+    #Reset depths to 0
+    dataframe[str(year)]['depth']=dataframe[str(year)]['depth']-dataframe[str(year)]['depth'][0]
+    
+    #Select radar slice
+    depth_corrected_file=dataframe[str(year)]['radar']
+    
+    #Identify index where time < 20 m
+    ind_lower_20m=np.where(dataframe[str(year)]['depth']<20)[0]
+    depth_corrected_20m=depth_corrected_file[ind_lower_20m,:]
+    
+    #Select x vector and select only where we want data to be displayed
+    #Find indexes where within bounds
+    indexes_within_bounds=np.logical_and(dataframe[str(year)]['lon_appended']>=-47.4233,dataframe[str(year)]['lon_appended']<=-46.2981)
+    #Select only data within bounds
+    X=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
+    
+    #Select only radar data within bounds
+    Y_data=np.arange(0,100,100/dataframe[str(year)]['radar'].shape[0])
+    C_data=dataframe[str(year)]['radar'][:,indexes_within_bounds]
+    
+    #Keep only the first 20m of radar data
+    C_data=C_data[Y_data<20,:]
+    Y_data=Y_data[Y_data<20]
+
+    #Select only probabilistic data within bounds
+    Y=np.arange(0,20,20/dataframe[str(year)]['probabilistic'].shape[0])
+    C=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
+
+    #Display only where probability is higher or equal than prob
+    C_bool=(C>=0.00001).astype(int)
+    C_bool_plot=np.zeros([C_bool.shape[0],C_bool.shape[1]])
+    C_bool_plot[:]=np.nan
+    C_bool_plot[C_bool==1]=1
+    
+    mask_plot=dataframe[str(year)]['mask'][indexes_within_bounds]
+    
+    #Create lat/lon vectors for display
+    lon3413_plot_int=dataframe[str(year)]['lon_3413'][indexes_within_bounds]
+    lat3413_plot_int=dataframe[str(year)]['lat_3413'][indexes_within_bounds]
+    
+    lon_plot_int=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
+    lat_plot_int=dataframe[str(year)]['lat_appended'][indexes_within_bounds]
+    
+    #Update lat/lon vectors for display with the masks
+    lon3413_plot=np.zeros(len(lon3413_plot_int))
+    lon3413_plot[:]=np.nan
+    lon3413_plot[mask_plot]=lon3413_plot_int[mask_plot]
+
+    lat3413_plot=np.zeros(len(lat3413_plot_int))
+    lat3413_plot[:]=np.nan
+    lat3413_plot[mask_plot]=lat3413_plot_int[mask_plot]
+    
+    lon_plot=np.zeros(len(lon_plot_int))
+    lon_plot[:]=np.nan
+    lon_plot[mask_plot]=lon_plot_int[mask_plot]
+    
+    lat_plot=np.zeros(len(lat_plot_int))
+    lat_plot[:]=np.nan
+    lat_plot[mask_plot]=lat_plot_int[mask_plot]
+    
+    #Calculate distances
+    distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
+    
+    #Display radargram
+    cb=ax_plotting.pcolor(distances_with_start_transect, Y_data, C_data,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+    ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
+    ax_plotting.set_ylim(20,0)
+
+    #Display probability
+    cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=plt.get_cmap('autumn'),zorder=-1,alpha=0.1, antialiased=True, linewidth=0.0)
+    #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
+    
+    #Add dashed lines such as in Fig. 3
+    ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
+    ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
+    ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 15.6
+    ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='k',linewidth=1)#Line at km 16.7
+    
+    #Add yticks
+    ax_plotting.yaxis.tick_left()
+    
+    #Set xlim
+    ax_plotting.set_xlim(13800,17700)
+    
+    #Display bottom xtick in km instead of m
+    xtick_distance=ax_plotting.get_xticks()
+    ax_plotting.set_xticks(xtick_distance)
+    ax_plotting.set_xticklabels((xtick_distance/1000))
+    
+    #Display year
+    ax_plotting.text(0.96, 0.925,str(year), color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=20,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+    if (str(year)=='2012'):
+        ax_plotting.set_xticklabels([])
+        ax_plotting.set_yticklabels(['0','5','10','15',''])
+
+    elif (str(year)=='2018'):
+        ax_plotting.xaxis.tick_bottom()
+        #Add axis labels
+        ax_plotting.set_ylabel('Depth [m]')
+        ax_plotting.set_xlabel('Distance [km]')
+    else:
+        print('Year not know')
+
+pdb.set_trace()
+
+#Save figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/figS10/v1/figS10.png',dpi=300)
+
+###########################################################################
+###                           Display radargrams                        ###
+###########################################################################
+
+
+#################### Supp Fig showing top-down ice accretion ###################
 
 #Create a new figure for the PDH and total columnal ice content
 fig = plt.figure()
