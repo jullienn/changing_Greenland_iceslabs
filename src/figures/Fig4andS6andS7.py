@@ -1300,10 +1300,10 @@ ax1_details.legend(handles=legend_elements,loc='lower right',fontsize=12)
 plt.legend()
 plt.show()
 pdb.set_trace()
-
+'''
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S10/v3/figS10.png',dpi=300)
-
+'''
 ###########################################################################
 ###                           Display radargrams                        ###
 ###########################################################################
