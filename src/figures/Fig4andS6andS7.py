@@ -1151,9 +1151,9 @@ ax8map.axis('off')
 
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
-'''
-pdb.set_trace()
 
+pdb.set_trace()
+'''
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig3.png',dpi=300)
 '''
@@ -1302,7 +1302,7 @@ plt.show()
 pdb.set_trace()
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S10/v2/figS10.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S10/v3/figS10.png',dpi=300)
 
 ###########################################################################
 ###                           Display radargrams                        ###
