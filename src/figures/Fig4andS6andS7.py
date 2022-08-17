@@ -1238,13 +1238,17 @@ for year in np.asarray([2018,2012]):
     #Display radargram
     cb=ax_plotting.pcolor(distances_with_start_transect, Y_data, C_data,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
     '''
-
+    #Customize colormap from https://stackoverflow.com/questions/43197474/how-to-customize-the-colorbar-in-python
+    import matplotlib.colors
+    cmap_2018= matplotlib.colors.ListedColormap(["#bf812d"])#2018
+    cmap_2012= matplotlib.colors.ListedColormap( ["#80cdc1"])#2012
+    
     if (str(year)=='2018'):
         #Display probability
-        cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=plt.get_cmap('bwr_r'),zorder=1,alpha=1, antialiased=True, linewidth=0.0)
+        cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=cmap_2018,zorder=1,alpha=1, antialiased=True, linewidth=0.0)
         #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
     if (str(year)=='2012'):
-        cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=plt.get_cmap('PiYG_r'),zorder=1.5,alpha=0.8, antialiased=True, linewidth=0.0)
+        cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=cmap_2012,zorder=1.5,alpha=0.8, antialiased=True, linewidth=0.0)
     
     ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
     ax_plotting.set_ylim(20,0)
@@ -1288,8 +1292,8 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 
 #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
-legend_elements = [Patch(facecolor='#528347',label='2012'),
-                   Patch(facecolor='#ff0000',label='2018'),
+legend_elements = [Patch(facecolor='#80cdc1',label='2012'),
+                   Patch(facecolor='#bf812d',label='2018'),
                    Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
 
 ax1_details.legend(handles=legend_elements,loc='lower right',fontsize=12)
