@@ -13,6 +13,7 @@ from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 import pdb
 import cartopy.crs as ccrs
+import pickle
 
 ### -------------------------- Load GrIS DEM ----------------------------- ###
 #https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
@@ -107,6 +108,7 @@ df_20102018['lon_3413']=lon_3413_20102018
 df_20102018['key_shp']=np.nan
 df_20102018['elevation']=np.nan
 df_20102018['year']=np.nan
+
 ### --------------------- Load 2010-2018 ice slabs ----------------------- ###
 
 

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-All the codes used for data preparation, processing, analysis and figure generation are present in this folder, as well as related text files and logbooks.
+All the codes used for data preparation, processing, analysis and figure generation are present in this folder, as well as related text files.
 The way the codes and folders are now organized were not tested. Path adaptations are mandatory before running any code!
 Some codes comes directly from MacFerrin et al., (2019), while some sections in other codes use function developped by MacFerrin et al., (2019), that may or not have been modified by us.
 Feel free to contact the author for any questions (nicolas.jullien@unifr.ch).
