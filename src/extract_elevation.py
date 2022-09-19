@@ -13,7 +13,6 @@ from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 import pdb
 import cartopy.crs as ccrs
-import pickle
 
 ### -------------------------- Load GrIS DEM ----------------------------- ###
 #https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
