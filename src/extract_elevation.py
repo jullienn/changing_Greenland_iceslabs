@@ -164,7 +164,7 @@ for i in range(0,lon_3413_20102018.size):
 #For RT3!
 filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/df_20102018_with_elevation_for_RT3_rignotetalregions'
 '''
-filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/'+desired_dataset+'/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_'+desired_dataset+'.csv'
+filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/'+desired_dataset+'/df_20102018_with_elevation_'+desired_dataset+'_rignotetalregions'
 outfile= open(filename_tosave, "wb" )
 pickle.dump(df_20102018,outfile)
 outfile.close()
