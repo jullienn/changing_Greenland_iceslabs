@@ -74,14 +74,14 @@ generate_excel_file='TRUE'
 
 #Identify all the datetraces to process
 '''
-path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/'
+path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
 
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Read dry firn exclusions file
-DF_exclusions = pd.read_csv(path_datetrack+'dry_firn_removal.txt',sep="\n", header=None)
+DF_exclusions = pd.read_csv(path_datetrack+'Exclusion_folder/txt/dry_firn_removal.txt',sep="\n", header=None) #get rid of sep="\n" if desired to run on local computer
 #This is from https://stackoverflow.com/questions/55129640/read-csv-into-a-dataframe-with-varying-row-lengths-using-pandas
 DF_exclusions = DF_exclusions[0].str.split(' ', expand=True)
 #Create colnames
@@ -272,7 +272,7 @@ if (generate_excel_file=='TRUE'):
     
     #Define path where data are stored
     '''
-    path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+    path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
     '''
     path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/pickles/'
@@ -280,7 +280,7 @@ if (generate_excel_file=='TRUE'):
     
     #Define filename
     '''
-    filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2010_2018/iii_out_from_probabilistic_iceslabs.py/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021.csv'
+    filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021_for_RT3.csv'
     '''
     filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
     
@@ -424,12 +424,19 @@ if (generate_excel_file=='TRUE'):
     
         tracecount = 0
         for lat, lon, tracenum, distance, ice_content, columnal_likelihood in zip(lats, lons, tracenums, distances, ice_contents, columnal_likelihoods):
+            
             # Record ONLY traces that have > 1 m ice content in them.  We're not interested in thinner stuff here.
             # If it has > 16 m ice content (80%), we also omit it, just to keep pure ice out of it.
             if 1.0 <= ice_content <= 16.0:
                 line = "{0},{1},{2},{3},{4},{5},{6}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content, columnal_likelihood)
                 fout.write(line)
                 tracecount += 1
+            '''
+            # For RT3, record ALL traces, no matter of their ice content
+            line = "{0},{1},{2},{3},{4},{5},{6}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content, columnal_likelihood)
+            fout.write(line)
+            tracecount += 1
+            '''
         print(tracecount, "of", len(lats), "traces.")
         print()
     
