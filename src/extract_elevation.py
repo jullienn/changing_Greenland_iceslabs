@@ -91,7 +91,7 @@ filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT1/final_data
 df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
 '''
 #Load the data !for RT3!
-filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021_for_RT3.csv'
+filename_20102018='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021_for_RT3_masked.csv'
 df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
 '''
 #Transform the coordinated from WGS84 to EPSG:3413
@@ -145,7 +145,7 @@ for i in range(0,lon_3413_20102018.size):
         df_20102018['key_shp'].iloc[i]='Out'
     
     #Add the year
-    df_20102018['year'].iloc[i]=int(df_20102018['Track_name'].iloc[i][0:4])
+    df_20102018['year'].iloc[i]=int(df_20102018['Track_name'].iloc[i][0:4]) #iloc is fine here as the index is the same as the number of the line we are at
     
     #Calcul elevation
     if (np.isnan(df_20102018['lon_3413'].iloc[i])):
@@ -162,9 +162,10 @@ for i in range(0,lon_3413_20102018.size):
 #Save the dictionary into a picke file
 '''
 #For RT3!
-filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/df_20102018_with_elevation_for_RT3_rignotetalregions'
+filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/df_20102018_with_elevation_for_RT3_masked_rignotetalregions'
 '''
 filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/'+desired_dataset+'/df_20102018_with_elevation_'+desired_dataset+'_rignotetalregions'
+
 outfile= open(filename_tosave, "wb" )
 pickle.dump(df_20102018,outfile)
 outfile.close()
