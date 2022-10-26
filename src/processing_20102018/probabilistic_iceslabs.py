@@ -68,26 +68,27 @@ import time
 import os.path
 import glob
 
-generate_probability_iceslabs_files='TRUE'
+generate_probability_iceslabs_files='FALSE'
 apply_dry_firn_exclusions='TRUE'
 generate_excel_file='TRUE'
+RT3='TRUE'
 
 #Identify all the datetraces to process
-'''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-
+'''
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Read dry firn exclusions file
-DF_exclusions = pd.read_csv(path_datetrack+'Exclusion_folder/txt/dry_firn_removal.txt',sep="\n", header=None) #get rid of sep="\n" if desired to run on local computer
+DF_exclusions = pd.read_csv(path_datetrack+'Exclusion_folder/txt/dry_firn_removal.txt', header=None)#,sep="\n", header=None) #get rid of sep="\n" if desired to run on local computer
 #This is from https://stackoverflow.com/questions/55129640/read-csv-into-a-dataframe-with-varying-row-lengths-using-pandas
 DF_exclusions = DF_exclusions[0].str.split(' ', expand=True)
 #Create colnames
 len_exclusions = [str(i) for i in np.arange(0,DF_exclusions.shape[1]-1)] #from https://www.geeksforgeeks.org/python-converting-all-strings-in-list-to-integers/
 colnames=['indiv_dates']+len_exclusions #from https://stackoverflow.com/questions/1720421/how-do-i-concatenate-two-lists-in-python
 DF_exclusions.columns=colnames
+
 
 if (generate_probability_iceslabs_files=='TRUE'):
     #I. Define path, open datetracks and define desired quantiles
@@ -271,19 +272,21 @@ if (generate_excel_file=='TRUE'):
     v= 299792458 / (1.0 + (0.734*0.873/1000.0))
     
     #Define path where data are stored
-    '''
+    
     path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+    path_mask='C:/Users/jullienn/switchdrive/Private/research\RT1/final_dataset_2002_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean Array Picklefiles/'
+
     '''
     path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/pickles/'
     path_data='/flash/jullienn/data/threshold_processing/'
-    
-    #Define filename
     '''
-    filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021_for_RT3.csv'
+    #Define filename
+    
+    filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021_for_RT3_masked.csv'
     '''
     filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
-    
+    '''
     #Open filename (same procedure as MacFerrin et al., 2019)
     fout = open(filename_excel_output, 'w')
     header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m,likelihood\n"
@@ -394,12 +397,67 @@ if (generate_excel_file=='TRUE'):
         #We must derive a low end and high end of ice slabs likelihood
         #for low end: slabs identified in 15 quantiles out of 15 => likelihood = 15/15=1
         #for high end: slabs identified in 1 quantile out of 15 => likelihood = 1/15 = 0.06667 = 0.0665
-        index_prob=indiv_probability_slice>=1
+        index_prob=indiv_probability_slice>=0.0665
         
         #Create slice full of nans
         slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
         #fill in slice_for_calculation by ones where likelihood >= chosen high/low end
         slice_for_calculation[index_prob]=1
+        
+        if (RT3=='TRUE'):
+            #Open the corresponding mask file
+            filename_mask=indiv_trace[0]+'_mask.pickle'
+            f_mask = open(path_mask+filename_mask, "rb")
+            mask = pickle.load(f_mask)
+            f_mask.close()
+            
+            #Where mask is False, set NaN in slice_for_calculation
+            mask.shape=mask.shape[0],1
+            mask_matrix=np.transpose(np.repeat(mask,slice_for_calculation.shape[0],axis=1))
+            slice_for_calculation[~mask_matrix]=np.nan
+            
+            #Do the saeme for dry firn exclusions - this is from apply_dry_firn_exclusion section higher in this code
+            #1. Extract exclusions
+            #Extract total length of trace for dry firn mask generation
+            total_len_trace=slice_for_calculation.shape[1]
+            
+            #Extract indiv_date and corresponding exclusions
+            indiv_date=np.asarray(DF_exclusions[DF_exclusions['indiv_dates']==indiv_trace[0]])[0,0]
+            exclusions=np.asarray(DF_exclusions[DF_exclusions['indiv_dates']==indiv_trace[0]])[0,1:]
+            
+            #Get rid of None in exclusions
+            exclusions=exclusions[~(exclusions==None)]
+            
+            print(indiv_date)
+            print(exclusions)
+            print(total_len_trace)
+            
+            #2. Gather all exclusions
+            #Loop through the exclusions
+            for indiv_exclusion in exclusions:
+                #Set indiv_mask to empty
+                indiv_mask=[]
+                
+                if (indiv_exclusion.partition("-")[0]==''):
+                    #-N case
+                    indiv_mask='0-'+indiv_exclusion.partition("-")[-1]
+                elif (indiv_exclusion.partition("-")[1]=='-'):
+                    if (indiv_exclusion.partition("-")[-1]==''):
+                        #N- case
+                        indiv_mask=indiv_exclusion.partition("-")[0]+'-'+str(total_len_trace)
+                    else:
+                        #N-N case
+                        indiv_mask=indiv_exclusion
+                else:
+                    print('Error!!')
+                    break
+                #3. Apply exclusions to the slice
+                print(indiv_mask)
+                start_exclusion=int(indiv_mask.partition("-")[0])
+                end_exclusion=int(indiv_mask.partition("-")[-1])
+                
+                slice_for_calculation[:,start_exclusion:end_exclusion]=np.nan
+                
         # Number of pixels times the thickness of each pixel
         ice_content_m = np.sum(slice_for_calculation, axis=0) * depth_delta_m
         
@@ -424,19 +482,20 @@ if (generate_excel_file=='TRUE'):
     
         tracecount = 0
         for lat, lon, tracenum, distance, ice_content, columnal_likelihood in zip(lats, lons, tracenums, distances, ice_contents, columnal_likelihoods):
-            
-            # Record ONLY traces that have > 1 m ice content in them.  We're not interested in thinner stuff here.
-            # If it has > 16 m ice content (80%), we also omit it, just to keep pure ice out of it.
-            if 1.0 <= ice_content <= 16.0:
+            if (RT3=='TRUE'):
+                # For RT3, record ALL traces, no matter of their ice content
                 line = "{0},{1},{2},{3},{4},{5},{6}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content, columnal_likelihood)
                 fout.write(line)
                 tracecount += 1
-            '''
-            # For RT3, record ALL traces, no matter of their ice content
-            line = "{0},{1},{2},{3},{4},{5},{6}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content, columnal_likelihood)
-            fout.write(line)
-            tracecount += 1
-            '''
+            else:
+                # Record ONLY traces that have > 1 m ice content in them.  We're not interested in thinner stuff here.
+                # If it has > 16 m ice content (80%), we also omit it, just to keep pure ice out of it.
+                if 1.0 <= ice_content <= 16.0:
+                    line = "{0},{1},{2},{3},{4},{5},{6}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content, columnal_likelihood)
+                    fout.write(line)
+                    tracecount += 1
+                
+            
         print(tracecount, "of", len(lats), "traces.")
         print()
     
