@@ -68,20 +68,21 @@ import time
 import os.path
 import glob
 
-generate_probability_iceslabs_files='FALSE'
+generate_probability_iceslabs_files='TRUE'
 apply_dry_firn_exclusions='TRUE'
 generate_excel_file='TRUE'
-RT3='TRUE'
+RT3='FALSE'
 
+'''
 #Identify all the datetraces to process
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-'''
+
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Read dry firn exclusions file
-DF_exclusions = pd.read_csv(path_datetrack+'Exclusion_folder/txt/dry_firn_removal.txt', header=None)#,sep="\n", header=None) #get rid of sep="\n" if desired to run on local computer
+DF_exclusions = pd.read_csv(path_datetrack+'Exclusion_folder/txt/dry_firn_removal.txt',sep="\n", header=None) #get rid of sep="\n" if desired to run on local computer
 #This is from https://stackoverflow.com/questions/55129640/read-csv-into-a-dataframe-with-varying-row-lengths-using-pandas
 DF_exclusions = DF_exclusions[0].str.split(' ', expand=True)
 #Create colnames
@@ -272,21 +273,19 @@ if (generate_excel_file=='TRUE'):
     v= 299792458 / (1.0 + (0.734*0.873/1000.0))
     
     #Define path where data are stored
-    
+    '''
     path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
     path_mask='C:/Users/jullienn/switchdrive/Private/research\RT1/final_dataset_2002_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean Array Picklefiles/'
-
     '''
     path_probability_iceslabs='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/pickles/'
     path_data='/flash/jullienn/data/threshold_processing/'
-    '''
-    #Define filename
     
+    #Define filename
+    '''
     filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021_for_RT3_masked.csv'
     '''
     filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
-    '''
     #Open filename (same procedure as MacFerrin et al., 2019)
     fout = open(filename_excel_output, 'w')
     header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m,likelihood\n"
@@ -397,7 +396,7 @@ if (generate_excel_file=='TRUE'):
         #We must derive a low end and high end of ice slabs likelihood
         #for low end: slabs identified in 15 quantiles out of 15 => likelihood = 15/15=1
         #for high end: slabs identified in 1 quantile out of 15 => likelihood = 1/15 = 0.06667 = 0.0665
-        index_prob=indiv_probability_slice>=0.0665
+        index_prob=indiv_probability_slice>=1
         
         #Create slice full of nans
         slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
