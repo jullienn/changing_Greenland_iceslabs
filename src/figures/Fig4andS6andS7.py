@@ -22,6 +22,200 @@ def compute_distances(eastings,northings):
     return return_cumsum_distances
 
 
+def scale_bar(ax, location, length, linewidth,rotation): 
+    '''
+    This function is from the reply from 'Siyh' in
+    https://stackoverflow.com/questions/32333870/how-can-i-show-a-km-ruler-on-a-cartopy-matplotlib-plot/41600150
+    SLightly modified by myself
+    '''
+
+    """
+    ax is the axes to draw the scalebar on.
+    length is the length of the scalebar in km.
+    location is center of the scalebar in axis coordinates.
+    (ie. 0.5 is the middle of the plot)
+    linewidth is the thickness of the scalebar.
+    """
+    #Get the limits of the axis in lat long
+    llx0, llx1, lly0, lly1 = ax.get_extent(ccrs.PlateCarree())
+    #Make tmc horizontally centred on the middle of the map,
+    #vertically at scale bar location
+    sbllx = (llx1 + llx0) / 2
+    sblly = lly0 + (lly1 - lly0) * location[1]
+    tmc = ccrs.TransverseMercator(sbllx, sblly)
+    #Get the extent of the plotted area in coordinates in metres
+    x0, x1, y0, y1 = ax.get_extent(tmc)
+    #Turn the specified scalebar location into coordinates in metres
+    sbx = x0 + (x1 - x0) * location[0]
+    sby = y0 + (y1 - y0) * location[1]
+
+    #Calculate a scale bar length if none has been given
+    #(Theres probably a more pythonic way of rounding the number but this works)
+    if not length: 
+        length = (x1 - x0) / 5000 #in km
+        ndim = int(np.floor(np.log10(length))) #number of digits in number
+        length = round(length, -ndim) #round to 1sf
+        #Returns numbers starting with the list
+        def scale_number(x):
+            if str(x)[0] in ['1', '2', '5']: return int(x)        
+            else: return scale_number(x - 10 ** ndim)
+        length = scale_number(length) 
+
+    #Generate the x coordinate for the ends of the scalebar
+    bar_xs = [sbx - length * 500, sbx + length * 500]
+    #Plot the scalebar
+    ax.plot(bar_xs, [sby, sby], transform=tmc, color='k', linewidth=linewidth)
+    #Plot the scalebar label
+    ax.text(sbx, sby, str(length) + ' km', transform=tmc,
+            horizontalalignment='center', verticalalignment='bottom',rotation=rotation)
+    
+
+def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,year_background):
+    
+    #Identify index where time < 20 m
+    ind_lower_20m=np.where(dataframe[str(year)]['depth']<20)[0]
+    
+    #Select x vector and select only where we want data to be displayed
+    #Find indexes where within bounds
+    indexes_within_bounds=np.logical_and(dataframe[str(year)]['lon_appended']>=-47.4233,dataframe[str(year)]['lon_appended']<=-46.2981)
+    #Select only data within bounds
+    X=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
+    
+    #Select only probabilistic data within bounds
+    Y=np.arange(0,20,20/dataframe[str(year)]['probabilistic'].shape[0])
+    C=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
+
+    #Display only where probability is higher or equal than prob
+    C_bool=(C>=0.00001).astype(int)
+    C_bool_plot=np.zeros([C_bool.shape[0],C_bool.shape[1]])
+    C_bool_plot[:]=np.nan
+    C_bool_plot[C_bool==1]=1
+    
+    mask_plot=dataframe[str(year)]['mask'][indexes_within_bounds]
+    
+    #Create lat/lon vectors for display
+    lon3413_plot_int=dataframe[str(year)]['lon_3413'][indexes_within_bounds]
+    lat3413_plot_int=dataframe[str(year)]['lat_3413'][indexes_within_bounds]
+    
+    lon_plot_int=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
+    lat_plot_int=dataframe[str(year)]['lat_appended'][indexes_within_bounds]
+    
+    #Update lat/lon vectors for display with the masks
+    lon3413_plot=np.zeros(len(lon3413_plot_int))
+    lon3413_plot[:]=np.nan
+    lon3413_plot[mask_plot]=lon3413_plot_int[mask_plot]
+
+    lat3413_plot=np.zeros(len(lat3413_plot_int))
+    lat3413_plot[:]=np.nan
+    lat3413_plot[mask_plot]=lat3413_plot_int[mask_plot]
+    
+    lon_plot=np.zeros(len(lon_plot_int))
+    lon_plot[:]=np.nan
+    lon_plot[mask_plot]=lon_plot_int[mask_plot]
+    
+    lat_plot=np.zeros(len(lat_plot_int))
+    lat_plot[:]=np.nan
+    lat_plot[mask_plot]=lat_plot_int[mask_plot]
+    
+    #Calculate distances
+    distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
+    
+    #Display probability
+    cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=cmap_year,alpha=0.8, zorder=zorder_indiv,antialiased=True, linewidth=0.0,label=str(year))
+    #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
+    ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
+    ax_plotting.set_ylim(20,0)
+    
+    #Add yticks
+    ax_plotting.yaxis.tick_left()
+    
+    #Set xlim
+    start_display=10000
+    end_display=30000
+    ax_plotting.set_xlim(start_display,end_display)
+    
+    #Display bottom xtick in km instead of m
+    xtick_distance=ax_plotting.get_xticks()
+    ax_plotting.set_xticks(xtick_distance)
+    ax_plotting.set_xticklabels((xtick_distance/1000))
+    
+    #Do not dispay x ticks in ax1, ax3
+    if (ax_plotting in list([ax1,ax3])):
+        #Set xticks labels to empty
+        ax_plotting.set_xticklabels([])
+        #Set last yticks labels to empty
+        ax_plotting.set_yticklabels(['0','5','10','15',''])
+    
+    if (zorder_indiv==1):
+        if (ax_plotting==ax5):
+            #Custom plot
+            ax_plotting.xaxis.tick_bottom()
+            ax_plotting.set_xlabel('Distance [km]')
+            
+            #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
+            legend_elements = [Patch(facecolor=my_pal[year_background],label=str(year_background)),
+                               Patch(facecolor=my_pal[year],label=str(year)),
+                               Line2D([0], [0], marker='P', linestyle='none', label='KAN_U', color='#b2182b')]
+            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=12)
+            
+        else:
+            #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
+            legend_elements = [Patch(facecolor=my_pal[year_background],label=str(year_background)),
+                               Patch(facecolor=my_pal[year],label=str(year))]
+            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=12)     
+
+    elif (zorder_indiv==2):
+        #Add dashed lines such as in Fig. 3
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=3,linestyle='--',color='k')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=3,linestyle='--',color='k')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=3,linestyle='--',color='k',linewidth=1)#Line at km 15.6
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=3,linestyle='--',color='k',linewidth=1)#Line at km 16.7
+        #Display KAN_U
+        ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],0.5,marker='P',s=20,c='#b2182b',zorder=10)
+    
+    else:
+        print('Enter a correct zorder value!')
+    
+    ax_plotting.grid()
+
+    #display loc on map
+    ##### Same procedure of mask appliance for EPSG:32622 coordinates #####
+    #Create lat/lon vectors for display
+    lon32622_plot_int=dataframe[str(year)]['lon_32622'][indexes_within_bounds]
+    lat32622_plot_int=dataframe[str(year)]['lat_32622'][indexes_within_bounds]
+    
+    #Update lat/lon vectors for display with the masks
+    lon32622_plot=np.zeros(len(lon32622_plot_int))
+    lon32622_plot[:]=np.nan
+    lon32622_plot[mask_plot]=lon32622_plot_int[mask_plot]
+    
+    lat32622_plot=np.zeros(len(lat32622_plot_int))
+    lat32622_plot[:]=np.nan
+    lat32622_plot[mask_plot]=lat32622_plot_int[mask_plot]
+    ##### Same procedure of mask appliance for EPSG:32622 coordinates #####
+        
+    #display loc of the trace on zoomed map
+    ax_map_region.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='k',s=0.1,zorder=10,transform=crs)
+    
+    ax_map_region.scatter(lon32622_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
+                          lat32622_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
+                          c='#969696',s=0.1,zorder=11,transform=crs)
+    
+    ax_map_region.scatter(lon32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.023)],
+                          lat32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.023)],
+                          c='#d9d9d9',s=0.1,zorder=12,transform=crs)
+    
+    '''
+    #Same as previously by distance-wise
+    ax_map_region.scatter(lon32622_plot[np.logical_and(distances_with_start_transect>=13800,distances_with_start_transect<=17700)],
+                          lat32622_plot[np.logical_and(distances_with_start_transect>=13800,distances_with_start_transect<=17700)],
+                          c='green',s=0.1,zorder=12,transform=crs)
+    '''
+    #display loc of the trace on GrIS map
+    ax_map_GrIS.scatter(lon3413_plot[distances_with_start_transect<=40000],lat3413_plot[distances_with_start_transect<=40000],c='k',s=1,zorder=10,transform=crs_3413)
+    
+
+
 def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_DEM,axt,my_pal):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
     
@@ -808,6 +1002,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
 
+
+
 import pickle
 import scipy.io
 import numpy as np
@@ -823,6 +1019,10 @@ sns.set_theme(style="whitegrid")
 import cartopy.crs as ccrs
 from pyproj import Transformer
 import rasterio
+import matplotlib.colors #Customize colormap from https://stackoverflow.com/questions/43197474/how-to-customize-the-colorbar-in-python
+from matplotlib.patches import Patch
+from matplotlib.lines import Line2D
+import matplotlib.patches as patches
 
 #Define palette as a function of time
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -1036,7 +1236,7 @@ crs = ccrs.UTM(zone=22)
 crs_proj4 = crs.proj4_init
 ###################### From Tedstone et al., 2022 #####################
 
-#Plot
+################# Fig. showing radargrams and ice slabs product ###############
 fig = plt.figure()
 gs = gridspec.GridSpec(36, 12)
 gs.update(wspace=0.1)
@@ -1059,7 +1259,9 @@ import rioxarray as rxr
 #https://www.earthdatascience.org/courses/use-data-open-source-python/intro-raster-data-python/raster-data-processing/reproject-raster/
 #https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
 
+
 path_satellite='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/satellite_image/'
+
 #Load satelite data for display
 sat_image = rxr.open_rasterio(path_satellite+'T22WFV_20210823T145759_B2348.tif',
                               masked=True).squeeze() #No need to reproject satelite image
@@ -1111,7 +1313,7 @@ ax4r.set_ylabel('Depth [m]')
 #Define transformer for coordinates transform from "EPSG:3413" to "EPSG:32622"
 transformer = Transformer.from_crs("EPSG:3413", "EPSG:32622",always_xy=True)
 
-#Display flightlines correpsondance with year
+#Display flightlines correspondance with year
 coord_u03B2=transformer.transform([-94000],[-2505000])
 ax8map.text(coord_u03B2[0][0],coord_u03B2[1][0],u'\u03B2')
 
@@ -1152,22 +1354,216 @@ ax8map.axis('off')
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
 
-pdb.set_trace()
 '''
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig3.png',dpi=300)
 '''
-#################### Supp Fig showing top-down ice accretion ###################
+################# Fig. showing radargrams and ice slabs product ###############
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################### Fig. 4 showing ice slabs product ######################
+
+#change color traces
+#add panel label
+#should I add elevation contours in region map?
+
+#Prepare plot
+plt.rcParams.update({'font.size': 12})
+plt.rcParams["figure.figsize"] = (20,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+fig = plt.figure()
+gs = gridspec.GridSpec(14, 14)
+gs.update(wspace=0.1)
+gs.update(hspace=0.1)
+
+ax1 = plt.subplot(gs[0:3, 0:14])
+ax3 = plt.subplot(gs[3:6, 0:14])
+ax5 = plt.subplot(gs[6:9, 0:14])
+ax_map_region = plt.subplot(gs[10:14, 0:11],projection=crs)
+
+# Define the CartoPy CRS object for whole Greenland map display
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs_3413 = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+###################### From Tedstone et al., 2022 #####################
+ax_map_GrIS = plt.subplot(gs[10:14, 12:14],projection=crs_3413)
+
+#Reset depths to 0
+for year in np.asarray([2012,2013,2014,2017,2018]):
+    dataframe[str(year)]['depth']=dataframe[str(year)]['depth']-dataframe[str(year)]['depth'][0]
+
+#Display ice slabs products
+display_iceslabs_product(dataframe,2012,ax1,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
+display_iceslabs_product(dataframe,2013,ax1,matplotlib.colors.ListedColormap([my_pal[2013]]),1,2012)
+
+display_iceslabs_product(dataframe,2014,ax3,matplotlib.colors.ListedColormap([my_pal[2014]]),2,'empty')
+display_iceslabs_product(dataframe,2017,ax3,matplotlib.colors.ListedColormap([my_pal[2017]]),1,2014)
+
+display_iceslabs_product(dataframe,2012,ax5,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
+display_iceslabs_product(dataframe,2018,ax5,matplotlib.colors.ListedColormap([my_pal[2018]]),1,2012)
+
+ax1.set_ylabel('Depth [m]')
+ax3.set_ylabel('Depth [m]')
+ax5.set_ylabel('Depth [m]')
+
+#Display satelite image
+ax_map_region.imshow(sat_image[3,:,:], extent=extent_image, transform=crs, origin='upper', cmap='Blues_r',zorder=1) #NIR
+'''
+path_2016='T22WFV_20160824T145915/S2A_MSIL1C_20160824T145912_N0204_R125_T22WFV_20160824T145915.SAFE/GRANULE/L1C_T22WFV_A006128_20160824T145915/IMG_DATA/'
+#Load 2016 satelite data
+sat_image = rxr.open_rasterio(path_satellite+path_2016+'T22WFV_20160824T145912_B08.jp2',
+                              masked=True).squeeze() #No need to reproject satelite image
+#Define extents based on the satelite image
+extent_image = [np.asarray(sat_image.x[0]), np.asarray(sat_image.x[-1]), np.asarray(sat_image.y[-1]), np.asarray(sat_image.y[0])]#[west limit, east limit., south limit, north limit]
+ax_map_region.imshow(sat_image, extent=extent_image, transform=crs,cmap='Blues_r', origin='upper',zorder=1) #NIR
+'''
+
+#Display KAN_U
+#Define transformer for coordinates transform from "EPSG:4326" to "EPSG:32622"
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:32622",always_xy=True)
+KAN_U_coord=transformer.transform([-47.0253],[67.0003])
+ax_map_region.scatter(KAN_U_coord[0][0],KAN_U_coord[1][0],s=15,c='#b2182b',label='KAN_U',zorder=10,transform=crs)
+
+#set x and y limits
+ax_map_region.set_xlim(652452, 701005)
+ax_map_region.set_ylim(7429012, 7437598)
+
+#Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
+legend_elements = [Line2D([0], [0], label='Complete transect (0-40 km)', color='black'),
+                   Line2D([0], [0], label='Corresponding ice slabs display (10-30 km)', color='#969696'),
+                   Line2D([0], [0], label='~4 km-long transect (13.8-17.7 km)', color='#d9d9d9'),
+                   Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
+ax_map_region.legend(handles=legend_elements,loc='lower right',fontsize=12)
+
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+gl=ax_map_region.gridlines(draw_labels=True, xlocs=[-47,-47.5,-46.5], ylocs=[66.95,67], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
+#Customize lat labels
+gl.ylabels_right = False
+gl.xlabels_top = False
+#ax_map_region.axis('off')
+###################### From Tedstone et al., 2022 #####################
+
+#Display yeas on region map
+ax_map_region.text(KAN_U_coord[0][0]+17250,KAN_U_coord[1][0]-970,'2012',color=my_pal[2012],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+18700,KAN_U_coord[1][0]-850,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+19000,KAN_U_coord[1][0]-780,'2013,',color=my_pal[2013],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20450,KAN_U_coord[1][0]-700,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20750,KAN_U_coord[1][0]-650,'2018',color=my_pal[2018],rotation=5,weight='bold')
+
+ax_map_region.text(KAN_U_coord[0][0]+19000,KAN_U_coord[1][0]-2500,'2014,',color=my_pal[2014],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20450,KAN_U_coord[1][0]-2420,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20750,KAN_U_coord[1][0]-2370,'2017',color=my_pal[2017],rotation=5,weight='bold')
+
+#Set frame in red
+plt.setp(ax_map_region.spines.values(), color='red')#this is from https://stackoverflow.com/questions/7778954/elegantly-changing-the-color-of-a-plot-frame-in-matplotlib
+
+#Draw plot of GrIS map
+ax_map_GrIS.coastlines(edgecolor='black',linewidth=0.075)
+
+### -------------------------- Load shapefiles --------------------------- ###
+#Load Rignot et al., 2016 Greenland drainage bassins
+path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
+GrIS_drainage_bassins_all=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp')
+#Extract indiv regions and create related indiv shapefiles
+NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
+CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
+SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
+NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
+NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
+SE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SE']
+### -------------------------- Load shapefiles --------------------------- ###
+
+#Display GrIS drainage bassins limits
+GrIS_drainage_bassins_all.plot(ax=ax_map_GrIS,color='none', edgecolor='black',linewidth=0.075)
+
+#Display region name
+ax_map_GrIS.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-40000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+ax_map_GrIS.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+ax_map_GrIS.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
+ax_map_GrIS.text(SW_rignotetal.centroid.x-250000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax_map_GrIS.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax_map_GrIS.text(NW_rignotetal.centroid.x-150000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+
+#Display rectangle around datalocation - this is from Fig. 3.py   
+#This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
+# Create a Rectangle patch
+rect = patches.Rectangle((-1.6e5,-2.596e6),1.64e5,1.15e5, angle=5, linewidth=1, edgecolor='red', facecolor='none')
+# Add the patch to the Axes
+ax_map_GrIS.add_patch(rect)
+
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+gl=ax_map_GrIS.gridlines(draw_labels=True, xlocs=[-20,-30,-40,-50,-60,-70], ylocs=[60,65,70,75,80], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
+#Customize lat labels
+gl.ylabels_right = False
+gl.xlabels_top = False
+ax_map_GrIS.axis('off')
+#ax8map.legend(loc='upper right')
+###################### From Tedstone et al., 2022 #####################
+
+#Display scalebar
+scale_bar(ax_map_region, (0.55, 0.175), 10, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+scale_bar(ax_map_GrIS, (0.725, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+#by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
+
+'''
+#Failed attempt to use scalebar from matplotlib
+from matplotlib_scalebar.scalebar import ScaleBar
+from shapely.geometry.point import Point
+
+#scalebar is from https://geopandas.org/en/stable/gallery/matplotlib_scalebar.html
+points = gpd.GeoSeries([Point(-47, 66.95), Point(-48, 66.95)], crs=4326)  # Geographic WGS 84 - degrees
+points = points.to_crs(32622) # Projected WGS 84 - meters
+
+distance_meters = points[0].distance(points[1])
+ax_map_region.add_artist(ScaleBar(1,dimension="si-length",units="km",length_fraction=1))
+'''
+
+#Add vertical and horizontal arrows to indicate lateral movement of the ice and burrial rate
+#Lateral ice motion at KAN_U from Sept 2008 to Sept 2013 = 52.26 +/- 0.01m/year (Doyle et al., 2014)
+#Burrial rate from Spring 2013 to Spring 2017 = ~1.7m
+ax5.arrow(27500,5,-52*6,0,color='black',head_width=1,head_length=100,length_includes_head=True)
+ax5.text(26150,5.75,'52 $m\cdot y^{-1}$')
+
+ax5.arrow(27500,5,0,1.7,color='black',head_width=100,head_length=1,length_includes_head=True)
+ax5.text(27200,9.5,'~1.7 m')
+
+plt.show()
+pdb.set_trace()
+
+#Save figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4.png',dpi=300,bbox_inches='tight')
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
+####################### Fig. 4 showing ice slabs product ######################
+
+
+
+
+
+################### Supp Fig. 7 showing top-down ice accretion #################
+#Prepare plot
 plt.rcParams.update({'font.size': 20})
 plt.rcParams["figure.figsize"] = (14,4)#from https://pythonguides.com/matplotlib-increase-plot-size/
 fig = plt.figure()
 gs = gridspec.GridSpec(3, 14)
-
 ax1_details = plt.subplot(gs[0:3, 0:14])
 
-###########################################################################
-###                           Display radargrams                        ###
-###########################################################################
 #Loop over the years
 for year in np.asarray([2018,2012]):
     #Set axis to plot
@@ -1304,19 +1700,14 @@ pdb.set_trace()
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S10/v3/figS10.png',dpi=300)
 '''
-###########################################################################
-###                           Display radargrams                        ###
-###########################################################################
+################### Supp Fig. 7 showing top-down ice accretion #################
 
 
-#################### Supp Fig showing top-down ice accretion ###################
-
-#Create a new figure for the PDH and total columnal ice content
+################# Supp Fig. 6 PDH and total columnal ice content ###############
 fig = plt.figure()
 gs = gridspec.GridSpec(5, 10)
 gs.update(wspace=0.1)
 gs.update(hspace=0.1)
-
 ax10m = plt.subplot(gs[0:5, 0:10])
 
 #Load KAN_U data
@@ -1360,6 +1751,35 @@ plt.show()
 '''
 pdb.set_trace()
 
-
+'''
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig4.png',dpi=300)
+'''
+################# Supp Fig. 6 PDH and total columnal ice content ###############
+
+
+'''
+#SMB in sector 6.2 Zwally et sal., (2012). Not useful for my purpose
+#This is from https://stackoverflow.com/questions/36360469/read-nc-netcdf-files-using-python
+file2read = NetCDFFile(path_netcdf+'MB_region.nc','r')
+temp = file2read.variables[var] # var can be 'Theta', 'S', 'V', 'U' etc..
+data = temp[:]*1
+file2read.close()
+
+#This is from https://towardsdatascience.com/read-netcdf-data-with-python-901f7ff61648
+import netCDF4 as nc
+path_netcdf='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/netcdf_SMB/'
+ds = nc.Dataset(path_netcdf+'MB_region.nc')
+
+ds_sector = nc.Dataset(path_netcdf+'MB_sector.nc')
+#Zwally 2016 sector where KAN_U is is 6.2, i.e. 62 in the dataset, index 14
+
+SMB_62=ds_sector['SMB_ROI'][:,14]#SMB in Gt d-1, (time x sectors)
+SMB_time=ds_sector['time'][:]#days since 1840-01-01 00:00:00
+
+#Number of days for 2012 radar transect (Data_20120423_01_137_138) since 1840-01-01: 62 935 days
+#Number of days for 2018 radar transect (Data_20180421_01_004_007) since 1840-01-01: 65 124 days
+#Hence cumulative SMB from 20120423 to 20180421 is:
+logical_index_SMB=np.logical_and(time>=62935,time<=65124)
+np.sum(SMB_62[logical_index_SMB])
+'''
