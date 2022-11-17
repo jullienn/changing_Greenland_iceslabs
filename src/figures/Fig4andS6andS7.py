@@ -1026,7 +1026,7 @@ import matplotlib.patches as patches
 
 #Define palette as a function of time
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-my_pal = {2010: "k", 2011: "k", 2012: "#1a9850", 2013: "#542788", 2014: "#2166ac", 2017:"#bf812d",2018:"#b2182b"}
+my_pal = {2010: "k", 2011: "k", 2012: "#80cdc1", 2013: "#542788", 2014: "#d9a764", 2017:"#2166ac",2018:"#b2182b"}
 
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
@@ -1377,23 +1377,18 @@ plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/
 
 
 ####################### Fig. 4 showing ice slabs product ######################
-
-#change color traces
-#add panel label
-#should I add elevation contours in region map?
-
 #Prepare plot
 plt.rcParams.update({'font.size': 12})
 plt.rcParams["figure.figsize"] = (20,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
 fig = plt.figure()
 gs = gridspec.GridSpec(14, 14)
-gs.update(wspace=0.1)
+gs.update(wspace=1)
 gs.update(hspace=0.1)
 
 ax1 = plt.subplot(gs[0:3, 0:14])
 ax3 = plt.subplot(gs[3:6, 0:14])
 ax5 = plt.subplot(gs[6:9, 0:14])
-ax_map_region = plt.subplot(gs[10:14, 0:11],projection=crs)
+ax_map_region = plt.subplot(gs[10:14, 0:12],projection=crs)
 
 # Define the CartoPy CRS object for whole Greenland map display
 ###################### From Tedstone et al., 2022 #####################
@@ -1433,20 +1428,71 @@ extent_image = [np.asarray(sat_image.x[0]), np.asarray(sat_image.x[-1]), np.asar
 ax_map_region.imshow(sat_image, extent=extent_image, transform=crs,cmap='Blues_r', origin='upper',zorder=1) #NIR
 '''
 
+#Define path where DEm is found
+path_DEM='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/'
+#Display contours - this is fropm Fig.2.py
+GrIS_DEM_display_SW_EPSG32622 = rxr.open_rasterio(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW_EPSG32622.tif',
+                              masked=True).squeeze()
+
+extent_DEM_SW_EPSG32622 = [np.asarray(GrIS_DEM_display_SW_EPSG32622.x[0]), np.asarray(GrIS_DEM_display_SW_EPSG32622.x[-1]), np.asarray(GrIS_DEM_display_SW_EPSG32622.y[-1]), np.asarray(GrIS_DEM_display_SW_EPSG32622.y[0])]
+cont=ax_map_region.contour(GrIS_DEM_display_SW_EPSG32622[:,:], levels=np.arange(1800,2100,100), extent=extent_DEM_SW_EPSG32622, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.05,zorder=2)
+
 #Display KAN_U
 #Define transformer for coordinates transform from "EPSG:4326" to "EPSG:32622"
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:32622",always_xy=True)
 KAN_U_coord=transformer.transform([-47.0253],[67.0003])
 ax_map_region.scatter(KAN_U_coord[0][0],KAN_U_coord[1][0],s=15,c='#b2182b',label='KAN_U',zorder=10,transform=crs)
 
+'''
+### ------ Reproject elevation contours from EPSG 3413 to EPSG 32622 ------ ###
+# this is  from https://rasterio.readthedocs.io/en/latest/topics/reproject.html
+import rasterio
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+dst_crs = 'EPSG:32622'
+
+with rasterio.open(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW.tif') as src:
+    transform, width, height = calculate_default_transform(
+        src.crs, dst_crs, src.width, src.height, *src.bounds)
+    kwargs = src.meta.copy()
+    kwargs.update({
+        'crs': dst_crs,
+        'transform': transform,
+        'width': width,
+        'height': height
+    })
+
+    with rasterio.open(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW_EPSG32622.tif', 'w', **kwargs) as dst:
+        for i in range(1, src.count + 1):
+            reproject(
+                source=rasterio.band(src, i),
+                destination=rasterio.band(dst, i),
+                src_transform=src.transform,
+                src_crs=src.crs,
+                dst_transform=transform,
+                dst_crs=dst_crs,
+                resampling=Resampling.nearest)
+### ------ Reproject elevation contours from EPSG 3413 to EPSG 32622 ------ ###
+'''
 #set x and y limits
+ax_map_region.set_xlim(649090, 701160)
+ax_map_region.set_ylim(7428626, 7437212)
+
+'''
+#Old
 ax_map_region.set_xlim(652452, 701005)
 ax_map_region.set_ylim(7429012, 7437598)
+'''
+
+#Add elevation contour values
+ax_map_region.text(0.22, -0.11,'1800', ha='center', va='center', rotation=90,transform=ax_map_region.transAxes,fontsize=15,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax_map_region.text(0.525, -0.11,'1900', ha='center', va='center', rotation=90,transform=ax_map_region.transAxes,fontsize=15,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax_map_region.text(0.83, -0.11,'2000', ha='center', va='center', rotation=90,transform=ax_map_region.transAxes,fontsize=15,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
 legend_elements = [Line2D([0], [0], label='Complete transect (0-40 km)', color='black'),
-                   Line2D([0], [0], label='Corresponding ice slabs display (10-30 km)', color='#969696'),
+                   Line2D([0], [0], label='Displayed transect (10-30 km)', color='#969696'),
                    Line2D([0], [0], label='~4 km-long transect (13.8-17.7 km)', color='#d9d9d9'),
+                   Line2D([0], [0], label='Elevation', color='#8c510a'),
                    Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
 ax_map_region.legend(handles=legend_elements,loc='lower right',fontsize=12)
 
@@ -1462,7 +1508,7 @@ gl.xlabels_top = False
 #Display yeas on region map
 ax_map_region.text(KAN_U_coord[0][0]+17250,KAN_U_coord[1][0]-970,'2012',color=my_pal[2012],rotation=5,weight='bold')
 ax_map_region.text(KAN_U_coord[0][0]+18700,KAN_U_coord[1][0]-850,',',color='black',rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+19000,KAN_U_coord[1][0]-780,'2013,',color=my_pal[2013],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+19000,KAN_U_coord[1][0]-780,'2013',color=my_pal[2013],rotation=5,weight='bold')
 ax_map_region.text(KAN_U_coord[0][0]+20450,KAN_U_coord[1][0]-700,',',color='black',rotation=5,weight='bold')
 ax_map_region.text(KAN_U_coord[0][0]+20750,KAN_U_coord[1][0]-650,'2018',color=my_pal[2018],rotation=5,weight='bold')
 
@@ -1537,18 +1583,26 @@ ax_map_region.add_artist(ScaleBar(1,dimension="si-length",units="km",length_frac
 
 #Add vertical and horizontal arrows to indicate lateral movement of the ice and burrial rate
 #Lateral ice motion at KAN_U from Sept 2008 to Sept 2013 = 52.26 +/- 0.01m/year (Doyle et al., 2014)
-#Burrial rate from Spring 2013 to Spring 2017 = ~1.7m
 ax5.arrow(27500,5,-52*6,0,color='black',head_width=1,head_length=100,length_includes_head=True)
-ax5.text(26150,5.75,'52 $m\cdot y^{-1}$')
+ax5.text(26100,5.75,'52 $m\cdot y^{-1}$')
 
+#Burrial rate from Spring 2013 to Spring 2017 = ~1.7 (roughly measured with ruler on the Fig. S2a in Rennermalm et al., (2021)).
+#This value is probably a bit overestimated because of rounding. However should be okay because we do not capture 2018
 ax5.arrow(27500,5,0,1.7,color='black',head_width=100,head_length=1,length_includes_head=True)
 ax5.text(27200,9.5,'~1.7 m')
+
+#Add panel label
+ax1.text(0.01, 0.85,'a',ha='center', va='center', transform=ax1.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax3.text(0.01, 0.85,'b',ha='center', va='center', transform=ax3.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax5.text(0.01, 0.85,'c',ha='center', va='center', transform=ax5.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax_map_region.text(0.015, 0.85,'d',ha='center', va='center', transform=ax_map_region.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax_map_GrIS.text(-0.25, 0.875,'e',ha='center', va='center', transform=ax_map_GrIS.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 plt.show()
 pdb.set_trace()
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4_vfinal.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 ####################### Fig. 4 showing ice slabs product ######################
 
