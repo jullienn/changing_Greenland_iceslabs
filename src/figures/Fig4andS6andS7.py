@@ -1398,15 +1398,10 @@ legend_elements = [Line2D([0], [0],color=my_pal[2012],label='2012'),
                    Line2D([0], [0], marker='P', linestyle='none', label='KAN_U', color='#b2182b')]
                    
 ax11t.legend(handles=legend_elements,loc='upper right',fontsize=12)
-
-pdb.set_trace()
-
 ### ---------------------- Finalise and polish plot ----------------------- ###
-
-
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/figS6_v4.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/figS6.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 '''
 ###############################################################################
@@ -1556,7 +1551,7 @@ plt.setp(ax_map_region.spines.values(), color='red')#this is from https://stacko
 #Draw plot of GrIS map
 ax_map_GrIS.coastlines(edgecolor='black',linewidth=0.075)
 #Display GrIS drainage bassins limits
-GrIS_drainage_bassins_all.plot(ax=ax_map_GrIS,color='none', edgecolor='black',linewidth=0.075)
+GrIS_drainage_bassins.plot(ax=ax_map_GrIS,color='none', edgecolor='black',linewidth=0.075)
 #Display region name
 ax_map_GrIS.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-40000,np.asarray(NO_rignotetal.SUBREGION1)[0])
 ax_map_GrIS.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
@@ -1603,9 +1598,7 @@ ax_map_region.add_artist(ScaleBar(1,dimension="si-length",units="km",length_frac
 #Add vertical and horizontal arrows to indicate lateral movement of the ice and burrial rate
 #Lateral ice motion at KAN_U from Sept 2008 to Sept 2013 = 52.26 +/- 0.01m/year (Doyle et al., 2014)
 ax5.arrow(27500,5,-52*6,0,color='black',head_width=1,head_length=100,length_includes_head=True)
-ax5.text(26100,5.75,'312 m (52 $m\cdot y^{-1}$)')
-pdb.set_trace()
-
+ax5.text(25300,5.75,'312 m (52 $m\cdot y^{-1}$)')
 
 #Burrial rate from Spring 2013 to Spring 2017 = ~1.7 (roughly measured with ruler on the Fig. S2a in Rennermalm et al., (2021)).
 #This value is probably a bit overestimated because of rounding. However should be okay because we do not capture 2018
@@ -1623,7 +1616,7 @@ plt.show()
 pdb.set_trace()
 
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4_vfinal.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 ###############################################################################
 ###################### Fig. 4 showing ice slabs product #######################
