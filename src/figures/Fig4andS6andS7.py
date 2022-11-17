@@ -470,6 +470,9 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             vect_for_elevation=np.append(vect_for_elevation,val)
     # ---------------------------- Extract elevation ------------------------ #
 
+    #Place x distance ticks on the top
+    axt.xaxis.tick_top()
+    
     #Set xlims
     axt.set_xlim(0,40000)
     
@@ -482,6 +485,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     xtick_distance=axt.get_xticks()
     #Set the xticks
     axt.set_xticks(xtick_distance)
+    #Display top xtick in km instead of m
+    axt.set_xticklabels((xtick_distance/1000).astype(int))
     
     #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
     elevation_display=[np.nan]*len(xtick_distance)
@@ -499,17 +504,14 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
                 elevation_display[count]=np.round(vect_for_elevation[index_closest]).astype(int)
             
         count=count+1
-    # ---------------------------- Display elevation ------------------------ #
-
-    #Display elevation on the top xticklabels
+    
+    # ---------------------------- Display elevation ------------------------ #    
+    #Display elevation on the bottom xticklabels
     #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
-    ax_t = axt.secondary_xaxis('top')
+    ax_t = axt.secondary_xaxis('bottom')
     ax_t.set_xticks(xtick_distance)
     ax_t.set_xticklabels(elevation_display)
     ax_t.set_xlabel('Elevation[m]')
-    
-    #Display bottom xtick in km instead of m
-    axt.set_xticklabels((xtick_distance/1000).astype(int))
     
     #Modify spacing between xticklabels and xticks
     axt.tick_params(pad=1.2)
@@ -526,8 +528,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='k') #Ice slabs accretion, line at km x
 
     #Display KAN_U
-    axt.scatter(dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.030473)))],15.5,s=10,c='#b2182b',zorder=10)
-
+    axt.scatter(dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.030473)))],15.5,marker='P',s=20,c='#b2182b',zorder=10)
+    
     '''
     # Hide grid lines, from https://stackoverflow.com/questions/45148704/how-to-hide-axes-and-gridlines-in-matplotlib-python
     axt.grid(False)
@@ -663,7 +665,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
         #Identify axis for plotting
         if (year==2010):
             ax_plotting=ax1r
-            ax1r.set_xlabel('Longitude [°]')
             label_for_map=u'\u03B1'
             #Activate ticks xlabel
             ax_plotting.xaxis.tick_bottom()
@@ -673,7 +674,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             casestudy_nb='a'
         elif (year==2011):
             ax_plotting=ax2r
-            ax2r.set_xlabel('Latitude [°]')
             label_for_map=u'\u03B2'
             #Activate ticks xlabel
             ax_plotting.xaxis.tick_bottom()
@@ -684,31 +684,23 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
         elif (year==2012):
             ax_plotting=ax3r
             label_for_map=u'\u03B3'
-            #Set yticks
-            ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='c'
         elif (year==2013):
             ax_plotting=ax4r
             ax4r.set_xlabel('Depth [m]')
             label_for_map=u'\u03B3'
-            #Set yticks
-            ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='d'
         elif (year==2014):
             ax_plotting=ax5r
             label_for_map=u'\u03B4'
             #Adapt xticklabels, from https://stackoverflow.com/questions/43673884/change-x-axis-ticks-to-custom-strings
-            #Set yticks
-            ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='e'
         elif (year==2017):
             ax_plotting=ax6r
             label_for_map=u'\u03B4'
-            #Set yticks
-            ax_plotting.set_yticks([0,10,])
             #Define pannel label
             casestudy_nb='f'
         elif (year==2018):
@@ -785,14 +777,17 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
         cb=ax_plotting.pcolor(distances_with_start_transect, Y_data, C_data,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
         ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
         ax_plotting.set_ylim(20,0)
+        
+        #Set yticks
+        ax_plotting.set_yticks([0,5,10,15,20])
 
         #Display probability
         cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=plt.get_cmap('autumn'),zorder=-1,alpha=0.1, antialiased=True, linewidth=0.0)
         #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
         
         #Display bottom xtick in km instead of m
-        xtick_distance=ax_plotting.get_xticks()
-        ax_plotting.set_xticks(xtick_distance)
+        xtick_distance=np.arange(0, 41000, 5000)
+        ax_plotting.set_xticks(xtick_distance) #ax.xaxis.set_ticks(np.arange(start, end, stepsize)) #This is from fig_2_paper_iceslabs.py
         ax_plotting.set_xticklabels((xtick_distance/1000).astype(int))
         
         #Display limits of area of focus
@@ -823,6 +818,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             ax_plotting.set_xticks(ax_plotting.get_xticks())
             #Set xticks labels to empty
             ax_plotting.set_xticklabels([])
+            #Do not display 20m yticks labels
+            ax_plotting.set_yticklabels(['0','5','10','15',''])
         
         ###########################################################################
         ###                       Display data localisation                     ###
@@ -831,11 +828,11 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
         if (year==2011):
             ax_plotting.set_xlim(0,40000)
             #Display KAN_U
-            ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lat_plot)-np.abs(67.000425)))],1,s=10,c='#b2182b',zorder=10)
+            ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lat_plot)-np.abs(67.000425)))],1,s=20,marker='P',c='#b2182b',zorder=10)
         else:
             ax_plotting.set_xlim(0,40000)
             #Display KAN_U
-            ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],1,s=10,c='#b2182b',zorder=10)
+            ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],1,s=20,marker='P',c='#b2182b',zorder=10)
         
         ##### Same procedure of mask appliance for EPSG:32622 coordinates #####
         #Create lat/lon vectors for display
@@ -856,10 +853,11 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
         ax8map.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='k',s=0.1,zorder=10,transform=crs)
         
         #Add year on radargram
-        ax_plotting.text(0.9675, 0.775,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=15,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plotting.text(0.9535, 0.775,str(year)+', '+label_for_map, color='black',zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=15,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plotting.text(0.9535, 0.775,str(year)+', '+label_for_map, color=my_pal[year],zorder=10, ha='center', va='center', transform=ax_plotting.transAxes,fontsize=15,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         
         #Add pannel label
-        ax_plotting.text(0.01, 0.85,casestudy_nb,ha='center', va='center', transform=ax_plotting.transAxes,fontsize=15,zorder=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        ax_plotting.text(0.01, 0.825,casestudy_nb,ha='center', va='center', transform=ax_plotting.transAxes,fontsize=20,zorder=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         
         #Activate ticks ylabel
         ax_plotting.yaxis.tick_left()
@@ -1028,17 +1026,20 @@ import matplotlib.patches as patches
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
 my_pal = {2010: "k", 2011: "k", 2012: "#80cdc1", 2013: "#542788", 2014: "#d9a764", 2017:"#2166ac",2018:"#b2182b"}
 
-### -------------------------- Load shapefiles --------------------------- ###
+### -------------------------- Load shapefiles ---------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
-
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp')
 #Extract indiv regions and create related indiv shapefiles
-SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
+NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
-### -------------------------- Load shapefiles --------------------------- ###
+SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
+NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
+NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
+SE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SE']
+### -------------------------- Load shapefiles ---------------------------- ###
 
-### -------------------------- Load GrIS DEM ----------------------------- ###
+### -------------------------- Load GrIS DEM ------------------------------ ###
 #This is from extract_elevation.py
 #https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
 import rasterio
@@ -1046,8 +1047,20 @@ from rasterio.plot import show
 
 path_GrIS_DEM = r'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
 GrIS_DEM = rasterio.open(path_GrIS_DEM)
-### -------------------------- Load GrIS DEM ----------------------------- ###
+### -------------------------- Load GrIS DEM ------------------------------ ###
 
+### ----------------- Load satellite image in August 2021 ----------------- ###
+from pyproj import CRS
+import rioxarray as rxr
+path_satellite='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/satellite_image/'
+#Load satelite data for display
+sat_image = rxr.open_rasterio(path_satellite+'T22WFV_20210823T145759_B2348.tif',
+                              masked=True).squeeze() #No need to reproject satelite image
+#Define extents based on the satelite image
+extent_image = [np.asarray(sat_image.x[0]), np.asarray(sat_image.x[-1]), np.asarray(sat_image.y[-1]), np.asarray(sat_image.y[0])]#[west limit, east limit., south limit, north limit]
+### ----------------- Load satellite image in August 2021 ----------------- ###
+
+### -------------------- Define data to load and paths -------------------- ###
 #Best continuity between overlap through 2012-2018
 investigation_year={2010:['Data_20100515_01_007.mat','Data_20100515_01_008.mat','Data_20100515_01_009.mat'],
                     2011:['Data_20110408_01_087.mat','Data_20110408_01_088.mat','Data_20110408_01_089.mat',
@@ -1067,7 +1080,10 @@ path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/da
 path_depth_corrected='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/ii_out_from_iceslabs_processing_jullien.py/pickles/'
 path_mask='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean Array Picklefiles/'
 path_probabilistic='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+### -------------------- Define data to load and paths -------------------- ###
 
+
+### ----------------------- Load and organise data ------------------------ ###
 #Define transformer for coordinates transform from "EPSG:4326" to "EPSG:3413"
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 
@@ -1076,7 +1092,6 @@ transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 
 dataframe={}
-
 for single_year in investigation_year.keys():
     print(single_year)
         
@@ -1235,10 +1250,18 @@ crs = ccrs.UTM(zone=22)
 # This can be converted into a `proj4` string/dict compatible with GeoPandas
 crs_proj4 = crs.proj4_init
 ###################### From Tedstone et al., 2022 #####################
+### ----------------------- Load and organise data ------------------------ ###
 
-################# Fig. showing radargrams and ice slabs product ###############
+###############################################################################
+################ Fig. showing radargrams and ice slabs product ################
+###############################################################################
+### --------------------------- Prepare figure ---------------------------- ###
+plt.rcParams.update({'font.size': 12})
+#plt.rcParams["figure.figsize"] = (3.54,5.79)#GRL limits in insches
+plt.rcParams["figure.figsize"] = (10.63,17.36)#from https://pythonguides.com/matplotlib-increase-plot-size/
+
 fig = plt.figure()
-gs = gridspec.GridSpec(36, 12)
+gs = gridspec.GridSpec(42, 10)  
 gs.update(wspace=0.1)
 gs.update(hspace=0.1)
 
@@ -1249,67 +1272,69 @@ ax4r = plt.subplot(gs[11:14, 0:10])
 ax5r = plt.subplot(gs[14:17, 0:10])
 ax6r = plt.subplot(gs[17:20, 0:10])
 ax7r = plt.subplot(gs[20:23, 0:10])
-ax11t = plt.subplot(gs[28:36, 0:10])
-ax8map = plt.subplot(gs[28:36, 10:12],projection=crs)
+ax11t = plt.subplot(gs[25:31, 0:10])
+ax8map = plt.subplot(gs[33:42, 0:5],projection=crs)
 
-#Open and display satelite image behind map
-from pyproj import CRS
-import rioxarray as rxr
+# Define the CartoPy CRS object for whole Greenland map display
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs_3413 = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+###################### From Tedstone et al., 2022 #####################
+ax8map_GrIS = plt.subplot(gs[33:42, 5:10],projection=crs_3413)
+### --------------------------- Prepare figure ---------------------------- ###
+
+### -------------------------- Display GrIS map  -------------------------- ###
+ax8map_GrIS.coastlines(edgecolor='black',linewidth=0.075)
+#Display GrIS drainage bassins limits
+GrIS_drainage_bassins.plot(ax=ax8map_GrIS,color='none', edgecolor='black',linewidth=0.075)
+#Display region name
+ax8map_GrIS.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-40000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+ax8map_GrIS.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+ax8map_GrIS.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
+ax8map_GrIS.text(SW_rignotetal.centroid.x-250000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax8map_GrIS.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax8map_GrIS.text(NW_rignotetal.centroid.x-100000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+gl=ax8map_GrIS.gridlines(draw_labels=True, xlocs=[-20,-30,-40,-50,-60,-70], ylocs=[60,65,70,75,80], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
+#Customize lat labels
+gl.ylabels_right = False
+gl.xlabels_top = False
+ax8map_GrIS.axis('off')
+###################### From Tedstone et al., 2022 #####################
+
+#Display scalebar
+scale_bar(ax8map_GrIS, (0.725, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+#by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
+ax8map_GrIS.text(-0.45, 0.95,'j',ha='center', va='center', transform=ax8map_GrIS.transAxes,fontsize=20,zorder=10,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+### -------------------------- Display GrIS map  -------------------------- ###
+
+### ------------------ Display map of zoom on transect   ------------------ ###
 #This section of displaying sat data was coding using tips from
 #https://www.earthdatascience.org/courses/use-data-open-source-python/intro-raster-data-python/raster-data-processing/reproject-raster/
 #https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
-
-
-path_satellite='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/satellite_image/'
-
-#Load satelite data for display
-sat_image = rxr.open_rasterio(path_satellite+'T22WFV_20210823T145759_B2348.tif',
-                              masked=True).squeeze() #No need to reproject satelite image
-
-#Define extents based on the satelite image
-extent_image = [np.asarray(sat_image.x[0]), np.asarray(sat_image.x[-1]), np.asarray(sat_image.y[-1]), np.asarray(sat_image.y[0])]#[west limit, east limit., south limit, north limit]
-
-'''
-#Define fontsize
-plt.rcParams.update({'font.size': 20})
-
-plt.figure(figsize=(14,10))
-ax = plt.axes(projection=crs)
-ax.set_extent(extent_image, crs=crs) 
-ax.imshow(sat_image[3,:,:], extent=extent_image, transform=crs,cmap='gray', origin='lower') #NIR
-ax.gridlines(color='gray', linestyle='--')
-ax.coastlines()
-ax.set_xlim(extent_image[0],extent_image[1])
-ax.set_ylim(extent_image[3],extent_image[2])
-plt.tight_layout()
-'''
-
 #Display satelite image
 ax8map.imshow(sat_image[3,:,:], extent=extent_image, transform=crs, origin='upper', cmap='Blues_r',zorder=1) #NIR
+#Display scalebar
+scale_bar(ax8map, (0.8, 0.175), 10, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+### ------------------ Display map of zoom on transect   ------------------ ###
 
-#Plot thickness change for that case study on axis ax11t, display the radargrams, map and shallowest and deepest slab
+### ---------- Display radargrams, ice slabs and thickness plot  ---------- ###
 min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,dataframe,df_2010_2018_elevation,GrIS_DEM,ax11t,my_pal)
+### ---------- Display radargrams, ice slabs and thickness plot  ---------- ###
 
-#Finalize axis ax11t
-ax11t.set_xlabel('Distance [km]')
+### ---------------------- Finalise and polish plot ----------------------- ###
 ax11t.set_ylabel('Column ice thickness [m]')
-#Activate ticks label
-ax11t.xaxis.tick_bottom()
-ax11t.yaxis.tick_left()
-
-#Add vertical lines where the analysed section is
-#Note that 2014 and 2017 are perfectly overlapping.
-'''
-ax11t.scatter(1879,15.8,s=10,c='r')
-'''
 #Add pannel label
-ax11t.text(0.01, 0.875,'h',ha='center', va='center', transform=ax11t.transAxes,weight='bold',fontsize=15)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax11t.text(0.01, 0.05,'h',ha='center', va='center', transform=ax11t.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Finalize radargrams plot
 ax7r.set_xlabel('Distance [km]')
-ax4r.set_ylabel('Depth [m]')
+ax7r.xaxis.labelpad = -1#this is from https://stackoverflow.com/questions/6406368/matplotlib-move-x-axis-label-downwards-but-not-x-axis-ticks
 
-#Finalize map plot
+ax4r.set_ylabel('Depth [m]')
 #Define transformer for coordinates transform from "EPSG:3413" to "EPSG:32622"
 transformer = Transformer.from_crs("EPSG:3413", "EPSG:32622",always_xy=True)
 
@@ -1332,51 +1357,67 @@ ax8map.text(coord_uu03B4[0][0],coord_uu03B4[1][0],s=u'\u03B4')
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:32622",always_xy=True)
 KAN_U_coord=transformer.transform([-47.0253],[67.0003])
 ax8map.scatter(KAN_U_coord[0][0],KAN_U_coord[1][0],s=15,c='#b2182b',label='KAN_U',zorder=10,transform=crs)
-
+ax8map.legend()
 #Add pannel label
-ax8map.text(-0.1,0.95,'i',ha='center', va='center',transform=ax8map.transAxes, fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
+ax8map.text(-0.2,0.95,'i',ha='center', va='center',transform=ax8map.transAxes, fontsize=20,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 ax8map.set_xlim(644858, 699388)
 ax8map.set_ylim(7396158, 7459711)
+
+#Display rectangle around datalocation in Greenland map this is from Fig. 3.py   
+#Define transformer for coordinates transform from "EPSG:4326" to "EPSG:32622"
+transformer = Transformer.from_crs("EPSG:32622", "EPSG:3413",always_xy=True)
+
+coord_origin=transformer.transform([ax8map.get_xlim()[0]],[ax8map.get_ylim()[0]])
+coord_topright=transformer.transform([ax8map.get_xlim()[1]],[ax8map.get_ylim()[1]])
+
+#This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
+rect = patches.Rectangle((coord_origin[0][0],coord_origin[1][0]),
+                         np.abs(coord_origin[0][0]-coord_topright[0][0]),
+                         np.abs(coord_origin[1][0]-coord_topright[1][0]),
+                         angle=5, linewidth=1, edgecolor='red', facecolor='none')
+ax8map_GrIS.add_patch(rect)
+
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
-#ax8map.set_extent([121728, 178395, 12580458, 12519563], crs=crs)
-
-gl=ax8map.gridlines(draw_labels=True, xlocs=[-47, -47.5], ylocs=[67], x_inline=False, y_inline=False,linewidth=0.5)
+gl=ax8map.gridlines(draw_labels=True, xlocs=[-46.5, -47, -47.5], ylocs=[67,66.75], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
 #Customize lat labels
 gl.ylabels_right = False
-gl.xlabels_bottom = False
-ax8map.axis('off')
-#ax8map.legend(loc='upper right')
+gl.xlabels_top = False
+#Set frame in red
+plt.setp(ax8map.spines.values(), color='red')#this is from https://stackoverflow.com/questions/7778954/elegantly-changing-the-color-of-a-plot-frame-in-matplotlib
 ###################### From Tedstone et al., 2022 #####################
 
-figManager = plt.get_current_fig_manager()
-figManager.window.showMaximized()
+#Display legend on thickness plot
+#Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
+legend_elements = [Line2D([0], [0],color=my_pal[2012],label='2012'),
+                   Line2D([0], [0],color=my_pal[2013],label='2013'),
+                   Line2D([0], [0],color=my_pal[2014],label='2014'),
+                   Line2D([0], [0],color=my_pal[2017],label='2017'),
+                   Line2D([0], [0],color=my_pal[2018],label='2018'),
+                   Line2D([0], [0], marker='P', linestyle='none', label='KAN_U', color='#b2182b')]
+                   
+ax11t.legend(handles=legend_elements,loc='upper right',fontsize=12)
+
+pdb.set_trace()
+
+### ---------------------- Finalise and polish plot ----------------------- ###
+
 
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig3.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/figS6_v4.png',dpi=300,bbox_inches='tight')
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 '''
-################# Fig. showing radargrams and ice slabs product ###############
+###############################################################################
+################ Fig. showing radargrams and ice slabs product ################
+###############################################################################
 
+pdb.set_trace()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-####################### Fig. 4 showing ice slabs product ######################
+###############################################################################
+###################### Fig. 4 showing ice slabs product #######################
+###############################################################################
 #Prepare plot
 plt.rcParams.update({'font.size': 12})
 plt.rcParams["figure.figsize"] = (20,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
@@ -1389,13 +1430,6 @@ ax1 = plt.subplot(gs[0:3, 0:14])
 ax3 = plt.subplot(gs[3:6, 0:14])
 ax5 = plt.subplot(gs[6:9, 0:14])
 ax_map_region = plt.subplot(gs[10:14, 0:12],projection=crs)
-
-# Define the CartoPy CRS object for whole Greenland map display
-###################### From Tedstone et al., 2022 #####################
-#from plot_map_decadal_change.py
-# Define the CartoPy CRS object.
-crs_3413 = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
-###################### From Tedstone et al., 2022 #####################
 ax_map_GrIS = plt.subplot(gs[10:14, 12:14],projection=crs_3413)
 
 #Reset depths to 0
@@ -1521,23 +1555,8 @@ plt.setp(ax_map_region.spines.values(), color='red')#this is from https://stacko
 
 #Draw plot of GrIS map
 ax_map_GrIS.coastlines(edgecolor='black',linewidth=0.075)
-
-### -------------------------- Load shapefiles --------------------------- ###
-#Load Rignot et al., 2016 Greenland drainage bassins
-path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins_all=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp')
-#Extract indiv regions and create related indiv shapefiles
-NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
-CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
-SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
-NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
-NE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NE']
-SE_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SE']
-### -------------------------- Load shapefiles --------------------------- ###
-
 #Display GrIS drainage bassins limits
 GrIS_drainage_bassins_all.plot(ax=ax_map_GrIS,color='none', edgecolor='black',linewidth=0.075)
-
 #Display region name
 ax_map_GrIS.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-40000,np.asarray(NO_rignotetal.SUBREGION1)[0])
 ax_map_GrIS.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
@@ -1584,7 +1603,9 @@ ax_map_region.add_artist(ScaleBar(1,dimension="si-length",units="km",length_frac
 #Add vertical and horizontal arrows to indicate lateral movement of the ice and burrial rate
 #Lateral ice motion at KAN_U from Sept 2008 to Sept 2013 = 52.26 +/- 0.01m/year (Doyle et al., 2014)
 ax5.arrow(27500,5,-52*6,0,color='black',head_width=1,head_length=100,length_includes_head=True)
-ax5.text(26100,5.75,'52 $m\cdot y^{-1}$')
+ax5.text(26100,5.75,'312 m (52 $m\cdot y^{-1}$)')
+pdb.set_trace()
+
 
 #Burrial rate from Spring 2013 to Spring 2017 = ~1.7 (roughly measured with ruler on the Fig. S2a in Rennermalm et al., (2021)).
 #This value is probably a bit overestimated because of rounding. However should be okay because we do not capture 2018
@@ -1604,13 +1625,14 @@ pdb.set_trace()
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4_vfinal.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
-####################### Fig. 4 showing ice slabs product ######################
+###############################################################################
+###################### Fig. 4 showing ice slabs product #######################
+###############################################################################
 
 
-
-
-
-################### Supp Fig. 7 showing top-down ice accretion #################
+###############################################################################
+################## Supp Fig. 7 showing top-down ice accretion #################
+###############################################################################
 #Prepare plot
 plt.rcParams.update({'font.size': 20})
 plt.rcParams["figure.figsize"] = (14,4)#from https://pythonguides.com/matplotlib-increase-plot-size/
@@ -1754,10 +1776,13 @@ pdb.set_trace()
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S10/v3/figS10.png',dpi=300)
 '''
-################### Supp Fig. 7 showing top-down ice accretion #################
+###############################################################################
+################## Supp Fig. 7 showing top-down ice accretion #################
+###############################################################################
 
-
-################# Supp Fig. 6 PDH and total columnal ice content ###############
+###############################################################################
+############### Supp Fig. 6 PDH and total columnal ice content ################
+###############################################################################
 fig = plt.figure()
 gs = gridspec.GridSpec(5, 10)
 gs.update(wspace=0.1)
@@ -1809,8 +1834,9 @@ pdb.set_trace()
 #Save figure
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig4.png',dpi=300)
 '''
-################# Supp Fig. 6 PDH and total columnal ice content ###############
-
+###############################################################################
+############### Supp Fig. 6 PDH and total columnal ice content ################
+###############################################################################
 
 '''
 #SMB in sector 6.2 Zwally et sal., (2012). Not useful for my purpose
