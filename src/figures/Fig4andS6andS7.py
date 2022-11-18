@@ -1415,7 +1415,7 @@ pdb.set_trace()
 ###############################################################################
 #Prepare plot
 plt.rcParams.update({'font.size': 12})
-plt.rcParams["figure.figsize"] = (20,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
 fig = plt.figure()
 gs = gridspec.GridSpec(14, 14)
 gs.update(wspace=1)
