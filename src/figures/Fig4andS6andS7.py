@@ -137,32 +137,35 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     #Display bottom xtick in km instead of m
     xtick_distance=ax_plotting.get_xticks()
     ax_plotting.set_xticks(xtick_distance)
-    ax_plotting.set_xticklabels((xtick_distance/1000))
+    ax_plotting.set_xticklabels((xtick_distance/1000),fontsize=15)
     
     #Do not dispay x ticks in ax1, ax3
     if (ax_plotting in list([ax1,ax3])):
         #Set xticks labels to empty
         ax_plotting.set_xticklabels([])
         #Set last yticks labels to empty
-        ax_plotting.set_yticklabels(['0','5','10','15',''])
+        ax_plotting.set_yticklabels(['0','5','10','15',''],fontsize=15)
+    else:
+        #Set fontsize
+        ax_plotting.set_yticklabels(['0','5','10','15','20'],fontsize=15)
     
     if (zorder_indiv==1):
         if (ax_plotting==ax5):
             #Custom plot
             ax_plotting.xaxis.tick_bottom()
-            ax_plotting.set_xlabel('Distance [km]')
+            ax_plotting.set_xlabel('Distance [km]',fontsize=15)
             
             #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
             legend_elements = [Patch(facecolor=my_pal[year_background],label=str(year_background)),
                                Patch(facecolor=my_pal[year],label=str(year)),
                                Line2D([0], [0], marker='P', linestyle='none', label='KAN_U', color='#b2182b')]
-            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=12)
+            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=15)
             
         else:
             #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
             legend_elements = [Patch(facecolor=my_pal[year_background],label=str(year_background)),
                                Patch(facecolor=my_pal[year],label=str(year))]
-            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=12)     
+            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=15)     
 
     elif (zorder_indiv==2):
         #Add dashed lines such as in Fig. 3
@@ -211,9 +214,10 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
                           lat32622_plot[np.logical_and(distances_with_start_transect>=13800,distances_with_start_transect<=17700)],
                           c='green',s=0.1,zorder=12,transform=crs)
     '''
+    '''
     #display loc of the trace on GrIS map
     ax_map_GrIS.scatter(lon3413_plot[distances_with_start_transect<=40000],lat3413_plot[distances_with_start_transect<=40000],c='k',s=1,zorder=10,transform=crs_3413)
-    
+    '''
 
 
 def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_DEM,axt,my_pal):
@@ -1414,7 +1418,7 @@ pdb.set_trace()
 ###################### Fig. 4 showing ice slabs product #######################
 ###############################################################################
 #Prepare plot
-plt.rcParams.update({'font.size': 12})
+plt.rcParams.update({'font.size': 15})
 plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
 fig = plt.figure()
 gs = gridspec.GridSpec(14, 14)
@@ -1441,9 +1445,9 @@ display_iceslabs_product(dataframe,2017,ax3,matplotlib.colors.ListedColormap([my
 display_iceslabs_product(dataframe,2012,ax5,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
 display_iceslabs_product(dataframe,2018,ax5,matplotlib.colors.ListedColormap([my_pal[2018]]),1,2012)
 
-ax1.set_ylabel('Depth [m]')
-ax3.set_ylabel('Depth [m]')
-ax5.set_ylabel('Depth [m]')
+ax1.set_ylabel('Depth [m]',fontsize=15)
+ax3.set_ylabel('Depth [m]',fontsize=15)
+ax5.set_ylabel('Depth [m]',fontsize=15)
 
 #Display satelite image
 ax_map_region.imshow(sat_image[3,:,:], extent=extent_image, transform=crs, origin='upper', cmap='Blues_r',zorder=1) #NIR
@@ -1521,9 +1525,9 @@ ax_map_region.text(0.83, -0.11,'2000', ha='center', va='center', rotation=90,tra
 legend_elements = [Line2D([0], [0], label='Complete transect (0-40 km)', color='black'),
                    Line2D([0], [0], label='Displayed transect (10-30 km)', color='#969696'),
                    Line2D([0], [0], label='~4 km-long transect (13.8-17.7 km)', color='#d9d9d9'),
-                   Line2D([0], [0], label='Elevation', color='#8c510a'),
-                   Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
-ax_map_region.legend(handles=legend_elements,loc='lower right',fontsize=12)
+                   Line2D([0], [0], label='Elevation', color='#8c510a')]#,
+                   #Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
+ax_map_region.legend(handles=legend_elements,loc='lower right',fontsize=15)
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
@@ -1535,15 +1539,15 @@ gl.xlabels_top = False
 ###################### From Tedstone et al., 2022 #####################
 
 #Display yeas on region map
-ax_map_region.text(KAN_U_coord[0][0]+17250,KAN_U_coord[1][0]-970,'2012',color=my_pal[2012],rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+18700,KAN_U_coord[1][0]-850,',',color='black',rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+19000,KAN_U_coord[1][0]-780,'2013',color=my_pal[2013],rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+20450,KAN_U_coord[1][0]-700,',',color='black',rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+20750,KAN_U_coord[1][0]-650,'2018',color=my_pal[2018],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+16600,KAN_U_coord[1][0]-1050,'2012',color=my_pal[2012],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+18250,KAN_U_coord[1][0]-900,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+18600,KAN_U_coord[1][0]-900,'2013',color=my_pal[2013],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20200,KAN_U_coord[1][0]-740,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20550,KAN_U_coord[1][0]-700,'2018',color=my_pal[2018],rotation=5,weight='bold')
 
-ax_map_region.text(KAN_U_coord[0][0]+19000,KAN_U_coord[1][0]-2500,'2014,',color=my_pal[2014],rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+20450,KAN_U_coord[1][0]-2420,',',color='black',rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+20750,KAN_U_coord[1][0]-2370,'2017',color=my_pal[2017],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+18750,KAN_U_coord[1][0]-2600,'2014',color=my_pal[2014],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20400,KAN_U_coord[1][0]-2430,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20750,KAN_U_coord[1][0]-2430,'2017',color=my_pal[2017],rotation=5,weight='bold')
 
 #Set frame in red
 plt.setp(ax_map_region.spines.values(), color='red')#this is from https://stackoverflow.com/questions/7778954/elegantly-changing-the-color-of-a-plot-frame-in-matplotlib
@@ -1556,14 +1560,22 @@ GrIS_drainage_bassins.plot(ax=ax_map_GrIS,color='none', edgecolor='black',linewi
 ax_map_GrIS.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-40000,np.asarray(NO_rignotetal.SUBREGION1)[0])
 ax_map_GrIS.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
 ax_map_GrIS.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
-ax_map_GrIS.text(SW_rignotetal.centroid.x-250000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax_map_GrIS.text(SW_rignotetal.centroid.x-325000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
 ax_map_GrIS.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
-ax_map_GrIS.text(NW_rignotetal.centroid.x-150000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+ax_map_GrIS.text(NW_rignotetal.centroid.x-200000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 
 #Display rectangle around datalocation - this is from Fig. 3.py   
+#Define transformer for coordinates transform from "EPSG:3413" to "EPSG:32622"
+transformer = Transformer.from_crs("EPSG:32622", "EPSG:3413",always_xy=True)
+#Extract corner coordinates
+coord_origin=transformer.transform([ax_map_region.get_xlim()[0]],[ax_map_region.get_ylim()[0]])
+coord_topright=transformer.transform([ax_map_region.get_xlim()[1]],[ax_map_region.get_ylim()[1]])
 #This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
 # Create a Rectangle patch
-rect = patches.Rectangle((-1.6e5,-2.596e6),1.64e5,1.15e5, angle=5, linewidth=1, edgecolor='red', facecolor='none')
+rect = patches.Rectangle((coord_origin[0][0],coord_origin[1][0]),
+                         np.abs(coord_origin[0][0]-coord_topright[0][0]),
+                         np.abs(coord_origin[1][0]-coord_topright[1][0]),
+                         angle=0, linewidth=1, edgecolor='red', facecolor='none')
 # Add the patch to the Axes
 ax_map_GrIS.add_patch(rect)
 
@@ -1579,7 +1591,7 @@ ax_map_GrIS.axis('off')
 
 #Display scalebar
 scale_bar(ax_map_region, (0.55, 0.175), 10, 3,5)# axis, location (x,y), length, linewidth, rotation of text
-scale_bar(ax_map_GrIS, (0.725, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+scale_bar(ax_map_GrIS, (0.745, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
 #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
 
 '''
@@ -1598,7 +1610,7 @@ ax_map_region.add_artist(ScaleBar(1,dimension="si-length",units="km",length_frac
 #Add vertical and horizontal arrows to indicate lateral movement of the ice and burrial rate
 #Lateral ice motion at KAN_U from Sept 2008 to Sept 2013 = 52.26 +/- 0.01m/year (Doyle et al., 2014)
 ax5.arrow(27500,5,-52*6,0,color='black',head_width=1,head_length=100,length_includes_head=True)
-ax5.text(25300,5.75,'312 m (52 $m\cdot y^{-1}$)')
+ax5.text(25050,5.75,'312 m (52 $m\cdot y^{-1}$)')
 
 #Burrial rate from Spring 2013 to Spring 2017 = ~1.7 (roughly measured with ruler on the Fig. S2a in Rennermalm et al., (2021)).
 #This value is probably a bit overestimated because of rounding. However should be okay because we do not capture 2018
@@ -1615,8 +1627,10 @@ ax_map_GrIS.text(-0.25, 0.875,'e',ha='center', va='center', transform=ax_map_GrI
 plt.show()
 pdb.set_trace()
 
+'''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4_v2.png',dpi=300,bbox_inches='tight')
+'''
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 ###############################################################################
 ###################### Fig. 4 showing ice slabs product #######################
