@@ -22,54 +22,6 @@ def compute_distances(eastings,northings):
     return return_cumsum_distances
 
 
-def scale_bar(ax, location, length, linewidth,rotation): 
-    '''
-    This function is from the reply from 'Siyh' in
-    https://stackoverflow.com/questions/32333870/how-can-i-show-a-km-ruler-on-a-cartopy-matplotlib-plot/41600150
-    SLightly modified by myself
-    '''
-
-    """
-    ax is the axes to draw the scalebar on.
-    length is the length of the scalebar in km.
-    location is center of the scalebar in axis coordinates.
-    (ie. 0.5 is the middle of the plot)
-    linewidth is the thickness of the scalebar.
-    """
-    #Get the limits of the axis in lat long
-    llx0, llx1, lly0, lly1 = ax.get_extent(ccrs.PlateCarree())
-    #Make tmc horizontally centred on the middle of the map,
-    #vertically at scale bar location
-    sbllx = (llx1 + llx0) / 2
-    sblly = lly0 + (lly1 - lly0) * location[1]
-    tmc = ccrs.TransverseMercator(sbllx, sblly)
-    #Get the extent of the plotted area in coordinates in metres
-    x0, x1, y0, y1 = ax.get_extent(tmc)
-    #Turn the specified scalebar location into coordinates in metres
-    sbx = x0 + (x1 - x0) * location[0]
-    sby = y0 + (y1 - y0) * location[1]
-
-    #Calculate a scale bar length if none has been given
-    #(Theres probably a more pythonic way of rounding the number but this works)
-    if not length: 
-        length = (x1 - x0) / 5000 #in km
-        ndim = int(np.floor(np.log10(length))) #number of digits in number
-        length = round(length, -ndim) #round to 1sf
-        #Returns numbers starting with the list
-        def scale_number(x):
-            if str(x)[0] in ['1', '2', '5']: return int(x)        
-            else: return scale_number(x - 10 ** ndim)
-        length = scale_number(length) 
-
-    #Generate the x coordinate for the ends of the scalebar
-    bar_xs = [sbx - length * 500, sbx + length * 500]
-    #Plot the scalebar
-    ax.plot(bar_xs, [sby, sby], transform=tmc, color='k', linewidth=linewidth)
-    #Plot the scalebar label
-    ax.text(sbx, sby, str(length) + ' km', transform=tmc,
-            horizontalalignment='center', verticalalignment='bottom',rotation=rotation)
-    
-
 def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,year_background):
     
     #Identify index where time < 20 m
@@ -1025,6 +977,7 @@ import matplotlib.colors #Customize colormap from https://stackoverflow.com/ques
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 import matplotlib.patches as patches
+from scalebar import scale_bar
 
 #Define palette as a function of time
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -1461,7 +1414,7 @@ extent_image = [np.asarray(sat_image.x[0]), np.asarray(sat_image.x[-1]), np.asar
 ax_map_region.imshow(sat_image, extent=extent_image, transform=crs,cmap='Blues_r', origin='upper',zorder=1) #NIR
 '''
 
-#Define path where DEm is found
+#Define path where DEM is found
 path_DEM='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/'
 #Display contours - this is fropm Fig.2.py
 GrIS_DEM_display_SW_EPSG32622 = rxr.open_rasterio(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW_EPSG32622.tif',

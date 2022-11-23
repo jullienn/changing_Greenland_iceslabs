@@ -64,12 +64,14 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         ax1.scatter(df_for_elev_temp['lon_3413'],
                     df_for_elev_temp['lat_3413'],
                     s=0.1,color='#737373')
-        
+    
+    '''
     #Save pandas dataframe into excel
     path_transects='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/transects_Fig2/'
     df_for_elev.to_csv(path_transects+'Fig2_transect_'+str(casestudy_nb)+'.csv',index=False)
+    '''
     
-    #Display rectangle around data    
+    #Display rectangle around data
     x=(np.min(df_for_elev.lon_3413)-offset_x)
     y=(np.min(df_for_elev.lat_3413)-offset_y)
     width=10000
@@ -79,19 +81,19 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     rect = patches.Rectangle((x,y),width,height, angle=custom_angle, linewidth=1, edgecolor='blue', facecolor='none')
     # Add the patch to the Axes
     ax1.add_patch(rect)
-    
+            
     if (casestudy_nb=='a'):
         #Add number of case study on fig localisation
-        ax1.text(x+30000,y-40000,casestudy_nb,color='r',weight='bold',fontsize=12)
+        ax1.text(x+30000,y-40000,casestudy_nb,color='r',weight='bold',fontsize=20)
     elif (casestudy_nb=='c'):
         #Add number of case study on fig localisation
-        ax1.text(x-15000,y+30000,casestudy_nb,color='r',weight='bold',fontsize=12)
+        ax1.text(x-15000,y+30000,casestudy_nb,color='r',weight='bold',fontsize=20)
     else:
         #Add number of case study on fig localisation
-        ax1.text(x-35000,y-15000,casestudy_nb,color='r',weight='bold',fontsize=12)
+        ax1.text(x-45000,y-20000,casestudy_nb,color='r',weight='bold',fontsize=20)
     
     #Add number of case study on fig localisation    
-    axt.text(-0.02, 0.5,casestudy_nb, ha='center', va='center', transform=axt.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    axt.text(0.99, 0.8,casestudy_nb, ha='center', va='center', transform=axt.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
@@ -136,34 +138,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             distances_with_start_transect=compute_distances(coordinates_df[0],coordinates_df[1])
             #c. Store the distances
             df_for_elev_sorted['distances'].iloc[ind_indiv_year]=distances_with_start_transect[1:]
-    
-    # ---------------------------- Extract elevation ------------------------ #
-    #Define the vectors of latitude and longitude for elevation sampling
-    increase_x=5000
-    lon_for_elevation_sampling=np.arange(df_for_elev_sorted['lon_3413'].iloc[0],df_for_elev_sorted['lon_3413'].iloc[-1]+increase_x,100)
-    #For a and c, the longitude is not constant
-    add_yx=(df_for_elev_sorted['lat_3413'].iloc[-1]-df_for_elev_sorted['lat_3413'].iloc[0])/(df_for_elev_sorted['lon_3413'].iloc[-1]-df_for_elev_sorted['lon_3413'].iloc[0])*increase_x
-    lat_for_elevation_sampling=np.linspace(df_for_elev_sorted['lat_3413'].iloc[0],df_for_elev_sorted['lat_3413'].iloc[-1]+add_yx,len(lon_for_elevation_sampling))
-    
-    #Compute distance along this transect
-    distances_for_elevation_sampling=compute_distances(lon_for_elevation_sampling,lat_for_elevation_sampling)
-
-    #Create the vector for elevations storing
-    vect_for_elevation=[]
-    '''
-    #Display on the map to make sure this is correct
-    ax1.scatter(lon_for_elevation_sampling,
-                lat_for_elevation_sampling,
-                s=0.1,color='red')
-    '''
-    #This is from extract_elevation.py
-    for i in range(0,len(lon_for_elevation_sampling)):
-        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
-        for val in GrIS_DEM.sample([(lon_for_elevation_sampling[i], lat_for_elevation_sampling[i])]):
-            #Calculate the corresponding elevation
-            vect_for_elevation=np.append(vect_for_elevation,val)
-    # ---------------------------- Extract elevation ------------------------ #
-    
+        
     #Define empty list
     app_time_period=[]
     app_low_bound=[]
@@ -282,7 +257,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
             #Display raw data where moving window do not display
             axt.plot(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],color=my_pal[time_period],alpha=0.5)
             axt.scatter(df_plot['low_bound'], df_plot['rolling_10_median_scatter'],c=my_pal[time_period],marker='.',s=0.5,alpha=1)
-            
+    
     #Get rid of legend
     #axt.legend_.remove()
     axt.set_xlabel('')
@@ -292,9 +267,9 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     axt.yaxis.tick_left()
     axt.xaxis.tick_bottom()
     
-    #Place yticks on the right hand side
-    axt.yaxis.tick_right()
-        
+    #Set fontsiez of y ticks labels to 15
+    axt.set_yticklabels(['0','5','10','15'],fontsize=15)
+    
     #4. Display elevation
     #Set xlims
     axt.set_xlim(0,70000)
@@ -318,32 +293,72 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Set the xticks
     axt.set_xticks(xtick_distance)
     
-    #Find closest corresponding elevation
-    #This is from https://stackoverflow.com/questions/11244514/modify-tick-label-text
-    elevation_display=[np.nan]*len(xtick_distance)
-    count=0
-    for indiv_dist in xtick_distance:
-        if (indiv_dist<0):
-            elevation_display[count]=''
-        else:
-            #Extract index where distance is minimal
-            index_closest=np.argmin(np.abs(np.abs(distances_for_elevation_sampling)-np.abs(indiv_dist)))
-            #If minimum distance is higher than 1km, store nan. If not, store corresponding elevation
-            if (np.abs(np.abs(distances_for_elevation_sampling)-np.abs(indiv_dist))[index_closest] > 1000):
-                elevation_display[count]=''
-            else:
-                elevation_display[count]=np.round(vect_for_elevation[index_closest]).astype(int)
-            
-        count=count+1
+    # ---------------------------- Extract elevation ------------------------ #
+    #Define the vectors of latitude and longitude for elevation sampling
+    increase_x=5000
+    lon_for_elevation_sampling=np.arange(df_for_elev_sorted['lon_3413'].iloc[0],df_for_elev_sorted['lon_3413'].iloc[-1]+increase_x,1)
+    #For a and c, the longitude is not constant
+    add_yx=(df_for_elev_sorted['lat_3413'].iloc[-1]-df_for_elev_sorted['lat_3413'].iloc[0])/(df_for_elev_sorted['lon_3413'].iloc[-1]-df_for_elev_sorted['lon_3413'].iloc[0])*increase_x
+    lat_for_elevation_sampling=np.linspace(df_for_elev_sorted['lat_3413'].iloc[0],df_for_elev_sorted['lat_3413'].iloc[-1]+add_yx,len(lon_for_elevation_sampling))
     
+    #Compute distance along this transect
+    distances_for_elevation_sampling=compute_distances(lon_for_elevation_sampling,lat_for_elevation_sampling)
+
+    #Create the vector for elevations storing
+    vect_for_elevation=[]
+    '''
+    #Display on the map to make sure this is correct
+    ax1.scatter(lon_for_elevation_sampling,
+                lat_for_elevation_sampling,
+                s=0.1,color='red')
+    '''
+    #This is from extract_elevation.py
+    for i in range(0,len(lon_for_elevation_sampling)):
+        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
+        for val in GrIS_DEM.sample([(lon_for_elevation_sampling[i], lat_for_elevation_sampling[i])]):
+            #Calculate the corresponding elevation
+            vect_for_elevation=np.append(vect_for_elevation,val)
+    # ---------------------------- Extract elevation ------------------------ #
+    
+    # ---------------------------- Display elevation ------------------------ #
+    #prepare vector of elevation steps
+    step_elev=50
+    steps_elev=np.arange(math.ceil(vect_for_elevation[0]/50)*50,vect_for_elevation[-1],step_elev)
+    #round to closest integer larger or equal number is from https://stackoverflow.com/questions/2356501/how-do-you-round-up-a-number
+    
+    if (casestudy_nb in list(['a'])):
+        #delete the last steps_elev
+        steps_elev=steps_elev[0:-1]
+    
+    #Loop over elevation every 50m, and find the closest distance in km to set top x ticks
+    distance_display=np.ones((len(steps_elev),2))*np.nan
+    count=0
+    for indiv_elev in steps_elev:
+        #Extract index where distance is minimal
+        index_closest=np.argmin(np.abs(np.abs(vect_for_elevation)-np.abs(indiv_elev)))
+        #Store corresponding distance and difference in distance
+        distance_display[count,0]=np.round(distances_for_elevation_sampling[index_closest]).astype(int)#distance
+        distance_display[count,1]=np.abs(np.abs(vect_for_elevation)-np.abs(indiv_elev))[index_closest]#corresponding difference of elevation between elevation vector and desired elevation
+        #Update count
+        count=count+1
+        
     #Display elevation on the top xticklabels
     #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
-    ax_t = axt.secondary_xaxis('top')
-    ax_t.set_xticks(xtick_distance)
-    ax_t.set_xticklabels(elevation_display)
+    ax_t = axt.secondary_xaxis('top',color='#8c510a')
+    #set xticks distances according to rounded elevations steps
+    ax_t.set_xticks(distance_display[:,0])
+    #Display elevations
+    ax_t.set_xticklabels(steps_elev.astype(int),fontsize=15,color='#8c510a')
+    
+    #Get rid of elevation = 1250m
+    if (casestudy_nb=='a'):
+        tick_lab_a=ax_t.get_xticklabels()
+        tick_lab_a[1]._text=''
+        ax_t.set_xticklabels(tick_lab_a)
+    # ---------------------------- Display elevation ------------------------ #
     
     #Display bottom xtick in km instead of m
-    axt.set_xticklabels((xtick_distance/1000).astype(int))
+    axt.set_xticklabels((xtick_distance/1000).astype(int),fontsize=15)
     
     #Modify spacing between xticklabels and xticks
     axt.tick_params(pad=1.2)
@@ -393,7 +408,8 @@ sns.set_theme(style="whitegrid")
 from scipy import signal
 import cartopy.crs as ccrs
 import matplotlib.ticker as mticker
-
+from scalebar import scale_bar
+import math
 
 #Set fontsize plot
 plt.rcParams.update({'font.size': 10})
@@ -504,31 +520,32 @@ crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
 # This can be converted into a `proj4` string/dict compatible with GeoPandas
 crs_proj4 = crs.proj4_init
 ###################### From Tedstone et al., 2022 #####################
-        
-fig = plt.figure(figsize=(32,48))
+
+plt.rcParams.update({'font.size': 15})
+plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+fig = plt.figure()
 gs = gridspec.GridSpec(39, 20)
-gs.update(wspace=0.001)
+gs.update(wspace=0.25)
 #gs.update(wspace=0.001)
 #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-ax1 = plt.subplot(gs[0:25, 0:2],projection=crs)
-ax_legend = plt.subplot(gs[34:39, 0:2])
+ax1 = plt.subplot(gs[0:34, 17:20],projection=crs)
+ax_legend = plt.subplot(gs[34:39, 17:20])
 
-ax2t = plt.subplot(gs[0:4, 3:20])
-ax3t = plt.subplot(gs[7:11, 3:20])
-ax4t = plt.subplot(gs[14:18, 3:20])
-ax5t = plt.subplot(gs[21:25, 3:20])
-ax6t = plt.subplot(gs[28:32, 3:20])
-ax7t = plt.subplot(gs[35:39, 3:20])
+ax2t = plt.subplot(gs[0:4, 0:17])
+ax3t = plt.subplot(gs[7:11, 0:17])
+ax4t = plt.subplot(gs[14:18, 0:17])
+ax5t = plt.subplot(gs[21:25, 0:17])
+ax6t = plt.subplot(gs[28:32, 0:17])
+ax7t = plt.subplot(gs[35:39, 0:17])
 
-ax1.set_facecolor('white')
-
-#Display GrIS drainage bassins
-NO_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5)
-NE_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
-SE_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
-SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
-CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
-NW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
+#Draw plot of GrIS map
+ax1.coastlines(edgecolor='black',linewidth=0.075)
+#Display GrIS drainage bassins limits
+GrIS_drainage_bassins.plot(ax=ax1,color='none', edgecolor='black',linewidth=0.075)
+#Display region name
+ax1.text(SW_rignotetal.centroid.x+50000,SW_rignotetal.centroid.y+250000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax1.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y+50000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax1.text(NW_rignotetal.centroid.x-100000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 
 #plt.scatter(df_spatially_aggregated_2010['avg_lon_3413'],df_spatially_aggregated_2010['avg_lat_3413'],c=df_spatially_aggregated_2010['avg_20m_icecontent'],s=0.2)
 
@@ -555,23 +572,26 @@ plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,a
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
 ax1.set_extent([-580000, -44000, -2650000, -1290000], crs=crs)
-gl=ax1.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[70, 75], x_inline=False, y_inline=False,linewidth=0.5)
+gl=ax1.gridlines(draw_labels=True, xlocs=[-40,-50,-60], ylocs=[65,70,75,80], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
 #Customize lat labels
-gl.ylabels_right = False
+gl.ylabels_left = False
 gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
+
+#Display scalebar
+scale_bar(ax1, (0.60, 0.05), 200, 3,-10)# axis, location (x,y), length, linewidth, rotation of text
+#by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
 
 #Add shading where merging of diconsitnuous slabs
 ax5t.axvspan(23100, 24600, facecolor='gray', alpha=0.3)
 ax7t.axvspan(24600, 26700, facecolor='gray', alpha=0.3)
 
 #Display distance as Elevation [m]
-ax5t.yaxis.set_label_position("right")
-ax5t.set_ylabel('Column ice thickness [m]')
-ax7t.set_xlabel('Distance [km]')
+ax5t.set_ylabel('Column ice thickness [m]',fontsize=15)
+ax7t.set_xlabel('Distance [km]',fontsize=15)
 ax2t.xaxis.set_label_position("top")
-ax2t.set_xlabel('Elevation [m]')
+ax2t.set_xlabel('Elevation [m]',fontsize=15,color='#8c510a')
 
 #Custom legend myself
 legend_elements = [Patch(facecolor='#fdd49e',label='2010'),
@@ -579,16 +599,16 @@ legend_elements = [Patch(facecolor='#fdd49e',label='2010'),
                    Patch(facecolor='#d7301f',label='2013-2014'),
                    Patch(facecolor='#7f0000',label='2017-2018')]
 
-ax_legend.legend(handles=legend_elements)
+ax_legend.legend(handles=legend_elements,fontsize=15)
 plt.legend()
 
 #Get rid of axis in legend axis
 ax_legend.axis('off')
-ax_legend.set_title('Legend')
 plt.show()
 ax7t.legend_.remove()
 
 pdb.set_trace()
 
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v8/fig2.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v9/fig2.png',dpi=300,bbox_inches='tight')
+
