@@ -366,7 +366,76 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     plt.show()
     print('End plotting fig 2')
+    
+    #Calculate summary statistics
+    if (casestudy_nb=='a'):
+        #Affine distances selection!
+        summary_statistics_calculations(df_for_elev_sorted,0,15,list(['2011-2012','2017-2018']),my_pal)
+    elif (casestudy_nb=='b'):
+        #Affine distances selection!
+        summary_statistics_calculations(df_for_elev_sorted,0,14,list(['2010','2017-2018']),my_pal)
+    elif (casestudy_nb=='c'):
+        #Affine distances selection!
+        summary_statistics_calculations(df_for_elev_sorted,39,42,list(['2010','2017-2018']),my_pal)
+    elif (casestudy_nb=='d'):
+        #Affine distances selection!
+        summary_statistics_calculations(df_for_elev_sorted,20.5,37.5,list(['2010','2017-2018']),my_pal)
+    elif (casestudy_nb=='e'):
+        #Affine distances selection!
+        summary_statistics_calculations(df_for_elev_sorted,0,18,list(['2011-2012','2017-2018']),my_pal)
+    elif (casestudy_nb=='f'):
+        #Affine distances selection!
+        summary_statistics_calculations(df_for_elev_sorted,22.5,32,list(['2010','2017-2018']),my_pal)
+    else:
+        print('Error!')
+        pdb.set_trace()
+    
     return 
+
+
+def summary_statistics_calculations(df_casestudy,end_well_developped,end_thickening,time_periods,col_palette):
+    
+    # create plot
+    fig = plt.figure()
+    gs = gridspec.GridSpec(9, 9)
+    gs.update(wspace=0.25)
+    gs.update(wspace=0.25)
+    ax1_dist = plt.subplot(gs[0:9, 0:3])
+    ax2_dist = plt.subplot(gs[0:9, 3:6])
+    ax3_dist = plt.subplot(gs[0:9, 6:9])
+    
+    #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
+    for time_period in time_periods:
+        
+        #Get data for that specific time period
+        if (time_period == '2010'):
+            df_casestudy_TimePeriod=df_casestudy[df_casestudy['year']==2010]
+        elif (time_period == '2011-2012'):
+            df_casestudy_TimePeriod=df_casestudy[(df_casestudy['year']>=2011) & (df_casestudy['year']<=2012)]
+        elif (time_period == '2013-2014'):
+            df_casestudy_TimePeriod=df_casestudy[(df_casestudy['year']>=2013) & (df_casestudy['year']<=2014)]
+        elif (time_period == '2017-2018'):
+            df_casestudy_TimePeriod=df_casestudy[(df_casestudy['year']>=2017) & (df_casestudy['year']<=2018)]
+        else:
+            print('Time period not known, break')
+            break
+        
+        if (len(df_casestudy_TimePeriod)==0):
+            #No data in this time period, continue
+            continue
+        else:
+            print('Calculating summary statistics')
+            #Select data belonging to the well-developped section
+            ax1_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']<end_well_developped*1000]['20m_ice_content_m'],alpha=0.5,bins=np.arange(0,17,1),color=col_palette[time_period])
+            #Select data belonging to the thickening section
+            ax2_dist.hist(df_casestudy_TimePeriod[np.logical_and(df_casestudy_TimePeriod['distances']>=end_well_developped*1000,
+                                                                 df_casestudy_TimePeriod['distances']<end_thickening*1000)]
+                                                                 ['20m_ice_content_m'],alpha=0.5,bins=np.arange(0,17,1),color=col_palette[time_period])
+            #Select data belonging to the well-developped section
+            ax3_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']>=end_thickening*1000]['20m_ice_content_m'],alpha=0.5,bins=np.arange(0,17,1),color=col_palette[time_period])
+    return
+
+
 
 ###     This is from iceslabs_20102018_thickening_analysis.py       ###
 
