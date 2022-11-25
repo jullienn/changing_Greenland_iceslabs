@@ -229,7 +229,7 @@ def discrete_cmap(N, base_cmap=None):
 ##############################################################################
 
 
-def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
+def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
     
     #Define the uppermost and lowermost limits
     meters_cutoff_above=0
@@ -360,8 +360,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     cb2=ax_plot.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
     ax_plot.set_ylim(0,radar_slice.shape[0])
     ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
-    ax_plot.set_aspect('equal') # X scale matches Y scale
-    #ax_plot.set_xlabel('Horizontal distance')
+    #ax_plot.set_aspect('equal') # X scale matches Y scale
     
     #Colorbar custom
     cb2.set_clim(perc_lower_end,perc_upper_end)
@@ -372,19 +371,12 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     ax_plot.set_yticks(ticks_yplot) 
     ax_plot.set_yticklabels(np.round(depths[ticks_yplot]).astype(int))
     
-    #Set the x ticks
-    #remove xtick
-    #ax_plot.set_xticks([])
-        
+    #Set ylabel
+    ax_plot.set_ylabel('Depth [m]')
+
     #Distance from start of the trace
     if (ax_nb==2):
-        #ax_plot.set_title('Ablation zone',fontsize=10)
-        ax_plot.set_ylabel('Depth [m]')
-        ax_plot.set_xlabel('Distance [km]')
-        
         letter_elev='a'
-        #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(-0.15, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413)-15000,np.nanmedian(lat_3413),'a',color='black',fontsize=20)
     
@@ -392,8 +384,6 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
         #ax_plot.set_title('Percolation zone - ice lenses',fontsize=10)
 
         letter_elev='b'
-        #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(-0.15, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413)-30000,np.nanmedian(lat_3413)-10000,'b',color='black',fontsize=20)
     
@@ -401,24 +391,24 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
         #ax_plot.set_title('Percolation zone - ice slabs',fontsize=10)
 
         letter_elev='c'
-        #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(-0.15, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413)-30000,np.nanmedian(lat_3413)-15000,'c',color='black',fontsize=20)
     
     elif (ax_nb==5):
         #ax_plot.set_title('Dry snow zone',fontsize=10)
-
+        ax_plot.set_xlabel('Distance [km]')
         letter_elev='d'
-        #Display the correspondance between radar slice and radar location on the map
-        ax_plot.text(-0.15, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
         #Display on the map the letter corresponding to the radar slice
         ax_map.text(np.nanmedian(lon_3413),np.nanmedian(lat_3413)-37000,'d',color='black',fontsize=20)
         
         #Display colorbar. This is from FigS1.py
         cbar_depth=fig.colorbar(cb2, cax=axc)#aspect is from https://stackoverflow.com/questions/33443334/how-to-decrease-colorbar-width-in-matplotlib
         cbar_depth.set_label('Radar signal strength [dB]')
-        
+        axc.yaxis.labelpad = -5#this is from https://stackoverflow.com/questions/6406368/matplotlib-move-x-axis-label-downwards-but-not-x-axis-ticks
+    
+    #Display the correspondance between radar slice and radar location on the map
+    ax_plot.text(-0.09, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    
     #Display the ice lenses identification:
     #pdb.set_trace()
 
@@ -440,7 +430,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
             trafic_light_indiv_color=df_colnames_trafic_light[i]
             #Define the color in which to display the ice lens
             if (trafic_light_indiv_color[0:3]=='gre'):
-                color_to_display='#00441b'
+                color_to_display='#006d2c'#'#00441b'
             elif (trafic_light_indiv_color[0:3]=='ora'):
                 color_to_display='#fed976'
                 continue
@@ -453,8 +443,9 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
             else:
                 print('The color is not known!')
             
+            #pdb.set_trace()
             #Display ice lens
-            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=1)
+            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=2.5)
     
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
@@ -473,20 +464,15 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
-        #plot the reversed elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector),color='black')
         #Reverse the distances vector:
         distances=np.flipud(distances)
         
     elif (indiv_file in list(list_reverse_mat)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
-        #plot the the reversed elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),np.flipud(elevation_vector),color='black')
         #Reverse the distances vector:
         distances=np.flipud(distances)
     else:
-        #plot the elevation profile
-        ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector,color='black')
+        print('no flip needed')
     
     #Generate the pick for horizontal distance display
     ticks_xplot=np.arange(0,distances.shape[0]+1,100)
@@ -497,20 +483,6 @@ def plot_radar_slice(ax_map,ax_plot,ax_elevation,ax_nb,path_radar_slice,lines,fo
     #Display the distances from the origin as being the x label
     ax_plot.set_xticklabels(np.round(distances[ticks_xplot]).astype(int))
     
-    #Define the elevation to plot the letter
-    if (ax_nb==2):
-        #Display which elevation line correspond to which trace
-        ax_elevation.text(950,elevation_vector[950]-200,letter_elev)
-    elif (ax_nb==3):
-        #Display which elevation line correspond to which trace
-        ax_elevation.text(950,elevation_vector[50]-200,letter_elev)
-    elif (ax_nb==4):
-        #Display which elevation line correspond to which trace
-        ax_elevation.text(950,elevation_vector[50]-200,letter_elev)
-    elif (ax_nb==5):
-        #Display which elevation line correspond to which trace
-        ax_elevation.text(950,elevation_vector[50]-200,letter_elev)
-
     return
 
 def compute_distances(eastings,northings):
@@ -812,25 +784,7 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     
     return
 
-def calcul_elevation(lon,lat,data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero):
-    
-    if (np.isnan(lon) or np.isnan(lat)):
-        #elev_all=np.append(elev_all,np.nan)
-        elevation=np.nan
-    else:
-        #The origin is top left corner!!
-        #y will always be negative
-        row = int((yOrigin - lat ) / pixelHeight)
-        if (lon<0):
-            # if x negative
-            col = index_lon_zero-int((-lon-0) / pixelWidth)
-        elif (lon>0):
-            # if x positive
-            col = index_lon_zero+int((lon-0) / pixelWidth)
-        #Read the elevation
-        elevation=data_dem[row][col]
-    
-    return elevation
+
 
 #Import packages
 import rasterio
@@ -848,12 +802,14 @@ from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import scipy.io
 from osgeo import gdal
-
 from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib.patches import Patch
+import matplotlib.patches as patches
+from matplotlib.lines import Line2D
+from scalebar import scale_bar
 
 technique='perc_2p5_97p5'
 making_down_to_up='FALSE'
-plt.rcParams.update({'font.size': 7})
 
 ################# Load 2002-2003 flightlines coordinates ################
 path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
@@ -891,7 +847,6 @@ crs_proj4 = crs.proj4_init
 ###################### From Tedstone et al., 2022 #####################
 
 #Define extents
-#ease_extent = [-500000, 100000, -3000000, -2000000]
 #ease_extent = [west limit, east limit., south limit, north limit]
 extent_DEM = [np.asarray(GrIS_DEM_display.x[0]), np.asarray(GrIS_DEM_display.x[-1]), np.asarray(GrIS_DEM_display.y[-1]), np.asarray(GrIS_DEM_display.y[0])]
 
@@ -1020,7 +975,7 @@ lat_3413_20102018=points[1]
 #From fig3_paper_iceslabs.py
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp') #the regions are the last rows of the shapefile
 
 #Extract indiv regions and create related indiv shapefiles
 NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
@@ -1040,18 +995,19 @@ plt.rcParams.update({'font.size': 15}) #from https://stackoverflow.com/questions
 
 ################################### Plot ##################################
 #Prepare plot
-fig = plt.figure(figsize=(19,10))
+plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+fig = plt.figure()
 #fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
-gs = gridspec.GridSpec(10, 200)
-gs.update(wspace=0.1)
-gs.update(wspace=0.001)
-ax1 = plt.subplot(gs[0:10, 120:200],projection=crs)
-ax2 = plt.subplot(gs[0:2, 0:100])
-ax3 = plt.subplot(gs[2:4, 0:100])
-ax4 = plt.subplot(gs[4:6, 0:100])
-ax5 = plt.subplot(gs[6:8, 0:100])
-ax6 = plt.subplot(gs[8:10, 0:100])
-axc = plt.subplot(gs[0:8, 104:107])
+gs = gridspec.GridSpec(8, 200)
+gs.update(hspace=0.5)
+gs.update(wspace=0.5)
+ax1 = plt.subplot(gs[0:5, 150:200],projection=crs)
+ax_InsetMap = plt.subplot(gs[5:10, 150:200],projection=crs)
+ax2 = plt.subplot(gs[0:2, 0:130])
+ax3 = plt.subplot(gs[2:4, 0:130])
+ax4 = plt.subplot(gs[4:6, 0:130])
+ax5 = plt.subplot(gs[6:8, 0:130])
+axc = plt.subplot(gs[0:8, 132:135])
 
 #Load DEM clipped over the SW
 GrIS_DEM_display_SW = rxr.open_rasterio(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW.tif',
@@ -1073,30 +1029,27 @@ indiv_icecap=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins
 indiv_icecap.plot(ax=ax1,color='white', facecolor='white', edgecolor='white',linewidth=0,zorder=3) 
 '''
 #Display SW and CW regions
-SW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
-CW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
+CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
 
 #Add region names
-ax1.text(0,-2580000,'SW',color='#081d58')
-ax1.text(24110,-2267000,'CW',color='#081d58')
-ax1.text(65000,-2663000,'SE',color='#081d58')
-
-#Display coastlines
-ax1.coastlines(edgecolor='black',linewidth=0.75)
+ax1.text(-33800,-2440000,'SW',color='black')
+ax1.text(-23300,-2325000,'CW',color='black')
+ax1.text(77500,-2627000,'SE',color='black')
 
 #Display contours
-cont=ax1.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1500,3750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.25)
+cont=ax1.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1000,3750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.1)
 
 #Add elevation contour values
-ax1.text(0.375, -0.03,'1500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.42, -0.03,'1750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.465, -0.03,'2000', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.53, -0.03,'2250', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.65, -0.03,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.78, -0.03,'2750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.88, -0.03,'2750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.965, -0.03,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(1.04, 0.26,'2250', ha='center', va='center',transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(-0.05, 0.17,'1000', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(-0.05, 0.11,'1250', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.07, -0.04,'1500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.17, -0.04,'1750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.30, -0.04,'2000', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.47, -0.04,'2250', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.72, -0.04,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.88, -0.04,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(1.05, 0.22,'2500', ha='center', va='center',transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Zoom over SW Greenland
 ease_extent = [-380100, 106800, -2810000, -2215200]
@@ -1104,7 +1057,7 @@ ax1.set_extent(ease_extent, crs=crs)
 
 #Shapefiles
 # --- 2010-2018
-iceslabs_jullien_highend_20102018.plot(ax=ax1,color='#6baed6', edgecolor='none',linewidth=0.5)
+iceslabs_jullien_highend_20102018.plot(ax=ax1,color='#d73027', edgecolor='none',linewidth=0.5)
 
 '''
 #Plot all the 2010-2018 ice slabs
@@ -1139,7 +1092,7 @@ folder_day='may11'
 indiv_file='may11_03_1_aggregated' #From down to up: OK!
 ax_nb=2
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax2,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
 #pdb.set_trace()
 #Plot date 2
@@ -1148,7 +1101,7 @@ folder_day='jun04'
 indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
 ax_nb=3
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax3,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
 #Plot date 3
 folder_year='2003'
@@ -1156,7 +1109,7 @@ folder_day='may12'
 indiv_file='may12_03_36_aggregated' #From up to down: need reversing! Already fone, OK!
 ax_nb=4
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax4,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
 #pdb.set_trace()
 #Plot date 4
@@ -1165,7 +1118,7 @@ folder_day='may11'
 indiv_file='may11_03_29_aggregated' #High elevation, no need: OK!
 ax_nb=5
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-plot_radar_slice(ax1,ax5,ax6,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
 #Plot all the 2002-2003 icelenses according to their confidence color 
 '''
@@ -1175,53 +1128,80 @@ ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2
 ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=2,facecolors='#fed976', edgecolors='#fed976')
 '''
 #3. Green
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=2,facecolors='#238b45', edgecolors='#238b45')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=2,facecolors='#006d2c', edgecolors='#006d2c')
 '''
 #Purple
 ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=2,facecolors='purple', edgecolors='purple')
 '''
-#Custom ylabel
-ax6.set_ylim(950,2600)
-start_ytick_elev, end_ytick_elev = ax6.get_ylim()
-ax6.yaxis.set_ticks(np.arange(start_ytick_elev, end_ytick_elev, 250))
-ax6.set_ylabel('Elevation [m]')
-
-#Custom xlabel
-ticks_xplot_elev=np.arange(0,1001,100)
-ticks_xplot_elev[-1]=999
-ax6.set_xticks(ticks_xplot_elev)
-ax6.set_xticklabels([])
-ax6.set_xlim(0,1000)
-ax6.grid()
-
-#Add pannel label to elevation panel
-ax6.text(-0.15, 0.5,'e', ha='center', va='center', transform=ax6.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Display lat/lon lines in map
-gl=ax1.gridlines(draw_labels=True, xlocs=[-44, -48, -52], ylocs=[65, 67, 69], x_inline=False, y_inline=False,linewidth=0.5)
+gl=ax1.gridlines(draw_labels=True, xlocs=[-42, -44, -46, -48, -50], ylocs=[66, 67, 68, 69], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
 #Customize lat and lon labels
 gl.ylabels_left = False
 gl.xlabels_bottom = False
 
-#Display the map panel label
-ax1.text(0, 1.04,'f', ha='center', va='center', transform=ax1.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
-
-#Add legend
-from matplotlib.patches import Patch
-from matplotlib.lines import Line2D
+#Set plot limits
+ax1.set_xlim(-200377, 103975)
+ax1.set_ylim(-2640202, -2281476)
 
 #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
-legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='#081d58', linewidth=0.5),
+legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='black', linewidth=0.5),
                    Line2D([0], [0], label='Elevation contours', color='#8c510a'),
                    Line2D([0], [0], label='2002-2003 flightlines', color='#969696'),
-                   Line2D([0], [0], label='Transects of interest', color='k'),
-                   Patch(facecolor='#6baed6',label='2010-2018 ice slabs'),
-                   Line2D([0], [0], marker='o', linestyle='none', label='2002-2003 ice layers', color='#238b45')]
-
+                   Line2D([0], [0], label='Transects of interest', color='k', linewidth=3),
+                   Patch(facecolor='#d73027',label='2010-2018 ice slabs'),
+                   Line2D([0], [0], label='2002-2003 ice slabs', color='#006d2c', linewidth=3)]
+#Add legend
 ax1.legend(handles=legend_elements,loc='lower right',fontsize=12)
 plt.legend()
 axc.legend_.remove()
+
+#Set frame in red
+plt.setp(ax1.spines.values(), color='red')#this is from https://stackoverflow.com/questions/7778954/elegantly-changing-the-color-of-a-plot-frame-in-matplotlib
+#Display the map panel label
+ax1.text(-0.05, 0.95,'e', ha='center', va='center', transform=ax1.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+#Display GrIS inset map
+ax_InsetMap.coastlines(edgecolor='black',linewidth=0.075)
+#Display GrIS drainage bassins limits
+GrIS_drainage_bassins.plot(ax=ax_InsetMap,color='none', edgecolor='black',linewidth=0.075)
+#Display region name
+ax_InsetMap.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-80000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(SW_rignotetal.centroid.x-185000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NW_rignotetal.centroid.x-150000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+
+#Display rectangle around datalocation - this is from Fig. 3.py   
+#Extract corner coordinates
+coord_origin=[ax1.get_xlim()[0],ax1.get_ylim()[0]]
+coord_topright=[ax1.get_xlim()[1],ax1.get_ylim()[1]]
+#This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
+# Create a Rectangle patch
+rect = patches.Rectangle((coord_origin[0],coord_origin[1]),
+                         np.abs(coord_origin[0]-coord_topright[0]),
+                         np.abs(coord_origin[1]-coord_topright[1]),
+                         angle=0, linewidth=1, edgecolor='red', facecolor='none')
+# Add the patch to the Axes
+ax_InsetMap.add_patch(rect)
+
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+gl=ax_InsetMap.gridlines(draw_labels=True, xlocs=[-20,-30,-40,-50,-60,-70], ylocs=[60,65,70,75,80], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
+#Customize lat labels
+gl.ylabels_right = False
+gl.xlabels_top = False
+ax_InsetMap.axis('off')
+###################### From Tedstone et al., 2022 #####################
+
+#Display the map panel label
+ax_InsetMap.text(-0.45, 0.9,'f', ha='center', va='center', transform=ax_InsetMap.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+#Display scalebar
+scale_bar(ax1, (0.87, 0.35), 50, 3,0)# axis, location (x,y), length, linewidth, rotation of text
+scale_bar(ax_InsetMap, (0.745, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+#by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
 
 plt.show()
 pdb.set_trace()
@@ -1229,9 +1209,11 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v4/Fig_S1.png'
-plt.savefig(fig_name,dpi=300)
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v5/Fig_S1_test4.png'
+plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
+
+pdb.set_trace()
 
 #Plot the whole GrIS 2002-2003 radar tracks
 #Prepare plot
