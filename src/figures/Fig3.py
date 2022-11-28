@@ -426,13 +426,16 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
         else:
             print('Calculating summary statistics')
             #Select data belonging to the well-developped section
-            ax1_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']<end_well_developped*1000]['20m_ice_content_m'],alpha=0.5,bins=np.arange(0,17,1),color=col_palette[time_period])
+            ax1_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']<end_well_developped*1000]['20m_ice_content_m'],histtype='step',bins=np.arange(0,17,1),color=col_palette[time_period])
             #Select data belonging to the thickening section
             ax2_dist.hist(df_casestudy_TimePeriod[np.logical_and(df_casestudy_TimePeriod['distances']>=end_well_developped*1000,
                                                                  df_casestudy_TimePeriod['distances']<end_thickening*1000)]
-                                                                 ['20m_ice_content_m'],alpha=0.5,bins=np.arange(0,17,1),color=col_palette[time_period])
+                                                                 ['20m_ice_content_m'],histtype='step',bins=np.arange(0,17,1),color=col_palette[time_period])
             #Select data belonging to the well-developped section
-            ax3_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']>=end_thickening*1000]['20m_ice_content_m'],alpha=0.5,bins=np.arange(0,17,1),color=col_palette[time_period])
+            ax3_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']>=end_thickening*1000]['20m_ice_content_m'],histtype='step',bins=np.arange(0,17,1),color=col_palette[time_period])
+    
+    
+
     return
 
 
@@ -575,27 +578,28 @@ plt.rcParams.update({'font.size': 15})
 plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
 fig = plt.figure()
 gs = gridspec.GridSpec(39, 20)
-gs.update(wspace=0.25)
+gs.update(wspace=0.5)
 #gs.update(wspace=0.001)
 #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-ax1 = plt.subplot(gs[0:34, 17:20],projection=crs)
-ax_legend = plt.subplot(gs[34:39, 17:20])
+ax1 = plt.subplot(gs[0:34, 0:3],projection=crs)
+ax_legend = plt.subplot(gs[34:39, 0:3])
 
-ax2t = plt.subplot(gs[0:4, 0:17])
-ax3t = plt.subplot(gs[7:11, 0:17])
-ax4t = plt.subplot(gs[14:18, 0:17])
-ax5t = plt.subplot(gs[21:25, 0:17])
-ax6t = plt.subplot(gs[28:32, 0:17])
-ax7t = plt.subplot(gs[35:39, 0:17])
+ax2t = plt.subplot(gs[0:4, 4:20])
+ax3t = plt.subplot(gs[7:11, 4:20])
+ax4t = plt.subplot(gs[14:18, 4:20])
+ax5t = plt.subplot(gs[21:25, 4:20])
+ax6t = plt.subplot(gs[28:32, 4:20])
+ax7t = plt.subplot(gs[35:39, 4:20])
 
 #Draw plot of GrIS map
 ax1.coastlines(edgecolor='black',linewidth=0.075)
 #Display GrIS drainage bassins limits
 GrIS_drainage_bassins.plot(ax=ax1,color='none', edgecolor='black',linewidth=0.075)
 #Display region name
-ax1.text(SW_rignotetal.centroid.x+50000,SW_rignotetal.centroid.y+250000,np.asarray(SW_rignotetal.SUBREGION1)[0])
-ax1.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y+50000,np.asarray(CW_rignotetal.SUBREGION1)[0])
-ax1.text(NW_rignotetal.centroid.x-100000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+ax1.text(SW_rignotetal.centroid.x-80000,SW_rignotetal.centroid.y-80000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax1.text(CW_rignotetal.centroid.x-175000,CW_rignotetal.centroid.y-40000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax1.text(NW_rignotetal.centroid.x-50000,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+ax1.text(NO_rignotetal.centroid.x-40000,NO_rignotetal.centroid.y-230000,np.asarray(NO_rignotetal.SUBREGION1)[0])
 
 #plt.scatter(df_spatially_aggregated_2010['avg_lon_3413'],df_spatially_aggregated_2010['avg_lat_3413'],c=df_spatially_aggregated_2010['avg_20m_icecontent'],s=0.2)
 
@@ -621,16 +625,16 @@ plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,a
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
-ax1.set_extent([-580000, -44000, -2650000, -1290000], crs=crs)
+ax1.set_extent([-615320, -37273, -2909407, -1243910], crs=crs)
 gl=ax1.gridlines(draw_labels=True, xlocs=[-40,-50,-60], ylocs=[65,70,75,80], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
 #Customize lat labels
-gl.ylabels_left = False
+gl.ylabels_right = False
 gl.xlabels_bottom = False
 ax1.axis('off')
 ###################### From Tedstone et al., 2022 #####################
 
 #Display scalebar
-scale_bar(ax1, (0.60, 0.05), 200, 3,-10)# axis, location (x,y), length, linewidth, rotation of text
+scale_bar(ax1, (0.60, 0.05), 200, 3,-12)# axis, location (x,y), length, linewidth, rotation of text
 #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
 
 #Add shading where merging of diconsitnuous slabs
@@ -655,7 +659,6 @@ plt.legend()
 #Get rid of axis in legend axis
 ax_legend.axis('off')
 plt.show()
-ax7t.legend_.remove()
 
 pdb.set_trace()
 

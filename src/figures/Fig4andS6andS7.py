@@ -1391,7 +1391,7 @@ plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10
 ############## Fig. S6 showing radargrams and ice slabs product ###############
 ###############################################################################
 
-#pdb.set_trace()
+pdb.set_trace()
 
 ###############################################################################
 ###################### Fig. 4 showing ice slabs product #######################
