@@ -85,12 +85,13 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     start_display=10000
     end_display=30000
     ax_plotting.set_xlim(start_display,end_display)
-    
+    '''
     #Display bottom xtick in km instead of m
     xtick_distance=ax_plotting.get_xticks()
     ax_plotting.set_xticks(xtick_distance)
     ax_plotting.set_xticklabels((xtick_distance/1000),fontsize=15)
     
+
     #Do not dispay x ticks in ax1, ax3
     if (ax_plotting in list([ax1,ax3])):
         #Set xticks labels to empty
@@ -100,7 +101,7 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     else:
         #Set fontsize
         ax_plotting.set_yticklabels(['0','5','10','15','20'],fontsize=15)
-    
+    '''
     if (zorder_indiv==1):
         if (ax_plotting==ax5):
             #Custom plot
@@ -842,6 +843,31 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             print(str(year),' distance_top ice: ',str(distances_with_start_transect[indexes_top_ice][-1]-distances_with_start_transect[indexes_top_ice][0]))
         ########################## Firn replenishment #########################
 
+
+        ########################## Burrial #########################
+        if (str(year) in list(['2010','2011'])):
+            continue
+        else:
+            #Extract bottom of ice slabs depth
+            indexes_bottom_ice=np.logical_and(dataframe[str(year)]['lon_appended'][indexes_within_bounds]>=-47.0487,dataframe[str(year)]['lon_appended'][indexes_within_bounds]<=-47.023)
+            prob_bottom_ice=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
+            prob_bottom_ice=prob_bottom_ice[:,indexes_bottom_ice]
+            
+            bottom_of_ice=np.zeros((1,prob_bottom_ice.shape[1]))
+            for indiv_col in range (0,prob_bottom_ice.shape[1]):
+                bottom_of_ice[0,indiv_col]=np.max(np.where(prob_bottom_ice[:,indiv_col]>0))
+            
+            bottom_of_ice=bottom_of_ice.astype(int)
+            #Extract depth of corresponding bottom of ice
+            depth_bottom_of_ice=dataframe[str(year)]['depth'][bottom_of_ice[0]]
+            '''
+            #Display where we extracted the values
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 17.7
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 16.5
+            '''
+            print(str(year),' bottom of ice is: ',str(np.mean(depth_bottom_of_ice)),' +/- ',str(np.std(depth_bottom_of_ice)))
+            print(str(year),' bottom ice: ',str(distances_with_start_transect[indexes_bottom_ice][-1]-distances_with_start_transect[indexes_bottom_ice][0]))
+        ########################## Burrial #########################
     
         ################## Ice slabs thick right at KAN_U #####################
         if (str(year) in list(['2010','2011'])):
@@ -891,8 +917,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
                 slab_bottom[0,indiv_col]=dataframe[str(year)]['depth'][np.where(prob_iceacc[:,indiv_col]!=0)[0][-1]][0]
             '''
             #Display where we extracted the values
-            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0329)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
-            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 15.6
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 17.7
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='red',linewidth=1)#Line at km 16.5
             '''
             print('-----> To use:',str(year),' mean ice accretion: ',str(np.mean(iceacc)))
             print('-----> To use:',str(year),' median ice accretion: ',str(np.median(iceacc)))

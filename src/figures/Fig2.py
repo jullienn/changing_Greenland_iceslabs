@@ -229,7 +229,8 @@ def discrete_cmap(N, base_cmap=None):
 ##############################################################################
 
 
-def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
+def load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
+    #this function loads the individual 2002-2003 radargram
     
     #Define the uppermost and lowermost limits
     meters_cutoff_above=0
@@ -265,7 +266,6 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         lat.replace(0, np.nan, inplace=True)
         lon.replace(0, np.nan, inplace=True)
     
-    #pdb.set_trace()
     #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
     lon=-lon
                         
@@ -277,21 +277,8 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     #Reset the lat_3413 and lon_3413 to empty vectors.
     lon_3413=[]
     lat_3413=[]
-    
     lon_3413=points[0]
     lat_3413=points[1]
-    
-    #pdb.set_trace()
-    #Define the dates that need reversed display
-    list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
-                       'may13_03_29_aggregated','may30_02_51_aggregated',
-                       'may24_02_25_aggregated','may15_03_37_aggregated',
-                       'may11_03_29_aggregated']
-        
-    list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
-    
-    #Display on the map where is this track
-    ax_map.scatter(lon_3413, lat_3413,s=1,facecolors='black', edgecolors='black')
     
     #1. Compute the vertical resolution
     #a. Time computation according to John Paden's email.
@@ -321,7 +308,35 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
                                                                     depths,
                                                                     surface_indices,
                                                                     meters_cutoff_above=meters_cutoff_above,
-                                                                    meters_cutoff_below=meters_cutoff_below)
+                                                                    meters_cutoff_below=meters_cutoff_below)    
+    #Transpose if june 04
+    if (folder_day=='jun04'):
+        lat_3413=np.transpose(lat_3413)
+        lon_3413=np.transpose(lon_3413)
+    #Calculate the distances (in m)
+    distances=compute_distances(lon_3413,lat_3413)
+    #Convert distances from m to km
+    distances=distances/1000
+    
+    #Save lat, lon and radar slice from 0 to 30m deep into a dictionnary
+    dict_returned={'lat_3413':lat_3413,'lon_3413':lon_3413,'radar_slice_0_30m':radar_slice,'distances':distances,'depths':depths}
+    
+    return dict_returned
+
+
+def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
+    
+    pdb.set_trace()
+    
+    #load radargram
+    radargram_data = load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+    
+    pdb.set_trace()
+
+    #then plot
+    
+    #Display on the map where is this track
+    ax_map.scatter(radargram_data['lon_3413'], radargram_data['lat_3413'],s=1,facecolors='black', edgecolors='black')
     
     #The range have already been computed, plot the data:
     if (technique=='perc_25_75'):
@@ -354,23 +369,17 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
             perc_upper_end=0.7572821079440079      
     
     #Generate the pick for vertical distance display
-    ticks_yplot=np.linspace(0,radar_slice.shape[0],4).astype(int)
+    ticks_yplot=np.linspace(0,radargram_data['radar_slice_0_30m'].shape[0],4).astype(int)
     
     #Plot the radar slice
-    cb2=ax_plot.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    ax_plot.set_ylim(0,radar_slice.shape[0])
+    cb2=ax_plot.pcolor(radargram_data['radar_slice_0_30m'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    ax_plot.set_ylim(0,radargram_data['radar_slice_0_30m'].shape[0])
     ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
-    #ax_plot.set_aspect('equal') # X scale matches Y scale
-    
     #Colorbar custom
     cb2.set_clim(perc_lower_end,perc_upper_end)
-    #cbar2=fig.colorbar(cb2, ax=[ax_plot], location='left')
-    #cbar2.set_label('Signal strength')
-    
     #Set the y ticks
     ax_plot.set_yticks(ticks_yplot) 
-    ax_plot.set_yticklabels(np.round(depths[ticks_yplot]).astype(int))
-    
+    ax_plot.set_yticklabels(np.round(radargram_data['depths'][ticks_yplot]).astype(int))
     #Set ylabel
     ax_plot.set_ylabel('Depth [m]')
 
@@ -378,28 +387,26 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     if (ax_nb==2):
         letter_elev='a'
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(lon_3413)-15000,np.nanmedian(lat_3413),'a',color='black',fontsize=20)
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-15000,np.nanmedian(radargram_data['lat_3413']),'a',color='black',fontsize=20)
     
     elif (ax_nb==3):
         #ax_plot.set_title('Percolation zone - ice lenses',fontsize=10)
-
         letter_elev='b'
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(lon_3413)-30000,np.nanmedian(lat_3413)-10000,'b',color='black',fontsize=20)
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-30000,np.nanmedian(radargram_data['lat_3413'])-10000,'b',color='black',fontsize=20)
     
     elif (ax_nb==4):
         #ax_plot.set_title('Percolation zone - ice slabs',fontsize=10)
-
         letter_elev='c'
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(lon_3413)-30000,np.nanmedian(lat_3413)-15000,'c',color='black',fontsize=20)
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-30000,np.nanmedian(radargram_data['lat_3413'])-15000,'c',color='black',fontsize=20)
     
     elif (ax_nb==5):
         #ax_plot.set_title('Dry snow zone',fontsize=10)
         ax_plot.set_xlabel('Distance [km]')
         letter_elev='d'
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(lon_3413),np.nanmedian(lat_3413)-37000,'d',color='black',fontsize=20)
+        ax_map.text(np.nanmedian(radargram_data['lon_3413']),np.nanmedian(radargram_data['lat_3413'])-37000,'d',color='black',fontsize=20)
         
         #Display colorbar. This is from FigS1.py
         cbar_depth=fig.colorbar(cb2, cax=axc)#aspect is from https://stackoverflow.com/questions/33443334/how-to-decrease-colorbar-width-in-matplotlib
@@ -410,8 +417,6 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     ax_plot.text(-0.09, 0.5,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Display the ice lenses identification:
-    #pdb.set_trace()
-
     if (indiv_file in list(xls_icelenses.keys())):
         print(indiv_file+' hold ice lens!')
         #This file have ice lenses in it: read the data:
@@ -442,25 +447,49 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
                 continue
             else:
                 print('The color is not known!')
-            
-            #pdb.set_trace()
             #Display ice lens
             ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=2.5)
     
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
     
-    #Transpose if june 04
-    if (folder_day=='jun04'):
-        lat_3413=np.transpose(lat_3413)
-        lon_3413=np.transpose(lon_3413)
+    #j'en suis la
+    pdb.set_trace()
     
-    #Calculate the distances (in m)
-    distances=compute_distances(lon_3413,lat_3413)
+    #display pcolor with x = distances, and y = depth directly, then conclude if I need this fliup thing about distances or not
     
-    #Convert distances from m to km
-    distances=distances/1000
+    
+    #Generate the pick for vertical distance display
+    ticks_yplot=np.linspace(0,radargram_data['radar_slice_0_30m'].shape[0],4).astype(int)
+    
+    #Plot the radar slice
+    cb2=ax_plot.pcolor(radargram_data['distances'],
+                       radargram_data['di'],
+                       radargram_data['radar_slice_0_30m'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    ax_plot.set_ylim(0,radargram_data['radar_slice_0_30m'].shape[0])
+    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
+    #Colorbar custom
+    cb2.set_clim(perc_lower_end,perc_upper_end)
+    #Set the y ticks
+    ax_plot.set_yticks(ticks_yplot) 
+    ax_plot.set_yticklabels(np.round(radargram_data['depths'][ticks_yplot]).astype(int))
+    #Set ylabel
+    ax_plot.set_ylabel('Depth [m]')
+    
+    
+    
+    
+    
+    #Define the dates that need reversed display
+    list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
+                       'may13_03_29_aggregated','may30_02_51_aggregated',
+                       'may24_02_25_aggregated','may15_03_37_aggregated',
+                       'may11_03_29_aggregated']
         
+    list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
+    
+    
+    
     #Order the radar track from down to up if needed      
     if (indiv_file in list(list_reverse_agg)):
         ax_plot.set_xlim(radar_slice.shape[1],0)
@@ -1209,9 +1238,29 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v5/Fig_S1_test4.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v5/Fig_S1.png'
 plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
+
+######################## Save 2002-2003 radargram data ########################
+#1 load radagram
+# 2 save radargram
+load_2002_2003_radargram
+
+
+
+####################### Save the radagram as pickle #######################
+pdb.set_trace()
+
+path_save_radargrams='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/2002_2003/radargram_data/'
+
+####################### Save the radagram as pickle #######################
+
+######################## Save 2002-2003 radargram data ########################
+
+
+
+
 
 pdb.set_trace()
 
