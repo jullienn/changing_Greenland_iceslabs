@@ -85,7 +85,7 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     start_display=10000
     end_display=30000
     ax_plotting.set_xlim(start_display,end_display)
-    '''
+    
     #Display bottom xtick in km instead of m
     xtick_distance=ax_plotting.get_xticks()
     ax_plotting.set_xticks(xtick_distance)
@@ -101,7 +101,7 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     else:
         #Set fontsize
         ax_plotting.set_yticklabels(['0','5','10','15','20'],fontsize=15)
-    '''
+    
     if (zorder_indiv==1):
         if (ax_plotting==ax5):
             #Custom plot
@@ -112,20 +112,22 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
             legend_elements = [Patch(facecolor=my_pal[year_background],label=str(year_background)),
                                Patch(facecolor=my_pal[year],label=str(year)),
                                Line2D([0], [0], marker='P', linestyle='none', label='KAN_U', color='#b2182b')]
-            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=15)
+            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=15,framealpha=1)
             
         else:
             #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
             legend_elements = [Patch(facecolor=my_pal[year_background],label=str(year_background)),
                                Patch(facecolor=my_pal[year],label=str(year))]
-            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=15)     
+            ax_plotting.legend(handles=legend_elements,loc='lower right',fontsize=15,framealpha=1)     
 
     elif (zorder_indiv==2):
+        
         #Add dashed lines such as in Fig. 3
         ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=3,linestyle='--',color='k')
         ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=3,linestyle='--',color='k')
         ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=3,linestyle='--',color='k',linewidth=1)#Line at km 15.6
         ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=3,linestyle='--',color='k',linewidth=1)#Line at km 16.7
+        
         #Display KAN_U
         ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],0.5,marker='P',s=20,c='#b2182b',zorder=10)
     
@@ -151,11 +153,11 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     ##### Same procedure of mask appliance for EPSG:32622 coordinates #####
         
     #display loc of the trace on zoomed map
-    ax_map_region.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='k',s=0.1,zorder=10,transform=crs)
+    ax_map_region.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='#969696',s=0.1,zorder=10,transform=crs)
     
     ax_map_region.scatter(lon32622_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
                           lat32622_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
-                          c='#969696',s=0.1,zorder=11,transform=crs)
+                          c='k',s=0.1,zorder=11,transform=crs)
     
     ax_map_region.scatter(lon32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.023)],
                           lat32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.023)],
@@ -167,10 +169,8 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
                           lat32622_plot[np.logical_and(distances_with_start_transect>=13800,distances_with_start_transect<=17700)],
                           c='green',s=0.1,zorder=12,transform=crs)
     '''
-    '''
     #display loc of the trace on GrIS map
-    ax_map_GrIS.scatter(lon3413_plot[distances_with_start_transect<=40000],lat3413_plot[distances_with_start_transect<=40000],c='k',s=1,zorder=10,transform=crs_3413)
-    '''
+    ax_map_GrIS.scatter(lon3413_plot[distances_with_start_transect<=40000],lat3413_plot[distances_with_start_transect<=40000],c='k',s=5,zorder=10,transform=crs_3413)
 
 
 def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_DEM,axt,my_pal):
@@ -1391,7 +1391,7 @@ plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10
 ############## Fig. S6 showing radargrams and ice slabs product ###############
 ###############################################################################
 
-pdb.set_trace()
+#pdb.set_trace()
 
 ###############################################################################
 ###################### Fig. 4 showing ice slabs product #######################
@@ -1401,14 +1401,14 @@ plt.rcParams.update({'font.size': 15})
 plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
 fig = plt.figure()
 gs = gridspec.GridSpec(14, 14)
-gs.update(wspace=1)
+gs.update(wspace=0)
 gs.update(hspace=0.1)
 
-ax1 = plt.subplot(gs[0:3, 0:14])
-ax3 = plt.subplot(gs[3:6, 0:14])
-ax5 = plt.subplot(gs[6:9, 0:14])
-ax_map_region = plt.subplot(gs[10:14, 0:12],projection=crs)
-ax_map_GrIS = plt.subplot(gs[10:14, 12:14],projection=crs_3413)
+ax1 = plt.subplot(gs[5:8, 0:14])
+ax3 = plt.subplot(gs[8:11, 0:14])
+ax5 = plt.subplot(gs[11:14, 0:14])
+ax_map_region = plt.subplot(gs[0:4, 0:12],projection=crs)
+ax_map_GrIS = plt.subplot(gs[0:4, 12:14],projection=crs_3413)
 
 #Reset depths to 0
 for year in np.asarray([2012,2013,2014,2017,2018]):
@@ -1453,7 +1453,8 @@ cont=ax_map_region.contour(GrIS_DEM_display_SW_EPSG32622[:,:], levels=np.arange(
 #Define transformer for coordinates transform from "EPSG:4326" to "EPSG:32622"
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:32622",always_xy=True)
 KAN_U_coord=transformer.transform([-47.0253],[67.0003])
-ax_map_region.scatter(KAN_U_coord[0][0],KAN_U_coord[1][0],s=15,c='#b2182b',label='KAN_U',zorder=10,transform=crs)
+
+ax_map_region.scatter(KAN_U_coord[0][0],KAN_U_coord[1][0],s=35,c='#b2182b',label='KAN_U',zorder=10,transform=crs)
 
 #set x and y limits
 ax_map_region.set_xlim(649090, 701160)
@@ -1465,8 +1466,8 @@ ax_map_region.text(0.525, -0.11,'1900', ha='center', va='center', rotation=90,tr
 ax_map_region.text(0.83, -0.11,'2000', ha='center', va='center', rotation=90,transform=ax_map_region.transAxes,fontsize=15,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
-legend_elements = [Line2D([0], [0], label='Complete transect (0-40 km)', color='black'),
-                   Line2D([0], [0], label='Displayed transect (10-30 km)', color='#969696'),
+legend_elements = [Line2D([0], [0], label='Complete transect (0-40 km)', color='#969696'),
+                   Line2D([0], [0], label='Displayed transect (10-30 km)', color='black'),
                    Line2D([0], [0], label='~4 km-long transect (13.8-17.7 km)', color='#d9d9d9'),
                    Line2D([0], [0], label='Elevation', color='#8c510a')]#,
                    #Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
@@ -1481,6 +1482,7 @@ gl.xlabels_top = False
 #ax_map_region.axis('off')
 ###################### From Tedstone et al., 2022 #####################
 
+ax_map_region.axis('off')
 #Display yeas on region map
 ax_map_region.text(KAN_U_coord[0][0]+16600,KAN_U_coord[1][0]-1050,'2012',color=my_pal[2012],rotation=5,weight='bold')
 ax_map_region.text(KAN_U_coord[0][0]+18250,KAN_U_coord[1][0]-900,',',color='black',rotation=5,weight='bold')
@@ -1491,9 +1493,6 @@ ax_map_region.text(KAN_U_coord[0][0]+20550,KAN_U_coord[1][0]-700,'2018',color=my
 ax_map_region.text(KAN_U_coord[0][0]+18750,KAN_U_coord[1][0]-2600,'2014',color=my_pal[2014],rotation=5,weight='bold')
 ax_map_region.text(KAN_U_coord[0][0]+20400,KAN_U_coord[1][0]-2430,',',color='black',rotation=5,weight='bold')
 ax_map_region.text(KAN_U_coord[0][0]+20750,KAN_U_coord[1][0]-2430,'2017',color=my_pal[2017],rotation=5,weight='bold')
-
-#Set frame in red
-plt.setp(ax_map_region.spines.values(), color='red')#this is from https://stackoverflow.com/questions/7778954/elegantly-changing-the-color-of-a-plot-frame-in-matplotlib
 
 #Draw plot of GrIS map
 ax_map_GrIS.coastlines(edgecolor='black',linewidth=0.075)
@@ -1506,31 +1505,9 @@ ax_map_GrIS.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asa
 ax_map_GrIS.text(SW_rignotetal.centroid.x-325000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
 ax_map_GrIS.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
 ax_map_GrIS.text(NW_rignotetal.centroid.x-200000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
-
-#Display rectangle around datalocation - this is from Fig. 3.py   
-#Define transformer for coordinates transform from "EPSG:3413" to "EPSG:32622"
-transformer = Transformer.from_crs("EPSG:32622", "EPSG:3413",always_xy=True)
-#Extract corner coordinates
-coord_origin=transformer.transform([ax_map_region.get_xlim()[0]],[ax_map_region.get_ylim()[0]])
-coord_topright=transformer.transform([ax_map_region.get_xlim()[1]],[ax_map_region.get_ylim()[1]])
-#This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
-# Create a Rectangle patch
-rect = patches.Rectangle((coord_origin[0][0],coord_origin[1][0]),
-                         np.abs(coord_origin[0][0]-coord_topright[0][0]),
-                         np.abs(coord_origin[1][0]-coord_topright[1][0]),
-                         angle=0, linewidth=1, edgecolor='red', facecolor='none')
-# Add the patch to the Axes
-ax_map_GrIS.add_patch(rect)
-
-###################### From Tedstone et al., 2022 #####################
-#from plot_map_decadal_change.py
-gl=ax_map_GrIS.gridlines(draw_labels=True, xlocs=[-20,-30,-40,-50,-60,-70], ylocs=[60,65,70,75,80], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
-#Customize lat labels
-gl.ylabels_right = False
-gl.xlabels_top = False
 ax_map_GrIS.axis('off')
-#ax8map.legend(loc='upper right')
-###################### From Tedstone et al., 2022 #####################
+ax_map_GrIS.set_xlim(-693308, 912076)
+ax_map_GrIS.set_ylim(-3440844, -541728)
 
 #Display scalebar
 scale_bar(ax_map_region, (0.55, 0.175), 10, 3,5)# axis, location (x,y), length, linewidth, rotation of text
@@ -1548,17 +1525,19 @@ ax5.arrow(27500,5,0,1.7,color='black',head_width=100,head_length=1,length_includ
 ax5.text(27200,9.5,'~1.7 m')
 
 #Add panel label
-ax1.text(0.01, 0.85,'a',ha='center', va='center', transform=ax1.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax3.text(0.01, 0.85,'b',ha='center', va='center', transform=ax3.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax5.text(0.01, 0.85,'c',ha='center', va='center', transform=ax5.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax_map_region.text(0.015, 0.85,'d',ha='center', va='center', transform=ax_map_region.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax_map_GrIS.text(-0.25, 0.875,'e',ha='center', va='center', transform=ax_map_GrIS.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax_map_region.text(0.015, 0.85,'a',ha='center', va='center', transform=ax_map_region.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.0105, 0.85,'   ',backgroundcolor='white',ha='center', va='center', transform=ax1.transAxes,fontsize=17,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of
+ax1.text(0.01, 0.85,'b',ha='center', va='center', transform=ax1.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax3.text(0.0105, 0.85,'   ',backgroundcolor='white',ha='center', va='center', transform=ax3.transAxes,fontsize=17,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of
+ax3.text(0.01, 0.85,'c',ha='center', va='center', transform=ax3.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax5.text(0.0105, 0.85,'   ',backgroundcolor='white',ha='center', va='center', transform=ax5.transAxes,fontsize=17,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of
+ax5.text(0.01, 0.85,'d',ha='center', va='center', transform=ax5.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 plt.show()
 
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4_v2.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4.png',dpi=300,bbox_inches='tight')
 '''
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 ###############################################################################
