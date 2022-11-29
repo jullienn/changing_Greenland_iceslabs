@@ -496,21 +496,30 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     ###########################################################################
     ###      Extract total columnal ice content inside area of focus        ###
     ###########################################################################
+    '''
+    #lon coordinates defining in different parts of the transects
+    (47.4233,47.11)#0km to first thick dashed line
+    (47.11,-47.023)#thick dashed lines
+    (-47.023,-46.2981)#right thick dashed line to end of transect
+    '''
+    coord_parts_transect=np.array([[-47.4233,-47.11],[-47.11,-47.023],[-47.023,-46.2981]])
+
     count_ice=0
-    columnal_sum_studied_case=np.zeros(len(np.arange(2009,2022)))
+    columnal_sum_studied_case=np.ones((len(np.arange(2009,2022)),len(coord_parts_transect)))*0
     columnal_sum_studied_case[:]=np.nan
-        
+    
     for indiv_year in np.arange(2009,2022):
         print(indiv_year)
         if (indiv_year in np.array([2012,2013,2018])):
             #Select data
             df_indiv_year=df_for_elev_sorted[df_for_elev_sorted['year']==indiv_year]
-            #Keep only within studied area
-            df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=-47.11,df_indiv_year['lon']<=-47.023)]
-            #Define the mean delta horizontal dimensions
-            delta_horizontal_m = np.mean(np.asarray(df_studied_case['distances'][1:])-np.asarray(df_studied_case['distances'][:-1])) #This is inspired from probabilisitc_iceslabs.py
-            #Extract total ice content within this area (in m2 because vertical content [m] * horizontal content [m] #/ distance [m])
-            columnal_sum_studied_case[count_ice]=np.sum(df_studied_case['20m_ice_content_m']) * delta_horizontal_m #/ (df_studied_case['distances'].iloc[-1]-df_studied_case['distances'].iloc[0]) #if average wanted
+            for count_parts in range(0,len(coord_parts_transect)):
+                #Keep only within studied area
+                df_studied_case=df_indiv_year[np.logical_and(df_indiv_year['lon']>=coord_parts_transect[count_parts,0],df_indiv_year['lon']<=coord_parts_transect[count_parts,1])]
+                #Define the mean delta horizontal dimensions
+                delta_horizontal_m = np.mean(np.asarray(df_studied_case['distances'][1:])-np.asarray(df_studied_case['distances'][:-1])) #This is inspired from probabilisitc_iceslabs.py
+                #Extract total ice content within this area (in m2 because vertical content [m] * horizontal content [m] #/ distance [m])
+                columnal_sum_studied_case[count_ice,count_parts]=np.sum(df_studied_case['20m_ice_content_m']) * delta_horizontal_m #/ (df_studied_case['distances'].iloc[-1]-df_studied_case['distances'].iloc[0]) #if average wanted
         #Update count_ice
         count_ice=count_ice+1
     
@@ -979,6 +988,15 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             print(str(year),' median near-surface ice layer thickness: ',str(np.nanmedian(nsil)))
         ################ Near surface ice layer thickness #####################
         
+        ### TO DELETE ###
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[0,0])))],zorder=1,linestyle='--',color='red')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[0,1])))],zorder=1,linestyle='--',color='red')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[1,0])))],zorder=1,linestyle='--',color='red')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[1,1])))],zorder=1,linestyle='--',color='red')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[2,0])))],zorder=1,linestyle='--',color='red')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[2,1])))],zorder=1,linestyle='--',color='red')
+        ### TO DELETE ###
+        
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
 
@@ -1387,6 +1405,10 @@ ax11t.legend(handles=legend_elements,loc='upper right',fontsize=12)
 plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/figS6.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 '''
+
+#Calcul ice content change from 0 to 13.8 km: (columnal_sum_studied_case[9,0]-columnal_sum_studied_case[3,0])/columnal_sum_studied_case[3,0]*100
+#Calcul ice content change from 13.8 to 17.7 km: (columnal_sum_studied_case[9,1]-columnal_sum_studied_case[3,1])/columnal_sum_studied_case[3,1]*100
+#Calcul ice content change from 17.7km to the end of transect: (columnal_sum_studied_case[9,2]-columnal_sum_studied_case[3,2])/columnal_sum_studied_case[3,2]*100
 ###############################################################################
 ############## Fig. S6 showing radargrams and ice slabs product ###############
 ###############################################################################
@@ -1568,7 +1590,7 @@ ax = sns.barplot(x="Year", y="PDH_temperature", data=df_KAN_U_csv,palette=['blac
 
 #This is from https://stackoverflow.com/questions/14762181/adding-a-y-axis-label-to-secondary-y-axis-in-matplotlib
 ax10m_second = ax10m.twinx()
-ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case,width=0.15,color='indianred')
+ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case[:,1],width=0.15,color='indianred')
 ax10m_second.yaxis.set_label_position("right")
 ax10m_second.yaxis.tick_right()
 ax10m_second.set_ylabel('Total ice content [$m^2$]')

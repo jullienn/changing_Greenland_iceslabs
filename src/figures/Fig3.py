@@ -433,9 +433,8 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
                                                                  ['20m_ice_content_m'],histtype='step',bins=np.arange(0,17,1),color=col_palette[time_period])
             #Select data belonging to the well-developped section
             ax3_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']>=end_thickening*1000]['20m_ice_content_m'],histtype='step',bins=np.arange(0,17,1),color=col_palette[time_period])
+    pdb.set_trace()
     
-    
-
     return
 
 
