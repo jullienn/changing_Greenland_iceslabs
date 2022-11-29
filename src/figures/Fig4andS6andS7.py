@@ -988,15 +988,6 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
             print(str(year),' median near-surface ice layer thickness: ',str(np.nanmedian(nsil)))
         ################ Near surface ice layer thickness #####################
         
-        ### TO DELETE ###
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[0,0])))],zorder=1,linestyle='--',color='red')
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[0,1])))],zorder=1,linestyle='--',color='red')
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[1,0])))],zorder=1,linestyle='--',color='red')
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[1,1])))],zorder=1,linestyle='--',color='red')
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[2,0])))],zorder=1,linestyle='--',color='red')
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(coord_parts_transect[2,1])))],zorder=1,linestyle='--',color='red')
-        ### TO DELETE ###
-        
     return np.min(df_for_elev['elevation']),np.max(df_for_elev['elevation']),columnal_sum_studied_case
 
 
