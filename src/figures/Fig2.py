@@ -325,16 +325,10 @@ def load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv
 
 
 def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
-    
-    pdb.set_trace()
-    
+        
     #load radargram
     radargram_data = load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
-    
-    pdb.set_trace()
-
-    #then plot
-    
+        
     #Display on the map where is this track
     ax_map.scatter(radargram_data['lon_3413'], radargram_data['lat_3413'],s=1,facecolors='black', edgecolors='black')
     
@@ -372,7 +366,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     ticks_yplot=np.linspace(0,radargram_data['radar_slice_0_30m'].shape[0],4).astype(int)
     
     #Plot the radar slice
-    cb2=ax_plot.pcolor(radargram_data['radar_slice_0_30m'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    cb2=ax_plot.pcolor(radargram_data['radar_slice_0_30m'],cmap=plt.get_cmap('gray'))
     ax_plot.set_ylim(0,radargram_data['radar_slice_0_30m'].shape[0])
     ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
     #Colorbar custom
@@ -382,7 +376,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     ax_plot.set_yticklabels(np.round(radargram_data['depths'][ticks_yplot]).astype(int))
     #Set ylabel
     ax_plot.set_ylabel('Depth [m]')
-
+    
     #Distance from start of the trace
     if (ax_nb==2):
         letter_elev='a'
@@ -452,56 +446,21 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
-    
-    #j'en suis la
-    pdb.set_trace()
-    
-    #display pcolor with x = distances, and y = depth directly, then conclude if I need this fliup thing about distances or not
-    
-    
-    #Generate the pick for vertical distance display
-    ticks_yplot=np.linspace(0,radargram_data['radar_slice_0_30m'].shape[0],4).astype(int)
-    
-    #Plot the radar slice
-    cb2=ax_plot.pcolor(radargram_data['distances'],
-                       radargram_data['di'],
-                       radargram_data['radar_slice_0_30m'],cmap=plt.get_cmap('gray'))#,norm=divnorm)
-    ax_plot.set_ylim(0,radargram_data['radar_slice_0_30m'].shape[0])
-    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
-    #Colorbar custom
-    cb2.set_clim(perc_lower_end,perc_upper_end)
-    #Set the y ticks
-    ax_plot.set_yticks(ticks_yplot) 
-    ax_plot.set_yticklabels(np.round(radargram_data['depths'][ticks_yplot]).astype(int))
-    #Set ylabel
-    ax_plot.set_ylabel('Depth [m]')
-    
-    
-    
-    
-    
+  
     #Define the dates that need reversed display
-    list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
+    list_reverse_agg_mat=['may12_03_36_aggregated','may14_03_51_aggregated',
                        'may13_03_29_aggregated','may30_02_51_aggregated',
                        'may24_02_25_aggregated','may15_03_37_aggregated',
-                       'may11_03_29_aggregated']
+                       'may11_03_29_aggregated','jun04_02proc_52.mat',
+                       'jun04_02proc_53.mat']
         
-    list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
-    
-    
-    
     #Order the radar track from down to up if needed      
-    if (indiv_file in list(list_reverse_agg)):
-        ax_plot.set_xlim(radar_slice.shape[1],0)
+    if (indiv_file in list(list_reverse_agg_mat)):
+        ax_plot.set_xlim(radargram_data['radar_slice_0_30m'].shape[1],0)
         #Reverse the distances vector:
-        distances=np.flipud(distances)
-        
-    elif (indiv_file in list(list_reverse_mat)):
-        ax_plot.set_xlim(radar_slice.shape[1],0)
-        #Reverse the distances vector:
-        distances=np.flipud(distances)
+        distances=np.flipud(radargram_data['distances'])
     else:
-        print('no flip needed')
+        distances=radargram_data['distances']
     
     #Generate the pick for horizontal distance display
     ticks_xplot=np.arange(0,distances.shape[0]+1,100)
@@ -1123,7 +1082,6 @@ ax_nb=2
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
-#pdb.set_trace()
 #Plot date 2
 folder_year='2002'
 folder_day='jun04'
@@ -1140,7 +1098,6 @@ ax_nb=4
 path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
 plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
 
-#pdb.set_trace()
 #Plot date 4
 folder_year='2003'
 folder_day='may11'
@@ -1238,7 +1195,7 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v5/Fig_S1.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v5/Fig_S1_v2.png'
 plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
 
