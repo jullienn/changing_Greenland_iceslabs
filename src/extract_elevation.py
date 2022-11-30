@@ -159,7 +159,7 @@ print('--- Extract elevation ---')
 #Loop over all data point to check whether it belongs to one of the four shapefile
 for i in df_20102018_clipped_dropped.index:
     #select the point i
-    single_point=Point(df_20102018_clipped_dropped['lon_3413'].loc[i],df_20102018_clipped_dropped['lat_3413'].loc[i])
+    single_point=Point(df_20102018_clipped_dropped.loc[i,'lon_3413'],df_20102018_clipped_dropped.loc[i,'lat_3413'])
     
     #Do the identification between the point i and the regional shapefiles
     #From: https://automating-gis-processes.github.io/CSC18/lessons/L4/point-in-polygon.html
@@ -171,32 +171,33 @@ for i in df_20102018_clipped_dropped.index:
     check_NW_rignotetal=np.asarray(NW_rignotetal.contains(single_point)).astype(int)
 
     #Associated the point of interest to its regional shapefile in data_iceslabs
+    #New way of assigning value in the dataframe to get rid of the warning. This was done thanks to Peter Mortensen's reply in https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas.
     if (np.sum(check_NO_rignotetal)>0):
-        df_20102018_clipped_dropped['key_shp'].loc[i]='NO'
+        df_20102018_clipped_dropped.loc[i,'key_shp']='NO'
     elif (np.sum(check_NE_rignotetal)>0):
-        df_20102018_clipped_dropped['key_shp'].loc[i]='NE'
+        df_20102018_clipped_dropped.loc[i,'key_shp']='NE'
     elif (np.sum(check_SE_rignotetal)>0):
-        df_20102018_clipped_dropped['key_shp'].loc[i]='SE'
+        df_20102018_clipped_dropped.loc[i,'key_shp']='SE'
     elif (np.sum(check_SW_rignotetal)>0):
-        df_20102018_clipped_dropped['key_shp'].loc[i]='SW'
+        df_20102018_clipped_dropped.loc[i,'key_shp']='SW'
     elif (np.sum(check_CW_rignotetal)>0):
-        df_20102018_clipped_dropped['key_shp'].loc[i]='CW'
+        df_20102018_clipped_dropped.loc[i,'key_shp']='CW'
     elif (np.sum(check_NW_rignotetal)>0):
-        df_20102018_clipped_dropped['key_shp'].loc[i]='NW'
+        df_20102018_clipped_dropped.loc[i,'key_shp']='NW'
     else:
-        df_20102018_clipped_dropped['key_shp'].loc[i]='Out'
+        df_20102018_clipped_dropped.loc[i,'key_shp']='Out'
     
     #Add the year
-    df_20102018_clipped_dropped['year'].loc[i]=int(df_20102018_clipped_dropped['Track_name'].loc[i][0:4])
+    df_20102018_clipped_dropped.loc[i,'year']=int(df_20102018_clipped_dropped.loc[i,'Track_name'][0:4])
     
     #Calcul elevation
-    if (np.isnan(df_20102018_clipped_dropped['lon_3413'].loc[i])):
+    if (np.isnan(df_20102018_clipped_dropped.loc[i,'lon_3413'])):
         continue
     
     #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
-    for val in GrIS_DEM.sample([(df_20102018_clipped_dropped['lon_3413'].loc[i], df_20102018_clipped_dropped['lat_3413'].loc[i])]): 
+    for val in GrIS_DEM.sample([(df_20102018_clipped_dropped.loc[i,'lon_3413'], df_20102018_clipped_dropped.loc[i,'lat_3413'])]): 
         #Calculate the corresponding elevation
-        df_20102018_clipped_dropped['elevation'].loc[i]=val
+        df_20102018_clipped_dropped.loc[i,'elevation']=val
     
     #Monitor the process
     if ((i % 1000)==0): #from https://stackoverflow.com/questions/13150417/python-multiple-of-10-if-statement
