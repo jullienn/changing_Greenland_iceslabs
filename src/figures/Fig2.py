@@ -229,7 +229,7 @@ def discrete_cmap(N, base_cmap=None):
 ##############################################################################
 
 
-def load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
+def load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file):
     #this function loads the individual 2002-2003 radargram
     
     #Define the uppermost and lowermost limits
@@ -327,7 +327,7 @@ def load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv
 def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
         
     #load radargram
-    radargram_data = load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+    radargram_data = load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file)
         
     #Display on the map where is this track
     ax_map.scatter(radargram_data['lon_3413'], radargram_data['lat_3413'],s=1,facecolors='black', edgecolors='black')
@@ -797,6 +797,7 @@ import matplotlib.patches as patches
 from matplotlib.lines import Line2D
 from scalebar import scale_bar
 
+save_2002_2003_data='TRUE'
 technique='perc_2p5_97p5'
 making_down_to_up='FALSE'
 
@@ -1012,15 +1013,6 @@ extent_DEM_SW = [np.asarray(GrIS_DEM_display_SW.x[0]), np.asarray(GrIS_DEM_displ
 #cb1=ax1.imshow(GrIS_DEM_display_SW[:,:], extent=extent_DEM_SW, transform=crs, origin='upper', cmap='Blues_r',zorder=1,alpha=0.5)
 #cbar1=fig.colorbar(cb1, ax=[ax1], location='right')
 
-'''
-#Mask contours outside of GrIS
-indiv_icecap=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(4,5,1))
-indiv_icecap.plot(ax=ax1,color='white', edgecolor='white',linewidth=0,zorder=3) 
-indiv_icecap=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(37,38,1))
-indiv_icecap.plot(ax=ax1,color='white', edgecolor='white',linewidth=0,zorder=3) 
-indiv_icecap=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(49,50,1))
-indiv_icecap.plot(ax=ax1,color='white', facecolor='white', edgecolor='white',linewidth=0,zorder=3) 
-'''
 #Display SW and CW regions
 SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
 CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
@@ -1181,70 +1173,82 @@ scale_bar(ax1, (0.32, 0.0425), 50, 3,0)# axis, location (x,y), length, linewidth
 plt.show()
 pdb.set_trace()
 
+'''
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
 fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v6/Fig_S1.png'
 plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
-
-
-
-
-
+'''
 ######################## Save 2002-2003 radargram data ########################
 
-pdb.set_trace()
-
-
-#1 Loop over all 2002-2003 data
-
-for year in list(icelens_2002_3_flightlines.keys()):
-    for days in list(icelens_2002_3_flightlines[year].keys()):
-        for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
-            print(indiv_file)
-            if (indiv_file[0:7]=='quality'):
-                print('Quality file, continue')
-                continue
-            else:
-                pdb.set_trace()
-
-                #2. Load radargrams
-                load_2002_2003_radargram
-                
-                plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
-
-                def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
-                    
-                    
-                    
-                    folder_year='2002'
-                    folder_day='jun04'
-                    indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
-                    ax_nb=3
-                    path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
-                    
+if (save_2002_2003_data=='TRUE'):
+    #1 Loop over all 2002-2003 data
+    for year in list(icelens_2002_3_flightlines.keys()):
+        for days in list(icelens_2002_3_flightlines[year].keys()):
+            for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
+                print(indiv_file)
+                if (indiv_file[0:7]=='quality'):
+                    print('Quality file, continue')
+                    continue
+                else:
+                    #2. Load radargrams
+                    #Define path
+                    path_radar_slice=path_radar_data+'/'+year+'/'+days+'/'+indiv_file
                     #load radargram
-                    radargram_data = load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
-
+                    radargram_data = load_2002_2003_radargram(path_radar_slice,lines,year,days,indiv_file)
+                    #reset depths so that it matches with radagrams 0-30m dimensions
+                    radargram_data['depths']=radargram_data['depths'][0:radargram_data['radar_slice_0_30m'].shape[0]]              
+                    
+                    #briefly check the data being generated
+                    fig = plt.figure(figsize=(15,7))
+                    ax1 = plt.subplot()
+                    #Plot the radar slice
+                    cb=ax1.pcolor(radargram_data['radar_slice_0_30m'],cmap=plt.get_cmap('gray'))
+                    ax1.set_ylim(0,radargram_data['radar_slice_0_30m'].shape[0])
+                    ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
+                    #Colorbar custom
+                    if (year=='2002'):
+                        perc_lower_end=-0.5709792307554173
+                        perc_upper_end=0.7082634842114803
+                    elif (year=='2003'):
+                        perc_lower_end=-0.6061610403154447
+                        perc_upper_end=0.7572821079440079     
+                    cb.set_clim(perc_lower_end,perc_upper_end)
+                    #Set the y ticks
+                    ticks_yplot=np.linspace(0,radargram_data['radar_slice_0_30m'].shape[0]-1,4).astype(int)
+    
+                    ax1.set_yticks(ticks_yplot) 
+                    ax1.set_yticklabels(np.round(radargram_data['depths'][ticks_yplot]).astype(int))
+                    #Set ylabel
+                    ax1.set_ylabel('Depth [m]')
+                    #Generate the pick for horizontal distance display
+                    ticks_xplot=np.linspace(0,radargram_data['distances'].shape[0],10).astype(int)
+                    #Plot also the last index
+                    ticks_xplot[-1]=radargram_data['distances'].shape[0]-1
+                    #Set x ticks
+                    ax1.set_xticks(ticks_xplot) 
+                    #Display the distances from the origin as being the x label
+                    ax1.set_xticklabels(np.round(radargram_data['distances'][ticks_xplot]).astype(int))
+                    ax1.set_xlabel('Distance [km]')
+                    ax1.set_title(indiv_file)
+                    plt.show()
+                                        
                     #3. Save as pickle
                     path_save_radargrams='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/2002_2003/radargram_data/'
-
-
-
-
-                lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
-                lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
-                colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
-                #Create an empty vector of strings
-                Track_name=np.append(Track_name,[indiv_file for x in range(0,len(icelens_2002_3_flightlines[year][days][indiv_file][0]))])
-
-
+                    filename_tosave=path_save_radargrams+year+'/L1_'+indiv_file.split('.')[0]+'.pickle'
+                    
+                    outfile= open(filename_tosave, "wb" )
+                    pickle.dump(radargram_data,outfile)
+                    outfile.close()
+                    
+                    #Save figure
+                    plt.savefig(path_save_radargrams+'fig_check/'+indiv_file.split('.')[0]+'.png',dpi=300,bbox_inches='tight')
+                    plt.close()
+                    
+                    #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)      
 ######################## Save 2002-2003 radargram data ########################
-
-
-
-
 
 pdb.set_trace()
 
