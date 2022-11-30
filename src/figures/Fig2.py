@@ -797,7 +797,7 @@ import matplotlib.patches as patches
 from matplotlib.lines import Line2D
 from scalebar import scale_bar
 
-save_2002_2003_data='TRUE'
+save_2002_2003_data='FALSE'
 technique='perc_2p5_97p5'
 making_down_to_up='FALSE'
 
