@@ -85,6 +85,69 @@ df_2002_2003['colorcode_icelens']=colorcode_icelens
 df_2002_2003['Track_name']=Track_name
 ### ---------------- Load 2002-2003 ice lenses location ------------------ ###
 
+pdb.set_trace()
+
+
+### ---------------- TEST ------------------ ###
+
+### --------------------- Load 2010-2018 shapefile ----------------------- ###
+#Define path
+shapefile_name=dataset_type+'end'
+path_shapefile=path+'shapefiles/iceslabs_jullien_'+shapefile_name+'_20102018.shp'
+df_20102018_shapefile = gpd.read_file(path_shapefile)
+### --------------------- Load 2010-2018 shapefile ----------------------- ###
+
+#Transform the coordinated from WGS84 to EPSG:3413
+#Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+
+csv_name=dataset_type+'_estimate'
+#Load the data
+filename_20102018_cleaned=path+'final_excel/'+csv_name+'/clipped/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_'+csv_name+'_cleaned.csv'
+df_20102018_cleaned = pd.read_csv(filename_20102018_cleaned, sep=",", decimal='.')
+points=transformer.transform(np.array(df_20102018_cleaned.lon),np.array(df_20102018_cleaned.lat))
+#Store lat/lon 3413
+df_20102018_cleaned['lat_3413']=points[1]
+df_20102018_cleaned['lon_3413']=points[0]
+
+csv_name=dataset_type+'_estimate'
+#Load the data
+filename_20102018=path+'final_excel/'+csv_name+'/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_'+csv_name+'.csv'
+df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
+points=transformer.transform(np.array(df_20102018.lon),np.array(df_20102018.lat))
+#Store lat/lon 3413
+df_20102018['lat_3413']=points[1]
+df_20102018['lon_3413']=points[0]
+
+#Make sure what we did is correct
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.) 
+fig = plt.figure()
+ax1 = plt.subplot(projection=crs)
+df_20102018_shapefile.plot(ax=ax1,color='#d73027', edgecolor='none',linewidth=0.5)
+ax1.scatter(df_20102018['lon_3413'],df_20102018['lat_3413'],s=2,c='blue')
+ax1.scatter(df_20102018_cleaned['lon_3413'],df_20102018_cleaned['lat_3413'],s=1,c='green')
+
+
+f_20102018 = open(path+'final_excel/'+csv_name+'/df_20102018_with_elevation_'+csv_name+'_rignotetalregions', "rb")
+df_2010_2018_pickle = pickle.load(f_20102018)
+f_20102018.close()
+
+f_20102018_cleaned = open(path+'final_excel/'+csv_name+'/clipped/df_20102018_with_elevation_'+csv_name+'_rignotetalregions_cleaned', "rb")
+df_2010_2018_pickle_cleaned = pickle.load(f_20102018_cleaned)
+f_20102018_cleaned.close()
+
+#Make sure what we did is correct
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.) 
+fig = plt.figure()
+ax1 = plt.subplot(projection=crs)
+df_20102018_shapefile.plot(ax=ax1,color='#d73027', edgecolor='none',linewidth=0.5)
+ax1.scatter(df_2010_2018_pickle['lon_3413'],df_2010_2018_pickle['lat_3413'],s=2,c='blue')
+ax1.scatter(df_2010_2018_pickle_cleaned['lon_3413'],df_2010_2018_pickle_cleaned['lat_3413'],s=1,c='green')
+
+### ---------------- TEST ------------------ ###
+
+
+
 ### --------------------- Load 2010-2018 ice slabs ----------------------- ###
 csv_name=dataset_type+'_estimate'
 #Load the data
@@ -201,7 +264,7 @@ for i in df_20102018_clipped_dropped.index:
     
     #Monitor the process
     if ((i % 1000)==0): #from https://stackoverflow.com/questions/13150417/python-multiple-of-10-if-statement
-        print(np.round(i/df_20102018.size*100,3),'%')
+        print(np.round(i/df_20102018.shape[0]*100,3),'%')
 
 #Save the dictionary into a picke file
 '''
