@@ -128,16 +128,14 @@ df_20102018_clipped_dropped = df_20102018_clipped_dropped[~pd.isna(df_20102018_c
 ### --- Clip data with shapefile to get rid of too low elevations points --- ###
 
 ### -------------------- Save 2010-2018 clipped data ---------------------- ###
-#Drop useless columns
-df_20102018_clipped_dropped=df_20102018_clipped_dropped.drop(columns=['coords','index_right','id','indexes'])
 #filename_tosave=path+'final_excel/dataset_for_Fig3/clipped/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_Fig3_'+csv_name+'_cleaned.csv'#For Fig3
 filename_tosave=path+'final_excel/'+csv_name+'/clipped/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_'+csv_name+'_cleaned.csv'
-df_20102018_clipped_dropped.to_csv(filename_tosave)
+df_20102018_clipped_dropped.to_csv(filename_tosave,columns=['Track_name', 'Tracenumber', 'lat', 'lon', 'alongtrack_distance_m','20m_ice_content_m', 'likelihood'])
 ### -------------------- Save 2010-2018 clipped data ---------------------- ###
 print('--- Done clip 2010-2018 data to shapefile ---')
 
-#Drop region columns
-df_20102018_clipped_dropped=df_20102018_clipped_dropped.drop(columns=['region'])
+#Drop useless columns
+df_20102018_clipped_dropped=df_20102018_clipped_dropped.drop(columns=['coords','index_right','id','region','indexes'])
 
 #Initialise the elevation and shapefile belonging column
 df_20102018_clipped_dropped['key_shp']=np.nan
@@ -151,8 +149,6 @@ ax1 = plt.subplot(projection=crs)
 df_20102018_shapefile.plot(ax=ax1,color='#d73027', edgecolor='none',linewidth=0.5)
 ax1.scatter(df_20102018['lon_3413'],df_20102018['lat_3413'],s=2,c='blue')
 ax1.scatter(df_20102018_clipped_dropped['lon_3413'],df_20102018_clipped_dropped['lat_3413'],s=1,c='green')
-
-pdb.set_trace()
 plt.close()
 
 print('--- Extract elevation ---')

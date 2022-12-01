@@ -65,6 +65,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
                     df_for_elev_temp['lat_3413'],
                     s=0.1,color='#737373')
     
+    #TO UNCOMMENT FOR NEW GENERATION!!!!!
     '''
     #Save pandas dataframe into excel
     path_transects='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/transects_Fig2/'
@@ -480,10 +481,9 @@ CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 ### -------------------------- Load shapefiles --------------------------- ###
 
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/'
-
-#Load all 2010-2018 data without spatial aggregation
-df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv',delimiter=',',decimal='.')
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/dataset_for_Fig3/clipped/'
+#Load all 2010-2018 data
+df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate_cleaned.csv',delimiter=',',decimal='.')
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2010_2018_csv["lat"]))
@@ -600,13 +600,15 @@ ax1.text(CW_rignotetal.centroid.x-175000,CW_rignotetal.centroid.y-40000,np.asarr
 ax1.text(NW_rignotetal.centroid.x-50000,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 ax1.text(NO_rignotetal.centroid.x-40000,NO_rignotetal.centroid.y-230000,np.asarray(NO_rignotetal.SUBREGION1)[0])
 
-#plt.scatter(df_spatially_aggregated_2010['avg_lon_3413'],df_spatially_aggregated_2010['avg_lat_3413'],c=df_spatially_aggregated_2010['avg_20m_icecontent'],s=0.2)
-
+pdb.set_trace()
 #Load 2010-2018 elevation dataset
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/' 
-f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
+f_20102018 = open(path+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
+
+#Where ice content is higher than 16m, replace the ice content by 16!
+#This should be done in df_2010_2018_elevation
+pdb.set_trace()
 
 #Plot data
 plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')

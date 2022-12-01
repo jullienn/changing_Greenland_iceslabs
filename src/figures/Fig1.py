@@ -163,55 +163,75 @@ def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plo
     return summary_area
 
 
-def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,time_period,label_panel):
+def draw_map(ax_plot,panel_label):
     
-    #Display GrIS drainage bassins
-    NO_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5)
-    NE_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
-    SE_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
-    SW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
-    CW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
-    NW_rignotetal.plot(ax=ax_plot,color='white', edgecolor='black',linewidth=0.5) 
+    ###################### From Tedstone et al., 2022 #####################
+    #from plot_map_decadal_change.py
+    # Define the CartoPy CRS object.
+    int_crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+    ###################### From Tedstone et al., 2022 #####################
     
-    if (time_period=='2010'):
-        #Issue, there are 2010 and '2010': take both
-        #Display flightlines of this time period    
-        ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==2010]['lon_3413'],
-                        flightlines_20022018[flightlines_20022018.str_year==2010]['lat_3413'],
-                        s=1,marker='.',linewidths=0,c='#d9d9d9')
-        
-        #Display flightlines of this time period    
-        ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year=='2010']['lon_3413'],
-                        flightlines_20022018[flightlines_20022018.str_year=='2010']['lat_3413'],
-                        s=1,marker='.',linewidths=0,c='#d9d9d9',label='Flightlines')
-    else:
-        #Display flightlines of this time period    
-        ax_plot.scatter(flightlines_20022018[flightlines_20022018.str_year==time_period]['lon_3413'],
-                        flightlines_20022018[flightlines_20022018.str_year==time_period]['lat_3413'],
-                        s=1,marker='.',linewidths=0,c='#d9d9d9',label='Flightlines')
-        
+    #Draw plot of GrIS map
+    ax_plot.coastlines(edgecolor='black',linewidth=0.075)
+    #Display GrIS drainage bassins limits
+    GrIS_drainage_bassins.plot(ax=ax_plot,color='none', edgecolor='black',linewidth=0.075)
+    #Display region name
+    ax_plot.text(NO_rignotetal.centroid.x-125000,NO_rignotetal.centroid.y-200000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+    ax_plot.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+    ax_plot.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
+    ax_plot.text(SW_rignotetal.centroid.x-325000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+    ax_plot.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+    ax_plot.text(NW_rignotetal.centroid.x-200000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+    
     '''
-    #Display firn aquifers
-    ax_plot.scatter(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413'],s=1,color='#238b45',label='Firn aquifers')
+    ax_plot.set_xlim(-693308, 912076)
+    ax_plot.set_ylim(-3440844, -541728)
     '''
+    # x0, x1, y0, y1
+    ax_plot.set_extent([-692338, 916954, -3392187, -627732], crs=int_crs)
+
+    ###################### From Tedstone et al., 2022 #####################
+    #from plot_map_decadal_change.py
+    gl=ax_plot.gridlines(draw_labels=True, xlocs=[-35, -50], ylocs=[65,75], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
+    #Customize lat labels
+    gl.ylabels_right = False
+    gl.xlabels_top = False
+    ax_plot.axis('off')
+    ###################### From Tedstone et al., 2022 #####################
     
-    if (time_period=='2002-2003'):
+    #Add panel labels
+    ax_plot.text(0, 1, panel_label,zorder=10, ha='center', va='center', transform=ax_plot.transAxes, weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    
+    if (panel_label == 'a'):
+        #Display scalebar
+        scale_bar(ax_plot, (0.745, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+        #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
+        
+    return
+
+def display_flightlines(ax_plot,flightlines_to_display):
+    #Display flightlines of this time period    
+    ax_plot.scatter(flightlines_to_display['lon_3413'],
+                    flightlines_to_display['lat_3413'],
+                    s=1,marker='.',linewidths=0,c='#d9d9d9',label='Flightlines')
+    return
+
+def display_iceslabs(ax_plot,iceslabs_20022018,timing):
+    
+    if (timing=='2002-2003'):
         #Display 2002-2003 iceslabs
-        ax_plot.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
-                        df_all[df_all.str_year=='2002-2003']['lat_3413'],
+        ax_plot.scatter(iceslabs_20022018['lon_3413'],
+                        iceslabs_20022018['lat_3413'],
                         s=3,marker='.',color='#8c6bb1',linewidths=0,
                         label='2002-2003 ice slabs')
-        color_legend_display='#8c6bb1'
     else:
         #Display iceslabs thickness of the corresponding time period
-        lik_blues=ax_plot.scatter(df_all[df_all.str_year==time_period]['lon_3413'],
-                                  df_all[df_all.str_year==time_period]['lat_3413'],
-                                  c=df_all[df_all.str_year==time_period]['20m_ice_content_m'],
-                                  s=3,marker='.',cmap=plt.get_cmap('Blues'),linewidths=0,
-                                  label=time_period+' ice slabs')        
-        color_legend_display='#4292c6'
-    
-    if (time_period=='2017-2018'):
+        lik_blues=ax_plot.scatter(iceslabs_20022018['lon_3413'],
+                                  iceslabs_20022018['lat_3413'],
+                                  c=iceslabs_20022018['20m_ice_content_m'],
+                                  s=3,marker='.',cmap=plt.get_cmap('Blues'),linewidths=0)  
+        
+    if (timing=='2017-2018'):
         #Inspired from this https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_inset_locator.html
         axins1 = inset_axes(ax_plot,
                             width="5%",  # width = 50% of parent_bbox width
@@ -224,46 +244,25 @@ def plot_pannels_supp(ax_plot,flightlines_20022018,df_firn_aquifer_all,df_all,ti
         cbar_blues=plt.colorbar(lik_blues, ax=ax_plot, cax=axins1, shrink=1,orientation='vertical')
         cbar_blues.set_label('Total ice content [m]',fontsize=20)
         cbar_blues.ax.tick_params(labelsize=20)#This is from https://stackoverflow.com/questions/15305737/python-matplotlib-decrease-size-of-colorbar-labels
-    #Add label
-    ax_plot.text(0, 1, label_panel,zorder=10, ha='center', va='center', transform=ax_plot.transAxes, weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    return
 
-    '''
-    #Legend display: this is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-    # Create dummy Line2D objects for legend
-    h1 = Line2D([0], [0], marker='o', markersize=np.sqrt(20), color='#d9d9d9', linestyle='None')
-    h2 = Line2D([0], [0], marker='o', markersize=np.sqrt(20), color=color_legend_display, linestyle='None')
+def plot_pannels_supp(axplot_indiv,axplot_cum,flightlines_20022018,df_firn_aquifer_all,df_all,time_period_function,label_panel_top,label_panel_bottom):
+        
+    #Generate maps
+    draw_map(axplot_indiv,label_panel_top)
+    draw_map(axplot_cum,label_panel_top)
     
-    # Plot legend.
-    ax_plot.legend([h1, h2], ['Flightlines', time_period+' ice slabs'], loc="lower left", markerscale=2,
-               scatterpoints=1, fontsize=10)
-    '''
+    #Display flightlines
+    if (time_period_function=='2010'):
+        display_flightlines(axplot_indiv,flightlines_20022018[np.logical_or(flightlines_20022018.str_year==time_period_function,flightlines_20022018.str_year==int(time_period_function))])
+    else:
+        display_flightlines(axplot_indiv,flightlines_20022018[flightlines_20022018.str_year==time_period_function])
     
-    ###################### From Tedstone et al., 2022 #####################
-    #from plot_map_decadal_change.py
-    # Define the CartoPy CRS object.
-    crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
-    # This can be converted into a `proj4` string/dict compatible with GeoPandas
-    crs_proj4 = crs.proj4_init
-    # x0, x1, y0, y1
-    ax_plot.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
-    gl=ax_plot.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, color='#969696',linewidth=0.5)
+    #Display ice slabs
+    display_iceslabs(axplot_indiv,df_all[df_all.str_year==time_period_function],time_period_function)
+    display_iceslabs(axplot_cum,df_all[df_all.year<=int(time_period_function[-4:])],time_period_function)
     
-    #Customize lat labels
-    gl.ylabels_right = False
-            
-    ax_plot.set_title(time_period,weight='bold',fontsize=20)
-    ax_plot.axis('off')
-    #scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
-    ###################### From Tedstone et al., 2022 #####################
-    
-    #Display region name on panel a 
-    ax_plot.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
-    ax_plot.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
-    ax_plot.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+20000,np.asarray(SE_rignotetal.SUBREGION1)[0])
-    ax_plot.text(SW_rignotetal.centroid.x,SW_rignotetal.centroid.y+20000,np.asarray(SW_rignotetal.SUBREGION1)[0])
-    ax_plot.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
-    ax_plot.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
-
+    return
 
 def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs):
     
@@ -437,47 +436,47 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     plot_panelc='TRUE'
     
     if (plot_fig_S6 == 'TRUE'):
+        
         # -------------------------------- FIG S1 --------------------------------
         ###################### From Tedstone et al., 2022 #####################
         #from plot_map_decadal_change.py
         # Define the CartoPy CRS object.
         crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
-        
         # This can be converted into a `proj4` string/dict compatible with GeoPandas
         crs_proj4 = crs.proj4_init
         ###################### From Tedstone et al., 2022 #####################
-        plt.rcParams.update({'font.size': 20})
-
-        fig = plt.figure(figsize=(14,50))
-        gs = gridspec.GridSpec(7, 25)
+        
+        plt.rcParams.update({'font.size': 15})
+        plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+        fig = plt.figure()
+        gs = gridspec.GridSpec(14, 25)
+        gs.update(hspace = 2.5)
         gs.update(wspace = 2.5)
-        #gs.update(wspace=0.001)
         #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-        ax1 = plt.subplot(gs[0:7, 0:5],projection=crs)
-        ax2 = plt.subplot(gs[0:7, 5:10],projection=crs)
-        ax3 = plt.subplot(gs[0:7, 10:15],projection=crs)
-        ax4 = plt.subplot(gs[0:7, 15:20],projection=crs)
-        ax5 = plt.subplot(gs[0:7, 20:25],projection=crs)
+        ax1_indiv = plt.subplot(gs[0:7, 0:5],projection=crs)
+        ax2_indiv = plt.subplot(gs[0:7, 5:10],projection=crs)
+        ax3_indiv = plt.subplot(gs[0:7, 10:15],projection=crs)
+        ax4_indiv = plt.subplot(gs[0:7, 15:20],projection=crs)
+        ax5_indiv = plt.subplot(gs[0:7, 20:25],projection=crs)
         
-        ax1.set_facecolor('white')
-        ax2.set_facecolor('white')
-        ax3.set_facecolor('white')
-        ax4.set_facecolor('white')
-        ax5.set_facecolor('white')
-                
-        plot_pannels_supp(ax1,flightlines_20022018,df_firn_aquifer_all,df_all,'2002-2003','a')
-        plot_pannels_supp(ax2,flightlines_20022018,df_firn_aquifer_all,df_all,'2010','b')
-        plot_pannels_supp(ax3,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012','c')
-        plot_pannels_supp(ax4,flightlines_20022018,df_firn_aquifer_all,df_all,'2013-2014','d')
-        plot_pannels_supp(ax5,flightlines_20022018,df_firn_aquifer_all,df_all,'2017-2018','e')
+        ax1_cum = plt.subplot(gs[7:14, 0:5],projection=crs)
+        ax2_cum = plt.subplot(gs[7:14, 5:10],projection=crs)
+        ax3_cum = plt.subplot(gs[7:14, 10:15],projection=crs)
+        ax4_cum = plt.subplot(gs[7:14, 15:20],projection=crs)
+        ax5_cum = plt.subplot(gs[7:14, 20:25],projection=crs)
         
-        figManager = plt.get_current_fig_manager()
-        figManager.window.showMaximized()
+        pdb.set_trace()
+        
+        plot_pannels_supp(ax1_indiv,ax1_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2002-2003','a','f')
+        plot_pannels_supp(ax2_indiv,ax2_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2010','b','g')
+        plot_pannels_supp(ax3_indiv,ax3cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012','c','h')
+        plot_pannels_supp(ax4_indiv,ax4_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2013-2014','d','i')
+        plot_pannels_supp(ax5_indiv,ax5_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2017-2018','e','j')
         
         pdb.set_trace()
         
         #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v4/figS6.png',dpi=300)
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v5/figS6.png',dpi=300)
         # -------------------------------- FIG S1 --------------------------------
     
     # --------------------------------- FIG 1 --------------------------------
@@ -490,20 +489,20 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     ###################### From Tedstone et al., 2022 #####################
         
     #Prepare Fig. 1
-    fig = plt.figure(figsize=(14,50))
+    plt.rcParams.update({'font.size': 15})
+    plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+    fig = plt.figure()
+    
     gs = gridspec.GridSpec(20, 16)
     gs.update(wspace = 0.5)
     #gs.update(wspace=0.001)
     #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-    axmap = plt.subplot(gs[0:20, 0:10],projection=crs)
-    axNO = plt.subplot(gs[0:4, 10:13],projection=crs)
-    axNE = plt.subplot(gs[0:4, 13:16],projection=crs)
-    axNW = plt.subplot(gs[4:10, 10:12],projection=crs)
-    axCW = plt.subplot(gs[4:10, 12:14],projection=crs)
-    axSW = plt.subplot(gs[4:10, 14:16],projection=crs)
-    axelev = plt.subplot(gs[10:20, 10:16])
+    axmap = plt.subplot(gs[0:20, 0:11],projection=crs)
+    axelev = plt.subplot(gs[0:20, 11:16])
     
-    if (plot_panela=='TRUE'):
+    plot_panela_old='FALSE'
+    
+    if (plot_panela_old=='TRUE'):
         # -------------------------------- PANEL A --------------------------------
         axmap.set_facecolor('white')
         
@@ -724,8 +723,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         
         hull_computation='FALSE'
         likelihood_display='FALSE'
-        shapefile_display='TRUE'        
-
+        shapefile_display='TRUE'
+        
         # -------------------------------- PANELS C -------------------------------        
         if (hull_computation=='TRUE'):
             #Panel C
@@ -1164,22 +1163,16 @@ import seaborn as sns
 sns.set_theme(style="whitegrid")
 from scalebar import scale_bar
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-
+import rasterio
+from rasterio.plot import show
+from scalebar import scale_bar
 
 #Set fontsize plot
 plt.rcParams.update({'font.size': 10})
-
-
 ### -------------------------- Load GrIS DEM ----------------------------- ###
 #https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
-import rasterio
-from rasterio.plot import show
-
 path_GrIS_DEM = r'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
 GrIS_DEM = rasterio.open(path_GrIS_DEM)
-
-#fig, axs = plt.subplots()
-#show(img,ax=axs)
 ### -------------------------- Load GrIS DEM ----------------------------- ###
 
 ### -------------------------- Load shapefiles --------------------------- ###
@@ -1189,7 +1182,7 @@ IceBridgeArea_Shape=gpd.read_file(path_IceBridgeArea_Shape+'IceBridgeArea_Shape.
 
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp')
 
 #Extract indiv regions and create related indiv shapefiles
 NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
@@ -1228,12 +1221,14 @@ f_20022003 = open(path_df_with_elevation+'2002_2003/df_2002_2003_with_elevation_
 df_2002_2003 = pickle.load(f_20022003)
 f_20022003.close()
 
-#Load 2010-2018 high estimate
+#Load cleaned 2010-2018 high estimate
+#f_20102018_high = open(path_df_with_elevation+'final_excel/high_estimate/clipped/df_20102018_with_elevation_high_estimate_rignotetalregions_cleaned', "rb")
 f_20102018_high = open(path_df_with_elevation+'final_excel/high_estimate/df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
 df_2010_2018_high = pickle.load(f_20102018_high)
 f_20102018_high.close()
 
-#Load 2010-2018 low estimate
+#Load cleaned 2010-2018 low estimate
+#f_20102018_low = open(path_df_with_elevation+'final_excel/low_estimate/clipped/df_20102018_with_elevation_low_estimate_rignotetalregions_cleaned', "rb")
 f_20102018_low = open(path_df_with_elevation+'final_excel/low_estimate/df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
 df_2010_2018_low = pickle.load(f_20102018_low)
 f_20102018_low.close()
@@ -1263,8 +1258,8 @@ df_firn_aquifer_all['lon_3413']=points[0]
 df_firn_aquifer_all['lat_3413']=points[1]
 
 #Load columnal likelihood file likelihood
-path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/'
-df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv',delimiter=',',decimal='.')
+path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/clipped/'
+df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate_cleaned.csv',delimiter=',',decimal='.')
 #Transform miege coordinates from WGS84 to EPSG:3413
 points=transformer.transform(np.asarray(df_thickness_likelihood_20102018["lon"]),np.asarray(df_thickness_likelihood_20102018["lat"]))
 
