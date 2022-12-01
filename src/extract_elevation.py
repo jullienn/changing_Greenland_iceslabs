@@ -20,7 +20,7 @@ import rasterio
 from rasterio.plot import show
 
 #Choose high end or low end
-dataset_type='low'
+dataset_type='high'
 print('Processing dataset:',dataset_type)
 #Define path
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/'
@@ -88,6 +88,7 @@ df_2002_2003['Track_name']=Track_name
 ### --------------------- Load 2010-2018 ice slabs ----------------------- ###
 csv_name=dataset_type+'_estimate'
 #Load the data
+#filename_20102018=path+'final_excel/dataset_for_Fig3/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_Fig3_'+csv_name+'.csv'#For Fig3
 filename_20102018=path+'final_excel/'+csv_name+'/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_'+csv_name+'.csv'
 df_20102018 = pd.read_csv(filename_20102018, sep=",", decimal='.')
 '''
@@ -129,6 +130,7 @@ df_20102018_clipped_dropped = df_20102018_clipped_dropped[~pd.isna(df_20102018_c
 ### -------------------- Save 2010-2018 clipped data ---------------------- ###
 #Drop useless columns
 df_20102018_clipped_dropped=df_20102018_clipped_dropped.drop(columns=['coords','index_right','id','indexes'])
+#filename_tosave=path+'final_excel/dataset_for_Fig3/clipped/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_Fig3_'+csv_name+'_cleaned.csv'#For Fig3
 filename_tosave=path+'final_excel/'+csv_name+'/clipped/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_'+csv_name+'_cleaned.csv'
 df_20102018_clipped_dropped.to_csv(filename_tosave)
 ### -------------------- Save 2010-2018 clipped data ---------------------- ###
@@ -208,6 +210,7 @@ for i in df_20102018_clipped_dropped.index:
 #For RT3!
 filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/df_20102018_with_elevation_for_RT3_masked_rignotetalregions'
 '''
+#filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/dataset_for_Fig3/clipped/df_20102018_with_elevation_Fig3_'+csv_name+'_rignotetalregions_cleaned'#For Fig3
 filename_tosave='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/'+csv_name+'/clipped/df_20102018_with_elevation_'+csv_name+'_rignotetalregions_cleaned'
 
 outfile= open(filename_tosave, "wb" )

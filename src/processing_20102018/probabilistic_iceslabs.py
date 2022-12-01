@@ -72,13 +72,13 @@ generate_probability_iceslabs_files='TRUE'
 apply_dry_firn_exclusions='TRUE'
 generate_excel_file='TRUE'
 RT3='FALSE'
+Fig3='FALSE'
 
-'''
 #Identify all the datetraces to process
+'''
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
-
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Read dry firn exclusions file
@@ -89,7 +89,6 @@ DF_exclusions = DF_exclusions[0].str.split(' ', expand=True)
 len_exclusions = [str(i) for i in np.arange(0,DF_exclusions.shape[1]-1)] #from https://www.geeksforgeeks.org/python-converting-all-strings-in-list-to-integers/
 colnames=['indiv_dates']+len_exclusions #from https://stackoverflow.com/questions/1720421/how-do-i-concatenate-two-lists-in-python
 DF_exclusions.columns=colnames
-
 
 if (generate_probability_iceslabs_files=='TRUE'):
     #I. Define path, open datetracks and define desired quantiles
@@ -271,9 +270,8 @@ if (generate_excel_file=='TRUE'):
     
     #Define speed
     v= 299792458 / (1.0 + (0.734*0.873/1000.0))
-    
-    #Define path where data are stored
     '''
+    #Define path where data are stored
     path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
     path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
     path_mask='C:/Users/jullienn/switchdrive/Private/research\RT1/final_dataset_2002_2018/i_out_from_IceBridgeGPR_Manager_v2.py/pickles_and_images/Boolean Array Picklefiles/'
@@ -283,9 +281,11 @@ if (generate_excel_file=='TRUE'):
     
     #Define filename
     '''
-    filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021_for_RT3_masked.csv'
+    #filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/dataset_for_Fig3/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_Fig3_high_estimate.csv'#For Fig.3
+    filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv'
     '''
     filename_excel_output='/flash/jullienn/data/threshold_processing_output/probability_iceslabs/after_DF_appliance/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_low_estimate.csv'
+    
     #Open filename (same procedure as MacFerrin et al., 2019)
     fout = open(filename_excel_output, 'w')
     header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m,likelihood\n"
@@ -396,7 +396,7 @@ if (generate_excel_file=='TRUE'):
         #We must derive a low end and high end of ice slabs likelihood
         #for low end: slabs identified in 15 quantiles out of 15 => likelihood = 15/15=1
         #for high end: slabs identified in 1 quantile out of 15 => likelihood = 1/15 = 0.06667 = 0.0665
-        index_prob=indiv_probability_slice>=1
+        index_prob=indiv_probability_slice>=0.0665
         
         #Create slice full of nans
         slice_for_calculation=np.zeros((indiv_probability_slice.shape[0],indiv_probability_slice.shape[1]))
@@ -478,7 +478,7 @@ if (generate_excel_file=='TRUE'):
             
         assert len(lats) == len(lons) == len(ice_contents) == len(columnal_likelihoods)
         tracenums = np.arange(len(lats), dtype=np.int64)
-    
+                
         tracecount = 0
         for lat, lon, tracenum, distance, ice_content, columnal_likelihood in zip(lats, lons, tracenums, distances, ice_contents, columnal_likelihoods):
             if (RT3=='TRUE'):
@@ -486,6 +486,12 @@ if (generate_excel_file=='TRUE'):
                 line = "{0},{1},{2},{3},{4},{5},{6}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content, columnal_likelihood)
                 fout.write(line)
                 tracecount += 1
+            elif (Fig3 == 'TRUE'):
+                # Record ONLY traces that have > 1 m ice content in them.  We're not interested in thinner stuff here.
+                if 1.0 <= ice_content:
+                    line = "{0},{1},{2},{3},{4},{5},{6}\n".format(indiv_trace[0], tracenum, lat, lon, distance, ice_content, columnal_likelihood)
+                    fout.write(line)
+                    tracecount += 1
             else:
                 # Record ONLY traces that have > 1 m ice content in them.  We're not interested in thinner stuff here.
                 # If it has > 16 m ice content (80%), we also omit it, just to keep pure ice out of it.
