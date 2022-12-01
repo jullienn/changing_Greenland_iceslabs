@@ -281,6 +281,7 @@ if (generate_excel_file=='TRUE'):
     
     #Define filename
     '''
+    #filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT3/export_RT1_for_RT3/Ice_Layer_Output_Thicknesses_Likelihood_2010_2018_jullienetal2021_for_RT3_masked.csv'#For RT3
     #filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/dataset_for_Fig3/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_Fig3_high_estimate.csv'#For Fig.3
     filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv'
     '''
