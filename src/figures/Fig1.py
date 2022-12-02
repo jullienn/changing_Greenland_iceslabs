@@ -225,7 +225,12 @@ def display_iceslabs(ax_plot,iceslabs_20022018,timing):
     #Display 2002-2003 iceslabs
     ax_plot.scatter(iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lon_3413'],
                     iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lat_3413'],
-                    s=10,marker='.',color='#8c6bb1',linewidths=0,
+                    s=12,marker='.',color='#black',linewidths=0)
+    
+    #Display 2002-2003 iceslabs
+    ax_plot.scatter(iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lon_3413'],
+                    iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lat_3413'],
+                    s=10,marker='.',color='#ffb300',linewidths=0,
                     label='2002-2003 ice slabs')
 
     if (timing!='2002-2003'):
@@ -348,7 +353,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
-    plot_fig_S6='FALSE'
+    plot_fig_S6='TRUE'
     plot_standalone_map='TRUE'
     plot_panela='TRUE'
     plot_panelb='TRUE'
@@ -403,8 +408,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         # -------------------------------- FIG S6 --------------------------------
     
     if (plot_standalone_map=='TRUE'):
-        pdb.set_trace()
-        
+                
         #Prepare supp map (old Fig. 1)
         plt.rcParams.update({'font.size': 15})
         plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
@@ -503,8 +507,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     gs.update(wspace = 0)
     #gs.update(wspace=0.001)
     #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-    axmap = plt.subplot(gs[0:20, 0:11],projection=crs)
-    axelev = plt.subplot(gs[0:20, 11:16])
+    axmap = plt.subplot(gs[0:20, 0:5],projection=crs)
+    axelev = plt.subplot(gs[0:20, 7:12])
 
     if (plot_panelb=='TRUE'):
         # -------------------------------- PANEL B --------------------------------    
@@ -573,11 +577,11 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
 
         #Barplot inspired from https://stackoverflow.com/questions/10369681/how-to-plot-bar-graphs-with-same-x-coordinates-side-by-side-dodged
         #Arguments for barplot
-        width = 0.1# the width of the bars: can also be len(x) sequence
+        width = 0.15# the width of the bars: can also be len(x) sequence
         N=4 #Number of regions
         ind= np.arange(N) #Position of regions
                 
-        axelev.bar(ind, dplot_20022003, width, label='2002-2003',color='#2ECC71', yerr= dplotstd_20022003) #yerr=men_std
+        axelev.bar(ind, dplot_20022003, width, label='2002-2003',color='#ffb300', yerr= dplotstd_20022003) #yerr=men_std
         axelev.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
         axelev.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
         axelev.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd', yerr= dplotstd_20132014)
@@ -597,14 +601,17 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         from matplotlib.patches import Patch
         from matplotlib.lines import Line2D
         
-        legend_elements = [Patch(facecolor='#2ECC71',label='2002-2003'),
+        legend_elements = [Patch(facecolor='#ffb300',label='2002-2003'),
                            Patch(facecolor='#9ecae1',label='2010'),
                            Patch(facecolor='#6baed6',label='2011-2012'),
                            Patch(facecolor='#3182bd',label='2013-2014'),
                            Patch(facecolor='#d73027',label='2017-2018')]#,
                            #Line2D([0], [0], color='k', lw=2, label='Standard deviation around the mean')]
         axelev.legend(handles=legend_elements,loc='upper left')
-        plt.legend()        
+        plt.legend()
+        #Display panels label
+        axelev.text(-0.15, 0.95,'b',zorder=10, ha='center', va='center', transform=axelev.transAxes, weight='bold',fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        
         # -------------------------------- PANEL B --------------------------------    
     
     if (plot_panela=='TRUE'):
@@ -742,8 +749,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             iceslabs_jullien_highend_20102018.plot(ax=axmap,color='#d73027', edgecolor='none',linewidth=0.5)
             
             # --- 2010-11-12
-            iceslabs_jullien_highend_2010_11_12.plot(ax=axmap,color='#4575b4', edgecolor='none',linewidth=0.5)
-            
+            iceslabs_jullien_highend_2010_11_12.plot(ax=axmap,color='#6baed6', edgecolor='none',linewidth=0.5)
+            #original color: #4575b4
             #Flightlines            
             # --- 2013-2014
             axmap.scatter(flightlines_20022018[flightlines_20022018.str_year=='2013-2014']['lon_3413'],
@@ -801,7 +808,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             
             #Custom legend myself            
             legend_elements = [Patch(facecolor='#d73027',label='2010-18 ice slabs extent'),
-                               Patch(facecolor='#4575b4',label='2010-12 ice slabs extent'),
+                               Patch(facecolor='#6baed6',label='2010-12 ice slabs extent'),
                                Line2D([0], [0], marker='.', linestyle='none', label='2002-2003 ice slabs', color='#ffb300'),
                                Line2D([0], [0], marker='.', linestyle='none', label='Firn aquifers', color='#238443'),
                                Line2D([0], [0], color='#969696', lw=2, label='flightlines 2013-14-17-18'),
@@ -832,15 +839,15 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                 axmap.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+' %')
     
     # -------------------------------- PANEL A --------------------------------
-        
-    #Display panels label
-    axelev.text(0, 1.05,'b',zorder=10, ha='center', va='center', transform=axelev.transAxes, weight='bold',fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    
     pdb.set_trace()
     
     #Save figure
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1_v5.png',dpi=1000,bbox_inches='tight')
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1.png',dpi=1000,bbox_inches='tight')
     #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
+
+#14h05-
+
+
 
 #Import packages
 #import rasterio
