@@ -461,7 +461,7 @@ NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 ### ---------------------- Load 2010-18 ice slabs  ------------------------ ###
 path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/' 
 #Load 2010-2018 high estimate
-f_20102018_high = open(path_df_with_elevation+'high_estimate/df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
+f_20102018_high = open(path_df_with_elevation+'high_estimate/clipped/df_20102018_with_elevation_high_estimate_rignotetalregions_cleaned', "rb")
 df_2010_2018_high = pickle.load(f_20102018_high)
 f_20102018_high.close()
 ### ---------------------- Load 2010-18 ice slabs  ------------------------ ###

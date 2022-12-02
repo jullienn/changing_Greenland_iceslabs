@@ -225,7 +225,7 @@ def display_iceslabs(ax_plot,iceslabs_20022018,timing):
     #Display 2002-2003 iceslabs
     ax_plot.scatter(iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lon_3413'],
                     iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lat_3413'],
-                    s=12,marker='.',color='#black',linewidths=0)
+                    s=12,marker='.',color='black',linewidths=0)
     
     #Display 2002-2003 iceslabs
     ax_plot.scatter(iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lon_3413'],
@@ -845,9 +845,15 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1.png',dpi=1000,bbox_inches='tight')
     #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 
-#14h05-
+#14h05-15h30
 
+#Fig S1: 2002-03 ice slabs in orange??
+#Fig S2 (Fig S1.py): load new ice slabs dataset, and display shapefile insteand in red. Display scale!
 
+#To write in notebook:
+#   1. did check all the figures that needed adaptation after cleaned dataset generation
+#   2. did modify in all the figures codes the paths to load the cleaned dataset.
+#   3. did generated the new Fig. 1, Fis S6, and standalone maps: they are done, they must now be included into the paper
 
 #Import packages
 #import rasterio

@@ -470,7 +470,7 @@ plt.rcParams.update({'font.size': 10})
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp') #the regions are the last rows of the shapefile
 
 #Extract indiv regions and create related indiv shapefiles
 NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
@@ -602,7 +602,7 @@ ax1.text(NO_rignotetal.centroid.x-40000,NO_rignotetal.centroid.y-230000,np.asarr
 
 pdb.set_trace()
 #Load 2010-2018 elevation dataset
-f_20102018 = open(path+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
+f_20102018 = open(path+'df_20102018_with_elevation_high_estimate_rignotetalregions_cleaned', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 

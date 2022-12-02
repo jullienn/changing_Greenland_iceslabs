@@ -36,8 +36,8 @@ dictionnary_case_study={2010:['Data_20100515_01_007.mat','Data_20100515_01_008.m
                         2018:['Data_20180421_01_004.mat','Data_20180421_01_005.mat','Data_20180421_01_006.mat','Data_20180421_01_007.mat']}
 
 #Load all 2010-2018 data without spatial aggregation
-path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/'
-df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate.csv',delimiter=',',decimal='.')
+path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/clipped/'
+df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate_cleaned.csv',delimiter=',',decimal='.')
 
 #Define transformer for coordinates transform from "EPSG:4326" to "EPSG:32622" (=UTM 22N)
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:32622", always_xy=True)
