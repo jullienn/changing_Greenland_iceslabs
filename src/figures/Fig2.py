@@ -430,7 +430,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
             trafic_light_indiv_color=df_colnames_trafic_light[i]
             #Define the color in which to display the ice lens
             if (trafic_light_indiv_color[0:3]=='gre'):
-                color_to_display='#006d2c'#'#00441b'
+                color_to_display='#ffb300'#'#00441b'
             elif (trafic_light_indiv_color[0:3]=='ora'):
                 color_to_display='#fed976'
                 continue
@@ -1111,7 +1111,7 @@ ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2
 ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=2,facecolors='#fed976', edgecolors='#fed976')
 '''
 #3. Green
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=2,facecolors='#006d2c', edgecolors='#006d2c')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=2,facecolors='#ffb300', edgecolors='#ffb300')
 '''
 #Purple
 ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=2,facecolors='purple', edgecolors='purple')
@@ -1129,7 +1129,7 @@ legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='bl
                    Line2D([0], [0], label='2002-2003 flightlines', color='#969696'),
                    Line2D([0], [0], label='Transects of interest', color='k', linewidth=3),
                    Patch(facecolor='#d73027',label='2010-2018 ice slabs'),
-                   Line2D([0], [0], label='2002-2003 ice slabs', color='#006d2c', linewidth=3)]
+                   Line2D([0], [0], label='2002-2003 ice slabs', color='#ffb300', linewidth=3)]
 #Add legend
 ax1.legend(handles=legend_elements,loc='upper left',fontsize=12,framealpha=1,bbox_to_anchor=(-0.019, 1.008))
 plt.legend()
@@ -1173,14 +1173,13 @@ scale_bar(ax1, (0.32, 0.0425), 50, 3,0)# axis, location (x,y), length, linewidth
 plt.show()
 pdb.set_trace()
 
-'''
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
 fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v6/Fig_S1.png'
 plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
-'''
+
 ######################## Save 2002-2003 radargram data ########################
 
 if (save_2002_2003_data=='TRUE'):
