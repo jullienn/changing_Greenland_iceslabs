@@ -846,20 +846,20 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 
 #14h05-15h38
+#9h20-10h35
 
-#Fig S1: 2002-03 ice slabs in orange??
-#Fig S2 (Fig S1.py): load new ice slabs dataset, and display shapefile insteand in red. Display scale!
+#Fig S2 (Fig S1.py):  Display scale! Add inset map, display radargram section next to profile
 
 #To write in notebook:
 #   1. did check all the figures that needed adaptation after cleaned dataset generation
 #   2. did modify in all the figures codes the paths to load the cleaned dataset.
 #   3. did generated the new Fig. 1, Fis S6, and standalone maps: they are done, they must now be included into the paper
 #   4. I should rerun figures that have already been improved to check whether there is any difference or not.
-
+#   5. Changed display of ice slabs in Fig 2 (from green to orange)
+#   6. Fig. S1: now display 2010-2018 ice slabs high end shapefile instead of data points
 #To do:
-#- Fig. 2 orange: done.
 #- Fig. 2 save and add inset map
-#- send figures to andrew and tell him I wont make it
+#- send Fig 1 and 2 to andrew and tell him I wont make it
 
 #Import packages
 #import rasterio

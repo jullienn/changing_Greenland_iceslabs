@@ -458,13 +458,10 @@ CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 ### -------------------------- Load shapefiles --------------------------- ###
 
-### ---------------------- Load 2010-18 ice slabs  ------------------------ ###
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/' 
-#Load 2010-2018 high estimate
-f_20102018_high = open(path_df_with_elevation+'high_estimate/clipped/df_20102018_with_elevation_high_estimate_rignotetalregions_cleaned', "rb")
-df_2010_2018_high = pickle.load(f_20102018_high)
-f_20102018_high.close()
-### ---------------------- Load 2010-18 ice slabs  ------------------------ ###
+### -------------- Load 2010-18 high-end ice slabs shapefile -------------- ###
+path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
+iceslabs_jullien_highend_20102018=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
+### -------------- Load 2010-18 high-end ice slabs shapefile -------------- ###
 
 #Define the working environment
 path= 'C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
@@ -856,6 +853,7 @@ for folder_year in folder_years:
                     ax2.set_ylim(radar_slice.shape[0],-5)
                     ax2.text(0.04, 0.97,'b',ha='center', va='center', transform=ax2.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
                     #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
                     ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
                     color_plot='#2166ac'
@@ -874,6 +872,7 @@ for folder_year in folder_years:
                     ax3.set_yticklabels([])
                     ax3.text(0.04, 0.97,'c',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
                     #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
                     ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
                     color_plot='#feb24c'
@@ -892,6 +891,7 @@ for folder_year in folder_years:
                     ax4.set_yticklabels([])
                     ax4.text(0.04, 0.97,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
                     #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
                     ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
                     color_plot='#c51b8a'
@@ -910,6 +910,7 @@ for folder_year in folder_years:
                     ax5.set_yticklabels([])
                     ax5.text(0.04, 0.97,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
                     #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
                     ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
                     color_plot='#54278f'
@@ -928,6 +929,7 @@ for folder_year in folder_years:
                     ax6.set_yticklabels([])
                     ax6.text(0.04, 0.97,'f',ha='center', va='center', transform=ax6.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
                     #Display sectors of interest
+                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
                     ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
                     #Finalize
@@ -945,13 +947,14 @@ for folder_year in folder_years:
                     #Display contours
                     cont=ax7.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1500,2750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.25)
                     
-                    #Display 2010-2018 high end ice slabs
-                    ax7.scatter(df_2010_2018_high['lon_3413'],df_2010_2018_high['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
-
+                    #Display 2010-2018 high end ice slabs shapefile
+                    iceslabs_jullien_highend_20102018.plot(ax=ax7,color='#d73027', edgecolor='none',linewidth=0.5)
+                    
                     #Display the 2002-2003 trace of interest
                     ax7.scatter(lon_3413,lat_3413,s=7,marker='.',linewidths=0,color='black')
 
                     #Show KAN_U
+                    ax7.scatter(-89205.404,-2522571.489,s=20,c='black',zorder=9)
                     ax7.scatter(-89205.404,-2522571.489,s=15,c='#b2182b',zorder=10)
                     
                     #Add legend
@@ -959,9 +962,10 @@ for folder_year in folder_years:
                     from matplotlib.lines import Line2D
 
                     #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
-                    legend_elements = [Line2D([0], [0], label='Elevation contours', color='#8c510a'),
+                    legend_elements = [Patch(facecolor='#d73027',label='2010-2018 ice slabs'),
                                        Line2D([0], [0], label='Radargram 02/06/2002', color='k'),
-                                       Line2D([0], [0], marker='o', linestyle='none', label='2010-2018 ice slabs', color='#4575b4'),
+                                       Line2D([0], [0], marker='o', linestyle='none', label='10-traces wide section', color='#1a9850'),
+                                       Line2D([0], [0], label='Elevation contours', color='#8c510a'),
                                        Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
 
                     ax7.legend(handles=legend_elements,loc='lower center',fontsize=10)
