@@ -314,6 +314,35 @@ def compute_distances(eastings,northings):
 
     return return_cumsum_distances
 
+def display_profiles(ax_radar,ax_plot,ax_map,start_vertical_cut,end_vertical_cut,radar_data,depths_plot,lon,lat,color_plot,panel_letter):
+    #Display limits of section on radar plot
+    ax_radar.axvline(start_vertical_cut,color=color_plot)
+    ax_radar.axvline(end_vertical_cut,color=color_plot)
+                            
+    #display radar data in the background - this is from Fig3.py
+    cb=ax_plot.pcolor(np.arange(-4.5,5.5),depths_plot[0:99],radar_data[:,start_vertical_cut:end_vertical_cut],cmap=plt.get_cmap('gray'))
+    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
+    cb.set_clim(perc_lower_end,perc_upper_end)
+    
+    #Display limits of section on profile plot
+    ax_plot.axvline(-5,color=color_plot)
+    ax_plot.axvline(5,color=color_plot)
+    
+    #If several vertical lines to plot and plot average
+    for i in range (start_vertical_cut,end_vertical_cut+1):
+        ax_plot.plot(radar_data[:,i],depths_plot[0:99],color='0.7')#if colour, color=color_plot,linewidth=1
+    
+    #ax_plot.plot(np.mean(radar_data[:,start_vertical_cut:end_vertical_cut],1),depths_plot[0:99],color='black',linewidth=3)#if colour, linewidth=4
+    ax_plot.plot(np.mean(radar_data[:,start_vertical_cut:end_vertical_cut],1),depths_plot[0:99],color=color_plot,linewidth=2)#if colour, linewidth=3
+    ax_plot.grid()
+    ax_plot.set_xlim(-6,6)
+    ax_plot.set_ylim(depths_plot[0:99][-1]+0.5,-0.5)
+    ax_plot.text(0.04, 0.97,panel_letter,ha='center', va='center', transform=ax_plot.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    #Display sectors of interest
+    ax_map.scatter(lon[0][int((start_vertical_cut+end_vertical_cut)/2)],lat[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
+    ax_map.scatter(lon[0][int((start_vertical_cut+end_vertical_cut)/2)],lat[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
+
+
 #Import packages
 import scipy.io
 import rasterio
@@ -339,6 +368,9 @@ from pyproj import Transformer
 
 import matplotlib.gridspec as gridspec
 import matplotlib.animation as animation
+from scalebar import scale_bar
+import matplotlib.patches as patches
+
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -447,7 +479,7 @@ extent_DEM_SW = [np.asarray(GrIS_DEM_display_SW.x[0]), np.asarray(GrIS_DEM_displ
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp',rows=slice(51,57,1)) #the regions are the last rows of the shapefile
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp')
 
 #Extract indiv regions and create related indiv shapefiles
 NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
@@ -779,7 +811,7 @@ for folder_year in folder_years:
                             #Calculate the corresponding elevation
                             vect_for_elevation=np.append(vect_for_elevation,val)
                     # ---------------------------- Extract elevation ------------------------ #
-                    
+                                        
                     #II.a.2 Create the subplot
                     fig = plt.figure(figsize=(10,12))
                     gs = gridspec.GridSpec(10, 12)
@@ -834,116 +866,31 @@ for folder_year in folder_years:
                     cbar1=fig.colorbar(cb1, cax=axins1, orientation = 'vertical')
                     cbar1.set_label('Signal strength [dB]')
                     
-                    ##Create figure or radar signal evolution
-                    #start_vertical_cut=370
-                    #end_vertical_cut=420
+                    ##Create figure of radar signal evolution
+                    start_profile=277
+                    display_profiles(ax1,ax2,ax7,start_profile,start_profile+10,radar_slice,depths,lon_3413,lat_3413,'#1a9850','b')
                     
-                    color_plot='#1a9850'
-                    start_vertical_cut=277
-                    end_vertical_cut=start_vertical_cut+10
-                    ax1.axvline(start_vertical_cut,color=color_plot)
-                    ax1.axvline(end_vertical_cut,color=color_plot)
-                    #If several vertical lines to plot and plot average
-                    for i in range (start_vertical_cut,end_vertical_cut+1):
-                        ax2.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
-                    ax2.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
-                    ax2.invert_yaxis() #Invert the y axis
-                    ax2.grid()
-                    ax2.set_xlim(-6,6)
-                    ax2.set_ylim(radar_slice.shape[0],-5)
-                    ax2.text(0.04, 0.97,'b',ha='center', va='center', transform=ax2.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-                    #Display sectors of interest
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
-
-                    color_plot='#2166ac'
-                    start_vertical_cut=384
-                    end_vertical_cut=start_vertical_cut+10
-                    ax1.axvline(start_vertical_cut,color=color_plot)
-                    ax1.axvline(end_vertical_cut,color=color_plot)
-                    #If several vertical lines to plot and plot average
-                    for i in range (start_vertical_cut,end_vertical_cut+1):
-                        ax3.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
-                    ax3.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
-                    ax3.invert_yaxis() #Invert the y axis
-                    ax3.grid()
-                    ax3.set_xlim(-6,6)
-                    ax3.set_ylim(radar_slice.shape[0],-5)
+                    start_profile=384
+                    display_profiles(ax1,ax3,ax7,start_profile,start_profile+10,radar_slice,depths,lon_3413,lat_3413,'#2166ac','c')
                     ax3.set_yticklabels([])
-                    ax3.text(0.04, 0.97,'c',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-                    #Display sectors of interest
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
-                    color_plot='#feb24c'
-                    start_vertical_cut=465
-                    end_vertical_cut=start_vertical_cut+10
-                    ax1.axvline(start_vertical_cut,color=color_plot)
-                    ax1.axvline(end_vertical_cut,color=color_plot)
-                    #If several vertical lines to plot and plot average
-                    for i in range (start_vertical_cut,end_vertical_cut+1):
-                        ax4.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
-                    ax4.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
-                    ax4.invert_yaxis() #Invert the y axis
-                    ax4.grid()
-                    ax4.set_xlim(-6,6)
-                    ax4.set_ylim(radar_slice.shape[0],-5)
+                    start_profile=465
+                    display_profiles(ax1,ax4,ax7,start_profile,start_profile+10,radar_slice,depths,lon_3413,lat_3413,'#feb24c','d')
                     ax4.set_yticklabels([])
-                    ax4.text(0.04, 0.97,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-                    #Display sectors of interest
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
-                    color_plot='#c51b8a'
-                    start_vertical_cut=490
-                    end_vertical_cut=start_vertical_cut+10
-                    ax1.axvline(start_vertical_cut,color=color_plot)
-                    ax1.axvline(end_vertical_cut,color=color_plot)
-                    #If several vertical lines to plot and plot average
-                    for i in range (start_vertical_cut,end_vertical_cut+1):
-                        ax5.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
-                    ax5.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
-                    ax5.invert_yaxis() #Invert the y axis
-                    ax5.grid()
-                    ax5.set_xlim(-6,6)
-                    ax5.set_ylim(radar_slice.shape[0],-5)
+                    start_profile=490
+                    display_profiles(ax1,ax5,ax7,start_profile,start_profile+10,radar_slice,depths,lon_3413,lat_3413,'#c51b8a','e')
                     ax5.set_yticklabels([])
-                    ax5.text(0.04, 0.97,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-                    #Display sectors of interest
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
 
-                    color_plot='#54278f'
-                    start_vertical_cut=800
-                    end_vertical_cut=start_vertical_cut+10
-                    ax1.axvline(start_vertical_cut,color=color_plot)
-                    ax1.axvline(end_vertical_cut,color=color_plot)
-                    #If several vertical lines to plot and plot average
-                    for i in range (start_vertical_cut,end_vertical_cut+1):
-                        ax6.plot(radar_slice[:,i],np.arange(0,radar_slice[:,i].size),color='0.7')
-                    ax6.plot(np.mean(radar_slice[:,start_vertical_cut:end_vertical_cut],1),np.arange(0,radar_slice[:,i].size),color=color_plot)
-                    ax6.invert_yaxis() #Invert the y axis
-                    ax6.grid()
-                    ax6.set_xlim(-6,6)
-                    ax6.set_ylim(radar_slice.shape[0],-5)
+                    start_profile=800
+                    display_profiles(ax1,ax6,ax7,start_profile,start_profile+10,radar_slice,depths,lon_3413,lat_3413,'#54278f','f')
                     ax6.set_yticklabels([])
-                    ax6.text(0.04, 0.97,'f',ha='center', va='center', transform=ax6.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-                    #Display sectors of interest
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=250,marker='.',linewidths=0,color='black',zorder=9)
-                    ax7.scatter(lon_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],lat_3413[0][int((start_vertical_cut+end_vertical_cut)/2)],s=200,marker='.',linewidths=0,color=color_plot,zorder=10)
-
-                    #Finalize
-                    ax2.set_yticks(ticks_yplot) 
-                    ax2.set_yticklabels(np.round(depths[ticks_yplot]))                    
+                    
+                    #Finalize                  
                     ax2.set_ylabel('Depth [m]')
                     ax4.set_xlabel('Radar signal strength [dB]')
                                         
                     ### ------------------ Display map ------------------- ###
-                    '''
-                    #Display regions
-                    SW_rignotetal.plot(ax=ax7,color='white', edgecolor='black',linewidth=0.5) 
-                    CW_rignotetal.plot(ax=ax7,color='white', edgecolor='black',linewidth=0.5)
-                    '''
                     #Display contours
                     cont=ax7.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1500,2750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.25)
                     
@@ -971,38 +918,83 @@ for folder_year in folder_years:
                     ax7.legend(handles=legend_elements,loc='lower center',fontsize=10)
                     
                     '''
-                    lgnd = ax7.legend(loc='lower center',fontsize=10)
-                    # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-                    lgnd.legendHandles[0]._sizes = [100]
-                    lgnd.legendHandles[1]._sizes = [100]
-                    lgnd.legendHandles[2]._sizes = [20]
-                    #ax7.gridlines(color='gray', linestyle='--')
-                    #ax7.coastlines()
-                    '''
                     #Set x lims
                     ax7.set_xlim(-187234.32225556672, -62652.03297527041)
                     ax7.set_ylim(-2757515.136754996, -2485033.0174200167)
-                    
+                    '''
+                    ax7.set_xlim(-191556, -66974)
+                    ax7.set_ylim (-2705116, -2432634)
+
                     #Display lat/lon lines in map
                     gl=ax7.gridlines(draw_labels=True, xlocs=[-47, -48, -49], ylocs=[65, 66, 67], x_inline=False, y_inline=False,linewidth=0.5)
                     #Customize lat and lon labels
                     gl.ylabels_left = False
                     gl.xlabels_top = False
-                    
+                                        
                     #Add elevation contour values
-                    ax7.text(0.24, 0.72,'1500', ha='center', va='center', rotation=70,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-                    ax7.text(0.48, 0.74,'1750', ha='center', va='center', rotation=70,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-                    ax7.text(0.85, 0.74,'2000', ha='center', va='center', rotation=70,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-                    ax7.text(0.89, 0.35,'2250', ha='center', va='center', rotation=60,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ax7.text(0.14, 0.3825,'1500', ha='center', va='center', rotation=50,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ax7.text(0.41, 0.43,'1750', ha='center', va='center', rotation=75,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ax7.text(0.905, 0.57,'2000', ha='center', va='center', rotation=65,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    ax7.text(0.92, 0.05,'2250', ha='center', va='center', rotation=70,transform=ax7.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
                     
-                    ax7.text(0.04, 0.97,'g',ha='center', va='center', transform=ax7.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+                    #Display scalebar
+                    scale_bar(ax7, (0.775, 0.94), 20, 3,-2.5)# axis, location (x,y), length, linewidth, rotation of text
+                    
                     ### ------------------ Display map ------------------- ###
 
                     plt.show()
                     pdb.set_trace()
                     
                     #Save the figure
-                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v2/figS2.png',dpi=500)
+                    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v3/figS2.png',dpi=300,bbox_inches='tight')
+                    #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
                     
-                    
+
+#This is from Fig2.py
+### -------------------------- Display inset map -------------------------- ###
+#Prepare plot
+#Set fontsize
+plt.rcParams.update({'font.size': 15}) #from https://stackoverflow.com/questions/3899980/how-to-change-the-font-size-on-a-matplotlib-plot
+fig = plt.figure(figsize=(3.5,3.5))
+ax_InsetMap = plt.subplot(projection=crs)
+
+#Display GrIS inset map
+ax_InsetMap.coastlines(edgecolor='black',linewidth=0.075)
+#Display GrIS drainage bassins limits
+GrIS_drainage_bassins.plot(ax=ax_InsetMap,color='none', edgecolor='black',linewidth=0.075)
+#Display region name
+ax_InsetMap.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-80000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(SW_rignotetal.centroid.x-185000,SW_rignotetal.centroid.y-180000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NW_rignotetal.centroid.x-150000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+
+#Display rectangle around datalocation - this is from Fig. 3.py   
+#Extract corner coordinates
+coord_origin=[ax7.get_xlim()[0],ax7.get_ylim()[0]]
+coord_topright=[ax7.get_xlim()[1],ax7.get_ylim()[1]]
+#This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
+# Create a Rectangle patch
+rect = patches.Rectangle((coord_origin[0],coord_origin[1]),
+                         np.abs(coord_origin[0]-coord_topright[0]),
+                         np.abs(coord_origin[1]-coord_topright[1]),
+                         angle=0, linewidth=1, edgecolor='black', facecolor='none')
+
+#Add panel label
+ax_InsetMap.text(0.1, 0.95,'g',ha='center', va='center', transform=ax_InsetMap.transAxes,fontsize=15,zorder=10,weight='bold',color='black')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+# Add the patch to the Axes
+ax_InsetMap.add_patch(rect)
+ax_InsetMap.axis('on')
+
+pdb.set_trace()
+         
+#Save the figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S2/v3/figS2_InsetMap.png',dpi=300,bbox_inches='tight')
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
+### -------------------------- Display inset map -------------------------- ###
+
+
+
 print('End of processing')

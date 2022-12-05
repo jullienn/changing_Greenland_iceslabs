@@ -848,7 +848,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 
 
-#Fig S2 (Fig S1.py):  Display scale! Add inset map, display radargram section next to profile
+#Fig S2 (Fig S1.py):  Display scale! Add inset map
 
 #To write in notebook:
 #   1. did check all the figures that needed adaptation after cleaned dataset generation
@@ -858,7 +858,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
 #   5. Changed display of ice slabs in Fig 2 (from green to orange)
 #   6. Fig. S1: now display 2010-2018 ice slabs high end shapefile instead of data points
 #   7. Fig.2: saved Fig and added inset map
-
+#   8. Added Fig. 1, Fig. 2, Fig. S5 and standalone map to paper
+#   9. Modified Fig S1: added 10-traces radargram on the background of profiles, added scale, added inset map.
 
 #Import packages
 #import rasterio
