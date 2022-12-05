@@ -353,8 +353,8 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
-    plot_fig_S6='TRUE'
-    plot_standalone_map='TRUE'
+    plot_fig_S6='FALSE'
+    plot_standalone_map='FALSE'
     plot_panela='TRUE'
     plot_panelb='TRUE'
     
@@ -497,7 +497,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/standalone_map.png',dpi=1000,bbox_inches='tight')
         #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
     
-    # --------------------------------- FIG 1 --------------------------------        
+    # --------------------------------- FIG 1 --------------------------------    
+        
     #Prepare Fig. 1
     plt.rcParams.update({'font.size': 15})
     plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
@@ -590,10 +591,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axelev.set_xticklabels(labels)
         axelev.set_ylim(1000,2050)
         
-        axelev.text(ind[0],np.nanmax(max_elev_diff_NO)+55,str(int(np.round(max_elev_diff_NO[4]-max_elev_diff_NO[0])))+' m')
+        axelev.text(ind[0]+0.15,np.nanmax(max_elev_diff_NO)+95,str(int(np.round(max_elev_diff_NO[4]-max_elev_diff_NO[0])))+' m')
         #axelev.text(ind[1],np.nanmax(max_elev_diff_NW)+180,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
-        axelev.text(ind[2],np.nanmax(max_elev_diff_CW)+30,str(int(np.round(max_elev_diff_CW[4]-max_elev_diff_CW[0])))+' m')
-        axelev.text(ind[3],np.nanmax(max_elev_diff_SW)+90,str(int(np.round(max_elev_diff_SW[4]-max_elev_diff_SW[0])))+' m')
+        axelev.text(ind[2]+0.15,np.nanmax(max_elev_diff_CW)+100,str(int(np.round(max_elev_diff_CW[4]-max_elev_diff_CW[0])))+' m')
+        axelev.text(ind[3]+0.15,np.nanmax(max_elev_diff_SW)+105,str(int(np.round(max_elev_diff_SW[4]-max_elev_diff_SW[0])))+' m')
         
         axelev.set_ylabel('Elevation [m]')
         
@@ -755,12 +756,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             # --- 2013-2014
             axmap.scatter(flightlines_20022018[flightlines_20022018.str_year=='2013-2014']['lon_3413'],
                           flightlines_20022018[flightlines_20022018.str_year=='2013-2014']['lat_3413'],
-                          s=0.1,marker='.',linewidths=0,c='#969696',label='flightlines 2013-2014')
+                          s=0.5,marker='.',linewidths=0,c='#969696',label='flightlines 2013-2014')
             
             # --- 2017-2018
             axmap.scatter(flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lon_3413'],
                           flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lat_3413'],
-                          s=0.1,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
+                          s=0.5,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
             
             # --- 2010
             axmap.scatter(flightlines_20022018[np.logical_or(flightlines_20022018.str_year=='2010',flightlines_20022018.str_year==int('2010'))]['lon_3413'],
@@ -807,13 +808,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             from matplotlib.lines import Line2D
             
             #Custom legend myself            
-            legend_elements = [Patch(facecolor='#d73027',label='2010-18 ice slabs extent'),
+            legend_elements_a = [Patch(facecolor='#d73027',label='2010-18 ice slabs extent'),
                                Patch(facecolor='#6baed6',label='2010-12 ice slabs extent'),
                                Line2D([0], [0], marker='.', linestyle='none', label='2002-2003 ice slabs', color='#ffb300'),
                                Line2D([0], [0], marker='.', linestyle='none', label='Firn aquifers', color='#238443'),
                                Line2D([0], [0], color='#969696', lw=2, label='flightlines 2013-14-17-18'),
                                Line2D([0], [0], color='#d9d9d9', lw=2, label='flightlines 2010-11-12')]
-            axmap.legend(handles=legend_elements,loc='lower right')
+            axmap.legend(handles=legend_elements_a,loc='lower right')
             plt.legend()
             
             #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
@@ -839,14 +840,13 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                 axmap.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+' %')
     
     # -------------------------------- PANEL A --------------------------------
+    axelev.legend(handles=legend_elements,loc='upper left')
     pdb.set_trace()
     
     #Save figure
     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1.png',dpi=1000,bbox_inches='tight')
     #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 
-#14h05-15h38
-#9h20-10h35
 
 #Fig S2 (Fig S1.py):  Display scale! Add inset map, display radargram section next to profile
 
@@ -857,9 +857,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
 #   4. I should rerun figures that have already been improved to check whether there is any difference or not.
 #   5. Changed display of ice slabs in Fig 2 (from green to orange)
 #   6. Fig. S1: now display 2010-2018 ice slabs high end shapefile instead of data points
-#To do:
-#- Fig. 2 save and add inset map
-#- send Fig 1 and 2 to andrew and tell him I wont make it
+#   7. Fig.2: saved Fig and added inset map
+
 
 #Import packages
 #import rasterio
