@@ -209,36 +209,46 @@ likelihood_file_after_DF = pickle.load(f_likelihood_after_DF)
 f_likelihood_after_DF.close()
 
 #Create the figure
-fig = plt.figure(figsize=(30,21))
-gs = gridspec.GridSpec(30, 101)
-ax1 = plt.subplot(gs[0:3, 0:100])
-ax2 = plt.subplot(gs[3:6, 0:100])
-ax3 = plt.subplot(gs[6:9, 0:100])
-ax4 = plt.subplot(gs[9:12, 0:100])
-axc1_4 = plt.subplot(gs[0:12, 100:101])
-ax5 = plt.subplot(gs[12:15, 0:100])
-axc5 = plt.subplot(gs[12:15, 100:101])
-ax6 = plt.subplot(gs[15:18, 0:100])
-axc6 = plt.subplot(gs[15:18, 100:101])
-ax7 = plt.subplot(gs[18:21, 0:100])
-axc7 = plt.subplot(gs[18:21, 100:101])
-ax8 = plt.subplot(gs[21:24, 0:100])
-ax9 = plt.subplot(gs[24:27, 0:100])
-ax10 = plt.subplot(gs[27:30, 0:100])
+#Set fontsize plot
+plt.rcParams.update({'font.size': 20})
+fig = plt.figure(figsize=(44,21))
+gs = gridspec.GridSpec(44, 101)
+ax1 = plt.subplot(gs[0:8, 0:100])
+ax2 = plt.subplot(gs[8:12, 0:100])
+ax3 = plt.subplot(gs[12:16, 0:100])
+ax4 = plt.subplot(gs[16:20, 0:100])
+axc1_4 = plt.subplot(gs[0:20, 100:101])
+ax5 = plt.subplot(gs[20:24, 0:100])
+axc5 = plt.subplot(gs[20:24, 100:101])
+ax6 = plt.subplot(gs[24:28, 0:100])
+axc6 = plt.subplot(gs[24:28, 100:101])
+ax7 = plt.subplot(gs[28:32, 0:100])
+axc7 = plt.subplot(gs[28:32, 100:101])
+ax8 = plt.subplot(gs[32:36, 0:100])
+ax9 = plt.subplot(gs[36:40, 0:100])
+ax10 = plt.subplot(gs[40:44, 0:100])
 
 gs.update(wspace=0.5)
 gs.update(hspace=1)
 
 #ax1 is raw radar
 #ax1 = radar_appended
-cax1=ax1.pcolor(distances_with_start_transect, depths[0:raw_data.shape[0]], np.log10(raw_data),cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+cax1=ax1.pcolor(distances_with_start_transect, depths[np.arange(surfacepick_file[0]-200,surfacepick_file[0]-200+for_raw)], np.log10(raw_data),cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
+#Diplay surface picks
+ax1.plot(distances_with_start_transect,depths[surfacepick_file],linestyle='dotted',color='red',zorder=1)
 ax1.invert_yaxis() #Invert the y axis = avoid using flipud.    
-ax1.set_ylim(150,0)
+ax1.set_ylim(depths[surfacepick_file[0]-200+for_raw],depths[surfacepick_file[0]-200])
 #ax2.setp(ax2.get_xticklabels(), visible=False)
 ax1.set_xticklabels([])
-ax1.set_yticks([0,50,100,150])
-ax1.set_yticklabels(['0','50','100',''])
-ax1.text(0.01, 0.75,'a',ha='center', va='center', transform=ax1.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.set_yticks(np.arange(depths[surfacepick_file[0]],depths[surfacepick_file[0]-200+for_raw],20))
+#Set distances from the surface
+ax1.set_yticklabels(['0','20','40'])
+ax1.text(0.01, 0.88,'a',ha='center', va='center', transform=ax1.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+#Custom legend myself
+from matplotlib.lines import Line2D
+legend_elements = [Line2D([0], [0], color='red', lw=1, linestyle='dotted',label='Picked surface')]
+ax1.legend(handles=legend_elements,loc='upper right')
+plt.legend()
 
 #ax2 is after surface picking
 cax2=ax2.pcolor(distances_with_start_transect, depths[ind_lower_20m], np.log10(radar_30m[ind_lower_20m,:]),cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
@@ -246,8 +256,8 @@ ax2.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax2.set_ylim(20,0)
 #ax2.setp(ax2.get_xticklabels(), visible=False)
 ax2.set_xticklabels([])
-ax2.set_yticks([0,10,20])
-ax2.set_yticklabels(['0','10',''])
+ax2.set_yticks(np.arange(0,21,5))
+ax2.set_yticklabels(['','5','10','15',''])
 ax2.text(0.01, 0.75,'b',ha='center', va='center', transform=ax2.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax3 is after appliance of lakes and other exclusions
@@ -256,8 +266,8 @@ ax3.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax3.set_ylim(20,0)
 #ax3.setp(ax3.get_xticklabels(), visible=False)
 ax3.set_xticklabels([])
-ax3.set_yticks([0,10,20])
-ax3.set_yticklabels(['0','10',''])
+ax3.set_yticks(np.arange(0,21,5))
+ax3.set_yticklabels(['0','5','10','15',''])
 ax3.text(0.01, 0.75,'c',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax4 is after appliance of roll correction
@@ -266,8 +276,8 @@ ax4.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax4.set_ylim(20,0)
 #ax4.setp(ax4.get_xticklabels(), visible=False)
 ax4.set_xticklabels([])
-ax4.set_yticks([0,10,20])
-ax4.set_yticklabels(['0','10',''])
+ax4.set_yticks(np.arange(0,21,5))
+ax4.set_yticklabels(['0','5','10','15',''])
 ax4.text(0.01, 0.75,'d',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #ax5 is after surface removal
@@ -276,10 +286,9 @@ ax5.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax5.set_ylim(20,0)
 #ax4.setp(ax4.get_xticklabels(), visible=False)
 ax5.set_xticklabels([])
-ax5.set_yticks([0,10,20])
-ax5.set_yticklabels(['0','10',''])
+ax5.set_yticks(np.arange(0,21,5))
+ax5.set_yticklabels(['0','5','10','15',''])
 ax5.text(0.01, 0.75,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax5.set_ylabel('Depth [m]')
 
 #ax6 is after depth correction
 cax6=ax6.pcolor(distances_with_start_transect, depths[ind_lower_20m], depth_corrected_20m,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
@@ -287,9 +296,10 @@ ax6.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax6.set_ylim(20,0)
 #ax6.setp(ax6.get_xticklabels(), visible=False)
 ax6.set_xticklabels([])
-ax6.set_yticks([0,10,20])
-ax6.set_yticklabels(['0','10',''])
+ax6.set_yticks(np.arange(0,21,5))
+ax6.set_yticklabels(['0','5','10','15',''])
 ax6.text(0.01, 0.75,'f',ha='center', va='center', transform=ax6.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax6.set_ylabel('Depth [m]')
 
 #Where 0 => NaN so that white in the display
 likelihood_file_semibool=np.zeros((likelihood_file.shape[0],likelihood_file.shape[1]))
@@ -302,8 +312,8 @@ ax7.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax7.set_ylim(20,0)
 #ax7.setp(ax7.get_xticklabels(), visible=False)
 ax7.set_xticklabels([])
-ax7.set_yticks([0,10,20])
-ax7.set_yticklabels(['0','10',''])
+ax7.set_yticks(np.arange(0,21,5))
+ax7.set_yticklabels(['0','5','10','15',''])
 ax7.text(0.01, 0.75,'g',ha='center', va='center', transform=ax7.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 ################################ MODIFIED LOW END #############################
@@ -319,8 +329,8 @@ ax8.set_ylim(20,0)
 #ax8.setp(ax8.get_xticklabels(), visible=False)
 ax8.text(0.01, 0.75,'h',ha='center', va='center', transform=ax8.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 ax8.set_xticklabels([])
-ax8.set_yticks([0,10,20])
-ax8.set_yticklabels(['0','10',''])
+ax8.set_yticks(np.arange(0,21,5))
+ax8.set_yticklabels(['0','5','10','15',''])
 ################################ MODIFIED LOW END #############################
 
 ############################## MODIFIED HIGH END ##############################
@@ -336,8 +346,8 @@ ax9.set_ylim(20,0)
 #ax9.setp(ax8.get_xticklabels(), visible=False)
 ax9.text(0.01, 0.75,'i',ha='center', va='center', transform=ax9.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 ax9.set_xticklabels([])
-ax9.set_yticks([0,10,20])
-ax9.set_yticklabels(['0','10',''])
+ax9.set_yticks(np.arange(0,21,5))
+ax9.set_yticklabels(['0','5','10','15',''])
 ############################## MODIFIED HIGH END ##############################
 
 ################################## HIGH END ###################################
@@ -350,8 +360,7 @@ likelihood_file_after_DF_highend[likelihood_file_after_DF>0]=1
 cax10=ax10.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_after_DF_highend,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
 ax10.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax10.set_ylim(20,0)
-ax10.set_yticks([0,10,20])
-ax10.set_yticklabels(['0','10','20'])
+ax10.set_yticks(np.arange(0,21,5))
 #ax9.setp(ax8.get_xticklabels(), visible=False)
 ax10.text(0.01, 0.75,'j',ha='center', va='center', transform=ax10.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 #box around label from https://stackoverflow.com/questions/17086847/box-around-text-in-matplotlib
@@ -385,8 +394,15 @@ cbar6=fig.colorbar(cax6, cax=axc6)
 #cbar6.set_label('Signal strengh [dB]')
 
 cbar7=fig.colorbar(cax7, cax=axc7)
-cbar7.set_label('Ice likelihood[ ]',labelpad=30)#labeldpad from https://stackoverflow.com/questions/67859935/how-to-set-distance-between-colorbar-and-its-label
+cbar7.set_label('Ice likelihood [ ]',labelpad=30)#labeldpad from https://stackoverflow.com/questions/67859935/how-to-set-distance-between-colorbar-and-its-label
+
+#Get rid of legend
+ax10.legend_.remove()
+
 plt.show()
 
+pdb.set_trace()
+
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S3/v2/figS3.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S3/v3/figS3.png',dpi=500,bbox_inches='tight')
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
