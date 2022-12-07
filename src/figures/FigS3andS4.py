@@ -101,6 +101,7 @@ lat3413_plot[dataframe['mask'][:,0]]=lat_3413[dataframe['mask'][:,0]]
 distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
 
 #Create the figure
+plt.rcParams.update({'font.size': 15})
 fig = plt.figure(figsize=(8,21))
 gs = gridspec.GridSpec(14, 51)
 gs.update(wspace=0.001)
@@ -174,14 +175,15 @@ plt.show()
 pdb.set_trace()
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v5/figS4_radargrams.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v6/figS4_radargrams.png',dpi=300,bbox_inches='tight')
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 '''
 #Create the figure
 fig,ax1 = plt.subplots()
 plt.rcParams.update({'font.size': 15})
 
 #Display histograms
-ax1.hist(iceslabs_distrib,bins=500,density=True,label='Ice')
+ax1.hist(iceslabs_distrib,bins=500,density=True,label='In-situ ice content')
 ax1.hist(dryfirn_distrib,bins=500,density=True,alpha=0.2,label='Porous firn')
 ax1.legend()
 ax1.set_xlabel('Radar signal strength [dB]',fontsize=15)
@@ -202,7 +204,8 @@ ax1.text(quantile_investigation[-1]+0.005, 0.85, 'quantile 0.79', rotation=90, v
 ax1.set_xlim(-0.5,0.5)
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v4/figS5_distribution.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v6/figS5_distribution.png',dpi=300,bbox_inches='tight')
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 '''
 pdb.set_trace()
 

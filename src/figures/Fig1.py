@@ -996,6 +996,9 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
 #   7. Fig.2: saved Fig and added inset map
 #   8. Added Fig. 1, Fig. 2, Fig. S5 and standalone map to paper
 #   9. Modified Fig S1: added 10-traces radargram on the background of profiles, added scale, added inset map. Added the map to supp and modified caption.
+#   10. Modified Fig. S7 label (positive degree-hour sum), and using now the cleaned dataset for generating this figure and related ones. Note that the
+#       upper end of 2013 slab thickness is dlightly different from previous versions: this is probably because upper points where not kept due to clip with 
+#       shapefile (note that radargrams are not affected, ony data from csv and pickle with elevation files). I do not expect this to introduce any difference.
 
 #Import packages
 #import rasterio
