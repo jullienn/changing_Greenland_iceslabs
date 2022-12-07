@@ -342,7 +342,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         distance_display[count,1]=np.abs(np.abs(vect_for_elevation)-np.abs(indiv_elev))[index_closest]#corresponding difference of elevation between elevation vector and desired elevation
         #Update count
         count=count+1
-        
+
     #Display elevation on the top xticklabels
     #This is from https://stackoverflow.com/questions/19884335/matplotlib-top-bottom-ticks-different "Zaus' reply"
     ax_t = axt.secondary_xaxis('top',color='#8c510a')
@@ -368,7 +368,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     plt.show()
     print('End plotting fig 2')
     
-    #pdb.set_trace()
+    pdb.set_trace()
     
     #Calculate summary statistics
     if (casestudy_nb=='a'):

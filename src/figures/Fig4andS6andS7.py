@@ -1220,8 +1220,8 @@ for single_year in investigation_year.keys():
                                  'probabilistic':probabilistic_file}
 
 #Load 2010-2018 elevation dataset
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/' 
-f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/clipped/' 
+f_20102018 = open(path_df_with_elevation+'df_20102018_with_elevation_high_estimate_rignotetalregions_cleaned', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
@@ -1562,6 +1562,8 @@ pdb.set_trace()
 ###############################################################################
 ############### Supp Fig. 6 PDH and total columnal ice content ################
 ###############################################################################
+plt.rcParams.update({'font.size': 25})
+
 fig = plt.figure()
 gs = gridspec.GridSpec(5, 10)
 gs.update(wspace=0.1)
@@ -1587,7 +1589,7 @@ ax10m_second.yaxis.tick_right()
 ax10m_second.set_ylabel('Total ice content [$m^2$]')
 ax10m_second.set_xlim(0,8.6)
 
-ax10m.set_ylabel('cPDH [°C]')
+ax10m.set_ylabel('PDH sum [°C$\cdot$h]')
 ax10m.set_xlabel('Year')
 ax10m.set_xlim(-0.5,8.6) #From 2009 to 2017
 #Activate ticks xlabel
@@ -1611,7 +1613,8 @@ pdb.set_trace()
 
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v9/fig4.png',dpi=300)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/figS7.png',dpi=300,bbox_inches='tight')
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 '''
 ###############################################################################
 ############### Supp Fig. 6 PDH and total columnal ice content ################
