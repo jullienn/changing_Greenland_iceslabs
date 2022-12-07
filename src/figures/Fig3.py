@@ -368,6 +368,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     plt.show()
     print('End plotting fig 2')
     
+    #pdb.set_trace()
+    
     #Calculate summary statistics
     if (casestudy_nb=='a'):
         #Affine distances selection!
@@ -427,14 +429,53 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
         else:
             print('Calculating summary statistics')
             #Select data belonging to the well-developped section
-            ax1_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']<end_well_developped*1000]['20m_ice_content_m'],histtype='step',bins=np.arange(0,17,1),color=col_palette[time_period])
+            ax1_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']<end_well_developped*1000]['20m_ice_content_m'],bins=np.arange(0,17,1),color=col_palette[time_period])
             #Select data belonging to the thickening section
             ax2_dist.hist(df_casestudy_TimePeriod[np.logical_and(df_casestudy_TimePeriod['distances']>=end_well_developped*1000,
                                                                  df_casestudy_TimePeriod['distances']<end_thickening*1000)]
-                                                                 ['20m_ice_content_m'],histtype='step',bins=np.arange(0,17,1),color=col_palette[time_period])
+                                                                 ['20m_ice_content_m'],bins=np.arange(0,17,1),color=col_palette[time_period])
             #Select data belonging to the well-developped section
-            ax3_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']>=end_thickening*1000]['20m_ice_content_m'],histtype='step',bins=np.arange(0,17,1),color=col_palette[time_period])
-    pdb.set_trace()
+            ax3_dist.hist(df_casestudy_TimePeriod[df_casestudy_TimePeriod['distances']>=end_thickening*1000]['20m_ice_content_m'],bins=np.arange(0,17,1),color=col_palette[time_period])
+            
+            pdb.set_trace()
+    
+    
+            #from https://stackoverflow.com/questions/7805552/fitting-a-histogram-with-python and https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norm.html
+            from scipy.stats import norm
+            import matplotlib.mlab as mlab
+            #from https://towardsdatascience.com/pandas-df-to-numpy-array-c1a9e7d8585f
+            data_plot=df_casestudy_TimePeriod[np.logical_and(df_casestudy_TimePeriod['distances']>=end_well_developped*1000,
+                                                             df_casestudy_TimePeriod['distances']<end_thickening*1000)]['20m_ice_content_m'].to_numpy().astype(float)
+            # best fit of data
+            (mu, sigma) = norm.fit(data_plot)
+            
+            # the histogram of the data
+            plt.hist(data_plot, 60, density=True, facecolor='green', alpha=0.75)
+            
+            # add a 'best fit' line
+            y = norm.pdf( np.arange(0,17,1), mu, sigma)
+            l = plt.plot(np.arange(0,17,1), y, 'r--', linewidth=2)
+            
+            #plot
+            plt.xlabel('Smarts')
+            plt.ylabel('Probability')
+            plt.title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=%.3f,\ \sigma=%.3f$' %(mu, sigma))
+            plt.grid(True)
+            
+            plt.show()
+ 
+            from scipy.stats import norm
+            fig, ax = plt.subplots(1, 1)
+            
+
+            ax.hist(data_plot, density=True, histtype='stepfilled', alpha=0.2)
+            ax.plot(data_plot,norm.pdf(data_plot),'r-', lw=5, alpha=0.6, label='norm pdf')
+            
+            
+            
+    
+    
+    
     
     return
 
@@ -483,7 +524,7 @@ NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/dataset_for_Fig3/clipped/'
 #Load all 2010-2018 data
-df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate_cleaned.csv',delimiter=',',decimal='.')
+df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_Fig3_high_estimate_cleaned.csv',delimiter=',',decimal='.')
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2010_2018_csv["lat"]))
@@ -600,15 +641,13 @@ ax1.text(CW_rignotetal.centroid.x-175000,CW_rignotetal.centroid.y-40000,np.asarr
 ax1.text(NW_rignotetal.centroid.x-50000,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 ax1.text(NO_rignotetal.centroid.x-40000,NO_rignotetal.centroid.y-230000,np.asarray(NO_rignotetal.SUBREGION1)[0])
 
-pdb.set_trace()
 #Load 2010-2018 elevation dataset
-f_20102018 = open(path+'df_20102018_with_elevation_high_estimate_rignotetalregions_cleaned', "rb")
+f_20102018 = open(path+'df_20102018_with_elevation_Fig3_high_estimate_rignotetalregions_cleaned', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
 f_20102018.close()
 
 #Where ice content is higher than 16m, replace the ice content by 16!
-#This should be done in df_2010_2018_elevation
-pdb.set_trace()
+df_2010_2018_elevation.loc[df_2010_2018_elevation['20m_ice_content_m']>16,'20m_ice_content_m']=16
 
 #Plot data
 plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
@@ -664,5 +703,5 @@ plt.show()
 pdb.set_trace()
 
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v9/fig2.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v10/fig2.png',dpi=300,bbox_inches='tight')
 

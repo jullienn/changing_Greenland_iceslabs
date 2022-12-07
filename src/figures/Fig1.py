@@ -355,8 +355,9 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S6='FALSE'
     plot_standalone_map='FALSE'
-    plot_panela='TRUE'
-    plot_panelb='TRUE'
+    plot_panela='FALSE'
+    plot_panelb='FALSE'
+    figure_AGU='TRUE'
     
     ###################### From Tedstone et al., 2022 #####################
     #from plot_map_decadal_change.py
@@ -838,7 +839,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     print('Region not known')
                 high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
                 axmap.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+' %')
-    
+    '''
     # -------------------------------- PANEL A --------------------------------
     axelev.legend(handles=legend_elements,loc='upper left')
     pdb.set_trace()
@@ -846,9 +847,144 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     #Save figure
     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1.png',dpi=1000,bbox_inches='tight')
     #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
+    '''
+    
+    if (figure_AGU=='TRUE'):
+        pdb.set_trace()
+        
+        #Prepare supp map (old Fig. 1)
+        plt.rcParams.update({'font.size': 20})
+        plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+        fig = plt.figure()
+        
+        gs = gridspec.GridSpec(20, 16)
+        #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
+        axmap_standalone = plt.subplot(gs[0:20, 0:16],projection=crs)
+        
+        #Draw plot of GrIS map
+        axmap_standalone.coastlines(edgecolor='black',linewidth=0.075)
+        #Display GrIS drainage bassins limits
+        GrIS_drainage_bassins.plot(ax=axmap_standalone,color='white', edgecolor='none',linewidth=0.075)
+        '''
+        NO_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1)
+        NE_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1) 
+        SE_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1) 
+        SW_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1) 
+        CW_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1) 
+        NW_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1)     
+        '''
+        #Display scalebar
+        scale_bar(axmap_standalone, (0.745, 0.175), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+        #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
+        
+        #Open shapefiles for area change calculations
+        #Load high and low estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
+        path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
+        iceslabs_jullien_highend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
+        iceslabs_jullien_highend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12.shp')
+        
+        axmap_standalone.set_extent([-634797, 856884, -3345483, -764054], crs=crs)# x0, x1, y0, y1
+        ###################### From Tedstone et al., 2022 #####################
+        #from plot_map_decadal_change.py
+        axmap_standalone.axis('off')
+        ###################### From Tedstone et al., 2022 #####################
+        
+        #Open and plot runoff limit medians shapefiles
+        path_poly='C:/Users/jullienn/Documents/working_environment/IceSlabs_SurfaceRunoff/data/runoff_limit_polys/'
+        poly_1985_1992=gpd.read_file(path_poly+'poly_1985_1992_median_edited.shp')
+        poly_1985_1992.plot(ax=axmap_standalone,color='black', edgecolor='none',linewidth=1)#df778e
+        poly_2013_2020=gpd.read_file(path_poly+'poly_2013_2020_median_edited.shp')
+        poly_2013_2020.plot(ax=axmap_standalone,color='white', edgecolor='white',linewidth=1)
+        
+        #Shapefiles
+        # --- 2010-2018
+        iceslabs_jullien_highend_20102018.plot(ax=axmap_standalone,color='#d73027', edgecolor='none',linewidth=0.5,alpha=0.5)
+        
+        # --- 2010-11-12
+        iceslabs_jullien_highend_2010_11_12.plot(ax=axmap_standalone,color='#4575b4', edgecolor='none',linewidth=0.5,alpha=0.5)#original color: 
+        
+        #Shapefiles
+        # --- 2010-2018
+        iceslabs_jullien_highend_20102018.plot(ax=axmap_standalone,color='none', edgecolor='#d73027',linewidth=0.5)
+        
+        # --- 2010-11-12
+        iceslabs_jullien_highend_2010_11_12.plot(ax=axmap_standalone,color='none', edgecolor='#4575b4',linewidth=0.5)#original color: 
+        
+        #Ice slabs            
+        # --- 2002-2003
+        axmap_standalone.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
+                      df_all[df_all.str_year=='2002-2003']['lat_3413'],
+                      s=15,marker='.',linewidths=0,color='black')
+        
+        axmap_standalone.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
+                      df_all[df_all.str_year=='2002-2003']['lat_3413'],
+                      s=13,marker='.',linewidths=0,color='#ffb300')
+        
+        #Firn aquifers
+        axmap_standalone.scatter(df_firn_aquifer_all['lon_3413'],
+                      df_firn_aquifer_all['lat_3413'],
+                      s=5,marker='.',linewidths=0,color='#238443')
+        
+        GrIS_drainage_bassins.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075)
 
+        #Display region name on panel a 
+        offset_NO=[-50000,-80000]
+        offset_NE=[-50000,-20000]
+        offset_SE=[-30000,100000]
+        offset_SW=[-40000,-80000]
+        offset_CW=[-20000,20000]
+        offset_NW=[50000,-50000]
+        
+        axmap_standalone.text(NO_rignotetal.centroid.x+offset_NO[0],NO_rignotetal.centroid.y+offset_NO[1],np.asarray(NO_rignotetal.SUBREGION1)[0],color='black')
+        axmap_standalone.text(NE_rignotetal.centroid.x+offset_NE[0],NE_rignotetal.centroid.y+offset_NE[1],np.asarray(NE_rignotetal.SUBREGION1)[0],color='black')
+        axmap_standalone.text(SE_rignotetal.centroid.x+offset_SE[0],SE_rignotetal.centroid.y+offset_SE[1],np.asarray(SE_rignotetal.SUBREGION1)[0],color='black')
+        axmap_standalone.text(SW_rignotetal.centroid.x+offset_SW[0],SW_rignotetal.centroid.y+offset_SW[1],np.asarray(SW_rignotetal.SUBREGION1)[0],color='black')
+        axmap_standalone.text(CW_rignotetal.centroid.x+offset_CW[0],CW_rignotetal.centroid.y+offset_CW[1],np.asarray(CW_rignotetal.SUBREGION1)[0],color='black')
+        axmap_standalone.text(NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1],np.asarray(NW_rignotetal.SUBREGION1)[0],color='black')
+        
+        #Custom legend myself
+        from matplotlib.patches import Patch
+        from matplotlib.lines import Line2D
+        
+        #Custom legend myself            
+        legend_elements_a = [Patch(facecolor='black',label='2013-2020 additional runoff'),
+                             Patch(facecolor='#ea9692',label='2010-18 ice slabs extent'),
+                             Patch(facecolor='#9785a3',label='2010-12 ice slabs extent'),
+                             Line2D([0], [0], marker='o', linestyle='none', label='2002-2003 ice slabs', color='#ffb300'),
+                             Line2D([0], [0], marker='o', linestyle='none', label='Firn aquifers', color='#238443')]
+        axmap_standalone.legend(handles=legend_elements_a,loc='lower right')
+        plt.legend()
+        
+        #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
+        for region in list(['NE','NW','CW','SW']):
+            #Keep only where name == region
+            regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['region']==region].area/1000000)
+            regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['region']==region].area/1000000)
+        
+            #Compute and display area change in % (relative change)
+            if (region =='NE'):
+                off_display=[NE_rignotetal.centroid.x+offset_NE[0],NE_rignotetal.centroid.y+offset_NE[1]]
+            elif(region =='NO'):
+                off_display=[NO_rignotetal.centroid.x+offset_NO[0],NO_rignotetal.centroid.y+offset_NO[1]]
+            elif(region =='NW'):
+                off_display=[NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1]]
+            elif(region =='CW'):
+                off_display=[CW_rignotetal.centroid.x+offset_CW[0],CW_rignotetal.centroid.y+offset_CW[1]]
+            elif(region =='SW'):
+                off_display=[SW_rignotetal.centroid.x+offset_SW[0],SW_rignotetal.centroid.y+offset_SW[1]]
+            else:
+                print('Region not known')
+            high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
+            axmap_standalone.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+'%')
+        
+            # -------------------------------- PANEL A --------------------------------
+        pdb.set_trace()
+        axmap_standalone.legend(handles=legend_elements_a,loc='lower right',fontsize=17)
 
-#Fig S2 (Fig S1.py):  Display scale! Add inset map
+        #Save figure
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1_AGU.png',dpi=1000,bbox_inches='tight')
+        #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
+    
 
 #To write in notebook:
 #   1. did check all the figures that needed adaptation after cleaned dataset generation
