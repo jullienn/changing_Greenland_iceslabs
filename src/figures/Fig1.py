@@ -999,6 +999,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
 #   10. Modified Fig. S7 label (positive degree-hour sum), and using now the cleaned dataset for generating this figure and related ones. Note that the
 #       upper end of 2013 slab thickness is dlightly different from previous versions: this is probably because upper points where not kept due to clip with 
 #       shapefile (note that radargrams are not affected, ony data from csv and pickle with elevation files). I do not expect this to introduce any difference.
+#   11. Now refering to in-situ ice content for the manually mapped ice slabs in the reference transect. Changed Fig. S4 legend accordingly.
 
 #Import packages
 #import rasterio
