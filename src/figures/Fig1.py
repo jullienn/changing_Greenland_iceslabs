@@ -952,7 +952,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         legend_elements_a = [Patch(facecolor='black',label='2013-2020 additional runoff'),
                              Patch(facecolor='#ea9692',label='2010-18 ice slabs extent'),
                              Patch(facecolor='#9785a3',label='2010-12 ice slabs extent'),
-                             Line2D([0], [0], marker='o', linestyle='none', label='2002-03 ice slabs and layers', color='#ffb300'),
+                             Line2D([0], [0], marker='o', linestyle='none', label='2002-03 ice layers and slabs', color='#ffb300'),
                              Line2D([0], [0], marker='o', linestyle='none', label='Firn aquifers', color='#238443')]
         axmap_standalone.legend(handles=legend_elements_a,loc='lower right')
         plt.legend()
