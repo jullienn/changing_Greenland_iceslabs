@@ -354,9 +354,9 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S6='FALSE'
-    plot_standalone_map='FALSE'
-    plot_panela='FALSE'
-    plot_panelb='FALSE'
+    plot_standalone_map='TRUE'
+    plot_panela='TRUE'
+    plot_panelb='TRUE'
     figure_AGU='TRUE'
     
     ###################### From Tedstone et al., 2022 #####################
@@ -456,7 +456,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         #Display 2002-2003 iceslabs
         axmap_standalone.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
                                  df_all[df_all.str_year=='2002-2003']['lat_3413'],
-                                 s=10,marker='.',linewidths=0,color='#ffb300',label='2002-2003 ice slabs')
+                                 s=10,marker='.',linewidths=0,color='#ffb300',label='2002-2003 ice layers and slabs')
         
         #Display firn aquifers
         axmap_standalone.scatter(df_firn_aquifer_all['lon_3413'],
@@ -477,9 +477,9 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axmap_standalone.text(SW_rignotetal.centroid.x+offset_SW[0],SW_rignotetal.centroid.y+offset_SW[1],np.asarray(SW_rignotetal.SUBREGION1)[0],color='black')
         axmap_standalone.text(CW_rignotetal.centroid.x+offset_CW[0],CW_rignotetal.centroid.y+offset_CW[1],np.asarray(CW_rignotetal.SUBREGION1)[0],color='black')
         axmap_standalone.text(NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1],np.asarray(NW_rignotetal.SUBREGION1)[0],color='black')
-                
+        
         # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-        lgnd = axmap_standalone.legend(loc="lower right", scatterpoints=1)
+        lgnd = axmap_standalone.legend(loc="lower right", scatterpoints=1,bbox_to_anchor=(1.175, 0))
         lgnd.legendHandles[0]._sizes = [30]
         lgnd.legendHandles[1]._sizes = [30]
         lgnd.legendHandles[2]._sizes = [30]
@@ -495,9 +495,10 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         
         pdb.set_trace()
         
+        '''
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/standalone_map.png',dpi=1000,bbox_inches='tight')
         #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
-    
+        '''
     # --------------------------------- FIG 1 --------------------------------    
         
     #Prepare Fig. 1
@@ -811,11 +812,11 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             #Custom legend myself            
             legend_elements_a = [Patch(facecolor='#d73027',label='2010-18 ice slabs extent'),
                                Patch(facecolor='#6baed6',label='2010-12 ice slabs extent'),
-                               Line2D([0], [0], marker='.', linestyle='none', label='2002-2003 ice slabs', color='#ffb300'),
+                               Line2D([0], [0], marker='.', linestyle='none', label='2002-03 ice layers and slabs', color='#ffb300'),
                                Line2D([0], [0], marker='.', linestyle='none', label='Firn aquifers', color='#238443'),
                                Line2D([0], [0], color='#969696', lw=2, label='flightlines 2013-14-17-18'),
                                Line2D([0], [0], color='#d9d9d9', lw=2, label='flightlines 2010-11-12')]
-            axmap.legend(handles=legend_elements_a,loc='lower right')
+            axmap.legend(handles=legend_elements_a,loc='lower right',bbox_to_anchor=(1.2, 0))
             plt.legend()
             
             #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
@@ -839,10 +840,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                     print('Region not known')
                 high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
                 axmap.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+' %')
+    
+    pdb.set_trace()
+    
     '''
     # -------------------------------- PANEL A --------------------------------
     axelev.legend(handles=legend_elements,loc='upper left')
-    pdb.set_trace()
     
     #Save figure
     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1.png',dpi=1000,bbox_inches='tight')
@@ -850,7 +853,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     '''
     
     if (figure_AGU=='TRUE'):
-        pdb.set_trace()
         
         #Prepare supp map (old Fig. 1)
         plt.rcParams.update({'font.size': 20})
@@ -950,7 +952,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         legend_elements_a = [Patch(facecolor='black',label='2013-2020 additional runoff'),
                              Patch(facecolor='#ea9692',label='2010-18 ice slabs extent'),
                              Patch(facecolor='#9785a3',label='2010-12 ice slabs extent'),
-                             Line2D([0], [0], marker='o', linestyle='none', label='2002-2003 ice slabs', color='#ffb300'),
+                             Line2D([0], [0], marker='o', linestyle='none', label='2002-03 ice slabs and layers', color='#ffb300'),
                              Line2D([0], [0], marker='o', linestyle='none', label='Firn aquifers', color='#238443')]
         axmap_standalone.legend(handles=legend_elements_a,loc='lower right')
         plt.legend()

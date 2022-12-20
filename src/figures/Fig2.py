@@ -1129,9 +1129,9 @@ legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='bl
                    Line2D([0], [0], label='2002-2003 flightlines', color='#969696'),
                    Line2D([0], [0], label='Transects of interest', color='k', linewidth=3),
                    Patch(facecolor='#d73027',label='2010-2018 ice slabs'),
-                   Line2D([0], [0], label='2002-2003 ice slabs', color='#ffb300', linewidth=3)]
+                   Line2D([0], [0], label='2002-2003 ice layers and slabs', color='#ffb300', linewidth=3)]
 #Add legend
-ax1.legend(handles=legend_elements,loc='upper left',fontsize=12,framealpha=1,bbox_to_anchor=(-0.019, 1.008))
+ax1.legend(handles=legend_elements,loc='upper left',fontsize=12,bbox_to_anchor=(-0.019, 1.008))#framealpha=1
 plt.legend()
 axc.legend_.remove()
 
@@ -1176,7 +1176,7 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v6/Fig_S1.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v6/Fig_S1_new.png'
 plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
 
