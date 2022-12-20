@@ -76,11 +76,11 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=cmap_year,alpha=0.8, zorder=zorder_indiv,antialiased=True, linewidth=0.0,label=str(year))
     #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
     ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
+    '''
     ax_plotting.set_ylim(20,0)
-    
     #Add yticks
     ax_plotting.yaxis.tick_left()
-    
+    '''
     #Set xlim
     start_display=10000
     end_display=30000
@@ -96,12 +96,15 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     if (ax_plotting in list([ax1,ax3])):
         #Set xticks labels to empty
         ax_plotting.set_xticklabels([])
+        '''
         #Set last yticks labels to empty
         ax_plotting.set_yticklabels(['0','5','10','15',''],fontsize=15)
+        '''
     else:
         #Set fontsize
+        '''
         ax_plotting.set_yticklabels(['0','5','10','15','20'],fontsize=15)
-    
+        '''
     if (zorder_indiv==1):
         if (ax_plotting==ax5):
             #Custom plot
@@ -1431,9 +1434,12 @@ for year in np.asarray([2012,2013,2014,2017,2018]):
 display_iceslabs_product(dataframe,2012,ax1,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
 display_iceslabs_product(dataframe,2013,ax1,matplotlib.colors.ListedColormap([my_pal[2013]]),1,2012)
 
+display_iceslabs_product(dataframe,2013,ax3,matplotlib.colors.ListedColormap([my_pal[2013]]),2,'empty')
+display_iceslabs_product(dataframe,2014,ax3,matplotlib.colors.ListedColormap([my_pal[2014]]),1,2013)
+'''
 display_iceslabs_product(dataframe,2014,ax3,matplotlib.colors.ListedColormap([my_pal[2014]]),2,'empty')
 display_iceslabs_product(dataframe,2017,ax3,matplotlib.colors.ListedColormap([my_pal[2017]]),1,2014)
-
+'''
 display_iceslabs_product(dataframe,2012,ax5,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
 display_iceslabs_product(dataframe,2018,ax5,matplotlib.colors.ListedColormap([my_pal[2018]]),1,2012)
 

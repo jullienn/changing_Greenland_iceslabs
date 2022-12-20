@@ -101,15 +101,16 @@ lat3413_plot[dataframe['mask'][:,0]]=lat_3413[dataframe['mask'][:,0]]
 distances_with_start_transect=compute_distances(lon3413_plot,lat3413_plot)
 
 #Create the figure
-plt.rcParams.update({'font.size': 15})
+plt.rcParams.update({'font.size': 20})
 fig = plt.figure(figsize=(8,21))
-gs = gridspec.GridSpec(14, 51)
-gs.update(wspace=0.001)
-ax2 = plt.subplot(gs[0:1, 0:50])
-ax3 = plt.subplot(gs[1:2, 0:50])
-ax4 = plt.subplot(gs[2:3, 0:50])
-ax5 = plt.subplot(gs[3:4, 0:50])
-axc = plt.subplot(gs[0:4, 50:51])
+gs = gridspec.GridSpec(12, 51)
+gs.update(wspace=1)
+gs.update(hspace=0.25)
+ax2 = plt.subplot(gs[0:2, 0:50])
+ax3 = plt.subplot(gs[2:4, 0:50])
+ax4 = plt.subplot(gs[4:6, 0:50])
+ax5 = plt.subplot(gs[6:8, 0:50])
+axc = plt.subplot(gs[0:8, 50:51])
 
 #Display depth corrected radargram
 ax2.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
@@ -118,8 +119,8 @@ ax2.set_ylim(20,0)
 plt.setp(ax2.get_xticklabels(), visible=False)
 ax2.set_yticks([0,10,20])
 ax2.set_yticklabels(['0','10',''])
-ax2.text(0.01, 0.75,'a',ha='center', va='center', transform=ax2.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax2.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+ax2.text(0.01, 0.75,'a',ha='center', va='center', transform=ax2.transAxes,fontsize=25,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+#ax2.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0]*2)
 
 #Display depth corrected radargram and manual mask over it
 ax3.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:],cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
@@ -129,8 +130,8 @@ plt.setp(ax3.get_xticklabels(), visible=False)
 ax3.set_yticks([0,10,20])
 ax3.set_yticklabels(['0','10',''])
 ax3.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_mask,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
-ax3.text(0.01, 0.75,'b',ha='center', va='center', transform=ax3.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax3.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+ax3.text(0.01, 0.75,'b',ha='center', va='center', transform=ax3.transAxes,fontsize=25,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+#ax3.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0]*2)
 
 
 #Display depth corrected radargram and quantile 0.65 over it
@@ -141,8 +142,8 @@ ax4.set_yticks([0,10,20])
 plt.setp(ax4.get_xticklabels(), visible=False)
 ax4.set_yticklabels(['0','10',''])
 ax4.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant065,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
-ax4.text(0.01, 0.75,'c',ha='center', va='center', transform=ax4.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax4.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+ax4.text(0.01, 0.75,'c',ha='center', va='center', transform=ax4.transAxes,fontsize=25,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+#ax4.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0]*2)
 
 
 #Display depth corrected radargram and quantile 0.79 over it
@@ -152,8 +153,8 @@ ax5.set_ylim(20,0)
 ax5.set_ylabel('Depth [m]')
 ax5.set_yticks([0,10,20])
 ax5.pcolor(distances_with_start_transect, dataframe['depth'][ind_20m], final_quant079,cmap=plt.get_cmap('gray'),zorder=0)#,norm=divnorm)
-ax5.text(0.01, 0.75,'d',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax5.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
+ax5.text(0.01, 0.75,'d',ha='center', va='center', transform=ax5.transAxes,fontsize=25,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+#ax5.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0]*2)
 
 #Set distance
 low_xlim=ax5.get_xlim()[0]
@@ -164,8 +165,6 @@ ax5.set_xticks(xtick_distance)
 ax5.set_xticklabels((xtick_distance/1000).astype(int))
 ax5.set_xlim(low_xlim,high_xlim)
 ax5.set_xlabel('Distance [km]')
-ax5.set_aspect(dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[1]/dataframe['depth_corrected_after_surf_removal_without_norm'][ind_20m,:].shape[0])
-
 
 #Display colorbar. This is from FigS1.py
 cbar_depth=fig.colorbar(cb, cax=axc)
@@ -175,7 +174,7 @@ plt.show()
 pdb.set_trace()
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v6/figS4_radargrams.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v7/figS4_radargrams.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 '''
 #Create the figure
@@ -183,7 +182,7 @@ fig,ax1 = plt.subplots()
 plt.rcParams.update({'font.size': 15})
 
 #Display histograms
-ax1.hist(iceslabs_distrib,bins=500,density=True,label='In-situ ice content')
+ax1.hist(iceslabs_distrib,bins=500,density=True,label='Ice content')
 ax1.hist(dryfirn_distrib,bins=500,density=True,alpha=0.2,label='Porous firn')
 ax1.legend()
 ax1.set_xlabel('Radar signal strength [dB]',fontsize=15)
@@ -204,7 +203,7 @@ ax1.text(quantile_investigation[-1]+0.005, 0.85, 'quantile 0.79', rotation=90, v
 ax1.set_xlim(-0.5,0.5)
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v6/figS5_distribution.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S4and5/v7/figS5_distribution.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 '''
 pdb.set_trace()
