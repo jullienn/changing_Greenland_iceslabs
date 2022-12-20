@@ -342,6 +342,7 @@ gs = gridspec.GridSpec(30, 101)
 gs.update(wspace=0.1)
 gs.update(wspace=0.5)
 
+
 if (investigation_year==panel_a):
     ax2 = plt.subplot(gs[0:4, 0:100])
     ax4 = plt.subplot(gs[4:8, 0:100])
@@ -600,7 +601,7 @@ for single_year in investigation_year.keys():
     
     #Set yticklabels
     ax_plot.set_yticks([0,10,20])
-    ax_plot.set_yticklabels(['0','10',''])
+    ax_plot.set_yticklabels(['0','10',''],fontsize=25)
     
     #Set transect limits
     ax_plot.set_xlim(start_transect,end_transect)
@@ -609,51 +610,51 @@ for single_year in investigation_year.keys():
     ax_plot.set_xticklabels([])
     
     #Display year
-    ax_plot.text(0.98, 0.875,str(single_year),ha='center', va='center', transform=ax_plot.transAxes,weight='bold',fontsize=15,color=my_pal[str(single_year)])#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    ax_plot.text(0.97, 0.775,str(single_year),ha='center', va='center', transform=ax_plot.transAxes,weight='bold',fontsize=25,color=my_pal[str(single_year)])#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
 if (investigation_year==panel_a):
-    ax4.set_ylabel('Depth [m]')
-    ax6.set_yticklabels(['0','10','20'])
+    ax4.set_ylabel('Depth [m]',fontsize=25)
+    ax6.set_yticklabels(['0','10','20'],fontsize=25)
     ticks_through=ax6.get_xticks()
     year_ticks=2017
     ax_tick_plot=ax6
     ax_top=ax2
     
 elif (investigation_year==panel_b):
-    ax4.set_ylabel('Depth [m]')
-    ax6.set_yticklabels(['0','10','20'])
+    ax4.set_ylabel('Depth [m]',fontsize=25)
+    ax6.set_yticklabels(['0','10','20'],fontsize=25)
     ticks_through=ax6.get_xticks()
     year_ticks=2017
     ax_tick_plot=ax6
     ax_top=ax1
 
 elif (investigation_year==panel_c):
-    ax5.set_ylabel('Depth [m]')
-    ax6.set_yticklabels(['0','10','20'])
+    ax5.set_ylabel('Depth [m]',fontsize=25)
+    ax6.set_yticklabels(['0','10','20'],fontsize=25)
     ticks_through=ax6.get_xticks()
     year_ticks=2017
     ax_tick_plot=ax6
     ax_top=ax1
 
 elif (investigation_year==panel_d):
-    ax4.set_ylabel('Depth [m]')
-    ax7.set_yticklabels(['0','10','20'])
+    ax4.set_ylabel('Depth [m]',fontsize=25)
+    ax7.set_yticklabels(['0','10','20'],fontsize=25)
     ticks_through=ax7.get_xticks()
     year_ticks=2018
     ax_tick_plot=ax7
     ax_top=ax1
     
 elif (investigation_year==panel_e):
-    ax4.set_ylabel('Depth [m]')
-    ax7.set_yticklabels(['0','10','20'])
+    ax4.set_ylabel('Depth [m]',fontsize=25)
+    ax7.set_yticklabels(['0','10','20'],fontsize=25)
     ticks_through=ax7.get_xticks()
     year_ticks=2018
     ax_tick_plot=ax7
     ax_top=ax3
     
 elif (investigation_year==panel_f):
-    ax3.set_ylabel('Depth [m]')
-    ax6.set_yticklabels(['0','10','20'])
+    ax3.set_ylabel('Depth [m]',fontsize=25)
+    ax6.set_yticklabels(['0','10','20'],fontsize=25)
     ticks_through=ax6.get_xticks()
     year_ticks=2017
     ax_tick_plot=ax6
@@ -662,10 +663,12 @@ elif (investigation_year==panel_f):
 else:
     print('Wrong transect name input')
 
-
 #Display colorbar. This is from FigS1.py
 cbar_depth=fig.colorbar(cb, cax=axc, aspect=5)#aspect is from https://stackoverflow.com/questions/33443334/how-to-decrease-colorbar-width-in-matplotlib
-cbar_depth.set_label('Radar signal strength [dB]')
+
+cbar_depth.set_ticks(cbar_depth.get_ticks()[1:-1])
+cbar_depth.set_ticklabels(cbar_depth.get_ticks(),fontsize=25)
+cbar_depth.set_label('Radar signal strength [dB]',fontsize=25)
 
 plot_dist=[]
 for indiv_tick in ticks_through:
@@ -679,10 +682,10 @@ for indiv_tick in ticks_through:
 
 
 ax_tick_plot.xaxis.set_ticks_position('bottom') 
-ax_tick_plot.set_xticklabels(np.round(plot_dist).astype(int))
-ax_tick_plot.set_xlabel('Distance [km]')
+ax_tick_plot.set_xticklabels(np.round(plot_dist).astype(int),fontsize=25)
+ax_tick_plot.set_xlabel('Distance [km]',fontsize=25)
 
-ax_top.set_title('Panel f')
+ax_top.set_title('Panel f',fontsize=25)
 
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
@@ -690,8 +693,10 @@ figManager.window.showMaximized()
 plt.show()
 
 pdb.set_trace()
+
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v3/figS7_panelf.png',dpi=500)
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v4/figS7_panelf.png',dpi=300,bbox_inches='tight')
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 
 
 

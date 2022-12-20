@@ -126,8 +126,8 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     elif (zorder_indiv==2):
         
         #Add dashed lines such as in Fig. 3
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=3,linestyle='--',color='k')
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=3,linestyle='--',color='k')
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=3,linestyle='--',color='k',linewidth=1)
+        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=3,linestyle='--',color='k',linewidth=1)
         ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=3,linestyle='--',color='k',linewidth=1)#Line at km 15.6
         ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=3,linestyle='--',color='k',linewidth=1)#Line at km 16.7
         
@@ -156,15 +156,15 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     ##### Same procedure of mask appliance for EPSG:32622 coordinates #####
         
     #display loc of the trace on zoomed map
-    ax_map_region.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='#969696',s=0.1,zorder=10,transform=crs)
+    ax_map_region.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='#d9d9d9',s=0.1,zorder=10,transform=crs)
     
     ax_map_region.scatter(lon32622_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
                           lat32622_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
-                          c='k',s=0.1,zorder=11,transform=crs)
+                          c='#969696',s=0.1,zorder=11,transform=crs)
     
     ax_map_region.scatter(lon32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.023)],
                           lat32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.023)],
-                          c='#d9d9d9',s=0.1,zorder=12,transform=crs)
+                          c='k',s=0.1,zorder=12,transform=crs)
     
     '''
     #Same as previously by distance-wise
@@ -482,8 +482,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
     dist_for_dashed_lines=df_for_elev_sorted[df_for_elev_sorted['year']==2018]['distances']
     
     #Display limits of area of focus
-    axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
-    axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
+    axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k',linewidth=1)
+    axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k',linewidth=1)
     #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.07)))],zorder=1,linestyle='--',color='k') #Ice slabs filling, line at km 
     #axt.axvline(x=dist_for_dashed_lines.iloc[np.nanargmin(np.abs(np.abs(lon_for_dashed_lines)-np.abs(-47.0487)))],zorder=1,linestyle='--',color='k') #Ice slabs accretion, line at km x
 
@@ -761,8 +761,8 @@ def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_
         
         #Display limits of area of focus
         if (str(year) in list(['2012','2013','2018'])):
-            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k')
-            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k')
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=1,linestyle='--',color='k',linewidth=1)
+            ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=1,linestyle='--',color='k',linewidth=1)
             
             #Ice slabs filling
             print(year)
@@ -1407,6 +1407,11 @@ plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10
 ############## Fig. S6 showing radargrams and ice slabs product ###############
 ###############################################################################
 
+#7h30-8h15
+#8h20-9h10
+#9h40-10h35
+#10h45-10h55
+#11h10-
 pdb.set_trace()
 
 ###############################################################################
@@ -1477,13 +1482,15 @@ ax_map_region.scatter(KAN_U_coord[0][0],KAN_U_coord[1][0],s=35,c='#b2182b',label
 
 #set x and y limits
 ax_map_region.set_xlim(649090, 701160)
-ax_map_region.set_ylim(7428626, 7437212)
+#ax_map_region.set_ylim(7428626, 7437212) #if display legend
+ax_map_region.set_ylim(7430052, 7438638) #if do not display legend
 
 #Add elevation contour values
 ax_map_region.text(0.22, -0.11,'1800', ha='center', va='center', rotation=90,transform=ax_map_region.transAxes,fontsize=15,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 ax_map_region.text(0.525, -0.11,'1900', ha='center', va='center', rotation=90,transform=ax_map_region.transAxes,fontsize=15,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 ax_map_region.text(0.83, -0.11,'2000', ha='center', va='center', rotation=90,transform=ax_map_region.transAxes,fontsize=15,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
+'''
 #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
 legend_elements = [Line2D([0], [0], label='Complete transect (0-40 km)', color='#969696'),
                    Line2D([0], [0], label='Displayed transect (10-30 km)', color='black'),
@@ -1491,7 +1498,7 @@ legend_elements = [Line2D([0], [0], label='Complete transect (0-40 km)', color='
                    Line2D([0], [0], label='Elevation', color='#8c510a')]#,
                    #Line2D([0], [0], marker='o', linestyle='none', label='KAN_U', color='#b2182b')]
 ax_map_region.legend(handles=legend_elements,loc='lower right',fontsize=15)
-
+'''
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 gl=ax_map_region.gridlines(draw_labels=True, xlocs=[-47,-47.5,-46.5], ylocs=[66.95,67], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
