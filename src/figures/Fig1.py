@@ -479,7 +479,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         axmap_standalone.text(NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1],np.asarray(NW_rignotetal.SUBREGION1)[0],color='black')
         
         # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-        lgnd = axmap_standalone.legend(loc="lower right", scatterpoints=1,bbox_to_anchor=(1.175, 0))
+        lgnd = axmap_standalone.legend(loc="lower right", scatterpoints=1,bbox_to_anchor=(1.1, 0))
         lgnd.legendHandles[0]._sizes = [30]
         lgnd.legendHandles[1]._sizes = [30]
         lgnd.legendHandles[2]._sizes = [30]
@@ -816,7 +816,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                                Line2D([0], [0], marker='.', linestyle='none', label='Firn aquifers', color='#238443'),
                                Line2D([0], [0], color='#969696', lw=2, label='flightlines 2013-14-17-18'),
                                Line2D([0], [0], color='#d9d9d9', lw=2, label='flightlines 2010-11-12')]
-            axmap.legend(handles=legend_elements_a,loc='lower right',bbox_to_anchor=(1.2, 0))
+            axmap.legend(handles=legend_elements_a,loc='lower right',bbox_to_anchor=(1, 0))
             plt.legend()
             
             #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
