@@ -1,1056 +1,971 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Nov 12 16:07:38 2021
+Created on Tue Feb 23 17:18:07 2021
 
-@author: jullienn
+@author: JullienN
 """
-from scipy.spatial import Delaunay
-from shapely.ops import cascaded_union, polygonize
-from shapely.geometry import  MultiLineString
+#################### Define functions for surface picking ###################
 
-def alpha_shape(points, alpha):
-    #This function is from https://gist.github.com/dwyerk/10561690
-    """
-    Compute the alpha shape (concave hull) of a set
-    of points.
-    @param points: Iterable container of points.
-    @param alpha: alpha value to influence the
-        gooeyness of the border. Smaller numbers
-        don't fall inward as much as larger numbers.
-        Too large, and you lose everything!
-    """
-    if len(points) < 4:
-        # When you have a triangle, there is no sense
-        # in computing an alpha shape.
-        return geometry.MultiPoint(list(points)).convex_hull
-
-    coords = np.array([p.coords[:][0] for p in points.coords])
-    tri = Delaunay(coords)
-    triangles = coords[tri.vertices]
-    a = ((triangles[:,0,0] - triangles[:,1,0]) ** 2 + (triangles[:,0,1] - triangles[:,1,1]) ** 2) ** 0.5
-    b = ((triangles[:,1,0] - triangles[:,2,0]) ** 2 + (triangles[:,1,1] - triangles[:,2,1]) ** 2) ** 0.5
-    c = ((triangles[:,2,0] - triangles[:,0,0]) ** 2 + (triangles[:,2,1] - triangles[:,0,1]) ** 2) ** 0.5
-    s = ( a + b + c ) / 2.0
-    areas = (s*(s-a)*(s-b)*(s-c)) ** 0.5
-    circums = a * b * c / (4.0 * areas)
-    filtered = triangles[circums < (1.0 / alpha)]
-    edge1 = filtered[:,(0,1)]
-    edge2 = filtered[:,(1,2)]
-    edge3 = filtered[:,(2,0)]
-    edge_points = np.unique(np.concatenate((edge1,edge2,edge3)), axis = 0).tolist()
-    m = MultiLineString(edge_points)
-    triangles = list(polygonize(m))
+##############################################################################
+############# Define kernel function for surface identification ##############
+##############################################################################
+#_gaussian function taken from IceBridgeGPR_Manager_v2.py
+# Define a quick guassian function to scale the cutoff mask above
+def _gaussian(x,mu,sigma):
+    return np.exp(-np.power((x-mu)/sigma, 2.)/2.)
     
-    return cascaded_union(triangles), edge_points
-
-
-def calcul_elevation(lon,lat,data_dem,yOrigin,pixelHeight,pixelWidth,index_lon_zero):
+#This function have been taken from 'IceBridgeGPR_Manager_v2.py
+def kernel_function(traces_input,suggested_pixel):
     
-    if (np.isnan(lon) or np.isnan(lat)):
-        #elev_all=np.append(elev_all,np.nan)
-        elevation=np.nan
-    else:
-        #The origin is top left corner!!
-        #y will always be negative
-        row = int((yOrigin - lat ) / pixelHeight)
-        if (lon<0):
-            # if x negative
-            col = index_lon_zero-int((-lon-0) / pixelWidth)
-        elif (lon>0):
-            # if x positive
-            col = index_lon_zero+int((lon-0) / pixelWidth)
-        #Read the elevation
-        elevation=data_dem[row][col]
+    traces = traces_input
+    #Do not take the log10 of traces because 'data have been detrented in the log domain' according to John Paden's email, so I guess they are already log10!
+    #traces = np.log10(traces)
     
-    return elevation
-
+    # We do not have the original indicies to use as a starter so we use our suggestion for surface picking start
     
-def concave_hull_computation(df_in_use,dictionnaries_convexhullmasks,ax1c,do_plot,input_file):
-    from descartes.patch import PolygonPatch
-
-    #Prepare for convex hull intersection
-    df_in_use['coords'] = list(zip(df_in_use['lon_3413'],df_in_use['lat_3413']))
-    df_in_use['coords'] = df_in_use['coords'].apply(Point)
+    # 3) Perform surface pick crawling threshold behavior mask (assume a step-change analysis [goes from weak->strong at surface], and continuity of surface in original file.)
+    # Create a step-change mask to optimze where the returns transition from "dark" to "bright"
+    MASK_RADIUS = 50
+    vertical_span_mask = np.empty([MASK_RADIUS*2,], dtype=np.float)
+    vertical_span_mask[:MASK_RADIUS] = -1.0
+    vertical_span_mask[MASK_RADIUS:] = +3.0
     
-    #Set summary_area
-    summary_area={k: {} for k in list(['2011-2012','2017-2018'])}
+    vertical_span_mask = vertical_span_mask * _gaussian(np.arange(vertical_span_mask.shape[0]),mu=(MASK_RADIUS-5),sigma=(float(MASK_RADIUS)/3.0))
     
-    #Loop over time period
-    for time_period in list(['2017-2018','2011-2012']):
-        print(time_period)
-        #Set color for plotting
-        if (time_period == '2017-2018'):
-            if (input_file=='low_end'):
-                col_year='#fee0d2'
-                set_alpha=0.2
-            elif(input_file=='high_end'):
-                col_year='#de2d26'
-                set_alpha=0.5
-            else:
-                print('Input file not known, break')
-            #Select data of the corresponding time period
-            df_time_period=df_in_use[df_in_use['str_year']=='2011-2012'].append(df_in_use[df_in_use['str_year']=='2017-2018'])
+    # Expand the shape to handle array broadcasting below
+    vertical_span_mask.shape = vertical_span_mask.shape[0], 1
+    
+    # This is the vertical window size of the extent of the search.  Should be bigger than any jump from one surface pixel to the next.
+    MASK_SEARCH_RADIUS = 40
+    
+    improved_indices = np.zeros(traces.shape[1], dtype='int64')
+    #pdb.set_trace()
+    #traces.shape[1] indeed correspond to the horizontal distance
+    
+    # Start at the left with the hand-picked "suggested surface pick" in the ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE as starting point
+    
+    last_best_index = suggested_pixel
+    
+    #pdb.set_trace()
+    # A template graph to use, just have to add in the center vertical index at each point and go from there.
+    search_indices_template = np.sum(np.indices((vertical_span_mask.shape[0], 2*MASK_SEARCH_RADIUS)),axis=0) - MASK_SEARCH_RADIUS - MASK_RADIUS
+    for i in range(traces.shape[1]):
+        
+        # Create an array of indices spanning the top-to-bottom of the MASK_SEARCH_RADIUS, and fanning out MASK_RADIUS above and below that point.
+        search_indices = search_indices_template + last_best_index
+        # Handle overflow indices if below zero or above max (shouldn't generally happen)... just assign to the top or bottom pixel
+        search_indices[search_indices < 0] = 0
+        search_indices[search_indices >= traces.shape[0]] = traces.shape[0]-1
+        
+        bestfit_sum = np.sum(traces[:,i][search_indices] * vertical_span_mask, axis=0)
             
-        elif(time_period == '2011-2012'):
-            if (input_file=='low_end'):
-                col_year='#deebf7'
-                set_alpha=0.2
-            elif(input_file=='high_end'):
-                col_year='#3182bd'
-                set_alpha=0.5
+        assert bestfit_sum.shape[0] == 2*MASK_SEARCH_RADIUS
+        
+        # Get the best fit (with the highest value from the transformation fit)
+        last_best_index = search_indices[MASK_RADIUS,np.argmax(bestfit_sum)]
+        improved_indices[i] = last_best_index
+        
+    #If there are pixels with particularly strong echo that are being erroneously
+    #picked up as the surface, erase most the little "jump" artifacts in
+    #the surface picker.
+    improved_indices = _get_rid_of_false_surface_jumps(improved_indices)
+        
+    #I do not use any mask so I think I shouldn't need to use that:
+    ###### Must re-expand the surface indices to account for masked values (filled w/ nan)
+    ##### improved_indices_expanded = self._refill_array(improved_indices, surface_maskname)
+    
+    #pdb.set_trace()
+    return improved_indices
+##############################################################################
+############# Define kernel function for surface identification ##############
+##############################################################################
+
+##############################################################################
+################## Define functions for radar slice picking ##################
+##############################################################################
+def _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths):
+    #pdb.set_trace()
+
+    delta_distance = np.mean(depths[1:] - depths[:-1])
+    idx_above = int(np.round(float(meters_cutoff_above) / delta_distance))
+    # Add one to the index below to include that last pixel when array-slicing
+    idx_below = int(np.round(float(meters_cutoff_below) / delta_distance)) + 1
+    
+    return idx_above, idx_below
+    
+def _return_radar_slice_given_surface(traces,
+                                      depths,
+                                      surface_indices,
+                                      meters_cutoff_above,
+                                      meters_cutoff_below):
+    '''From this radar track, return a "slice" of the image above and below the surface by
+    (meters_cutoff_above, meters_cutoff_below), respectively.
+    
+    Return value:
+    A ((idx_below+idx_above), numtraces]-sized array of trace sample values.
+    '''
+    idx_above, idx_below = _radar_slice_indices_above_and_below(meters_cutoff_above, meters_cutoff_below,depths)
+    
+    output_traces = np.empty((idx_above + idx_below, traces.shape[1]), dtype=traces.dtype)
+    bottom_indices = np.zeros(shape=(1,traces.shape[1]))
+    
+    for i,s in enumerate(surface_indices):
+        try:
+            output_traces[:,i] = traces[(s-idx_above):(s+idx_below), i]
+            bottom_indices[0,i]=(s+idx_below)
+        except ValueError:
+            # If the surf_i is too close to one end of the array or the other, it extends beyond the edge of the array and breaks.
+            if s < idx_above:
+                start, end = None, idx_above+idx_below
+            elif s > (traces.shape[0] - idx_below):
+                start, end = traces.shape[0] - (idx_above + idx_below), None
             else:
-                print('Input file not known, break')
-            #Select data of the corresponding time period
-            df_time_period=df_in_use[df_in_use['str_year']==time_period]
+                # SHouldn't get here.
+                print(i, s, traces.shape)
+                assert False
+            output_traces[:,i] = traces[start:end, i]
+            bottom_indices[0,i]=end 
+    return output_traces, bottom_indices
+
+
+def _get_rid_of_false_surface_jumps(surface_indices):
+    '''Some of the 2011 files especially, have strong echos that are errantly being picked up as the surface.  Find these big "jumps", and get rid of them.  Use the suggested surface instead.'''
+    improved_surface = surface_indices.copy()
+    
+    jumps = improved_surface[1:] - improved_surface[:-1]
+    # Substitute any large jumps with brightest pixel in a window of original surface.  Do this until large jumps either go away or have all been corrected to original surface.
+    for i in range(len(jumps)):
+        
+        # Slope windowsize = number of pixels we use to average the previous slope.
+        slope_windowsize = 10
+        if i < slope_windowsize:
+            continue
+        mean_slope = np.mean(np.array(jumps[i-slope_windowsize:i], dtype=np.float))
+    
+        # Find the difference of this slope from the last five stops
+        difference_from_mean_slope = jumps[i] - mean_slope
+        # Ignore if it's jumped less than 3 from the mean recent slope, or less than 50% greater than the mean slope at this time.
+        if (difference_from_mean_slope < 5) or (difference_from_mean_slope < (1.5*mean_slope)):
+            continue
+    
+        # tune settings
+        jump_lookahead = 20 # Number of pixels to look ahead to see if we can find a matching down-jump
+        if i+jump_lookahead > len(jumps):
+            jump_lookahead = len(jumps) - i
+    
+        # This is how close the surface on the "other side" of the jump must be to the original slope to be considered for it.
+        jump_magnitude_threshold = 1.10
+    
+        # See if we can find a point in the near future that would approximate the current slope.
+        slopes_ahead = np.cumsum(jumps[i:i+jump_lookahead]) / np.arange(1,jump_lookahead+1)
+        opposite_match = np.argmax(slopes_ahead <= (mean_slope * jump_magnitude_threshold))
+        
+        if opposite_match > 0:
+            # We found a match, onward!
+            opposite_match_index = i + opposite_match
+            for j in range(i+1,opposite_match_index+1):
+                improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_match_index+1] - improved_surface[i])*(j-i)/(opposite_match_index+1-i))    
+            # now recompute jumps
+            jumps = improved_surface[1:] - improved_surface[:-1]
+            continue
+    
+        # IF THE ABOVE DIDN'T WORK, TRY THE 'JUMP' TECHNIQUE, SEEING WHETHER AN ANOMALOUS 'JUMP' IS COUNTERBALANCED BY AN
+        # OPPOSITE AND (APPROXIMATELY) EQUAL JUMP IN THE OPPOSITE DIRECTION.
+        # Don't worry about any trends less than 12 pixels.  Hills do that.
+        jump = jumps[i]
+        if abs(jump) < 5:
+            continue
+    
+        # tune settings
+        jump_lookahead = 50 # Number of pixels to look ahead to see if we can find a matching down-jump
+        jump_magnitude_threshold = 0.50 # What fraction of the original jump the new jump has to be (in the opposite direction) to qualify.
+    
+        # see if we can find a jump in the near-future that crosses this threshold in the other direction.  If so, we've found our counter-part
+        if jump < 0:
+            opposite_jump_index = np.argmax((jumps[i:i+jump_lookahead]) > (-jump*jump_magnitude_threshold))
+        elif jump > 0:
+            opposite_jump_index = np.argmax((jumps[i:i+jump_lookahead]) < (-jump*jump_magnitude_threshold))
+    
+        if opposite_jump_index > 0:
+            opposite_jump_index += i
+        else: # If we didn't find a partner opposite offset, skip and move along.
+            continue
+    
+        # Linearly interpolate, get to the closest pixel
+        try:
+            for j in range(i+1,opposite_jump_index+1):
+                improved_surface[j] = np.round(improved_surface[i] + float(improved_surface[opposite_jump_index+1] - improved_surface[i])*(j-i)/(opposite_jump_index+1-i))
+        except IndexError:
+            print("i", i, "j", j, "opposite_jump_index", opposite_jump_index, improved_surface.shape, jumps.shape)
+            # Break the program here.
+            100/0
+    
+        # now recompute jumps
+        jumps = improved_surface[1:] - improved_surface[:-1]
+        continue
+    return improved_surface
+##############################################################################
+################## Define functions for radar slice picking ##################
+##############################################################################
+    
+#################### Define functions for surface picking ###################
+
+##############################################################################
+############### Define function for discrete colorbar display ###############
+##############################################################################
+def discrete_cmap(N, base_cmap=None):
+    """Create an N-bin discrete colormap from the specified input map"""
+    #This piece of code is from: https://gist.github.com/jakevdp/91077b0cae40f8f8244a
+    # Note that if base_cmap is a string or None, you can simply do
+    #    return plt.cm.get_cmap(base_cmap, N)
+    # The following works for string, None, or a colormap instance:
+    
+    base = plt.cm.get_cmap(base_cmap)
+    color_list = base(np.linspace(0, 1, N))
+    cmap_name = base.name + str(N)
+    return base.from_list(cmap_name, color_list, N)
+##############################################################################
+############### Define function for discrete colorbar display ###############
+##############################################################################
+
+
+def load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file):
+    #this function loads the individual 2002-2003 radargram
+    
+    #Define the uppermost and lowermost limits
+    meters_cutoff_above=0
+    meters_cutoff_below=30
+    
+    dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
+    t0 = 0; # Unknown so set to zero
+    #Compute the speed (Modified Robin speed):
+    # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+    v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+    
+    if (folder_day=='jun04'):
+        #Open the file and read it
+        fdata= scipy.io.loadmat(path_radar_slice)
+        #Select radar echogram, lat and lon
+        radar_echo=fdata['data']
+        lat=fdata['latitude']
+        lon=fdata['longitude']
+    else:
+        #Open the file and read it
+        f_agg = open(path_radar_slice, "rb")
+        radar_data = pickle.load(f_agg)
+        f_agg.close()
+                                                
+        #Select radar echogram, lat and lon
+        radar_echo=radar_data['radar_echogram']
+        
+        latlontime=radar_data['latlontime']
+        lat=latlontime['lat_gps']
+        lon=latlontime['lon_gps']
+        
+        #Remove zeros in lat/lon
+        lat.replace(0, np.nan, inplace=True)
+        lon.replace(0, np.nan, inplace=True)
+    
+    #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
+    lon=-lon
+                        
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.array(lon),np.array(lat))
+    
+    #Reset the lat_3413 and lon_3413 to empty vectors.
+    lon_3413=[]
+    lat_3413=[]
+    lon_3413=points[0]
+    lat_3413=points[1]
+    
+    #1. Compute the vertical resolution
+    #a. Time computation according to John Paden's email.
+    Nt = radar_echo.shape[0]
+    Time = t0 + dt*np.arange(1,Nt+1)
+    #b. Calculate the depth:
+    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+    depths = v * Time / 2.0
+    
+    # Load the suggested pixel for the specific date
+    for date_pix in lines:
+        if (folder_day=='jun04'):
+            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                suggested_pixel=int(date_pix.partition(" ")[2])
+                #If it has found its suggested pixel, leave the loop
+                continue   
         else:
-            print('Time period not known')
-            break
-        
-        #Set summary_area
-        summary_area[time_period]={k: {} for k in list(['NE','NO','NW','CW','SW'])}
-                
-        #Loop over each region and do the hull for each region of the IS
-        for region in list(np.unique(df_time_period['key_shp'])):            
-            print('   ',region)
-            #Select the corresponding region
-            df_time_period_region=df_time_period[df_time_period['key_shp']==region]
-            #Select point coordinates
-            points = gpd.GeoDataFrame(df_time_period_region, geometry='coords', crs="EPSG:3413")
-
-            if (region in list(['SE','Out'])):
-                #do not compute, continue
+            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                suggested_pixel=int(date_pix.partition(" ")[2])
+                #If it has found its suggested pixel, leave the loop
                 continue
-            #reset area region to 0
-            area_region=0
-            
-            # Perform spatial join to match points and polygons
-            for convex_hull_mask in dictionnaries_convexhullmasks[region].keys():
-                print('      ',convex_hull_mask)
-                pointInPolys = gpd.tools.sjoin(points, dictionnaries_convexhullmasks[region][convex_hull_mask], op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-                #Keep only matched point
-                if (region in list(['CW','SW'])):
-                    pnt_matched = points[pointInPolys.SUBREGION1==region]
-                else:
-                    pnt_matched = points[pointInPolys.id==1]
-                
-                if (len(pnt_matched)>1):
-                    #pdb.set_trace()
-                    #this function is from https://gist.github.com/dwyerk/10561690
-                    concave_hull, edge_points= alpha_shape(pnt_matched, 0.00002) #0.00005 is a bit too aggresive, 0.00001 is a bit generous     
-                    
-                    alpha_play=0.00002
-                    while (len(concave_hull.bounds)==0):
-                        print('Empty alpha! Iterate until fit is made')
-                        #Could not match a poylgon with specified alpha. Decrease alpha until poylgon can be matched
-                        #update alpha_play
-                        alpha_play=alpha_play/2
-                        print(alpha_play)
-                        concave_hull, edge_points= alpha_shape(pnt_matched, alpha_play) #0.00005 is a bit too aggresive, 0.00001 is a bit generous
-                        
-                    if (do_plot=='TRUE'):
-                        patch1 = PolygonPatch(concave_hull, zorder=2, alpha=set_alpha,color=col_year)
-                        ax1c.add_patch(patch1)
-                        ax1c.scatter(pnt_matched.lon_3413,pnt_matched.lat_3413,zorder=3,s=0.1)
-                        plt.show()
-                        pdb.set_trace()
-                    
-                    #Update area_region
-                    area_region=area_region+concave_hull.area #I do not think this is correct. Look for 'area' on this webpage https://gist.github.com/dwyerk/10561690
-            
-            #Store total area per region and per time period
-            summary_area[time_period][region]=area_region  
-            
-    return summary_area
+
+    surface_indices=kernel_function(radar_echo, suggested_pixel)
+    
+    #Get our slice (30 meters as currently set)
+    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
+                                                                    depths,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=meters_cutoff_above,
+                                                                    meters_cutoff_below=meters_cutoff_below)    
+    #Transpose if june 04
+    if (folder_day=='jun04'):
+        lat_3413=np.transpose(lat_3413)
+        lon_3413=np.transpose(lon_3413)
+    #Calculate the distances (in m)
+    distances=compute_distances(lon_3413,lat_3413)
+    #Convert distances from m to km
+    distances=distances/1000
+    
+    #Save lat, lon and radar slice from 0 to 30m deep into a dictionnary
+    dict_returned={'lat_3413':lat_3413,'lon_3413':lon_3413,'radar_slice_0_30m':radar_slice,'distances':distances,'depths':depths}
+    
+    return dict_returned
 
 
-def draw_map(ax_plot,panel_label):
+def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary):
+        
+    #load radargram
+    radargram_data = load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file)
+        
+    #Display on the map where is this track
+    ax_map.scatter(radargram_data['lon_3413'], radargram_data['lat_3413'],s=1,facecolors='black', edgecolors='black')
     
-    ###################### From Tedstone et al., 2022 #####################
-    #from plot_map_decadal_change.py
-    # Define the CartoPy CRS object.
-    int_crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
-    ###################### From Tedstone et al., 2022 #####################
+    #The range have already been computed, plot the data:
+    if (technique=='perc_25_75'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.08318485583215623
+            perc_upper_end=0.09414986209628376
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.08488332785270308
+            perc_upper_end=0.09654050592743407
+    elif (technique=='perc_5_95'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.2870889087496134
+            perc_upper_end=0.3138722799744009
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.31927843730229416
+            perc_upper_end=0.3682849426401127
+    elif (technique=='perc_05_995'):
+        if (folder_year=='2002'):
+            perc_lower_end=-2.1488917418616134
+            perc_upper_end=2.650167679823621
+        elif (folder_year=='2003'):
+            perc_lower_end=-1.661495950494564
+            perc_upper_end=1.9431298622848088
+    elif (technique=='perc_2p5_97p5'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.5709792307554173
+            perc_upper_end=0.7082634842114803
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.6061610403154447
+            perc_upper_end=0.7572821079440079      
     
-    #Draw plot of GrIS map
-    ax_plot.coastlines(edgecolor='black',linewidth=0.075)
-    #Display GrIS drainage bassins limits
-    GrIS_drainage_bassins.plot(ax=ax_plot,color='none', edgecolor='black',linewidth=0.075)
-    #Display region name
-    ax_plot.text(NO_rignotetal.centroid.x-125000,NO_rignotetal.centroid.y-150000,np.asarray(NO_rignotetal.SUBREGION1)[0])
-    ax_plot.text(NE_rignotetal.centroid.x-150000,NE_rignotetal.centroid.y-100000,np.asarray(NE_rignotetal.SUBREGION1)[0])
-    ax_plot.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
-    ax_plot.text(SW_rignotetal.centroid.x-150000,SW_rignotetal.centroid.y-170000,np.asarray(SW_rignotetal.SUBREGION1)[0])
-    ax_plot.text(CW_rignotetal.centroid.x-100000,CW_rignotetal.centroid.y-60000,np.asarray(CW_rignotetal.SUBREGION1)[0])
-    ax_plot.text(NW_rignotetal.centroid.x-25000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+    #Generate the pick for vertical distance display
+    ticks_yplot=np.linspace(0,radargram_data['radar_slice_0_30m'].shape[0],4).astype(int)
     
-    # x0, x1, y0, y1
-    ax_plot.set_extent([-692338, 916954, -3392187, -627732], crs=int_crs)
-
-    ###################### From Tedstone et al., 2022 #####################
-    #from plot_map_decadal_change.py
-    gl=ax_plot.gridlines(draw_labels=True, xlocs=[-35, -50], ylocs=[65,75], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
-    #Customize lat labels
-    gl.ylabels_right = False
-    ax_plot.axis('off')
+    #Plot the radar slice
+    cb2=ax_plot.pcolor(radargram_data['radar_slice_0_30m'],cmap=plt.get_cmap('gray'))
+    ax_plot.set_ylim(0,radargram_data['radar_slice_0_30m'].shape[0])
+    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
+    #Colorbar custom
+    cb2.set_clim(perc_lower_end,perc_upper_end)
+    #Set the y ticks
+    ax_plot.set_yticks(ticks_yplot) 
+    ax_plot.set_yticklabels(np.round(radargram_data['depths'][ticks_yplot]).astype(int))
+    #Set ylabel
+    ax_plot.set_ylabel('Depth [m]')
+        
+    #Distance from start of the trace
+    if (ax_nb==2):
+        letter_elev='b'
+        #Display on the map the letter corresponding to the radar slice
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-15000,np.nanmedian(radargram_data['lat_3413']),letter_elev,color='black',fontsize=20)
     
-    if (panel_label in list(['a','b','c','d','e'])):
-        gl.xlabels_bottom = False
-        gl.xlabels_top = False
-    else:
-        gl.xlabels_top = False
+    elif (ax_nb==3):
+        #ax_plot.set_title('Percolation zone - ice lenses',fontsize=10)
+        letter_elev='c'
+        #Display on the map the letter corresponding to the radar slice
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-30000,np.nanmedian(radargram_data['lat_3413'])-10000,letter_elev,color='black',fontsize=20)
     
-    ###################### From Tedstone et al., 2022 #####################
+    elif (ax_nb==4):
+        #ax_plot.set_title('Percolation zone - ice slabs',fontsize=10)
+        letter_elev='d'
+        #Display on the map the letter corresponding to the radar slice
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-15000,np.nanmedian(radargram_data['lat_3413'])+5000,letter_elev,color='black',fontsize=20)
     
-    #Add panel labels
-    ax_plot.text(-0.1, 0.95, panel_label,zorder=10, ha='center', va='center', transform=ax_plot.transAxes, weight='bold',fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    elif (ax_nb==5):
+        #ax_plot.set_title('Dry snow zone',fontsize=10)
+        ax_plot.set_xlabel('Distance [km]')
+        letter_elev='e'
+        #Display on the map the letter corresponding to the radar slice
+        ax_map.text(np.nanmedian(radargram_data['lon_3413']),np.nanmedian(radargram_data['lat_3413'])-37000,letter_elev,color='black',fontsize=20)
+        
+        #Display colorbar. This is from FigS1.py
+        cbar_depth=fig.colorbar(cb2, cax=axc)#aspect is from https://stackoverflow.com/questions/33443334/how-to-decrease-colorbar-width-in-matplotlib
+        cbar_depth.set_label('Radar signal strength [dB]')
+        axc.yaxis.labelpad = -5#this is from https://stackoverflow.com/questions/6406368/matplotlib-move-x-axis-label-downwards-but-not-x-axis-ticks
     
-    if (panel_label == 'a'):
-        #Display scalebar
-        scale_bar(ax_plot, (0.745, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
-        #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
-        
-    return
-
-def display_flightlines(ax_plot,flightlines_to_display,timing):
-    #Display flightlines of this time period    
-    ax_plot.scatter(flightlines_to_display['lon_3413'],
-                    flightlines_to_display['lat_3413'],
-                    s=1,marker='.',linewidths=0,c='#d9d9d9',label='Flightlines')
+    #Display the correspondance between radar slice and radar location on the map
+    ax_plot.text(0.0172, 0.8975,'   ',backgroundcolor='white',ha='center', va='center', transform=ax_plot.transAxes,fontsize=17)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of
+    ax_plot.text(0.0172, 0.8975,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
-    ax_plot.set_title(timing,fontsize=20, weight='bold')
-    return
-
-def display_iceslabs(ax_plot,iceslabs_20022018,timing):
-    
-    #Display 2002-2003 iceslabs
-    ax_plot.scatter(iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lon_3413'],
-                    iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lat_3413'],
-                    s=12,marker='.',color='black',linewidths=0)
-    
-    #Display 2002-2003 iceslabs
-    ax_plot.scatter(iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lon_3413'],
-                    iceslabs_20022018[iceslabs_20022018.str_year=='2002-2003']['lat_3413'],
-                    s=10,marker='.',color='#ffb300',linewidths=0,
-                    label='2002-2003 ice slabs')
-
-    if (timing!='2002-2003'):
-        #Display iceslabs thickness of the corresponding time period
-        lik_blues=ax_plot.scatter(iceslabs_20022018['lon_3413'],
-                                  iceslabs_20022018['lat_3413'],
-                                  c=iceslabs_20022018['20m_ice_content_m'],
-                                  s=10,marker='.',cmap=plt.get_cmap('Blues'),linewidths=0)  
+    #Display the ice lenses identification:
+    if (indiv_file in list(xls_icelenses.keys())):
+        print(indiv_file+' hold ice lens!')
+        #This file have ice lenses in it: read the data:
+        df_temp=xls_icelenses[indiv_file]
+        df_colnames = list(df_temp.keys())
+        x_loc=[]
         
-    if (timing=='2017-2018'):
-        #Inspired from this https://matplotlib.org/stable/gallery/axes_grid1/demo_colorbar_with_inset_locator.html
-        axins1 = inset_axes(ax_plot,
-                            width="5%",  # width = 50% of parent_bbox width
-                            height="100%",  # height : 5%
-                            loc='lower left',
-                            bbox_to_anchor=(1, 0., 1, 1),
-                            bbox_transform=ax_plot.transAxes,
-                            borderpad=0)
+        #Trafic light information
+        df_trafic_light=trafic_light[indiv_file]
+        df_colnames_trafic_light = list(df_trafic_light.keys())
         
-        cbar_blues=plt.colorbar(lik_blues, ax=ax_plot, cax=axins1, shrink=1,orientation='vertical')
-        cbar_blues.set_label('Total ice content [m]',fontsize=17)
-        cbar_blues.ax.tick_params(labelsize=17)#This is from https://stackoverflow.com/questions/15305737/python-matplotlib-decrease-size-of-colorbar-labels
-    return
-
-def plot_pannels_supp(axplot_indiv,axplot_cum,flightlines_20022018,df_firn_aquifer_all,df_all,time_period_function,label_panel_top,label_panel_bottom):
-        
-    #Generate maps
-    draw_map(axplot_indiv,label_panel_top)
-    draw_map(axplot_cum,label_panel_bottom)
-    
-    #Display flightlines
-    if (time_period_function=='2010'):
-        display_flightlines(axplot_indiv,flightlines_20022018[np.logical_or(flightlines_20022018.str_year==time_period_function,flightlines_20022018.str_year==int(time_period_function))],time_period_function)
-    else:
-        display_flightlines(axplot_indiv,flightlines_20022018[flightlines_20022018.str_year==time_period_function],time_period_function)
-    
-    #Display ice slabs
-    display_iceslabs(axplot_indiv,df_all[df_all.str_year==time_period_function],time_period_function)
-    display_iceslabs(axplot_cum,df_all[df_all.year<=int(time_period_function[-4:])],time_period_function)
-    
-    return
-
-def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thickness_likelihood_20102018,crs):
-    
-    ax1c.set_facecolor('white')
-
-    #Display GrIS drainage bassins of the specific region
-    region_rignot.plot(ax=ax1c,color='white', edgecolor='black',linewidth=0.5)
-    
-    #Flightlines
-    # --- 2011-2012
-    ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lon_3413'],
-                flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lat_3413'],
-                s=0.1,marker='.',linewidths=0,c='#d9d9d9',label='flightlines 2011-2012')
-    
-    # --- 2017-2018
-    ax1c.scatter(flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lon_3413'],
-                flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lat_3413'],
-                s=0.1,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
-    
-    #Likelihood
-    # --- 2011-2012
-    ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lon_3413'],
-                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['lat_3413'],
-                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2011']['likelihood'],
-                s=15,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
-    
-    lik_blues=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lon_3413'],
-                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['lat_3413'],
-                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2012']['likelihood'],
-                s=15,marker='.',linewidths=0,cmap=plt.get_cmap('Blues'))
-    
-    # --- 2017-2018            
-    ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lon_3413'],
-                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['lat_3413'],
-                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2017']['likelihood'],
-                s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
-    lik_reds=ax1c.scatter(df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lon_3413'],
-                df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['lat_3413'],
-                c=df_thickness_likelihood_20102018[df_thickness_likelihood_20102018.Track_name.str[:4]=='2018']['likelihood'],
-                s=3,marker='.',linewidths=0,cmap=plt.get_cmap('Reds'))
-    
-    '''
-    # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-    lgnd = plt.legend(loc="best", scatterpoints=1)
-    lgnd.legendHandles[0]._sizes = [30]
-    lgnd.legendHandles[1]._sizes = [30]
-    '''
-    '''
-    import matplotlib.patches as patches
-    from matplotlib.patches import Patch
-    
-    #Custom legend myself
-    legend_elements = [Patch(facecolor='#d9d9d9',label='flightlines 2011-2012'),
-                       Patch(facecolor='#969696',label='flightlines 2017-2018'),
-                       Patch(facecolor='#2171b5',label='Likelihood 2011-2012'),
-                       Patch(facecolor='#cb181d',label='Likelihood 2017-2018')]
-
-    ax1c.legend(handles=legend_elements)
-    plt.legend()
-
-    '''
-    '''
-    cbar_reds = plt.colorbar(lik_reds,location = 'right')
-    cbar_reds.set_label('Columnal average likelihood - 2017-2018')
-    cbar_blues = plt.colorbar(lik_blues,location = 'left')
-    cbar_blues.set_label('Columnal average likelihood - 2011-2012')
-    '''
-    
-    ###################### From Tedstone et al., 2022 #####################
-    #from plot_map_decadal_change.py
-    # x0, x1, y0, y1
-    ax1c.set_extent([x0, x1, y0, y1], crs=crs)
-    #ax1c.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5)
-    #import scalebar
-    #scalebar.scale_bar(ax1c, (0.65, 0.06), 300)
-    ax1c.axis('off')
-    ###################### From Tedstone et al., 2022 #####################
-    return
-
-
-def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
-    plot_fig_S6='FALSE'
-    plot_standalone_map='FALSE'
-    plot_panela='TRUE'
-    plot_panelb='TRUE'
-    figure_AGU='TRUE'
-    
-    ###################### From Tedstone et al., 2022 #####################
-    #from plot_map_decadal_change.py
-    # Define the CartoPy CRS object.
-    crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
-    # This can be converted into a `proj4` string/dict compatible with GeoPandas
-    crs_proj4 = crs.proj4_init
-    ###################### From Tedstone et al., 2022 #####################
-    
-    if (plot_fig_S6 == 'TRUE'):
-        # -------------------------------- FIG S6 --------------------------------
-        plt.rcParams.update({'font.size': 17})
-        plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
-        fig = plt.figure()
-        gs = gridspec.GridSpec(14, 25)
-        gs.update(hspace = 2.5)
-        gs.update(wspace = 2.5)
-        #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-        ax1_indiv = plt.subplot(gs[0:7, 0:5],projection=crs)
-        ax2_indiv = plt.subplot(gs[0:7, 5:10],projection=crs)
-        ax3_indiv = plt.subplot(gs[0:7, 10:15],projection=crs)
-        ax4_indiv = plt.subplot(gs[0:7, 15:20],projection=crs)
-        ax5_indiv = plt.subplot(gs[0:7, 20:25],projection=crs)
-        
-        ax1_cum = plt.subplot(gs[7:14, 0:5],projection=crs)
-        ax2_cum = plt.subplot(gs[7:14, 5:10],projection=crs)
-        ax3_cum = plt.subplot(gs[7:14, 10:15],projection=crs)
-        ax4_cum = plt.subplot(gs[7:14, 15:20],projection=crs)
-        ax5_cum = plt.subplot(gs[7:14, 20:25],projection=crs)
-                
-        plot_pannels_supp(ax1_indiv,ax1_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2002-2003','a','f')
-        plot_pannels_supp(ax2_indiv,ax2_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2010','b','g')
-        plot_pannels_supp(ax3_indiv,ax3_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2011-2012','c','h')
-        plot_pannels_supp(ax4_indiv,ax4_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2013-2014','d','i')
-        plot_pannels_supp(ax5_indiv,ax5_cum,flightlines_20022018,df_firn_aquifer_all,df_all,'2017-2018','e','j')
-        
-        #Add title to 2nd row of plots
-        ax1_cum.set_title('2002-2003',fontsize=20, weight='bold')
-        ax2_cum.set_title('2002-2010',fontsize=20, weight='bold')
-        ax3_cum.set_title('2002-2012',fontsize=20, weight='bold')
-        ax4_cum.set_title('2002-2014',fontsize=20, weight='bold')
-        ax5_cum.set_title('2002-2018',fontsize=20, weight='bold')
-        
-        pdb.set_trace()
-        
-        #Save the figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S6/v5/figS6.png',dpi=300,bbox_inches='tight')
-        #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
-        # -------------------------------- FIG S6 --------------------------------
-    
-    if (plot_standalone_map=='TRUE'):
-                
-        #Prepare supp map (old Fig. 1)
-        plt.rcParams.update({'font.size': 15})
-        plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
-        fig = plt.figure()
-        
-        gs = gridspec.GridSpec(20, 16)
-        #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-        axmap_standalone = plt.subplot(gs[0:20, 0:16],projection=crs)
-        
-        #Draw plot of GrIS map
-        axmap_standalone.coastlines(edgecolor='black',linewidth=0.075)
-        #Display GrIS drainage bassins limits
-        GrIS_drainage_bassins.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075)
-        NO_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.5)
-        NE_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.5) 
-        SE_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.5) 
-        SW_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.5) 
-        CW_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.5) 
-        NW_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.5)     
-        
-        #Display scalebar
-        scale_bar(axmap_standalone, (0.745, 0.2), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
-        #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
-        
-        #Display 2002-2018 flightlines
-        axmap_standalone.scatter(flightlines_20022018['lon_3413'],flightlines_20022018['lat_3413'],s=0.1,marker='.',linewidths=0,color='#d9d9d9',label='Flightlines')#,label='2002-2003')
-        
-        #Display 2010-2014 iceslabs
-        axmap_standalone.scatter(df_all[df_all.Track_name.str[:4]=='2010']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2010']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4',label='2010-2014 ice slabs')
-        axmap_standalone.scatter(df_all[df_all.Track_name.str[:4]=='2011']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2011']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
-        axmap_standalone.scatter(df_all[df_all.Track_name.str[:4]=='2012']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2012']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
-        axmap_standalone.scatter(df_all[df_all.Track_name.str[:4]=='2013']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2013']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
-        axmap_standalone.scatter(df_all[df_all.Track_name.str[:4]=='2014']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2014']['lat_3413'],s=7,marker='.',linewidths=0,color='#4575b4')
-        
-        #Display 2017-2018 iceslabs
-        axmap_standalone.scatter(df_all[df_all.Track_name.str[:4]=='2017']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2017']['lat_3413'],s=3,marker='.',linewidths=0,color='#d73027',label='2017-2018 ice slabs')
-        axmap_standalone.scatter(df_all[df_all.Track_name.str[:4]=='2018']['lon_3413'],df_all[df_all.Track_name.str[:4]=='2018']['lat_3413'],s=3,marker='.',linewidths=0,color='#d73027')
-                
-        #Display 2002-2003 iceslabs
-        axmap_standalone.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
-                                 df_all[df_all.str_year=='2002-2003']['lat_3413'],
-                                 s=12,marker='.',linewidths=0,color='black')
-        
-        #Display 2002-2003 iceslabs
-        axmap_standalone.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
-                                 df_all[df_all.str_year=='2002-2003']['lat_3413'],
-                                 s=10,marker='.',linewidths=0,color='#ffb300',label='2002-2003 ice layers and slabs')
-        
-        #Display firn aquifers
-        axmap_standalone.scatter(df_firn_aquifer_all['lon_3413'],
-                                 df_firn_aquifer_all['lat_3413'],
-                                 s=3,marker='.',linewidths=0,color='#238443',label='Firn aquifers')
-        
-        #Display region name on panel a 
-        offset_NO=[-50000,-80000]
-        offset_NE=[-50000,-20000]
-        offset_SE=[-30000,100000]
-        offset_SW=[-40000,-80000]
-        offset_CW=[-20000,20000]
-        offset_NW=[50000,-50000]
-        
-        axmap_standalone.text(NO_rignotetal.centroid.x+offset_NO[0],NO_rignotetal.centroid.y+offset_NO[1],np.asarray(NO_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(NE_rignotetal.centroid.x+offset_NE[0],NE_rignotetal.centroid.y+offset_NE[1],np.asarray(NE_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(SE_rignotetal.centroid.x+offset_SE[0],SE_rignotetal.centroid.y+offset_SE[1],np.asarray(SE_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(SW_rignotetal.centroid.x+offset_SW[0],SW_rignotetal.centroid.y+offset_SW[1],np.asarray(SW_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(CW_rignotetal.centroid.x+offset_CW[0],CW_rignotetal.centroid.y+offset_CW[1],np.asarray(CW_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1],np.asarray(NW_rignotetal.SUBREGION1)[0],color='black')
-        
-        # Plot legend. This is from https://stackoverflow.com/questions/24706125/setting-a-fixed-size-for-points-in-legend
-        lgnd = axmap_standalone.legend(loc="lower right", scatterpoints=1,bbox_to_anchor=(1.1, 0))
-        lgnd.legendHandles[0]._sizes = [30]
-        lgnd.legendHandles[1]._sizes = [30]
-        lgnd.legendHandles[2]._sizes = [30]
-        lgnd.legendHandles[3]._sizes = [30]
-        lgnd.legendHandles[4]._sizes = [30]
-        
-        ###################### From Tedstone et al., 2022 #####################
-        #from plot_map_decadal_change.py
-        axmap_standalone.set_extent([-634797, 856884, -3345483, -764054], crs=crs)# x0, x1, y0, y1
-        gl=axmap_standalone.gridlines(draw_labels=True, xlocs=[-35, -50], ylocs=[65,75], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
-        axmap_standalone.axis('off')
-        ###################### From Tedstone et al., 2022 #####################
-        
-        pdb.set_trace()
-        
-        '''
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/standalone_map.png',dpi=1000,bbox_inches='tight')
-        #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
-        '''
-    # --------------------------------- FIG 1 --------------------------------    
-        
-    #Prepare Fig. 1
-    plt.rcParams.update({'font.size': 15})
-    plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
-    fig = plt.figure()
-    
-    gs = gridspec.GridSpec(20, 16)
-    gs.update(wspace = 0)
-    #gs.update(wspace=0.001)
-    #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-    axmap = plt.subplot(gs[0:20, 0:5],projection=crs)
-    axelev = plt.subplot(gs[0:20, 7:12])
-
-    if (plot_panelb=='TRUE'):
-        # -------------------------------- PANEL B --------------------------------    
-        #Define panel names
-        labels = ['NO', 'NW', 'CW', 'SW']
-    
-        #Stack max_elev_mean data for barplot
-        dplot_20022003=[dict_summary['NO']['2002-2003']['max_elev_median'],
-                        dict_summary['NW']['2002-2003']['max_elev_median'],dict_summary['CW']['2002-2003']['max_elev_median'],
-                        dict_summary['SW']['2002-2003']['max_elev_median']]
-        
-        dplot_2010=[dict_summary['NO']['2010']['max_elev_median'],
-                    dict_summary['NW']['2010']['max_elev_median'],dict_summary['CW']['2010']['max_elev_median'],
-                    dict_summary['SW']['2010']['max_elev_median']]
-        
-        dplot_20112012=[dict_summary['NO']['2011-2012']['max_elev_median'],
-                        dict_summary['NW']['2011-2012']['max_elev_median'],dict_summary['CW']['2011-2012']['max_elev_median'],
-                        dict_summary['SW']['2011-2012']['max_elev_median']]
-        
-        dplot_20132014=[dict_summary['NO']['2013-2014']['max_elev_median'],
-                        dict_summary['NW']['2013-2014']['max_elev_median'],dict_summary['CW']['2013-2014']['max_elev_median'],
-                        dict_summary['SW']['2013-2014']['max_elev_median']]
-        
-        dplot_20172018=[dict_summary['NO']['2017-2018']['max_elev_median'],
-                        dict_summary['NW']['2017-2018']['max_elev_median'],dict_summary['CW']['2017-2018']['max_elev_median'],
-                        dict_summary['SW']['2017-2018']['max_elev_median']]
-        
-        #Stack max_elev_mean data for barplot
-        dplotstd_20022003=[dict_summary['NO']['2002-2003']['max_elev_std'],
-                        dict_summary['NW']['2002-2003']['max_elev_std'],dict_summary['CW']['2002-2003']['max_elev_std'],
-                        dict_summary['SW']['2002-2003']['max_elev_std']]
-        
-        dplotstd_2010=[dict_summary['NO']['2010']['max_elev_std'],
-                    dict_summary['NW']['2010']['max_elev_std'],dict_summary['CW']['2010']['max_elev_std'],
-                    dict_summary['SW']['2010']['max_elev_std']]
-        
-        dplotstd_20112012=[dict_summary['NO']['2011-2012']['max_elev_std'],
-                        dict_summary['NW']['2011-2012']['max_elev_std'],dict_summary['CW']['2011-2012']['max_elev_std'],
-                        dict_summary['SW']['2011-2012']['max_elev_std']]
-        
-        dplotstd_20132014=[dict_summary['NO']['2013-2014']['max_elev_std'],
-                        dict_summary['NW']['2013-2014']['max_elev_std'],dict_summary['CW']['2013-2014']['max_elev_std'],
-                        dict_summary['SW']['2013-2014']['max_elev_std']]
-        
-        dplotstd_20172018=[dict_summary['NO']['2017-2018']['max_elev_std'],
-                        dict_summary['NW']['2017-2018']['max_elev_std'],dict_summary['CW']['2017-2018']['max_elev_std'],
-                        dict_summary['SW']['2017-2018']['max_elev_std']]
-        
-        
-        #Stack data for maximum elevation difference calculation
-        max_elev_diff_NO=[dict_summary['NO']['2002-2003']['max_elev_median'],dict_summary['NO']['2010']['max_elev_median'],
-                          dict_summary['NO']['2011-2012']['max_elev_median'],dict_summary['NO']['2013-2014']['max_elev_median'],
-                          dict_summary['NO']['2017-2018']['max_elev_median']]
-        
-        max_elev_diff_NW=[dict_summary['NW']['2002-2003']['max_elev_median'],dict_summary['NW']['2010']['max_elev_median'],
-                          dict_summary['NW']['2011-2012']['max_elev_median'],dict_summary['NW']['2013-2014']['max_elev_median'],
-                          dict_summary['NW']['2017-2018']['max_elev_median']]
-        
-        max_elev_diff_CW=[dict_summary['CW']['2002-2003']['max_elev_median'],dict_summary['CW']['2010']['max_elev_median'],
-                          dict_summary['CW']['2011-2012']['max_elev_median'],dict_summary['CW']['2013-2014']['max_elev_median'],
-                          dict_summary['CW']['2017-2018']['max_elev_median']]
-        
-        max_elev_diff_SW=[dict_summary['SW']['2002-2003']['max_elev_median'],dict_summary['SW']['2010']['max_elev_median'],
-                          dict_summary['SW']['2011-2012']['max_elev_median'],dict_summary['SW']['2013-2014']['max_elev_median'],
-                          dict_summary['SW']['2017-2018']['max_elev_median']]
-
-        #Barplot inspired from https://stackoverflow.com/questions/10369681/how-to-plot-bar-graphs-with-same-x-coordinates-side-by-side-dodged
-        #Arguments for barplot
-        width = 0.15# the width of the bars: can also be len(x) sequence
-        N=4 #Number of regions
-        ind= np.arange(N) #Position of regions
-                
-        axelev.bar(ind, dplot_20022003, width, label='2002-2003',color='#ffb300', yerr= dplotstd_20022003) #yerr=men_std
-        axelev.bar(ind+1*width, dplot_2010, width, label='2010',color='#9ecae1', yerr= dplotstd_2010)
-        axelev.bar(ind+2*width, dplot_20112012, width, label='2011-2012',color='#6baed6', yerr= dplotstd_20112012)
-        axelev.bar(ind+3*width, dplot_20132014, width, label='2013-2014',color='#3182bd', yerr= dplotstd_20132014)
-        axelev.bar(ind+4*width, dplot_20172018, width, label='2017-2018',color='#d73027', yerr= dplotstd_20172018)
-        axelev.set_xticks(ind + 2*width)
-        axelev.set_xticklabels(labels)
-        axelev.set_ylim(1000,2050)
-        
-        axelev.text(ind[0]+0.15,np.nanmax(max_elev_diff_NO)+95,str(int(np.round(max_elev_diff_NO[4]-max_elev_diff_NO[0])))+' m')
-        #axelev.text(ind[1],np.nanmax(max_elev_diff_NW)+180,str(int(np.round(np.nanmax(max_elev_diff_NW)-np.nanmin(max_elev_diff_NW))))+' m')
-        axelev.text(ind[2]+0.15,np.nanmax(max_elev_diff_CW)+100,str(int(np.round(max_elev_diff_CW[4]-max_elev_diff_CW[0])))+' m')
-        axelev.text(ind[3]+0.15,np.nanmax(max_elev_diff_SW)+105,str(int(np.round(max_elev_diff_SW[4]-max_elev_diff_SW[0])))+' m')
-        
-        axelev.set_ylabel('Elevation [m]')
-        
-        #Custom legend myself
-        from matplotlib.patches import Patch
-        from matplotlib.lines import Line2D
-        
-        legend_elements = [Patch(facecolor='#ffb300',label='2002-2003'),
-                           Patch(facecolor='#9ecae1',label='2010'),
-                           Patch(facecolor='#6baed6',label='2011-2012'),
-                           Patch(facecolor='#3182bd',label='2013-2014'),
-                           Patch(facecolor='#d73027',label='2017-2018')]#,
-                           #Line2D([0], [0], color='k', lw=2, label='Standard deviation around the mean')]
-        axelev.legend(handles=legend_elements,loc='upper left')
-        plt.legend()
-        #Display panels label
-        axelev.text(-0.15, 0.95,'b',zorder=10, ha='center', va='center', transform=axelev.transAxes, weight='bold',fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-        
-        # -------------------------------- PANEL B --------------------------------    
-    
-    if (plot_panela=='TRUE'):
-        
-        hull_computation='FALSE'
-        shapefile_display='TRUE'
-        
-        # -------------------------------- PANEL A --------------------------------
-        if (hull_computation=='TRUE'):
-            #Panel C
-            #Load convex hull mask over which convex hull must be computed
-            path_convexhull_masks='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
-            
-            dictionnaries_convexhullmasks = {k: {} for k in list(['NE','NO','NW','CW','SW'])}
-            dictionnaries_convexhullmasks['NE']={k: {} for k in list(['NE_CH_1','NE_CH_2','NE_CH_3','NE_CH_4'])}
-            dictionnaries_convexhullmasks['NO']={k: {} for k in list(['NO_CH_1','NO_CH_2','NO_CH_3','NO_CH_4','NO_CH_5','NO_CH_6','NO_CH_7'])}
-            dictionnaries_convexhullmasks['NW']={k: {} for k in list(['NW_CH_1','NW_CH_2','NW_CH_3','NW_CH_4','NW_CH_5','NW_CH_6'])}
-            dictionnaries_convexhullmasks['CW']={k: {} for k in list(['CW_CH_1'])}
-            dictionnaries_convexhullmasks['SW']={k: {} for k in list(['SW_CH_1'])}
-            
-            for indiv_region in dictionnaries_convexhullmasks.keys():
-                for indiv_file in dictionnaries_convexhullmasks[indiv_region].keys():
-                    print('convex_hull_'+indiv_file[0:2]+indiv_file[5:8]+'.shp')
-                    if (indiv_region == 'CW'):
-                        dictionnaries_convexhullmasks[indiv_region][indiv_file]=CW_rignotetal
-                    elif (indiv_region == 'SW'):
-                        dictionnaries_convexhullmasks[indiv_region][indiv_file]=SW_rignotetal
-                    else:
-                        dictionnaries_convexhullmasks[indiv_region][indiv_file]=gpd.read_file(path_convexhull_masks+'convex_hull_'+indiv_file[0:2]+indiv_file[5:8]+'.shp')
-            
-            #Generate shapefile from iceslabs data. This si from https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
-            from scipy.spatial import ConvexHull
-            from shapely import geometry
-            from shapely.ops import unary_union
-            
-            #prepare the figure
-            figc, (ax1c) = plt.subplots(1, 1)#, gridspec_kw={'width_ratios': [1, 3]})
-            figc.suptitle('GrIS ice slabs extent - high estimate')
-            
-            #Display GrIS drainage bassins
-            NO_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-            NE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-            SE_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-            SW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-            CW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black') 
-            NW_rignotetal.plot(ax=ax1c,color='white', edgecolor='black')
-            
-            
-            #Calculate concave hull and extract low and high end areas
-            do_plot='TRUE'
-            high_end_summary=concave_hull_computation(df_2010_2018_high,dictionnaries_convexhullmasks,ax1c,do_plot,'high_end')
-            do_plot='TRUE'
-            low_end_summary=concave_hull_computation(df_2010_2018_low,dictionnaries_convexhullmasks,ax1c,do_plot,'low_end')
-                        
-            #Display area change on the figure
-            for region in list(['NE','NO','NW','CW','SW']):
-                if (region =='NE'):
-                    polygon_for_text=NE_rignotetal
-                elif(region =='NO'):
-                    polygon_for_text=NO_rignotetal
-                elif(region =='NW'):
-                    polygon_for_text=NW_rignotetal
-                elif(region =='CW'):
-                    polygon_for_text=CW_rignotetal
-                elif(region =='SW'):
-                    polygon_for_text=SW_rignotetal
-                else:
-                    print('Region not known')
-                
-                low_end_change=(int((low_end_summary['2017-2018'][region]-low_end_summary['2011-2012'][region])/low_end_summary['2011-2012'][region]*100))
-                high_end_change=(int((high_end_summary['2017-2018'][region]-high_end_summary['2011-2012'][region])/high_end_summary['2011-2012'][region]*100))
-                
-                #Display region name on panel c
-                ax1c.text(polygon_for_text.centroid.x+25000,polygon_for_text.centroid.y+20000,region)
-                
-                #Compute and display relative change
-                ax1c.text(polygon_for_text.centroid.x,polygon_for_text.centroid.y,'[+'+str(low_end_change)+' : +'+str(high_end_change)+'] %')
-                
-            ax1c.set_xlabel('Easting [m]')
-            ax1c.set_ylabel('Northing [m]')
-        
-        if (shapefile_display=='TRUE'):
-            
-            #Open shapefiles for area change calculations
-            #Load high and low estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
-            path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
-            iceslabs_jullien_highend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
-            iceslabs_jullien_highend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12.shp')
-            iceslabs_jullien_lowend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_lowend_20102018.shp')
-            iceslabs_jullien_lowend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_lowend_2010_11_12.shp')
-            
-            ### High end ###
-            print('--------------- High end ---------------')
-            print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000)))), 'km2')
-            #Difference in km2. Divide by 1000000 to convert from m2 to km2
-            print('Difference 2018 VS 2012:', str(np.round(np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000)),2)), 'km2')
-            #Difference in %
-            print('Difference 2018 VS 2012:', str((np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000)))/np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000))*100),'%')
-            ### High end ###
-
-            ### Low end ###
-            print('--------------- Low end ---------------')
-            print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_lowend_20102018_ForCalculations.area/(1000000)))), 'km2')
-            #Difference in km2. Divide by 1000000 to convert from m2 to km2
-            print('Difference 2018 VS 2012:', str(np.round(np.sum(iceslabs_jullien_lowend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_lowend_2010_11_12_ForCalculations.area/(1000000)),2)), 'km2')
-            #Difference in %
-            print('Difference 2018 VS 2012:', str((np.sum(iceslabs_jullien_lowend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_lowend_2010_11_12_ForCalculations.area/(1000000)))/np.sum(iceslabs_jullien_lowend_2010_11_12_ForCalculations.area/(1000000))*100),'%')
-            ### High end ###
-                        
-            #Draw plot of GrIS map
-            axmap.coastlines(edgecolor='black',linewidth=0.075)
-            #Display GrIS drainage bassins limits
-            GrIS_drainage_bassins.plot(ax=axmap,color='none', edgecolor='black',linewidth=0.075)
-            NO_rignotetal.plot(ax=axmap,color='none', edgecolor='black',linewidth=0.5)
-            NE_rignotetal.plot(ax=axmap,color='none', edgecolor='black',linewidth=0.5) 
-            SE_rignotetal.plot(ax=axmap,color='none', edgecolor='black',linewidth=0.5) 
-            SW_rignotetal.plot(ax=axmap,color='none', edgecolor='black',linewidth=0.5) 
-            CW_rignotetal.plot(ax=axmap,color='none', edgecolor='black',linewidth=0.5) 
-            NW_rignotetal.plot(ax=axmap,color='none', edgecolor='black',linewidth=0.5)     
-            axmap.set_extent([-634797, 856884, -3345483, -764054], crs=crs)# x0, x1, y0, y1
-            ###################### From Tedstone et al., 2022 #####################
-            #from plot_map_decadal_change.py
-            gl=axmap.gridlines(draw_labels=True, xlocs=[-35, -50], ylocs=[65,75], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
-            axmap.axis('off')
-            ###################### From Tedstone et al., 2022 #####################
-            
-            #Add panel labels
-            axmap.text(0.075, 0.95, 'a',zorder=10, ha='center', va='center', transform=axmap.transAxes, weight='bold',fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-            #Display scalebar
-            scale_bar(axmap, (0.745, 0.2), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
-            #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
-            
-            #Shapefiles
-            # --- 2010-2018
-            iceslabs_jullien_highend_20102018.plot(ax=axmap,color='#d73027', edgecolor='none',linewidth=0.5)
-            
-            # --- 2010-11-12
-            iceslabs_jullien_highend_2010_11_12.plot(ax=axmap,color='#6baed6', edgecolor='none',linewidth=0.5)
-            #original color: #4575b4
-            #Flightlines            
-            # --- 2013-2014
-            axmap.scatter(flightlines_20022018[flightlines_20022018.str_year=='2013-2014']['lon_3413'],
-                          flightlines_20022018[flightlines_20022018.str_year=='2013-2014']['lat_3413'],
-                          s=0.5,marker='.',linewidths=0,c='#969696',label='flightlines 2013-2014')
-            
-            # --- 2017-2018
-            axmap.scatter(flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lon_3413'],
-                          flightlines_20022018[flightlines_20022018.str_year=='2017-2018']['lat_3413'],
-                          s=0.5,marker='.',linewidths=0,c='#969696',label='flightlines 2017-2018')
-            
-            # --- 2010
-            axmap.scatter(flightlines_20022018[np.logical_or(flightlines_20022018.str_year=='2010',flightlines_20022018.str_year==int('2010'))]['lon_3413'],
-                          flightlines_20022018[np.logical_or(flightlines_20022018.str_year=='2010',flightlines_20022018.str_year==int('2010'))]['lat_3413'],
-                          s=0.1,marker='.',linewidths=0,c='#d9d9d9',label='flightlines 2010')
-            # --- 2011-2012
-            axmap.scatter(flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lon_3413'],
-                          flightlines_20022018[flightlines_20022018.str_year=='2011-2012']['lat_3413'],
-                          s=0.1,marker='.',linewidths=0,c='#d9d9d9',label='flightlines 2011-2012')
-            
-            #Ice slabs            
-            # --- 2002-2003
-            axmap.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
-                          df_all[df_all.str_year=='2002-2003']['lat_3413'],
-                          s=12,marker='.',linewidths=0,color='black',label='2002-2003 ice slabs')
-            
-            axmap.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
-                          df_all[df_all.str_year=='2002-2003']['lat_3413'],
-                          s=10,marker='.',linewidths=0,color='#ffb300',label='2002-2003 ice slabs')
-            #973de0 purple
-            
-            #Firn aquifers
-            axmap.scatter(df_firn_aquifer_all['lon_3413'],
-                          df_firn_aquifer_all['lat_3413'],
-                          s=3,marker='.',linewidths=0,color='#238443',label='Firn aquifers')
-            
-            #Display region name on panel a 
-            offset_NO=[-50000,-80000]
-            offset_NE=[-50000,-20000]
-            offset_SE=[-30000,100000]
-            offset_SW=[-40000,-80000]
-            offset_CW=[-20000,20000]
-            offset_NW=[50000,-50000]
-            
-            axmap.text(NO_rignotetal.centroid.x+offset_NO[0],NO_rignotetal.centroid.y+offset_NO[1],np.asarray(NO_rignotetal.SUBREGION1)[0],color='black')
-            axmap.text(NE_rignotetal.centroid.x+offset_NE[0],NE_rignotetal.centroid.y+offset_NE[1],np.asarray(NE_rignotetal.SUBREGION1)[0],color='black')
-            axmap.text(SE_rignotetal.centroid.x+offset_SE[0],SE_rignotetal.centroid.y+offset_SE[1],np.asarray(SE_rignotetal.SUBREGION1)[0],color='black')
-            axmap.text(SW_rignotetal.centroid.x+offset_SW[0],SW_rignotetal.centroid.y+offset_SW[1],np.asarray(SW_rignotetal.SUBREGION1)[0],color='black')
-            axmap.text(CW_rignotetal.centroid.x+offset_CW[0],CW_rignotetal.centroid.y+offset_CW[1],np.asarray(CW_rignotetal.SUBREGION1)[0],color='black')
-            axmap.text(NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1],np.asarray(NW_rignotetal.SUBREGION1)[0],color='black')
-            
-            #Custom legend myself
-            from matplotlib.patches import Patch
-            from matplotlib.lines import Line2D
-            
-            #Custom legend myself            
-            legend_elements_a = [Patch(facecolor='#d73027',label='2010-18 ice slabs extent'),
-                               Patch(facecolor='#6baed6',label='2010-12 ice slabs extent'),
-                               Line2D([0], [0], marker='.', linestyle='none', label='2002-03 ice layers and slabs', color='#ffb300'),
-                               Line2D([0], [0], marker='.', linestyle='none', label='Firn aquifers', color='#238443'),
-                               Line2D([0], [0], color='#969696', lw=2, label='flightlines 2013-14-17-18'),
-                               Line2D([0], [0], color='#d9d9d9', lw=2, label='flightlines 2010-11-12')]
-            axmap.legend(handles=legend_elements_a,loc='lower right',bbox_to_anchor=(1, 0))
-            plt.legend()
-            
-            #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
-            for region in list(['NE','NW','CW','SW','NO']):
-                #Keep only where name == region
-                regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['region']==region].area/1000000)
-                regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['region']==region].area/1000000)
-
-                #Compute and display area change in % (relative change)
-                if (region =='NE'):
-                    off_display=[NE_rignotetal.centroid.x+offset_NE[0],NE_rignotetal.centroid.y+offset_NE[1]]
-                elif(region =='NO'):
-                    off_display=[NO_rignotetal.centroid.x+offset_NO[0],NO_rignotetal.centroid.y+offset_NO[1]]
-                elif(region =='NW'):
-                    off_display=[NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1]]
-                elif(region =='CW'):
-                    off_display=[CW_rignotetal.centroid.x+offset_CW[0],CW_rignotetal.centroid.y+offset_CW[1]]
-                elif(region =='SW'):
-                    off_display=[SW_rignotetal.centroid.x+offset_SW[0],SW_rignotetal.centroid.y+offset_SW[1]]
-                else:
-                    print('Region not known')
-                high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
-                axmap.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+' %')
-    
-    pdb.set_trace()
-    
-    '''
-    # -------------------------------- PANEL A --------------------------------
-    axelev.legend(handles=legend_elements,loc='upper left')
-    
-    #Save figure
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1.png',dpi=1000,bbox_inches='tight')
-    #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
-    '''
-    
-    if (figure_AGU=='TRUE'):
-        
-        #Prepare supp map (old Fig. 1)
-        plt.rcParams.update({'font.size': 20})
-        plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
-        fig = plt.figure()
-        
-        gs = gridspec.GridSpec(20, 16)
-        #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-        axmap_standalone = plt.subplot(gs[0:20, 0:16],projection=crs)
-        
-        #Draw plot of GrIS map
-        axmap_standalone.coastlines(edgecolor='black',linewidth=0.075)
-        #Display GrIS drainage bassins limits
-        GrIS_drainage_bassins.plot(ax=axmap_standalone,color='white', edgecolor='none',linewidth=0.075)
-        '''
-        NO_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1)
-        NE_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1) 
-        SE_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1) 
-        SW_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1) 
-        CW_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1) 
-        NW_rignotetal.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.1)     
-        '''
-        #Display scalebar
-        scale_bar(axmap_standalone, (0.745, 0.175), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
-        #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
-        
-        #Open shapefiles for area change calculations
-        #Load high and low estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
-        path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
-        iceslabs_jullien_highend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
-        iceslabs_jullien_highend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12.shp')
-        
-        axmap_standalone.set_extent([-634797, 856884, -3345483, -764054], crs=crs)# x0, x1, y0, y1
-        ###################### From Tedstone et al., 2022 #####################
-        #from plot_map_decadal_change.py
-        axmap_standalone.axis('off')
-        ###################### From Tedstone et al., 2022 #####################
-        
-        #Open and plot runoff limit medians shapefiles
-        path_poly='C:/Users/jullienn/Documents/working_environment/IceSlabs_SurfaceRunoff/data/runoff_limit_polys/'
-        poly_1985_1992=gpd.read_file(path_poly+'poly_1985_1992_median_edited.shp')
-        poly_1985_1992.plot(ax=axmap_standalone,color='black', edgecolor='none',linewidth=1)#df778e
-        poly_2013_2020=gpd.read_file(path_poly+'poly_2013_2020_median_edited.shp')
-        poly_2013_2020.plot(ax=axmap_standalone,color='white', edgecolor='white',linewidth=1)
-        
-        #Shapefiles
-        # --- 2010-2018
-        iceslabs_jullien_highend_20102018.plot(ax=axmap_standalone,color='#d73027', edgecolor='none',linewidth=0.5,alpha=0.5)
-        
-        # --- 2010-11-12
-        iceslabs_jullien_highend_2010_11_12.plot(ax=axmap_standalone,color='#4575b4', edgecolor='none',linewidth=0.5,alpha=0.5)#original color: 
-        
-        #Shapefiles
-        # --- 2010-2018
-        iceslabs_jullien_highend_20102018.plot(ax=axmap_standalone,color='none', edgecolor='#d73027',linewidth=0.5)
-        
-        # --- 2010-11-12
-        iceslabs_jullien_highend_2010_11_12.plot(ax=axmap_standalone,color='none', edgecolor='#4575b4',linewidth=0.5)#original color: 
-        
-        #Ice slabs            
-        # --- 2002-2003
-        axmap_standalone.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
-                      df_all[df_all.str_year=='2002-2003']['lat_3413'],
-                      s=15,marker='.',linewidths=0,color='black')
-        
-        axmap_standalone.scatter(df_all[df_all.str_year=='2002-2003']['lon_3413'],
-                      df_all[df_all.str_year=='2002-2003']['lat_3413'],
-                      s=13,marker='.',linewidths=0,color='#ffb300')
-        
-        #Firn aquifers
-        axmap_standalone.scatter(df_firn_aquifer_all['lon_3413'],
-                      df_firn_aquifer_all['lat_3413'],
-                      s=5,marker='.',linewidths=0,color='#238443')
-        
-        GrIS_drainage_bassins.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075)
-
-        #Display region name on panel a 
-        offset_NO=[-50000,-80000]
-        offset_NE=[-50000,-20000]
-        offset_SE=[-30000,100000]
-        offset_SW=[-40000,-80000]
-        offset_CW=[-20000,20000]
-        offset_NW=[50000,-50000]
-        
-        axmap_standalone.text(NO_rignotetal.centroid.x+offset_NO[0],NO_rignotetal.centroid.y+offset_NO[1],np.asarray(NO_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(NE_rignotetal.centroid.x+offset_NE[0],NE_rignotetal.centroid.y+offset_NE[1],np.asarray(NE_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(SE_rignotetal.centroid.x+offset_SE[0],SE_rignotetal.centroid.y+offset_SE[1],np.asarray(SE_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(SW_rignotetal.centroid.x+offset_SW[0],SW_rignotetal.centroid.y+offset_SW[1],np.asarray(SW_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(CW_rignotetal.centroid.x+offset_CW[0],CW_rignotetal.centroid.y+offset_CW[1],np.asarray(CW_rignotetal.SUBREGION1)[0],color='black')
-        axmap_standalone.text(NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1],np.asarray(NW_rignotetal.SUBREGION1)[0],color='black')
-        
-        #Custom legend myself
-        from matplotlib.patches import Patch
-        from matplotlib.lines import Line2D
-        
-        #Custom legend myself            
-        legend_elements_a = [Patch(facecolor='black',label='2013-2020 additional runoff'),
-                             Patch(facecolor='#ea9692',label='2010-18 ice slabs extent'),
-                             Patch(facecolor='#9785a3',label='2010-12 ice slabs extent'),
-                             Line2D([0], [0], marker='o', linestyle='none', label='2002-03 ice layers and slabs', color='#ffb300'),
-                             Line2D([0], [0], marker='o', linestyle='none', label='Firn aquifers', color='#238443')]
-        axmap_standalone.legend(handles=legend_elements_a,loc='lower right')
-        plt.legend()
-        
-        #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
-        for region in list(['NE','NW','CW','SW']):
-            #Keep only where name == region
-            regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['region']==region].area/1000000)
-            regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['region']==region].area/1000000)
-        
-            #Compute and display area change in % (relative change)
-            if (region =='NE'):
-                off_display=[NE_rignotetal.centroid.x+offset_NE[0],NE_rignotetal.centroid.y+offset_NE[1]]
-            elif(region =='NO'):
-                off_display=[NO_rignotetal.centroid.x+offset_NO[0],NO_rignotetal.centroid.y+offset_NO[1]]
-            elif(region =='NW'):
-                off_display=[NW_rignotetal.centroid.x+offset_NW[0],NW_rignotetal.centroid.y+offset_NW[1]]
-            elif(region =='CW'):
-                off_display=[CW_rignotetal.centroid.x+offset_CW[0],CW_rignotetal.centroid.y+offset_CW[1]]
-            elif(region =='SW'):
-                off_display=[SW_rignotetal.centroid.x+offset_SW[0],SW_rignotetal.centroid.y+offset_SW[1]]
+        for i in range (0,int(len(df_colnames)),2):
+            x_vect=df_temp[df_colnames[i]]
+            y_vect=df_temp[df_colnames[i+1]]
+            #Load trafic light color
+            trafic_light_indiv_color=df_colnames_trafic_light[i]
+            #Define the color in which to display the ice lens
+            if (trafic_light_indiv_color[0:3]=='gre'):
+                color_to_display='#ffb300'#'#00441b'
+            elif (trafic_light_indiv_color[0:3]=='ora'):
+                color_to_display='#fed976'
+                continue
+            elif (trafic_light_indiv_color[0:3]=='red'):
+                color_to_display='#c9662c'
+                continue
+            elif (trafic_light_indiv_color[0:3]=='pur'):
+                color_to_display='purple'
+                continue
             else:
-                print('Region not known')
-            high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
-            axmap_standalone.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+'%')
-        
-            # -------------------------------- PANEL A --------------------------------
-        pdb.set_trace()
-        axmap_standalone.legend(handles=legend_elements_a,loc='lower right',fontsize=17)
-
-        #Save figure
-        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1_AGU.png',dpi=1000,bbox_inches='tight')
-        #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
+                print('The color is not known!')
+            #Display ice lens
+            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=2.5)
     
+    #Load the elevation profile
+    elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
+  
+    #Define the dates that need reversed display
+    list_reverse_agg_mat=['may12_03_36_aggregated','may14_03_51_aggregated',
+                       'may13_03_29_aggregated','may30_02_51_aggregated',
+                       'may24_02_25_aggregated','may15_03_37_aggregated',
+                       'may11_03_29_aggregated','jun04_02proc_52.mat',
+                       'jun04_02proc_53.mat']
+        
+    #Order the radar track from down to up if needed      
+    if (indiv_file in list(list_reverse_agg_mat)):
+        ax_plot.set_xlim(radargram_data['radar_slice_0_30m'].shape[1],0)
+        #Reverse the distances vector:
+        distances=np.flipud(radargram_data['distances'])
+    else:
+        distances=radargram_data['distances']
+    
+    #Generate the pick for horizontal distance display
+    ticks_xplot=np.arange(0,distances.shape[0]+1,100)
+    #Plot also the last index
+    ticks_xplot[-1]=distances.shape[0]-1
+    #Set x ticks
+    ax_plot.set_xticks(ticks_xplot) 
+    #Display the distances from the origin as being the x label
+    ax_plot.set_xticklabels(np.round(distances[ticks_xplot]).astype(int))
+    
+    return
 
-#To write in notebook:
-#   1. did check all the figures that needed adaptation after cleaned dataset generation
-#   2. did modify in all the figures codes the paths to load the cleaned dataset.
-#   3. did generated the new Fig. 1, Fis S6, and standalone maps: they are done, they must now be included into the paper
-#   4. I should rerun figures that have already been improved to check whether there is any difference or not.
-#   5. Changed display of ice slabs in Fig 2 (from green to orange)
-#   6. Fig. S1: now display 2010-2018 ice slabs high end shapefile instead of data points
-#   7. Fig.2: saved Fig and added inset map
-#   8. Added Fig. 1, Fig. 2, Fig. S5 and standalone map to paper
-#   9. Modified Fig S1: added 10-traces radargram on the background of profiles, added scale, added inset map. Added the map to supp and modified caption.
-#   10. Modified Fig. S7 label (positive degree-hour sum), and using now the cleaned dataset for generating this figure and related ones. Note that the
-#       upper end of 2013 slab thickness is dlightly different from previous versions: this is probably because upper points where not kept due to clip with 
-#       shapefile (note that radargrams are not affected, ony data from csv and pickle with elevation files). I do not expect this to introduce any difference.
-#   11. Now refering to in-situ ice content for the manually mapped ice slabs in the reference transect. Changed Fig. S4 legend accordingly.
+def compute_distances(eastings,northings):
+    #This part of code is from MacFerrin et al., 2019
+    '''Compute the distance (in m here, not km as written originally) of the traces in the file.'''
+    # C = sqrt(A^2  + B^2)
+    distances = np.power(np.power((eastings[1:] - eastings[:-1]),2) + np.power((northings[1:] - northings[:-1]),2), 0.5)
+    #Calculate the cumsum of the distances
+    cumsum_distances=np.nancumsum(distances)
+    #Seeting the first value of the cumsum to be zero as it is the origin
+    return_cumsum_distances=np.zeros(eastings.shape[0])
+    return_cumsum_distances[1:eastings.shape[0]]=cumsum_distances
+    
+    return return_cumsum_distances
+
+def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information):
+    
+    #Define color code for trafic light plotting in elevation plot
+    cmap_elevation = ListedColormap(['#c9662c', '#fed976', '#238b45', 'purple'])
+    norm_elevation = BoundaryNorm([-1.5, -0.5, 0.5, 1.5, 2.5], cmap_elevation.N)
+    
+    #Define the uppermost and lowermost limits
+    meters_cutoff_above=0
+    meters_cutoff_below=30
+    
+    dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
+    t0 = 0; # Unknown so set to zero
+    #Compute the speed (Modified Robin speed):
+    # self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+    v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+    
+    if (folder_day=='jun04'):
+        #Open the file and read it
+        fdata= scipy.io.loadmat(path_radar_slice)
+        #Select radar echogram, lat and lon
+        radar_echo=fdata['data']
+        lat=fdata['latitude']
+        lon=fdata['longitude']
+    else:
+        #Open the file and read it
+        f_agg = open(path_radar_slice, "rb")
+        radar_data = pickle.load(f_agg)
+        f_agg.close()
+                                                
+        #Select radar echogram, lat and lon
+        radar_echo=radar_data['radar_echogram']
+        
+        latlontime=radar_data['latlontime']
+        lat=latlontime['lat_gps']
+        lon=latlontime['lon_gps']
+        
+        #Remove zeros in lat/lon
+        lat.replace(0, np.nan, inplace=True)
+        lon.replace(0, np.nan, inplace=True)
+    
+    #Transform the longitudes. The longitudes are ~46 whereas they should be ~-46! So add a '-' in front of lon
+    lon=-lon
+                        
+    #Transform the coordinated from WGS84 to EPSG:3413
+    #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+    points=transformer.transform(np.array(lon),np.array(lat))
+    
+    #Reset the lat_3413 and lon_3413 to empty vectors.
+    lon_3413=[]
+    lat_3413=[]
+    
+    lon_3413=points[0]
+    lat_3413=points[1]
+    
+    #Transpose coordinates if june 04
+    if (folder_day=='jun04'):
+        lat_3413=np.transpose(lat_3413)
+        lon_3413=np.transpose(lon_3413)
+    
+    #pdb.set_trace()
+    #Define the dates that need reversed display
+    list_reverse_agg=[]
+    list_reverse_mat=[]
+    #list_reverse_agg=['may12_03_36_aggregated','may14_03_51_aggregated',
+    #                   'may13_03_29_aggregated','may30_02_51_aggregated',
+    #                   'may24_02_25_aggregated','may15_03_37_aggregated',
+    #                   'may11_03_29_aggregated']
+        
+    #list_reverse_mat=['jun04_02proc_52.mat','jun04_02proc_53.mat']
+    
+    #Display on the map where is this track
+    ax_map.scatter(lon_3413, lat_3413,s=5,facecolors='black', edgecolors='none')
+    
+    #pdb.set_trace()
+    
+    #Load deepest ice lenses information
+    deepest_icelenses=icelens_information[indiv_file]
+    #Retrieve the index where deepest data are present
+    index_deepest_data_present=~(np.isnan(np.asarray(deepest_icelenses['x'])))
+    #Display the depth of the deepest ice lens in the map
+    cb_depth=ax_map.scatter(lon_3413[index_deepest_data_present], lat_3413[index_deepest_data_present],c=np.asarray(deepest_icelenses['deepest_depth'])[index_deepest_data_present],cmap=discrete_cmap(10,'RdYlGn_r'),s=5, edgecolors='none')
+    cbar_depth=fig.colorbar(cb_depth, ax=[ax_map], location='right')
+    cbar_depth.set_label('Ice lens maximum depth [m]')
+    cb_depth.set_clim(0,20)
+    
+    #Display the start of the track
+    ax_map.scatter(lon_3413[0],lat_3413[0],c='m',s=5, edgecolors='none')
+    
+    #Zoom on the trace on the map plot
+    ax_map.set_xlim(np.nanmedian(lon_3413)-75000, np.nanmedian(lon_3413)+75000)
+    ax_map.set_ylim(np.nanmedian(lat_3413)-75000, np.nanmedian(lat_3413)+75000)
+    
+    #1. Compute the vertical resolution
+    #a. Time computation according to John Paden's email.
+    Nt = radar_echo.shape[0]
+    Time = t0 + dt*np.arange(1,Nt+1)
+    #b. Calculate the depth:
+    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+    depths = v * Time / 2.0
+    
+    # Load the suggested pixel for the specific date
+    for date_pix in lines:
+        if (folder_day=='jun04'):
+            if (date_pix.partition(" ")[0]==str(indiv_file.replace(".mat",""))):
+                suggested_pixel=int(date_pix.partition(" ")[2])
+                #If it has found its suggested pixel, leave the loop
+                continue   
+        else:
+            if (date_pix.partition(" ")[0]==str(indiv_file.replace("_aggregated",""))):
+                suggested_pixel=int(date_pix.partition(" ")[2])
+                #If it has found its suggested pixel, leave the loop
+                continue
+
+    surface_indices=kernel_function(radar_echo, suggested_pixel)
+    
+    #Get our slice (30 meters as currently set)
+    radar_slice, bottom_indices = _return_radar_slice_given_surface(radar_echo,
+                                                                    depths,
+                                                                    surface_indices,
+                                                                    meters_cutoff_above=meters_cutoff_above,
+                                                                    meters_cutoff_below=meters_cutoff_below)
+    
+    #The range have already been computed, plot the data:
+    if (technique=='perc_25_75'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.08318485583215623
+            perc_upper_end=0.09414986209628376
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.08488332785270308
+            perc_upper_end=0.09654050592743407
+    elif (technique=='perc_5_95'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.2870889087496134
+            perc_upper_end=0.3138722799744009
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.31927843730229416
+            perc_upper_end=0.3682849426401127
+    elif (technique=='perc_05_995'):
+        if (folder_year=='2002'):
+            perc_lower_end=-2.1488917418616134
+            perc_upper_end=2.650167679823621
+        elif (folder_year=='2003'):
+            perc_lower_end=-1.661495950494564
+            perc_upper_end=1.9431298622848088
+    elif (technique=='perc_2p5_97p5'):
+        if (folder_year=='2002'):
+            perc_lower_end=-0.5709792307554173
+            perc_upper_end=0.7082634842114803
+        elif (folder_year=='2003'):
+            perc_lower_end=-0.6061610403154447
+            perc_upper_end=0.7572821079440079      
+    
+    #Generate the pick for vertical distance display
+    ticks_yplot=np.arange(0,radar_slice.shape[0],20)
+    
+    #Plot the radar slice
+    cb2=ax_plot.pcolor(radar_slice,cmap=plt.get_cmap('gray'))#,norm=divnorm)
+    ax_plot.set_ylim(0,radar_slice.shape[0])
+    ax_plot.invert_yaxis() #Invert the y axis = avoid using flipud.
+    ax_plot.set_aspect('equal') # X scale matches Y scale
+    #ax_plot.set_xlabel('Horizontal distance')
+    
+    #Colorbar custom
+    cb2.set_clim(perc_lower_end,perc_upper_end)
+    #cbar2=fig.colorbar(cb2, ax=[ax_plot], location='left')
+    #cbar2.set_label('Signal strength')
+    
+    #Set the y ticks
+    ax_plot.set_yticks(ticks_yplot) 
+    ax_plot.set_yticklabels(np.round(depths[ticks_yplot]))
+    
+    #Set the x ticks
+    #remove xtick
+    #ax_plot.set_xticks([])
+    
+    #Distance from start of the trace
+    ax_plot.set_title('Radar slice')
+    ax_plot.set_ylabel('Depth [m]')
+    ax_plot.set_xlabel('Distance [km]')
+    
+    #Display the ice lenses identification:
+    #pdb.set_trace()
+
+    if (indiv_file in list(xls_icelenses.keys())):
+        print(indiv_file+' hold ice lens!')
+        #This file have ice lenses in it: read the data:
+        df_temp=xls_icelenses[indiv_file]
+        df_colnames = list(df_temp.keys())
+        x_loc=[]
+        
+        #Trafic light information
+        df_trafic_light=trafic_light[indiv_file]
+        df_colnames_trafic_light = list(df_trafic_light.keys())
+        
+        for i in range (0,int(len(df_colnames)),2):
+            x_vect=df_temp[df_colnames[i]]
+            y_vect=df_temp[df_colnames[i+1]]
+            #Load trafic light color
+            trafic_light_indiv_color=df_colnames_trafic_light[i]
+            #Define the color in which to display the ice lens
+            if (trafic_light_indiv_color[0:3]=='gre'):
+                color_to_display='#00441b'
+            elif (trafic_light_indiv_color[0:3]=='ora'):
+                color_to_display='#fed976'
+            elif (trafic_light_indiv_color[0:3]=='red'):
+                color_to_display='#c9662c'
+            elif (trafic_light_indiv_color[0:3]=='pur'):
+                color_to_display='purple'
+            else:
+                print('The color is not known!')
+            
+            #Display ice lens color on radar slice
+            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=0.5)
+            #Display ice lens color on elevation plot
+    
+    #pdb.set_trace()
+    #Display the deepest identifies icelens
+    ax_plot.scatter(np.asarray(deepest_icelenses['x']),np.asarray(deepest_icelenses['deepest_depth_index']),color='red',s=1)
+
+    #Load the elevation profile
+    elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
+    
+    #Store the color code
+    color_code_all=np.asarray(deepest_icelenses['deepest_depth_color'])
+    #Create the vector for color code display
+    elevation_color=np.zeros(elevation_vector.shape[0])
+    #Fill in the elevation_color vector with NaNs
+    elevation_color[elevation_color==0]=np.nan
+    #Fill in the elevation_color vector with the color code vector
+    elevation_color[~np.isnan(color_code_all)]=elevation_vector[~np.isnan(color_code_all)]
+    
+    #Plot the elevation profile
+    ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_vector,color='black')
+    #Plot the elevation profile with the color code were ice lenses
+    #ax_elevation.plot(np.arange(0,len(elevation_vector)),elevation_color,cmap=cmap_elevation,norm=norm_elevation)
+
+    ax_elevation.scatter(np.arange(0,len(elevation_vector)),elevation_color,c=color_code_all,cmap=cmap_elevation,norm=norm_elevation,s=10)
+    ax_elevation.set_title('Trace elevation profile')
+    #pdb.set_trace()
+
+    #Calculate the distances (in m)
+    distances=compute_distances(lon_3413,lat_3413)
+    
+    #Convert distances from m to km
+    distances=distances/1000
+        
+    #Order the radar track from down to up if needed      
+    if (indiv_file in list(list_reverse_agg)):
+        #Reverse xlim in radar slice plot
+        ax_plot.set_xlim(radar_slice.shape[1],0)
+        #Reverse xlim in elevation plot
+        ax_elevation.set_xlim(radar_slice.shape[1],0)
+        #Reverse the distances vector:
+        distances=np.flipud(distances)
+        
+    elif (indiv_file in list(list_reverse_mat)):
+        #Reverse xlim in radar slice plot
+        ax_plot.set_xlim(radar_slice.shape[1],0)
+        #Reverse xlim in elevation plot
+        ax_elevation.set_xlim(radar_slice.shape[1],0)
+        #Reverse the distances vector:
+        distances=np.flipud(distances)
+    
+    #Generate the pick for horizontal distance display
+    ticks_xplot=np.arange(0,distances.shape[0]+1,100)
+    #Plot also the last index
+    ticks_xplot[-1]=distances.shape[0]-1
+    #Set x ticks
+    ax_plot.set_xticks(ticks_xplot) 
+    #Display the distances from the origin as being the x label
+    ax_plot.set_xticklabels(np.round(distances[ticks_xplot]))
+    
+    #Change xticks for elevation display
+    #Set xlim
+    ax_elevation.set_xlim(0,radar_slice.shape[1])
+    #Set x ticks
+    ax_elevation.set_xticks(ticks_xplot) 
+    #Display the distances from the origin as being the x label
+    ax_elevation.set_xticklabels(np.round(distances[ticks_xplot]))
+    #Display the x and ylabel
+    ax_elevation.set_xlabel('Distance [km]')
+    ax_elevation.set_ylabel('Elevation [m]')
+    
+    return
+
+
 
 #Import packages
-#import rasterio
-#from rasterio.plot import show
+import rasterio
+from rasterio.plot import show
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import pandas as pd
 from os import listdir
 from os.path import isfile, join
 import pickle
-#from pysheds.grid import Grid
+from pysheds.grid import Grid
 import pdb
 import numpy as np
 from pyproj import Transformer
 import matplotlib.gridspec as gridspec
 import scipy.io
 from osgeo import gdal
-import geopandas as gpd  # Requires the pyshp package
-
 from matplotlib.colors import ListedColormap, BoundaryNorm
-from shapely.geometry import Point, Polygon
 from matplotlib.patches import Patch
-import cartopy.crs as ccrs
+import matplotlib.patches as patches
 from matplotlib.lines import Line2D
-
-import seaborn as sns
-sns.set_theme(style="whitegrid")
-from scalebar import scale_bar
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-import rasterio
-from rasterio.plot import show
 from scalebar import scale_bar
 
-#Set fontsize plot
-plt.rcParams.update({'font.size': 10})
-### -------------------------- Load GrIS DEM ----------------------------- ###
-#https://towardsdatascience.com/reading-and-visualizing-geotiff-images-with-python-8dcca7a74510
-path_GrIS_DEM = r'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/greenland_dem_mosaic_100m_v3.0.tif'
-GrIS_DEM = rasterio.open(path_GrIS_DEM)
-### -------------------------- Load GrIS DEM ----------------------------- ###
+save_2002_2003_data='FALSE'
+technique='perc_2p5_97p5'
+making_down_to_up='FALSE'
+
+################# Load 2002-2003 flightlines coordinates ################
+path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
+
+#Open the file and read it
+f_flightlines = open(path_data+'/metadata_coord_2002_2003', "rb")
+all_2002_3_flightlines = pickle.load(f_flightlines)
+f_flightlines.close()
+################# Load 2002-2003 flightlines coordinates ################
+
+############################ Load GrIS elevation ##############################
+#This is from fig3_paper_iceslabs.py
+#Open and display satelite image behind map
+from pyproj import CRS
+import rioxarray as rxr
+import cartopy.crs as ccrs
+import geopandas as gpd
+#This section of displaying sat data was coding using tips from
+#https://www.earthdatascience.org/courses/use-data-open-source-python/intro-raster-data-python/raster-data-processing/reproject-raster/
+#https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
+
+path_DEM='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/elevations/'
+#Load DEM for display
+GrIS_DEM_display = rxr.open_rasterio(path_DEM+'greenland_dem_mosaic_100m_v3.0.tif',
+                              masked=True).squeeze()
+#Load DEM for elevation pick up
+GrIS_DEM = rasterio.open(path_DEM+'greenland_dem_mosaic_100m_v3.0.tif')
+
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+# This can be converted into a `proj4` string/dict compatible with GeoPandas
+crs_proj4 = crs.proj4_init
+###################### From Tedstone et al., 2022 #####################
+
+#Define extents
+#ease_extent = [west limit, east limit., south limit, north limit]
+extent_DEM = [np.asarray(GrIS_DEM_display.x[0]), np.asarray(GrIS_DEM_display.x[-1]), np.asarray(GrIS_DEM_display.y[-1]), np.asarray(GrIS_DEM_display.y[0])]
+
+'''
+plt.figure(figsize=(14,10))
+ax = plt.axes(projection=crs)
+#ax.set_extent(ease_extent, crs=crs)
+ax.imshow(GrIS_DEM_display[:,:], extent=extent_DEM, transform=crs,cmap='gray', origin='upper') #NIR
+ax.gridlines(color='gray', linestyle='--')
+ax.coastlines()
+#ax.set_xlim(extent_image[0],extent_image[1])
+#ax.set_ylim(extent_image[3],extent_image[2])
+plt.tight_layout()
+'''
+############################ Load GrIS elevation ##############################
+
+lat_all=[]
+lon_all=[]
+#elev_all=[]
+
+elevation_dictionnary = {k: {} for k in list(['2002','2003'])}
+
+for year in list(all_2002_3_flightlines.keys()):
+    
+    elevation_dictionnary[year]={k: {} for k in list(all_2002_3_flightlines[year].keys())}
+    
+    for days in list(all_2002_3_flightlines[year].keys()):
+        
+        elevation_dictionnary[year][days]={k: {} for k in list(all_2002_3_flightlines[year][days].keys())}
+        
+        for indiv_file in list(all_2002_3_flightlines[year][days].keys()):
+            if (indiv_file[0:7]=='quality'):
+                continue
+            else:
+                print(indiv_file)
+                lat_elev=[]
+                lon_elev=[]
+                if (days=='jun04'):
+                    #Append all the flightlines
+                    lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0][0])
+                    lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1][0])
+                    
+                    #For elevation extraction:
+                    lat_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][0][0])
+                    lon_elev=np.transpose(all_2002_3_flightlines[year][days][indiv_file][1][0])
+                else:
+                    #Append all the flightlines
+                    lat_all=np.append(lat_all,all_2002_3_flightlines[year][days][indiv_file][0])
+                    lon_all=np.append(lon_all,all_2002_3_flightlines[year][days][indiv_file][1])
+                    
+                    #For elevation extraction:
+                    lat_elev=all_2002_3_flightlines[year][days][indiv_file][0]
+                    lon_elev=all_2002_3_flightlines[year][days][indiv_file][1]
+                
+                latlon_tuple=[]
+                latlon_tuple=list(zip(lon_elev,lat_elev))
+                
+                elev_indiv_file=[]
+                for indiv_coord in latlon_tuple:
+                    if (np.isnan(indiv_coord[0]) or np.isnan(indiv_coord[1])):
+                        #elev_all=np.append(elev_all,np.nan)
+                        elev_indiv_file=np.append(elev_indiv_file,np.nan)
+                    else:
+                        #This is adpated from fi3_paper_iceslabs.py, originally from extract_elevation.py
+                        #This is from https://gis.stackexchange.com/questions/190423/getting-pixel-values-at-single-point-using-rasterio
+                        for val in GrIS_DEM.sample([(indiv_coord[0], indiv_coord[1])]):
+                            #Calculate the corresponding elevation
+                            elev_indiv_file=np.append(elev_indiv_file,val)
+                
+                #Store data into the dictionnary
+                elevation_dictionnary[year][days][indiv_file]=elev_indiv_file
+
+################# Load 2002-2003 flightlines coordinates ################
+
+################### Load 2002-2003 ice lenses location ##################
+#Open the file and read it
+f_icelens_flightlines = open(path_data+'/metadata_coord_icelens_2002_2003_26022020', "rb")
+icelens_2002_3_flightlines = pickle.load(f_icelens_flightlines)
+f_icelens_flightlines.close()
+
+lat_icelens=[]
+lon_icelens=[]
+colorcode_icelens=[]
+Track_name=[]
+
+for year in list(icelens_2002_3_flightlines.keys()):
+    for days in list(icelens_2002_3_flightlines[year].keys()):
+        for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
+            print(indiv_file)
+            if (indiv_file[0:7]=='quality'):
+                print('Quality file, continue')
+                continue
+            elif (not(bool(icelens_2002_3_flightlines[year][days][indiv_file]))):
+                print('No ice lens, continue')
+                continue
+            else:
+                lat_icelens=np.append(lat_icelens,icelens_2002_3_flightlines[year][days][indiv_file][0])
+                lon_icelens=np.append(lon_icelens,icelens_2002_3_flightlines[year][days][indiv_file][1])
+                colorcode_icelens=np.append(colorcode_icelens,icelens_2002_3_flightlines[year][days][indiv_file][2])
+                #Create an empty vector of strings
+                Track_name=np.append(Track_name,[indiv_file for x in range(0,len(icelens_2002_3_flightlines[year][days][indiv_file][0]))])
+
+#Create a dataframe out of it
+df_2002_2003=pd.DataFrame(lat_icelens, columns =['lat_3413'])
+df_2002_2003['lon_3413']=lon_icelens
+df_2002_2003['colorcode_icelens']=colorcode_icelens
+df_2002_2003['Track_name']=Track_name
+################### Load 2002-2003 ice lenses location ##################
+
+######## Load 2010-2018 ice slabs location from Jullien et al., 2022 ##########
+#Load the data
+filename_Jullien= 'C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/clipped/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate_cleaned.csv'
+#Read Jullien data thanks to https://stackoverflow.com/questions/65254535/xlrd-biffh-xlrderror-excel-xlsx-file-not-supported
+df_20102018 = pd.read_csv(filename_Jullien,delimiter=',',decimal='.')
+
+#Transform the coordinated from WGS84 to EPSG:3413
+#Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+points=transformer.transform(np.array(df_20102018.lon),np.array(df_20102018.lat))
+
+lon_3413_20102018=points[0]
+lat_3413_20102018=points[1]
+######## Load 2010-2018 ice slabs location from Jullien et al., 2022 ##########
 
 ### -------------------------- Load shapefiles --------------------------- ###
-#from https://gis.stackexchange.com/questions/113799/how-to-read-a-shapefile-in-python
-path_IceBridgeArea_Shape='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/IceBridge Area Shapefiles/IceBridge Area Shapefiles/'
-IceBridgeArea_Shape=gpd.read_file(path_IceBridgeArea_Shape+'IceBridgeArea_Shape.shp')
-
+#From fig3_paper_iceslabs.py
 #Load Rignot et al., 2016 Greenland drainage bassins
 path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
-GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp')
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp') #the regions are the last rows of the shapefile
 
 #Extract indiv regions and create related indiv shapefiles
 NO_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NO']
@@ -1060,483 +975,636 @@ SW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='SW']
 CW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='CW']
 NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 
-#Load Rignot et al., 2016 GrIS mask
-path_rignotetal2016_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/'
-GrIS_rignotetal2016=gpd.read_file(path_rignotetal2016_GrIS+'GRE_IceSheet_IMBIE2_v1_EPSG3413.shp',rows=slice(1,2,1)) #the regions are the last rows of the shapefile
-GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
-
-#Load high estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
+#Load high estimates ice slabs extent 2010-2018, manually drawn on QGIS
 path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
 iceslabs_jullien_highend_20102018=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
-iceslabs_jullien_highend_2010_11_12=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12.shp')
-'''
-#Display extent 2010-18 and 2010-11-12
-crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.) 
-fig = plt.figure(figsize=(14,50))
-gs = gridspec.GridSpec(7, 25)
-gs.update(wspace = 2.5)
-ax1 = plt.subplot(gs[0:7, 0:25],projection=crs)
-iceslabs_jullien_highend_20102018.plot(ax=ax1,color='blue', edgecolor='black',linewidth=0.5)
-iceslabs_jullien_highend_2010_11_12.plot(ax=ax1,color='red', edgecolor='black',linewidth=0.5)
-'''
+
 ### -------------------------- Load shapefiles --------------------------- ###
+#Set fontsize
+plt.rcParams.update({'font.size': 15}) #from https://stackoverflow.com/questions/3899980/how-to-change-the-font-size-on-a-matplotlib-plot
 
-### ---------------------------- Load dataset ---------------------------- ###
-#Dictionnaries have already been created, load them
-path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/' 
-#Load 2002-2003
-f_20022003 = open(path_df_with_elevation+'2002_2003/df_2002_2003_with_elevation_rignotetalregions', "rb")
-df_2002_2003 = pickle.load(f_20022003)
-f_20022003.close()
-
-#Load cleaned 2010-2018 high estimate
-#f_20102018_high = open(path_df_with_elevation+'final_excel/high_estimate/df_20102018_with_elevation_high_estimate_rignotetalregions', "rb")
-f_20102018_high = open(path_df_with_elevation+'final_excel/high_estimate/clipped/df_20102018_with_elevation_high_estimate_rignotetalregions_cleaned', "rb")
-df_2010_2018_high = pickle.load(f_20102018_high)
-f_20102018_high.close()
-
-#Load cleaned 2010-2018 low estimate
-#f_20102018_low = open(path_df_with_elevation+'final_excel/low_estimate/df_20102018_with_elevation_low_estimate_rignotetalregions', "rb")
-f_20102018_low = open(path_df_with_elevation+'final_excel/low_estimate/clipped/df_20102018_with_elevation_low_estimate_rignotetalregions_cleaned', "rb")
-df_2010_2018_low = pickle.load(f_20102018_low)
-f_20102018_low.close()
-### ---------------------------- Load dataset ---------------------------- ###
-
-#Load Miege firn aquifer
-path_firn_aquifer='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/firn_aquifers_miege/'
-df_firn_aquifer_2010 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2010.csv',delimiter=',',decimal='.')
-df_firn_aquifer_2011 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2011.csv',delimiter=',',decimal='.')
-df_firn_aquifer_2012 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2012.csv',delimiter=',',decimal='.')
-df_firn_aquifer_2013 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2013.csv',delimiter=',',decimal='.')
-df_firn_aquifer_2014 = pd.read_csv(path_firn_aquifer+'MiegeFirnAquiferDetections2014.csv',delimiter=',',decimal='.')
-
-#Append all the miege aquifer files to each other
-df_firn_aquifer_all=df_firn_aquifer_2010
-df_firn_aquifer_all=df_firn_aquifer_all.append(df_firn_aquifer_2011)
-df_firn_aquifer_all=df_firn_aquifer_all.append(df_firn_aquifer_2012)
-df_firn_aquifer_all=df_firn_aquifer_all.append(df_firn_aquifer_2013)
-df_firn_aquifer_all=df_firn_aquifer_all.append(df_firn_aquifer_2014)
-
-#Transform miege coordinates from WGS84 to EPSG:3413
-transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.asarray(df_firn_aquifer_all["LONG"]),np.asarray(df_firn_aquifer_all["LAT"]))
-
-#Store lat/lon in 3413
-df_firn_aquifer_all['lon_3413']=points[0]
-df_firn_aquifer_all['lat_3413']=points[1]
-
-#Load columnal likelihood file likelihood
-path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/clipped/'
-df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate_cleaned.csv',delimiter=',',decimal='.')
-#Transform miege coordinates from WGS84 to EPSG:3413
-points=transformer.transform(np.asarray(df_thickness_likelihood_20102018["lon"]),np.asarray(df_thickness_likelihood_20102018["lat"]))
-
-#Store lat/lon in 3413
-df_thickness_likelihood_20102018['lon_3413']=points[0]
-df_thickness_likelihood_20102018['lat_3413']=points[1]
-
-#######################################################################
-###          Inland expansion of iceslabs from 2002 to 2018         ###
-#######################################################################
-
-#Select 2002-2003 with green ice slabs only
-df_2002_2003_green=df_2002_2003[df_2002_2003['colorcode_icelens']==1]
-
-#Set the year for plotting
-df_2002_2003_green['str_year']=["2002-2003" for x in range(len(df_2002_2003_green))]
-
-#Set the year for plotting in high estimate
-df_2010_2018_high.loc[df_2010_2018_high['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2010]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2011]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2012]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2013]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2014]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2017]))]
-df_2010_2018_high.loc[df_2010_2018_high['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_high[df_2010_2018_high['year']==2018]))]
-
-#Set the year for plotting in high estimates
-df_2010_2018_low.loc[df_2010_2018_low['year']==2010,'str_year']=["2010" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2010]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2011,'str_year']=["2011-2012" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2011]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2012,'str_year']=["2011-2012" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2012]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2013,'str_year']=["2013-2014" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2013]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2014,'str_year']=["2013-2014" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2014]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2017,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2017]))]
-df_2010_2018_low.loc[df_2010_2018_low['year']==2018,'str_year']=["2017-2018" for x in range(len(df_2010_2018_low[df_2010_2018_low['year']==2018]))]
-
-#Display Fig.1
-
-path_flightlines='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/flightlines/'
-flightlines_20022018_load=pd.read_csv(path_flightlines+'flightlines_20022018_GrIS.csv',decimal='.',sep=',')#,low_memory=False)
-
-#Differentiate 2002-2003 VS 2010-2018
-flightlines_20022003=flightlines_20022018_load[flightlines_20022018_load.str_year=='2002-2003']
-flightlines_20102018=flightlines_20022018_load[flightlines_20022018_load.str_year!='2002-2003']
-
-#Transform the coordinates from WGS84 to EPSG:3413
-transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
-points=transformer.transform(np.asarray(flightlines_20102018["LON"]),np.asarray(flightlines_20102018["LAT"]))
-
-#Store lat/lon in 3413
-flightlines_20102018['lon_3413']=points[0]
-flightlines_20102018['lat_3413']=points[1]
-
-#Aggregate 2002-2003 with 2010-2018
-flightlines_20022018=flightlines_20022003
-flightlines_20022018=flightlines_20022018.append(flightlines_20102018)
-
-###############################################################################
-###                  Aggregate data for pannel b display                    ###
-###############################################################################
-#IV. From here on, work with the different periods separated by strong melting summers.
-#    Work thus with 2002-2003 VS 2010 VS 2011-2012 VS 2013-2014 VS 2017-2018
-#    Select the absolute low and absolute high of 2002-2003, 2010-2014 and 2017-2018
-
-#Let's create ~10km latitudinal (resp. longitudinal) slices for SW Greenland (resp. NW Greenland)
-#and calculate the low and high end in each slice for elevation difference:
-
-#1. Create the latitudinal (resp. longitudinal) slices
-############ Is this grid to change?? This is about 10km width but not even whether north or south!
-#lat_slices=np.arange(-2808967.3912300025,-1150000,10054.34783)#do not consider southern data
-lat_slices=np.linspace(-3000000,-1150000,int((np.abs(-3000000)-np.abs(-1150000))/10000))#original
-lon_slices=np.linspace(-600000,650000,int((np.abs(650000)+np.abs(-600000))/10000))#original
-
-#2. Select and store all the data belonging to the lon/lat slices in a dictionnary.
-#### ------------------------- 2010-2018 -------------------------------- ####
-#   Retreive and store min and max elevation of each slice in a dataframe
-#   ----- Latitudinal slices
-
-#Create a dictionnary where to store slices information
-dict_lat_slice={}
-
-#Create a dictionnary to store np arrays storing slices min and max elevation for each region
-dict_lat_slices_summary={k: {} for k in list(df_2010_2018_high['key_shp'].unique())}
-
-#loop over the regions, create the room for each time period in each region
-for region in list(df_2010_2018_high['key_shp'].unique()):
-    dict_lat_slices_summary[region]={k: {} for k in list(['2010','2011-2012','2013-2014','2017-2018'])}
-    
-    for time_period in dict_lat_slices_summary[region].keys():
-        #Fill the dict_lat_slices_summary dictionnary with zeros
-        dict_lat_slices_summary[region][time_period]=np.zeros((len(lat_slices),2))*np.nan
-
-#Loop over each boundary of lat slices and store dataset related to slices
-for i in range(1,len(lat_slices)):
-    
-    #Identify low and higher end of the slice
-    low_bound=lat_slices[i-1]
-    high_bound=lat_slices[i]
-    
-    #Select all the data belonging to this slice
-    ind_slice=np.logical_and(np.array(df_2010_2018_high['lat_3413']>=low_bound),np.array(df_2010_2018_high['lat_3413']<high_bound))
-    df_slice=df_2010_2018_high[ind_slice]
-    
-    #Store the associated df
-    dict_lat_slice[str(int(lat_slices[i-1]))+' to '+str(int(lat_slices[i]))]=df_slice   
-    
-    #Loop over the regions present in df_slice
-    for region in list(df_slice['key_shp'].unique()):
-        #Select only the data belonging to this region
-        df_region=df_slice[df_slice['key_shp']==region]
-        
-        #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
-        for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
-            if (time_period == '2010'):
-                df_region_period=df_region[df_region['year']==2010]
-            elif (time_period == '2011-2012'):
-                df_region_period=df_region[(df_region['year']>=2011) & (df_region['year']<=2012)]
-            elif (time_period == '2013-2014'):
-                df_region_period=df_region[(df_region['year']>=2013) & (df_region['year']<=2014)]
-            elif (time_period == '2017-2018'):
-                df_region_period=df_region[(df_region['year']>=2017) & (df_region['year']<=2018)]
-            else:
-                print('Time period not known, break')
-                break
-            #Identify min and max of each region and store them into a dataframe
-            #Retreive the stored array
-            array_region_indiv=dict_lat_slices_summary[region][time_period]
-            #Store min and max of this regional slice
-            array_region_indiv[i,0]=np.min(df_region_period['elevation'])
-            array_region_indiv[i,1]=np.max(df_region_period['elevation'])
-            #Store again data into dict_lat_slices_summary
-            dict_lat_slices_summary[region][time_period]=array_region_indiv
-            
-#   ----- Longitudinal slices
-#Create a dictionnary where to store slices information
-dict_lon_slice={}
-
-#Create a dictionnary to store np arrays storing slices min and max elevation for each region
-dict_lon_slices_summary={k: {} for k in list(df_2010_2018_high['key_shp'].unique())}
-
-#loop over the regions, create the room for each time period in each region
-for region in list(df_2010_2018_high['key_shp'].unique()):
-    dict_lon_slices_summary[region]={k: {} for k in list(['2010','2011-2012','2013-2014','2017-2018'])}
-    
-    for time_period in dict_lon_slices_summary[region].keys():
-        #Fill the dict_lon_slices_summary dictionnary with zeros
-        dict_lon_slices_summary[region][time_period]=np.zeros((len(lon_slices),2))*np.nan
-
-#Loop over each boundary of lon slices and store dataset related to slices
-for i in range(1,len(lon_slices)):
-    
-    #Identify low and higher end of the slice
-    low_bound=lon_slices[i-1]
-    high_bound=lon_slices[i]
-    
-    #Select all the data belonging to this slice
-    ind_slice=np.logical_and(np.array(df_2010_2018_high['lon_3413']>=low_bound),np.array(df_2010_2018_high['lon_3413']<high_bound))
-    df_slice=df_2010_2018_high[ind_slice]
-    
-    #Store the associated df
-    dict_lon_slice[str(int(lon_slices[i-1]))+' to '+str(int(lon_slices[i]))]=df_slice   
-    
-    #Loop over the regions present in df_slice
-    for region in list(df_slice['key_shp'].unique()):
-        #Select only the data belonging to this region
-        df_region=df_slice[df_slice['key_shp']==region]
-        
-        #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
-        for time_period in list(['2010','2011-2012','2013-2014','2017-2018']):
-            if (time_period == '2010'):
-                df_region_period=df_region[df_region['year']==2010]
-            elif (time_period == '2011-2012'):
-                df_region_period=df_region[(df_region['year']>=2011) & (df_region['year']<=2012)]
-            elif (time_period == '2013-2014'):
-                df_region_period=df_region[(df_region['year']>=2013) & (df_region['year']<=2014)]
-            elif (time_period == '2017-2018'):
-                df_region_period=df_region[(df_region['year']>=2017) & (df_region['year']<=2018)]
-            else:
-                print('Time period not known, break')
-                break
-            #Identify min and max of each region and store them into a dataframe
-            #Retreive the stored array
-            array_region_indiv=dict_lon_slices_summary[region][time_period]
-            #Store min and max of this regional slice
-            array_region_indiv[i,0]=np.min(df_region_period['elevation'])
-            array_region_indiv[i,1]=np.max(df_region_period['elevation'])
-            #Store again data into dict_lat_slices_summary
-            dict_lon_slices_summary[region][time_period]=array_region_indiv
-
-#### ------------------------- 2010-2018 -------------------------------- ####
-
-#3. Associate each slice to its belonging region.
-#   Not needed! Already present in dataframes!
-
-#4. Calculate the average minimum and maximum of each region among the slices
-
-#5. Flag the more or less perpendicularly crossing 2002-2003 flight lines and exclude the one not crossing
-flag_low=['jun04_02proc_4.mat','jun04_02proc_36.mat','jun04_02proc_52.mat','jun04_02proc_53.mat',
-      'may09_03_0_aggregated','may09_03_1_aggregated','may09_03_30_aggregated',
-      'may09_03_37_aggregated','may11_03_8_aggregated','may11_03_12_aggregated',
-      'may11_03_13_aggregated','may11_03_16_aggregated','may11_03_20_aggregated',
-      'may11_03_21_aggregated','may11_03_38_aggregated','may11_03_39_aggregated',
-      'may12_03_1_aggregated','may12_03_2_aggregated','may12_03_11_aggregated',
-      'may12_03_15_aggregated','may12_03_36_aggregated','may13_03_30_aggregated',
-      'may14_03_1_aggregated','may14_03_2_aggregated','may14_03_7_aggregated',
-      'may14_03_8_aggregated','may14_03_20_aggregated','may14_03_21_aggregated',
-      'may15_03_0_aggregated','may15_03_2_aggregated','may15_03_4_aggregated',
-      'may15_03_9_aggregated','may18_02_27_aggregated']
-
-flag_high=['jun04_02proc_4.mat','jun04_02proc_36.mat','jun04_02proc_52.mat','jun04_02proc_53.mat',
-      'may09_03_0_aggregated','may09_03_1_aggregated','may09_03_30_aggregated',
-      'may09_03_37_aggregated','may11_03_20_aggregated','may11_03_21_aggregated',
-      'may11_03_37_aggregated','may11_03_38_aggregated','may12_03_1_aggregated',
-      'may12_03_2_aggregated','may12_03_11_aggregated','may12_03_36_aggregated',
-      'may13_03_30_aggregated','may14_03_1_aggregated','may14_03_2_aggregated',
-      'may14_03_7_aggregated','may14_03_20_aggregated','may14_03_21_aggregated',
-      'may15_03_2_aggregated','may15_03_4_aggregated','may15_03_9_aggregated',
-      'may18_02_27_aggregated']
-
-unique_flags=np.unique(np.append(flag_low,flag_high))
-
-#6. Take the absolute min and max of all 2002-2003 ice slabs in a specific region
-#A suite of 2002-2003 traces do not belong to different region, which ease coding
-
-#Here are the traces. For consecutive ones, the ice slabs range elevation is distributed through consecutive traces
-traces=[['jun04_02proc_4.mat'],
-        ['jun04_02proc_36.mat'],
-        ['jun04_02proc_52.mat','jun04_02proc_53.mat'],
-        ['may09_03_0_aggregated','may09_03_1_aggregated'],
-        ['may09_03_30_aggregated'],
-        ['may09_03_37_aggregated'],
-        ['may11_03_8_aggregated'],
-        ['may11_03_12_aggregated','may11_03_13_aggregated'],
-        ['may11_03_16_aggregated'],
-        ['may11_03_20_aggregated','may11_03_21_aggregated'],
-        ['may11_03_37_aggregated','may11_03_38_aggregated','may11_03_39_aggregated'],
-        ['may12_03_1_aggregated','may12_03_2_aggregated'],
-        ['may12_03_11_aggregated'],
-        ['may12_03_15_aggregated'],
-        ['may12_03_36_aggregated'],
-        ['may13_03_30_aggregated'],
-        ['may14_03_1_aggregated','may14_03_2_aggregated'],
-        ['may14_03_7_aggregated','may14_03_8_aggregated'],
-        ['may14_03_20_aggregated','may14_03_21_aggregated'],
-        ['may15_03_0_aggregated'],
-        ['may15_03_2_aggregated'],
-        ['may15_03_4_aggregated'],
-        ['may15_03_9_aggregated'],
-        ['may18_02_27_aggregated']]
-
-list_traces=[item for sublist in traces for item in sublist]
-
-#Loop over the traces, check the flags and populate a low end and high end vector where applicable.
-#If consecutive traces, consider the suite of traces!
-
-#Create the dictionary
-dict_summary_2002_2003={k: {} for k in list(df_2002_2003['key_shp'].unique())}
-
-#Fill the dict_summary_2002_2003 dictionnary with a np.nan
-for region in list(df_2002_2003['key_shp'].unique()):
-    dict_summary_2002_2003[region]=np.zeros((len(traces),2))*np.nan
-
-count=0
-#Loop over the traces
-for trace in traces:
-    
-    #Check whether we are dealing with single or consecutive traces
-    if(len(trace)>1):
-        #We are dealing with consecutive traces
-        #Select the data related to the first trace
-        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
-        
-        #loop over the traces and append data to each other, do not take the first one
-        for indiv_trace in list(trace[1:]):
-            #Select all the data related to this trace
-            data_trace=data_trace.append(df_2002_2003[df_2002_2003['Track_name']==indiv_trace])
-            
-    else:
-        #We are dealing with individual traces
-        #Select all the data related to this trace
-        data_trace=df_2002_2003[df_2002_2003['Track_name']==trace[0]]
-
-    #Now my data_trace datasets are ready to be worked with
-    #Keep only green ice slabs
-    data_trace=data_trace[data_trace['colorcode_icelens']==1]
-    
-    if (len(data_trace)<1):
-        #No green ice slabs, continue
-        continue
-    elif (trace[0] == 'may09_03_30_aggregated'):
-        #if the firn aquier region, continue
-        print('trace is ',str(trace[0]))
-        continue
-    else:
-        #Identify the region
-        region=list(np.unique(data_trace['key_shp']))
-        
-        #Retreive the stored array
-        array_region_indiv=dict_summary_2002_2003[region[0]]
-        
-        #Check the flag: shall we store data?
-        if trace[0] in list(flag_low):
-            #Store min in array_region_indiv
-            array_region_indiv[count,0]=np.min(data_trace['elevation'])
-        
-        if trace[0] in list(flag_high):
-            #Store max in array_region_indiv
-            array_region_indiv[count,1]=np.max(data_trace['elevation'])
-        
-        #Update count
-        count=count+1
-        #Store again data into dict_lat_slices_summary
-        dict_summary_2002_2003[region[0]]=array_region_indiv
-
-#7. Do the elevation difference and eventually the corresponding distance calculation in each region
-#Create a dictionnary where to store relevant information
-dict_summary={k: {} for k in list(df_2010_2018_high['key_shp'].unique())}
-
-#Loop over the regions
-for region in list(df_2010_2018_high['key_shp'].unique()):
-    
-    #Continue building the dictionnary
-    dict_summary[region]={k: {} for k in list(['2002-2003','2010','2011-2012','2013-2014','2017-2018'])}
-    
-    #Loop over the 5 time periods
-    
-    for time_period in list(['2002-2003','2010','2011-2012','2013-2014','2017-2018']):
-        dict_summary[region][time_period]={k: {} for k in list(['max_elev_mean','max_elev_median','max_elev_std','max_elev_max'])}
-        
-        #Take the average, median and std dev of high elevation where ice slabs have been
-        #identified in this region, no matter the year in this specific time
-        #period, and store relevant information
-        
-        if (time_period=='2002-2003'):
-            #Retreive the corresponding matrix where data are stored
-            dict_temp=dict_summary_2002_2003[region]
-        else:
-            #The dictionnary to select is different whether we are in north or south greenland
-            if (region in list(['NO'])):
-                dict_temp=dict_lon_slices_summary[region][time_period]
-            else:
-                dict_temp=dict_lat_slices_summary[region][time_period]
-        
-        #Calculate and store averages
-        dict_summary[region][time_period]['max_elev_mean']=np.nanmean(dict_temp[:,1])
-        dict_summary[region][time_period]['max_elev_median']=np.nanmedian(dict_temp[:,1])
-        dict_summary[region][time_period]['max_elev_std']=np.nanstd(dict_temp[:,1])
-        dict_summary[region][time_period]['max_elev_max']=np.nanmax(dict_temp[:,1])
-
-
-###############################################################################
-###                  Aggregate data for pannel b display                    ###
-###############################################################################
-
-#Append all the dataframes together
-df_all=df_2002_2003_green
-df_all=df_all.append(df_2010_2018_high)
-
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_firn_aquifer_all['coords'] = list(zip(df_firn_aquifer_all['lon_3413'],df_firn_aquifer_all['lat_3413']))
-df_firn_aquifer_all['coords'] = df_firn_aquifer_all['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_firn_aquifer_all, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_firn_aquifer_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ##########################
-
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_thickness_likelihood_20102018['coords'] = list(zip(df_thickness_likelihood_20102018['lon_3413'],df_thickness_likelihood_20102018['lat_3413']))
-df_thickness_likelihood_20102018['coords'] = df_thickness_likelihood_20102018['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_thickness_likelihood_20102018, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_thickness_likelihood_20102018_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ##########################
-
-######################### Keep only data on the GrIS ##########################
-# This is from aggregate_20022018_flightlines.py
-df_all['coords'] = list(zip(df_all['lon_3413'],df_all['lat_3413']))
-df_all['coords'] = df_all['coords'].apply(Point)
-points = gpd.GeoDataFrame(df_all, geometry='coords', crs="EPSG:3413")
-pointInPolys = gpd.tools.sjoin(points, GrIS_mask, op="within", how='left') #This is from https://www.matecdev.com/posts/point-in-polygon.html
-df_all_GrIS = points[pointInPolys.SUBREGION1=='ICE_SHEET']
-######################### Keep only data on the GrIS ########################## 
+################################### Plot ##################################
+#Prepare plot
+plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+fig = plt.figure()
+#fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
+gs = gridspec.GridSpec(8, 200)
+gs.update(hspace=0.5)
+gs.update(wspace=0.5)
 
 '''
-df_all_GrIS = df_all
-df_firn_aquifer_all_GrIS=df_firn_aquifer_all
-df_thickness_likelihood_20102018_all_GrIS=df_thickness_likelihood_20102018
+ax1 = plt.subplot(gs[0:5, 5:55],projection=crs)
+ax_InsetMap = plt.subplot(gs[5:8, 0:45],projection=crs)
+'''
+ax1 = plt.subplot(gs[0:8, 5:55],projection=crs)
+ax2 = plt.subplot(gs[0:2, 65:195])
+ax3 = plt.subplot(gs[2:4, 65:195])
+ax4 = plt.subplot(gs[4:6, 65:195])
+ax5 = plt.subplot(gs[6:8, 65:195])
+axc = plt.subplot(gs[0:8, 197:200])
+
+#Load DEM clipped over the SW
+GrIS_DEM_display_SW = rxr.open_rasterio(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW.tif',
+                              masked=True).squeeze()
+extent_DEM_SW = [np.asarray(GrIS_DEM_display_SW.x[0]), np.asarray(GrIS_DEM_display_SW.x[-1]), np.asarray(GrIS_DEM_display_SW.y[-1]), np.asarray(GrIS_DEM_display_SW.y[0])]
+
+#Display elevation
+#cb1=ax1.imshow(GrIS_DEM_display[:,:], extent=extent_DEM, transform=crs, origin='upper', cmap='Blues_r',zorder=1,alpha=0.5)
+#cb1=ax1.imshow(GrIS_DEM_display_SW[:,:], extent=extent_DEM_SW, transform=crs, origin='upper', cmap='Blues_r',zorder=1,alpha=0.5)
+#cbar1=fig.colorbar(cb1, ax=[ax1], location='right')
+
+#Display SW and CW regions
+SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
+CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
+
+#Add region names
+ax1.text(30000,-2369000,'CW',color='black')
+ax1.text(-12830,-2600000,'SW',color='black')
+ax1.text(82500,-2609000,'SE',color='black')
+
+#Display contours
+cont=ax1.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1000,3750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.1)
+
+#Add elevation contour values
+ax1.text(-0.05, 0.42,'1000', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(-0.05, 0.39,'1250', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(-0.05, 0.235,'1500', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(-0.05, 0.18,'1500', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.055, -0.02,'1750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.12, -0.02,'2000', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.25, -0.02,'2250', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.39, -0.02,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(1.06, 0.455,'2500', ha='center', va='center',transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+#Zoom over SW Greenland
+ease_extent = [-201529, 106696, -2889749, -2160162]
+ax1.set_extent(ease_extent, crs=crs) 
+
+#Shapefiles
+# --- 2010-2018
+iceslabs_jullien_highend_20102018.plot(ax=ax1,color='#d73027', edgecolor='none',linewidth=0.5)
+
+'''
+#Plot all the 2010-2018 ice slabs
+ax1.scatter(lon_3413_20102018, lat_3413_20102018,s=1,facecolors='#0570b0', edgecolors='none')
+'''
+#Plot all the 2002-2003 flightlines
+ax1.scatter(lon_all, lat_all,s=1,facecolors='#969696', edgecolors='none',alpha=0.1)
+################################### Plot ##################################
+
+#Open several files to display on top of the map
+
+#display may12_03_36, may12_02_1, may09_03_1, jun04_02_53, may14_03_7
+#dry snow zone:may18_02_16 or 18_02_12
+# east greenland: jun04_proc02_7.mat
+
+#Open, read and close the file of suggested surface picks
+f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/Exclusion_folder/txt/SURFACE_STARTING_PICKS_Suggestions_2002_2003.txt','r')
+lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
+f.close()
+
+#Open and read the excel file having the ice lenses/slabs in it
+filename_icelenses='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
+xls_icelenses = pd.read_excel(filename_icelenses, sheet_name=None,header=2)
+trafic_light=pd.read_excel(filename_icelenses, sheet_name=None,header=1)
+
+#Specify the general path name
+path_radar_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data'
+
+#Plot date 1
+folder_year='2003'
+folder_day='may11'
+indiv_file='may11_03_1_aggregated' #From down to up: OK!
+ax_nb=2
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax1,ax2,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+
+#Plot date 2
+folder_year='2002'
+folder_day='jun04'
+indiv_file='jun04_02proc_53.mat' #From up to down: need reversing! Already done, OK!
+ax_nb=3
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax1,ax3,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+
+#Plot date 3
+folder_year='2003'
+folder_day='may12'
+indiv_file='may12_03_36_aggregated' #From up to down: need reversing! Already fone, OK!
+ax_nb=4
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax1,ax4,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+
+#Plot date 4
+folder_year='2003'
+folder_day='may11'
+indiv_file='may11_03_29_aggregated' #High elevation, no need: OK!
+ax_nb=5
+path_radar_slice=path_radar_data+'/'+folder_year+'/'+folder_day+'/'+indiv_file
+plot_radar_slice(ax1,ax5,ax_nb,path_radar_slice,lines,folder_year,folder_day,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary)
+
+#Plot all the 2002-2003 icelenses according to their confidence color 
+'''
+#1. Red
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=2,facecolors='#c9662c', edgecolors='#c9662c')
+#2. Orange
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=2,facecolors='#fed976', edgecolors='#fed976')
+'''
+#3. Green
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=2,facecolors='#ffb300', edgecolors='#ffb300')
+'''
+#Purple
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=2,facecolors='purple', edgecolors='purple')
 '''
 
-#Create Fig.1
-plot_fig1(df_all_GrIS,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all_GrIS,df_thickness_likelihood_20102018_all_GrIS,dict_summary)
+#Display lat/lon lines in map
+gl=ax1.gridlines(draw_labels=True, xlocs=[-42, -44, -46, -48, -50], ylocs=[62, 63, 64, 65, 66, 67, 68, 69, 70], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
+#Customize lat and lon labels
+gl.ylabels_right = False
+gl.xlabels_bottom = False
+
+#Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
+legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='black', linewidth=0.5),
+                   Line2D([0], [0], label='Elevation contours', color='#8c510a'),
+                   Line2D([0], [0], label='2002-2003 flightlines', color='#969696'),
+                   Line2D([0], [0], label='Transects of interest', color='k', linewidth=3),
+                   Patch(facecolor='#d73027',label='2010-2018 ice slabs'),
+                   Line2D([0], [0], label='2002-2003 ice layers and slabs', color='#ffb300', linewidth=3)]
+#Add legend
+ax1.legend(handles=legend_elements,loc='upper left',fontsize=12,framealpha=1,bbox_to_anchor=(-0.019, 1.008))
+plt.legend()
+axc.legend_.remove()
+
+#Display the map panel label
+ax1.text(-0.06, 1.025,'a', ha='center', va='center', transform=ax1.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+'''
+#Display GrIS inset map
+ax_InsetMap.coastlines(edgecolor='black',linewidth=0.075)
+#Display GrIS drainage bassins limits
+GrIS_drainage_bassins.plot(ax=ax_InsetMap,color='none', edgecolor='black',linewidth=0.075)
+#Display region name
+ax_InsetMap.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-80000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(SW_rignotetal.centroid.x-185000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NW_rignotetal.centroid.x-150000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+
+#Display rectangle around datalocation - this is from Fig. 3.py   
+#Extract corner coordinates
+coord_origin=[ax1.get_xlim()[0],ax1.get_ylim()[0]]
+coord_topright=[ax1.get_xlim()[1],ax1.get_ylim()[1]]
+#This is from https://stackoverflow.com/questions/37435369/matplotlib-how-to-draw-a-rectangle-on-image
+# Create a Rectangle patch
+rect = patches.Rectangle((coord_origin[0],coord_origin[1]),
+                         np.abs(coord_origin[0]-coord_topright[0]),
+                         np.abs(coord_origin[1]-coord_topright[1]),
+                         angle=0, linewidth=1, edgecolor='black', facecolor='none')
+# Add the patch to the Axes
+ax_InsetMap.add_patch(rect)
+ax_InsetMap.axis('on')
+
+#Display scalebar
+scale_bar(ax_InsetMap, (0.745, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
+'''
+scale_bar(ax1, (0.32, 0.0425), 50, 3,0)# axis, location (x,y), length, linewidth, rotation of text
+#by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
+
+plt.show()
+pdb.set_trace()
+
+#Save the figure
+fig_name=[]
+#fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v6/Fig_S1.png'
+plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
+print('Done with SW Greenland plot')
+
+######################## Save 2002-2003 radargram data ########################
+
+if (save_2002_2003_data=='TRUE'):
+    #1 Loop over all 2002-2003 data
+    for year in list(icelens_2002_3_flightlines.keys()):
+        for days in list(icelens_2002_3_flightlines[year].keys()):
+            for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
+                print(indiv_file)
+                if (indiv_file[0:7]=='quality'):
+                    print('Quality file, continue')
+                    continue
+                else:
+                    #2. Load radargrams
+                    #Define path
+                    path_radar_slice=path_radar_data+'/'+year+'/'+days+'/'+indiv_file
+                    #load radargram
+                    radargram_data = load_2002_2003_radargram(path_radar_slice,lines,year,days,indiv_file)
+                    #reset depths so that it matches with radagrams 0-30m dimensions
+                    radargram_data['depths']=radargram_data['depths'][0:radargram_data['radar_slice_0_30m'].shape[0]]              
+                    
+                    #briefly check the data being generated
+                    fig = plt.figure(figsize=(15,7))
+                    ax1 = plt.subplot()
+                    #Plot the radar slice
+                    cb=ax1.pcolor(radargram_data['radar_slice_0_30m'],cmap=plt.get_cmap('gray'))
+                    ax1.set_ylim(0,radargram_data['radar_slice_0_30m'].shape[0])
+                    ax1.invert_yaxis() #Invert the y axis = avoid using flipud.
+                    #Colorbar custom
+                    if (year=='2002'):
+                        perc_lower_end=-0.5709792307554173
+                        perc_upper_end=0.7082634842114803
+                    elif (year=='2003'):
+                        perc_lower_end=-0.6061610403154447
+                        perc_upper_end=0.7572821079440079     
+                    cb.set_clim(perc_lower_end,perc_upper_end)
+                    #Set the y ticks
+                    ticks_yplot=np.linspace(0,radargram_data['radar_slice_0_30m'].shape[0]-1,4).astype(int)
+    
+                    ax1.set_yticks(ticks_yplot) 
+                    ax1.set_yticklabels(np.round(radargram_data['depths'][ticks_yplot]).astype(int))
+                    #Set ylabel
+                    ax1.set_ylabel('Depth [m]')
+                    #Generate the pick for horizontal distance display
+                    ticks_xplot=np.linspace(0,radargram_data['distances'].shape[0],10).astype(int)
+                    #Plot also the last index
+                    ticks_xplot[-1]=radargram_data['distances'].shape[0]-1
+                    #Set x ticks
+                    ax1.set_xticks(ticks_xplot) 
+                    #Display the distances from the origin as being the x label
+                    ax1.set_xticklabels(np.round(radargram_data['distances'][ticks_xplot]).astype(int))
+                    ax1.set_xlabel('Distance [km]')
+                    ax1.set_title(indiv_file)
+                    plt.show()
+                                        
+                    #3. Save as pickle
+                    path_save_radargrams='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/2002_2003/radargram_data/'
+                    filename_tosave=path_save_radargrams+year+'/L1_'+indiv_file.split('.')[0]+'.pickle'
+                    
+                    outfile= open(filename_tosave, "wb" )
+                    pickle.dump(radargram_data,outfile)
+                    outfile.close()
+                    
+                    #Save figure
+                    plt.savefig(path_save_radargrams+'fig_check/'+indiv_file.split('.')[0]+'.png',dpi=300,bbox_inches='tight')
+                    plt.close()
+                    
+                    #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)      
+######################## Save 2002-2003 radargram data ########################
 
 pdb.set_trace()
 
+#Plot the whole GrIS 2002-2003 radar tracks
+#Prepare plot
+fig = plt.figure(figsize=(19,10))
+gs = gridspec.GridSpec(10, 20)
+ax1 = plt.subplot(gs[0:10, 0:20],projection=crs)
 
-#Save 2002-2003 green dataset
-#Open filename (same procedure as MacFerrin et al., 2019)
-filename_excel_output='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/2002_2003_green_excel.csv'
-fout = open(filename_excel_output, 'w')
-header = "lat,lon,tracenum,key_shp,elevation,year\n"
-fout.write(header)
+#Display coastlines
+ax1.coastlines(edgecolor='black',linewidth=0.75)
 
-tracecount = 0
-for lat, lon, tracenum, key, elev, year in zip(np.asarray(df_2002_2003_green['lat_3413']),np.asarray(df_2002_2003_green['lon_3413']),np.asarray(df_2002_2003_green['Track_name']),np.asarray(df_2002_2003_green['key_shp']),np.asarray(df_2002_2003_green['elevation']),np.asarray(df_2002_2003_green['year'])):
+#Display regions
+NO_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+NE_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+SE_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+CW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+SW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
+NW_rignotetal.plot(ax=ax1,color='white', edgecolor='#081d58',linewidth=0.5) 
 
-    line = "{0},{1},{2},{3},{4},{5}\n".format(lat, lon, tracenum, key, elev, year)
-    fout.write(line)
-    tracecount += 1
-print()
+#Display region name
+ax1.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y+20000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+ax1.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+ax1.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+20000,np.asarray(SE_rignotetal.SUBREGION1)[0])
+ax1.text(SW_rignotetal.centroid.x,SW_rignotetal.centroid.y+20000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax1.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax1.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 
-fout.close()
+#Plot all the 2002-2003 flightlines
+ax1.scatter(lon_all, lat_all,s=0.1,facecolors='lightgrey', edgecolors='none',alpha=0.1, label='2002-2003 flight lines')
+
+#Plot all the 2010-2018 ice slabs
+ax1.scatter(lon_3413_20102018, lat_3413_20102018,s=1,facecolors='#0570b0', label='2010-18 ice slabs')
+
+#Plot all the 2002-2003 icelenses according to their condifence color
+#1. Red
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lat_3413'],s=5,facecolors='#c9662c', edgecolors='none',label='High confidence')
+#2. Orange
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=5,facecolors='#fed976', edgecolors='none',label='Medium confidence')
+#3. Green
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=5,facecolors='#238b45', edgecolors='none',label='Low confidence')
+#Purple
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=5,facecolors='purple', edgecolors='none',label='Bright layer - very low confidence')
+
+#Correct zoom
+ax1.set_xlim(-650000,900000)
+ax1.set_ylim(-3360000,-650000)
+plt.legend(loc='lower right', fontsize=9)
+
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+# This can be converted into a `proj4` string/dict compatible with GeoPandas
+crs_proj4 = crs.proj4_init
+# x0, x1, y0, y1
+ax1.set_extent([-692338, 916954, -3392187, -627732], crs=crs)
+gl=ax1.gridlines(draw_labels=True, xlocs=[-50, -35], ylocs=[65, 75], x_inline=False, y_inline=False, color='#969696',linewidth=0.5)
+
+#Customize lat labels
+ax1.axis('off')
+#scalebar.scale_bar(ax, (0, 0), 300, zorder=200)
+###################### From Tedstone et al., 2022 #####################
+
+plt.show()
+pdb.set_trace()
+
+#Save the figure
+fig_name=[]
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v3/Fig_20022003_icelenses.png'
+plt.savefig(fig_name,dpi=300)
+
+print('Done with whole GrIS plot')
+pdb.set_trace()
+
+### --------------------------- BELOW: NOT USED --------------------------- ### 
+#######################################################################
+###                 Identification of deepest ice lenses            ###
+#######################################################################
+         
+#Time calculation variables
+dt = 2.034489716724874e-09 #Timestep for 2002/2003 traces
+t0 = 0; # Unknown so set to zero
+#Compute the speed (Modified Robin speed):
+# self.C / (1.0 + (coefficient*density_kg_m3/1000.0))
+v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+
+#Path radar data:
+path_radar_data= 'C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/iceslabs_MacFerrin/data'
+
+#Create the dictionary to save ice lens information
+icelens_information={k: {} for k in list(xls_icelenses.keys())}
+
+#Depth of ice lenses: use the variable 'xsl_icelenses'
+for indiv_file in list(xls_icelenses.keys()):
+    print(indiv_file)
+    
+    ####################################################################
+    ###    Load the data of interest to retrieve the depth vector    ###
+    
+    #Define the folder_year
+    if (indiv_file[6:8]=='02'):
+        folder_year='2002'
+    elif (indiv_file[6:8]=='03'):
+        folder_year='2003'
+    else:
+        print('Problem in data!')
+    
+    path_radar_load=path_radar_data+'/'+folder_year+'/'+indiv_file[0:5]
+
+    if (indiv_file[0:5]=='jun04'):
+        fdata= scipy.io.loadmat(path_radar_load+'/'+indiv_file)
+        #Select radar echogram
+        radar_echo=fdata['data']
+    else:
+        #Open the file and read it
+        f_agg = open(path_radar_load+'/'+indiv_file, "rb")
+        data = pickle.load(f_agg)
+        f_agg.close()
+        
+        #Select radar echogram
+        radar_echo=data['radar_echogram']
+
+    #Compute the vertical resolution
+    Nt = radar_echo.shape[0]
+    Time = t0 + dt*np.arange(1,Nt+1)
+    #self.SAMPLE_DEPTHS = self.radar_speed_m_s * self.SAMPLE_TIMES / 2.0
+    depths = v * Time / 2.0 
+    
+    ###    Load the data of interest to retrieve the depth vector    ###
+    ####################################################################
+    
+    #Identify the index corresponding to the deepest depth (i.e. 20m)
+    deepest_index=np.where(depths>20)[0][0]
+    
+    #Load ice lenses identifications
+    df_temp=xls_icelenses[indiv_file]
+    df_colnames = list(df_temp.keys())
+    
+    #pdb.set_trace()
+    
+    #Load trafic light information
+    df_trafic_light=trafic_light[indiv_file]
+    df_colnames_trafic_light = list(df_trafic_light.keys())
+    
+    #Get the storage dataframe ready
+    x_empty=np.zeros(radar_echo.shape[1])
+    x_empty[:]=np.nan
+    
+    df_icelenses_information=pd.DataFrame({'x':x_empty,
+                                           'deepest_depth_index':x_empty,
+                                           'deepest_depth':x_empty,
+                                           'deepest_depth_color':x_empty})
+    
+    #Empty gathering vectors
+    x_all=[]
+    y_all=[]
+    x_color=[]
+    
+    for i in range (0,int(len(df_colnames)),2):
+        #Load x and y
+        x_vect=df_temp[df_colnames[i]]
+        y_vect=df_temp[df_colnames[i+1]]
+        
+        #Load trafic light color
+        trafic_light_invid_color=df_colnames_trafic_light[i]
+        
+        #Floor the horizontal pixels
+        x_floored=[]
+        x_floored=np.floor(x_vect)
+        
+        #Floor the vertical pixels
+        y_floored=[]
+        y_floored=np.floor(y_vect)
+        
+        #Define the color code in which to display the ice lens
+        if (trafic_light_invid_color[0:3]=='gre'):
+            color_code=1
+        elif (trafic_light_invid_color[0:3]=='ora'):
+            color_code=0
+        elif (trafic_light_invid_color[0:3]=='red'):
+            color_code=-1
+        elif (trafic_light_invid_color[0:3]=='pur'):
+            color_code=2
+        else:
+            print('The color is not known!')       
+        
+        #Append x and y to gather vectors
+        x_all=np.append(x_all,x_floored)
+        y_all=np.append(y_all,y_floored)
+        
+        #Append the color codes
+        x_color=np.append(x_color,np.ones(x_floored.shape[0])*color_code)
+    
+    #Remove the nans
+    #pdb.set_trace()
+    x_color=x_color[~np.isnan(x_all)]
+    x_all=x_all[~np.isnan(x_all)]
+    y_all=y_all[~np.isnan(y_all)]
+    
+    #Find the index of unique horizontal pixel
+    x_all_unique, idx = np.unique(x_all, return_index=True)
+    
+    #Set the x_all_unique as integer
+    x_all_unique=x_all_unique.astype(int)
+    
+    #We can have several minimums for one horizontal pixel
+    for i in range (0,len(x_all_unique),1):
+        #pdb.set_trace()
+        
+        #Find all the index having the same horizontal pixel value
+        index_element_search=np.where(x_all == x_all_unique[i])[0]
+        
+        #Select all the correponding vertical pixel values
+        y_index=y_all[index_element_search]
+        #Select all the corresponding xcolor
+        x_color_index=x_color[index_element_search]
+        
+        #For y_index > deepest index, store the deepest index (correpond to 20m depth)
+        y_index[y_index>deepest_index]=deepest_index
+        
+        #Keep the deepest one
+        deepest_pixel_index=np.nanmax(y_index)
+        #The corresponding location is given by y_index.argmax()
+        #Associate the deepest pixel with its color code
+        x_color_value=x_color_index[y_index.argmax()]
+        
+        #If nan, continue and do not store anything
+        if np.isnan(deepest_pixel_index):
+            print('Identified ice lens all below 20m deep, continue')
+            continue
+        
+        #Retrieve the corresponding deepest depth
+        deepest_depth=depths[deepest_pixel_index.astype(int)]
+        
+        ########################## old method ###########################
+        ##Retreive the depth. What is stored in y_all are the y coordinates, which
+        ##correspond to the index!
+        #depths_retrieval=depths[y_all[index_element_search].astype(int)]
+        #
+        ##Remove the depths deeper than 20m
+        #depths_retrieval[depths_retrieval>20]=np.nan
+        #
+        ##Retrieve the deepest depth between 0 and 20m deep:
+        #deepest_depth=np.nanmax(depths_retrieval)
+        ########################## old method ###########################
+
+        #store the information in the dataframe
+        df_icelenses_information['x'][x_all_unique[i]]=x_all_unique[i]
+        df_icelenses_information['deepest_depth_index'][x_all_unique[i]]=deepest_pixel_index
+        df_icelenses_information['deepest_depth'][x_all_unique[i]]=deepest_depth
+        df_icelenses_information['deepest_depth_color'][x_all_unique[i]]=x_color_value
+    
+    #Moving window averaging
+    for j in range(4,len(df_icelenses_information['deepest_depth_index'])-5,1):
+        if (np.isnan(df_icelenses_information['deepest_depth_index'][j])):
+            continue
+        
+        #Define the moving window as considering -4 and +4 around it, without considering j
+        moving_window_temp=df_icelenses_information['deepest_depth_index'][j-4:j+5]
+        
+        #if (indiv_file=='jun04_02proc_4.mat'):
+        #    pdb.set_trace()
+        
+        if (np.sum(np.isnan(np.asarray(list(moving_window_temp))).astype(int))==8):
+            #Pixel of interest is surrounded by NaNs.
+            #Let's first try to not bother about it
+            continue
+        
+        #pdb.set_trace()
+        #1. Depth index
+        #Get rid of the dependance with df_icelenses_information
+        moving_window=np.asarray(list(moving_window_temp))
+        #Removing the jth element of interest
+        moving_window[4]=np.nan
+        moving_average=np.nanmean(moving_window)        
+        moving_std=np.nanstd(moving_window)
+        
+        #2. Depth
+        #Get rid of the dependance with df_icelenses_information
+        window_depth=np.asarray(list(df_icelenses_information['deepest_depth'][j-4:j+5]))
+        #Removing the jth element of interest
+        window_depth[4]=np.nan
+        moving_average_depth=np.nanmean(window_depth)
+        
+        #3. Color code
+        #Get rid of the dependance with df_icelenses_information
+        window_color=np.asarray(list(df_icelenses_information['deepest_depth_color'][j-4:j+5]))
+        #Removing the jth element of interest
+        window_color[4]=np.nan
+        moving_average_color=np.round(np.nanmean(window_color))
+        
+        pixel_studied=df_icelenses_information['deepest_depth_index'][j]
+
+        if ((pixel_studied>(moving_average+2*moving_std)) or (pixel_studied<(moving_average-2*moving_std))):
+            #The jumped index is recalculated as a function of is neighboors
+            #pdb.set_trace()
+            df_icelenses_information['deepest_depth_index'][j]=np.round(moving_average).astype(int)
+            df_icelenses_information['deepest_depth'][j]=moving_average_depth
+            df_icelenses_information['deepest_depth_color'][j]=moving_average_color
+    #Save the dataframe into a dictionnary
+    icelens_information[indiv_file]=df_icelenses_information
+
+#Display all the traces with the corresponding depth on the map
+################################### Plot ##################################
+print('Save indiv files with deepest ice lenses identification')
+#Plot all the dates:
+for year in list(icelens_2002_3_flightlines.keys()):
+    for days in list(icelens_2002_3_flightlines[year].keys()):
+        for indiv_file in list(icelens_2002_3_flightlines[year][days].keys()):
+            print(indiv_file)
+            if (indiv_file[0:7]=='quality'):
+                print('Quality file, continue')
+                continue
+            elif (not(bool(icelens_2002_3_flightlines[year][days][indiv_file]))):
+                print('No ice lens, continue')
+                continue
+            else:
+                print('Plot the deppest ice lenses')
+                #Define the path of radar data
+                path_radar_slice=path_radar_data+'/'+year+'/'+days+'/'+indiv_file
+                
+                #Prepare plot
+                fig = plt.figure(figsize=(19,10))
+                fig.suptitle(indiv_file)
+                gs = gridspec.GridSpec(10, 20)
+                gs.update(wspace=0.1)
+                gs.update(wspace=0.001)
+                ax1 = plt.subplot(gs[0:6, 0:10])
+                ax2 = plt.subplot(gs[0:6, 12:20])
+                ax3 = plt.subplot(gs[6:10, 0:20])
+                
+                #Display elevation
+                cb1=ax1.imshow(elevDem, extent=grid.extent,cmap=discrete_cmap(10,'cubehelix_r'),alpha=0.5,norm=divnorm)
+                ax1.set_title('Ice lenses and slabs location')
+                cbar1=fig.colorbar(cb1, ax=[ax1], location='left')
+                cbar1.set_label('Elevation [m]')
+                
+                #Plot all the 2010-2014 icelenses
+                ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,s=1,facecolors='cornflowerblue', edgecolors='none')
+                #ax1.scatter(lon_3413_MacFerrin, lat_3413_MacFerrin,color='red',marker='o',alpha=0.2)
+                
+                #Plot all the 2002-2003 flightlines
+                ax1.scatter(lon_all, lat_all,s=1,facecolors='lightgrey', edgecolors='none',alpha=0.1)
+                
+    
+                #Plot the individual results
+                plot_radar_slice_with_thickness(ax1,ax2,ax3,path_radar_slice,lines,year,days,indiv_file,technique,xls_icelenses,trafic_light,elevation_dictionnary,icelens_information)
+                #pdb.set_trace()
+                
+                ##Save the figure
+                #fig_name=[]
+                #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/deepest_lenses'+indiv_file+'.png'
+                #plt.savefig(fig_name,dpi=1000)
+                plt.close()
+                print('Done with deepest',indiv_file)
+                
+#######################################################################
+###                 Identification of deepest ice lenses            ###
+#######################################################################
