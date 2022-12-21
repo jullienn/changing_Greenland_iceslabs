@@ -76,11 +76,11 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     cb_prob=ax_plotting.pcolor(distances_with_start_transect, Y, C_bool_plot,cmap=cmap_year,alpha=0.8, zorder=zorder_indiv,antialiased=True, linewidth=0.0,label=str(year))
     #for getting rid of mesh lines, this is from https://stackoverflow.com/questions/27092991/white-lines-in-matplotlibs-pcolor
     ax_plotting.invert_yaxis() #Invert the y axis = avoid using flipud.    
-    '''
+    
     ax_plotting.set_ylim(20,0)
     #Add yticks
     ax_plotting.yaxis.tick_left()
-    '''
+    
     #Set xlim
     start_display=10000
     end_display=30000
@@ -96,15 +96,15 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     if (ax_plotting in list([ax1,ax3])):
         #Set xticks labels to empty
         ax_plotting.set_xticklabels([])
-        '''
+        
         #Set last yticks labels to empty
         ax_plotting.set_yticklabels(['0','5','10','15',''],fontsize=15)
-        '''
+        
     else:
         #Set fontsize
-        '''
+        
         ax_plotting.set_yticklabels(['0','5','10','15','20'],fontsize=15)
-        '''
+        
     if (zorder_indiv==1):
         if (ax_plotting==ax5):
             #Custom plot

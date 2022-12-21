@@ -354,7 +354,7 @@ def display_panels_c(ax1c,region_rignot,x0,x1,y0,y1,flightlines_20022018,df_thic
 
 def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_firn_aquifer_all,df_thickness_likelihood_20102018,dict_summary):   
     plot_fig_S6='FALSE'
-    plot_standalone_map='TRUE'
+    plot_standalone_map='FALSE'
     plot_panela='TRUE'
     plot_panelb='TRUE'
     figure_AGU='TRUE'
@@ -820,7 +820,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             plt.legend()
             
             #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
-            for region in list(['NE','NW','CW','SW']):
+            for region in list(['NE','NW','CW','SW','NO']):
                 #Keep only where name == region
                 regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['region']==region].area/1000000)
                 regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['region']==region].area/1000000)
