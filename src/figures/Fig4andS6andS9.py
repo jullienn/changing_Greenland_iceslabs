@@ -91,7 +91,6 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     ax_plotting.set_xticks(xtick_distance)
     ax_plotting.set_xticklabels((xtick_distance/1000),fontsize=15)
     
-
     #Do not dispay x ticks in ax1, ax3
     if (ax_plotting in list([ax1,ax3])):
         #Set xticks labels to empty
@@ -104,7 +103,7 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
         #Set fontsize
         
         ax_plotting.set_yticklabels(['0','5','10','15','20'],fontsize=15)
-        
+    
     if (zorder_indiv==1):
         if (ax_plotting==ax5):
             #Custom plot
@@ -1433,13 +1432,13 @@ for year in np.asarray([2012,2013,2014,2017,2018]):
 #Display ice slabs products
 display_iceslabs_product(dataframe,2012,ax1,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
 display_iceslabs_product(dataframe,2013,ax1,matplotlib.colors.ListedColormap([my_pal[2013]]),1,2012)
-
+'''
 display_iceslabs_product(dataframe,2013,ax3,matplotlib.colors.ListedColormap([my_pal[2013]]),2,'empty')
 display_iceslabs_product(dataframe,2014,ax3,matplotlib.colors.ListedColormap([my_pal[2014]]),1,2013)
 '''
 display_iceslabs_product(dataframe,2014,ax3,matplotlib.colors.ListedColormap([my_pal[2014]]),2,'empty')
 display_iceslabs_product(dataframe,2017,ax3,matplotlib.colors.ListedColormap([my_pal[2017]]),1,2014)
-'''
+
 display_iceslabs_product(dataframe,2012,ax5,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
 display_iceslabs_product(dataframe,2018,ax5,matplotlib.colors.ListedColormap([my_pal[2018]]),1,2012)
 
