@@ -854,7 +854,7 @@ ax5t.axvspan(23100, 24600, facecolor='gray', alpha=0.3)
 ax7t.axvspan(24600, 26700, facecolor='gray', alpha=0.3)
 
 #Display distance as Elevation [m]
-ax5t.set_ylabel('Ice content [m]',fontsize=15)
+ax5t.set_ylabel('Ice slab thickness [m]',fontsize=15)
 ax7t.set_xlabel('Distance [km]',fontsize=15)
 ax2t.xaxis.set_label_position("top")
 ax2t.set_xlabel('Elevation [m]',fontsize=15,color='#8c510a')

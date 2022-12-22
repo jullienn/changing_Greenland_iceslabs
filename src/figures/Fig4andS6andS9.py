@@ -1321,7 +1321,7 @@ min_elev,max_elev,columnal_sum_studied_case=plot_thickness(investigation_year,da
 ### ---------- Display radargrams, ice slabs and thickness plot  ---------- ###
 
 ### ---------------------- Finalise and polish plot ----------------------- ###
-ax11t.set_ylabel('Ice content [m]')
+ax11t.set_ylabel('Ice slab thickness [m]')
 #Add pannel label
 ax11t.text(0.01, 0.05,'h',ha='center', va='center', transform=ax11t.transAxes,weight='bold',fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 

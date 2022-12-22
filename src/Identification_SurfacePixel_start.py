@@ -10,7 +10,7 @@ Created on Sat Dec 16 10:30 2020
 import scipy.io
 import rasterio
 from rasterio.plot import show
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 import numpy as np
 import h5py
 import matplotlib.colors as mcolors
@@ -44,7 +44,7 @@ v= 299792458 / (1.0 + (0.734*0.873/1000.0))
 raw_radar_echograms='TRUE'
 
 #Choose the year I want to diplay
-year_display='2018'
+year_display='2012'
 
 ##############################################################################
 ############################## Define variables ##############################
@@ -432,3 +432,54 @@ for folder_year in folder_years:
         else:
             print('Folder',folder_year,', continue ...')
             continue
+
+#### ------------- Investigation NO 2010-12 data availability ------------- ###
+
+path_data='C:/Users/jullienn//Downloads/'
+if(year_display=='2012'):
+
+    onlyfiles=['Data_img_01_20120511_01_031.mat','Data_img_01_20120511_01_032.mat','Data_img_01_20120511_01_038.mat','Data_img_01_20120511_01_039.mat','Data_img_01_20120511_01_040.mat']
+    for indiv_file in onlyfiles:
+        print('Treating file',indiv_file)
+
+        
+        #Open the file and read it
+        fdata= scipy.io.loadmat(path_data+indiv_file)
+        #Select radar echogram and corresponding lat/lon
+        radar_echo=fdata['Data']
+        
+        time=fdata['Time']
+        surface=fdata['Surface']
+        
+        depths = v * time / 2.0
+        depths=depths+np.abs(depths[0])
+        depths_20m=depths[depths<=20]
+        
+        index=np.zeros((surface.shape[0],surface.shape[1]))
+        radar_20m=np.zeros((len(depths_20m),surface.shape[1]))
+        radar_20m[:]=np.nan
+        
+        for i in range(0,surface.shape[1]):
+            index[0,i]=np.where(surface[0,i]==time)[0][0]
+            radar_20m[:,i]=radar_echo[index[0][i].astype(int):index[0][i].astype(int)+len(depths_20m),i]
+
+        #If raw_radar_echograms is set to 'TRUE', then plot the raw
+        #radar echogram of that date and save it
+        if (raw_radar_echograms=='TRUE'):
+            '''
+            #Generate the pick for vertical distance display
+            ticks_yplot=np.arange(0,radar_30m.shape[0],200)
+            '''
+
+            fig = plt.figure()
+            ax1 = plt.subplot()
+
+            color_map=ax1.pcolor(np.log10(radar_20m),cmap=plt.get_cmap('gray'))#,norm=divnorm)
+            plt.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
+            #pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
+
+            plt.title(indiv_file.replace(".mat",""))
+            ax1.set_aspect(2)
+            plt.show() 
+
+#### ------------- Investigation NO 2010-12 data availability ------------- ###
