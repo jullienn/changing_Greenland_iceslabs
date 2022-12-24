@@ -705,10 +705,40 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             iceslabs_jullien_highend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12.shp')
             iceslabs_jullien_lowend_20102018_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_lowend_20102018.shp')
             iceslabs_jullien_lowend_2010_11_12_ForCalculations=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_lowend_2010_11_12.shp')
+                        
+            #Exclude NO change from overall change calculations - ALL GOOD
+            #2010-2018: polygon number 12
+            iceslabs_jullien_highend_20102018_ForCalculations=iceslabs_jullien_highend_20102018_ForCalculations[~(iceslabs_jullien_highend_20102018_ForCalculations.id == 12)]
+            iceslabs_jullien_lowend_20102018_ForCalculations=iceslabs_jullien_lowend_20102018_ForCalculations[~(iceslabs_jullien_lowend_20102018_ForCalculations.id == 12)]
+
+            #2010-2012: polygon numbers 6, 14, 15, 16
+            iceslabs_jullien_highend_2010_11_12_ForCalculations=iceslabs_jullien_highend_2010_11_12_ForCalculations[~(iceslabs_jullien_highend_2010_11_12_ForCalculations.id == 6)]
+            iceslabs_jullien_highend_2010_11_12_ForCalculations=iceslabs_jullien_highend_2010_11_12_ForCalculations[~(np.logical_and(iceslabs_jullien_highend_2010_11_12_ForCalculations.id >= 14,iceslabs_jullien_highend_2010_11_12_ForCalculations.id <= 16))]
             
+            iceslabs_jullien_lowend_2010_11_12_ForCalculations=iceslabs_jullien_lowend_2010_11_12_ForCalculations[~(iceslabs_jullien_lowend_2010_11_12_ForCalculations.id == 6)]
+            iceslabs_jullien_lowend_2010_11_12_ForCalculations=iceslabs_jullien_lowend_2010_11_12_ForCalculations[~(np.logical_and(iceslabs_jullien_lowend_2010_11_12_ForCalculations.id >= 14,iceslabs_jullien_lowend_2010_11_12_ForCalculations.id <= 16))]
+            
+            
+            #Exclude NW change from overall change calculations - ALL GOOD
+            #2010-2018: polygon number 15
+            iceslabs_jullien_highend_20102018_ForCalculations=iceslabs_jullien_highend_20102018_ForCalculations[~(iceslabs_jullien_highend_20102018_ForCalculations.id == 15)]
+            iceslabs_jullien_lowend_20102018_ForCalculations=iceslabs_jullien_lowend_20102018_ForCalculations[~(iceslabs_jullien_lowend_20102018_ForCalculations.id == 15)]
+            
+            #2010-2012: polygon number 11, 12, 13
+            iceslabs_jullien_highend_2010_11_12_ForCalculations=iceslabs_jullien_highend_2010_11_12_ForCalculations[~(np.logical_and(iceslabs_jullien_highend_2010_11_12_ForCalculations.id >= 11,iceslabs_jullien_highend_2010_11_12_ForCalculations.id <= 13))]
+            iceslabs_jullien_lowend_2010_11_12_ForCalculations=iceslabs_jullien_lowend_2010_11_12_ForCalculations[~(np.logical_and(iceslabs_jullien_lowend_2010_11_12_ForCalculations.id >= 11,iceslabs_jullien_lowend_2010_11_12_ForCalculations.id <= 13))]
+            
+            
+            #Exclude NW change from overall change calculations (firn aquifer region) - ALL GOOD
+            #2010-2018: polygon number 1
+            iceslabs_jullien_highend_20102018_ForCalculations=iceslabs_jullien_highend_20102018_ForCalculations[~(iceslabs_jullien_highend_20102018_ForCalculations.id == 1)]
+            iceslabs_jullien_lowend_20102018_ForCalculations=iceslabs_jullien_lowend_20102018_ForCalculations[~(iceslabs_jullien_lowend_20102018_ForCalculations.id == 1)]
+            
+            #2010-2012: no polygon in this time period for this area
+
             ### High end ###
             print('--------------- High end ---------------')
-            print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000)))), 'km2')
+            print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_highend_20102018.area/(1000000)))), 'km2')
             #Difference in km2. Divide by 1000000 to convert from m2 to km2
             print('Difference 2018 VS 2012:', str(np.round(np.sum(iceslabs_jullien_highend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations.area/(1000000)),2)), 'km2')
             #Difference in %
@@ -717,7 +747,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
 
             ### Low end ###
             print('--------------- Low end ---------------')
-            print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_lowend_20102018_ForCalculations.area/(1000000)))), 'km2')
+            print('Ice slabs extent in 2018:', str(np.round(np.sum(iceslabs_jullien_lowend_20102018.area/(1000000)))), 'km2')
             #Difference in km2. Divide by 1000000 to convert from m2 to km2
             print('Difference 2018 VS 2012:', str(np.round(np.sum(iceslabs_jullien_lowend_20102018_ForCalculations.area/(1000000))-np.sum(iceslabs_jullien_lowend_2010_11_12_ForCalculations.area/(1000000)),2)), 'km2')
             #Difference in %
@@ -816,11 +846,11 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                                Line2D([0], [0], marker='.', linestyle='none', label='Firn aquifers', color='#238443'),
                                Line2D([0], [0], color='#969696', lw=2, label='flightlines 2013-14-17-18'),
                                Line2D([0], [0], color='#d9d9d9', lw=2, label='flightlines 2010-11-12')]
-            axmap.legend(handles=legend_elements_a,loc='lower right',bbox_to_anchor=(1, 0))
+            axmap.legend(handles=legend_elements_a,loc='lower right',bbox_to_anchor=(1.05, 0))
             plt.legend()
             
             #Loop over the region, and extract corresponding total area for 10-11-12 and 10-18 in this region
-            for region in list(['NE','NW','CW','SW','NO']):
+            for region in list(['NE','NW','CW','SW']):
                 #Keep only where name == region
                 regional_area_101112=np.sum(iceslabs_jullien_highend_2010_11_12_ForCalculations[iceslabs_jullien_highend_2010_11_12_ForCalculations['region']==region].area/1000000)
                 regional_area_1018=np.sum(iceslabs_jullien_highend_20102018_ForCalculations[iceslabs_jullien_highend_20102018_ForCalculations['region']==region].area/1000000)
@@ -842,7 +872,25 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                 axmap.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+' %')
     
     pdb.set_trace()
+    '''
+    ### --- Check removal of several polygon for area change calculation is correct
+    #high end 2010-18 ok
+    iceslabs_jullien_highend_20102018.plot(ax=axmap,color='#d73027', edgecolor='none',linewidth=0.5)
+    iceslabs_jullien_highend_20102018_ForCalculations.plot(ax=axmap,color='red', edgecolor='none',linewidth=0.5)
+
+    #high end 2010-12 ok
+    iceslabs_jullien_highend_2010_11_12.plot(ax=axmap,color='#6baed6', edgecolor='none',linewidth=0.5)
+    iceslabs_jullien_highend_2010_11_12_ForCalculations.plot(ax=axmap,color='blue', edgecolor='none',linewidth=0.5)
     
+    #low end 2010-18 ok
+    iceslabs_jullien_lowend_20102018.plot(ax=axmap,color='green', edgecolor='none',linewidth=0.5)
+    iceslabs_jullien_lowend_20102018_ForCalculations.plot(ax=axmap,color='magenta', edgecolor='none',linewidth=0.5)
+    
+    #low end 2010-12 ok
+    iceslabs_jullien_lowend_2010_11_12=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_lowend_2010_11_12.shp')
+    iceslabs_jullien_lowend_2010_11_12.plot(ax=axmap,color='black', edgecolor='none',linewidth=0.5)
+    iceslabs_jullien_lowend_2010_11_12_ForCalculations.plot(ax=axmap,color='yellow', edgecolor='none',linewidth=0.5)
+    '''
     '''
     # -------------------------------- PANEL A --------------------------------
     axelev.legend(handles=legend_elements,loc='upper left')
@@ -851,6 +899,71 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1.png',dpi=1000,bbox_inches='tight')
     #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
     '''
+    
+    
+    if (figure_S12=='TRUE'):
+        
+        #Prepare supp map (old Fig. 1)
+        plt.rcParams.update({'font.size': 20})
+        plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+        fig = plt.figure()
+        
+        gs = gridspec.GridSpec(20, 16)
+        #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
+        axmap_standalone = plt.subplot(gs[0:20, 0:16],projection=crs)
+        
+        #Draw plot of GrIS map
+        axmap_standalone.coastlines(edgecolor='#D3D3D3',linewidth=1)
+        
+        path_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2\GRE_IceSheet_IMBIE2/'
+        GrIS_AND_ICECAP=gpd.read_file(path_GrIS+'GRE_IceSheet_IMBIE2_v1_EPSG3413.shp')
+
+        GrIS_ICE=GrIS_AND_ICECAP[GrIS_AND_ICECAP.SUBREGION1=='ICE_SHEET']
+
+        #Display GrIS drainage bassins limits
+        GrIS_ICE.plot(ax=axmap_standalone,color='#D3D3D3', edgecolor='#D3D3D3',linewidth=1)
+
+        #Open shapefiles for area change calculations
+        #Load high and low estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
+        path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
+
+        
+        axmap_standalone.set_extent([-634797, 856884, -3345483, -764054], crs=crs)# x0, x1, y0, y1
+        ###################### From Tedstone et al., 2022 #####################
+        #from plot_map_decadal_change.py
+        axmap_standalone.axis('off')
+        ###################### From Tedstone et al., 2022 #####################
+        
+        #Open and plot runoff limit medians shapefiles
+        path_poly='C:/Users/jullienn/Documents/working_environment/IceSlabs_SurfaceRunoff/data/runoff_limit_polys/'
+        poly_1985_1992=gpd.read_file(path_poly+'poly_1985_1992_median_edited.shp')
+        poly_1985_1992.plot(ax=axmap_standalone,color='#87CEFA', edgecolor='none',linewidth=1)#df778e
+        poly_2013_2020=gpd.read_file(path_poly+'poly_2013_2020_median_edited.shp')
+        poly_2013_2020.plot(ax=axmap_standalone,color='white', edgecolor='white',linewidth=1)
+        
+        #Shapefiles
+        #MacFerrin
+        path_MacFerrin='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/IceBridge Area Shapefiles/IceBridge Area Shapefiles/'
+        MacFerrinIceSlabs=gpd.read_file(path_MacFerrin+'IceBridgeArea_Shape_by_Basins_EPSG_3413.shp')
+
+        MacFerrinIceSlabs.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=1)
+
+        # --- 2010-2018
+        iceslabs_jullien_highend_20102018.plot(ax=axmap_standalone,color='none', edgecolor='#d73027',alpha=0.75,linewidth=2)
+        
+        
+        ###################### From Tedstone et al., 2022 #####################
+        #from plot_map_decadal_change.py
+        gl=axmap_standalone.gridlines(draw_labels=True, xlocs=[-35, -50], ylocs=[65,75], x_inline=False, y_inline=False,linewidth=0.5)
+        ###################### From Tedstone et al., 2022 #####################
+        
+        
+        pdb.set_trace()
+        '''
+        #Save figure
+        plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S8/fig_S12_LatestVersion.png',dpi=1000,bbox_inches='tight')
+        #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
+        '''
     
     if (figure_AGU=='TRUE'):
         
@@ -1069,6 +1182,10 @@ GrIS_mask=GrIS_rignotetal2016[GrIS_rignotetal2016.SUBREGION1=='ICE_SHEET']
 path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
 iceslabs_jullien_highend_20102018=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_20102018.shp')
 iceslabs_jullien_highend_2010_11_12=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_highend_2010_11_12.shp')
+
+#Load low estimates ice slabs extent 2010-2018, manually drawn on QGIS
+iceslabs_jullien_lowend_20102018=gpd.read_file(path_iceslabs_shape+'iceslabs_jullien_lowend_20102018.shp')
+
 '''
 #Display extent 2010-18 and 2010-11-12
 crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.) 

@@ -30,7 +30,8 @@ import osgeo.osr as osr
 from pyproj import Transformer
 
 import matplotlib.gridspec as gridspec
-
+import cartopy.crs as ccrs
+import geopandas as gpd
 ##############################################################################
 ############################## Define variables ##############################
 ##############################################################################
@@ -65,6 +66,138 @@ def onclick(event):
 ##############################################################################
 ################### Define function for ice lenses logging ###################
 ##############################################################################
+
+
+#### ---------- Investigation NO and NW 2010-12 data availability --------- ###
+
+'''
+20120510_01_046 OK -
+20120510_01_075 OK -
+20120510_01_062 OK -
+20120510_01_030 OK -
+20120510_01_089 OK -
+20120330_01_007 OK -
+20110511_01_166 OK -
+20110511_01_109 OK -
+20110511_01_096 OK -
+'''
+
+###################### From Tedstone et al., 2022 #####################
+#from plot_map_decadal_change.py
+# Define the CartoPy CRS object.
+crs = ccrs.NorthPolarStereo(central_longitude=-45., true_scale_latitude=70.)
+# This can be converted into a `proj4` string/dict compatible with GeoPandas
+crs_proj4 = crs.proj4_init
+###################### From Tedstone et al., 2022 #####################
+
+#Transform coordinates from WGS84 to EPSG:3413
+transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
+
+### -------------------------- Load shapefiles --------------------------- ###
+#Load Rignot et al., 2016 Greenland drainage bassins
+path_rignotetal2016_GrIS_drainage_bassins='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_Basins_IMBIE2_v1.3/'
+GrIS_drainage_bassins=gpd.read_file(path_rignotetal2016_GrIS_drainage_bassins+'GRE_Basins_IMBIE2_v1.3_EPSG_3413.shp') #the regions are the last rows of the shapefile
+
+path_df_with_elevation='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/' 
+#Load corresponding shapefile
+iceslabs_jullien_highend_20102018=gpd.read_file(path_df_with_elevation+'shapefiles/iceslabs_jullien_highend_20102018.shp') 
+
+#Prepare plot
+fig = plt.figure()
+fig.set_size_inches(14, 10) # set figure's size manually to your full screen (32x18), this is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
+#projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
+ax1 = plt.subplot(projection=crs)
+
+GrIS_drainage_bassins.plot(ax=ax1,color='none', edgecolor='black',linewidth=0.5)
+iceslabs_jullien_highend_20102018.plot(ax=ax1,color='red', edgecolor='black',linewidth=0.5)
+
+
+path_data='C:/Users/jullienn/Downloads/'
+path_save='C:/Users/jullienn/switchdrive/Private/research/RT1/manuscript/revisions/v4/investigation_NW_Greenland/'
+
+if(year_display=='2012'):
+
+    #onlyfiles=['Data_img_01_20120511_01_031.mat','Data_img_01_20120511_01_032.mat','Data_img_01_20120511_01_038.mat','Data_img_01_20120511_01_039.mat','Data_img_01_20120511_01_040.mat']
+    
+    #onlyfiles=['Data_img_01_20120510_01_045.mat','Data_img_01_20120510_01_046.mat','Data_img_01_20120510_01_047.mat']
+    #onlyfiles=['Data_img_01_20120510_01_074.mat','Data_img_01_20120510_01_075.mat','Data_img_01_20120510_01_076.mat']
+    #onlyfiles=['Data_img_01_20120510_01_061.mat','Data_img_01_20120510_01_062.mat','Data_img_01_20120510_01_063.mat']
+    #onlyfiles=['Data_img_01_20120510_01_029.mat','Data_img_01_20120510_01_030.mat','Data_img_01_20120510_01_031.mat']
+    #onlyfiles=['Data_img_01_20120510_01_088.mat','Data_img_01_20120510_01_089.mat','Data_img_01_20120510_01_090.mat']
+    #onlyfiles=['Data_img_01_20120330_01_006.mat','Data_img_01_20120330_01_007.mat','Data_img_01_20120330_01_008.mat']
+    #onlyfiles=['Data_20110511_01_165.mat','Data_20110511_01_166.mat','Data_20110511_01_167.mat']
+    #onlyfiles=['Data_20110511_01_108.mat','Data_20110511_01_109.mat','Data_20110511_01_110.mat']
+    onlyfiles=['Data_20110511_01_095.mat','Data_20110511_01_096.mat','Data_20110511_01_097.mat']
+
+
+
+    for indiv_file in onlyfiles:
+        print('Treating file',indiv_file)
+
+        
+        #Open the file and read it
+        fdata= scipy.io.loadmat(path_data+indiv_file)
+        #Select radar echogram and corresponding lat/lon
+        radar_echo=fdata['Data']
+        
+        lat_data=fdata['Latitude']
+        lon_data=fdata['Longitude']
+        points=transformer.transform(np.asarray(lon_data),np.asarray(lat_data))
+        lon_3413=points[0]
+        lat_3413=points[1]
+        
+        #Display data loc on map
+        ax1.scatter(lon_3413,lat_3413,s=0.1)
+        ax1.text(np.median(lon_3413),np.median(lat_3413),indiv_file[-7:-4],size=20)
+
+        time=fdata['Time']
+        surface=fdata['Surface']
+        
+        depths = v * time / 2.0
+        depths=depths+np.abs(depths[0])
+        depths_20m=depths[depths<=20]
+        
+        index=np.zeros((surface.shape[0],surface.shape[1]))
+        radar_20m=np.zeros((len(depths_20m),surface.shape[1]))
+        radar_20m[:]=np.nan
+        
+        for i in range(0,surface.shape[1]):
+            index[0,i]=np.where(surface[0,i]==time)[0][0]
+            radar_20m[:,i]=radar_echo[index[0][i].astype(int):index[0][i].astype(int)+len(depths_20m),i]
+
+        #If raw_radar_echograms is set to 'TRUE', then plot the raw
+        #radar echogram of that date and save it
+        if (raw_radar_echograms=='TRUE'):
+            '''
+            #Generate the pick for vertical distance display
+            ticks_yplot=np.arange(0,radar_30m.shape[0],200)
+            '''
+
+            fig = plt.figure()
+            ax2 = plt.subplot()
+
+            color_map=ax2.pcolor(np.log10(radar_20m),cmap=plt.get_cmap('gray'))#,norm=divnorm)
+            plt.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
+            #pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
+
+            plt.title(indiv_file.replace(".mat",""))
+            ax2.set_aspect(2)
+            
+            #Maximize plot size - This is from Fig1.py from Grenland ice slabs expansion and thickening paper.
+            figManager = plt.get_current_fig_manager()
+            figManager.window.showMaximized()
+            
+            plt.show()
+
+            #Save figure
+            plt.savefig(path_save+indiv_file.replace(".mat",""),dpi=300,bbox_inches='tight')
+            #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
+
+#### ---------- Investigation NO and NW 2010-12 data availability --------- ###
+pdb.set_trace()
+
+plt.savefig(path_save+'map_'+indiv_file.replace(".mat",""),dpi=300,bbox_inches='tight')
+
 
 ##Open, read and close the file of dates that require surface pick improvement for 2002/2003
 #f = open('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_raw_echogram/dates_for_surf_pick_start.txt','r')
@@ -433,53 +566,4 @@ for folder_year in folder_years:
             print('Folder',folder_year,', continue ...')
             continue
 
-#### ------------- Investigation NO 2010-12 data availability ------------- ###
 
-path_data='C:/Users/jullienn//Downloads/'
-if(year_display=='2012'):
-
-    onlyfiles=['Data_img_01_20120511_01_031.mat','Data_img_01_20120511_01_032.mat','Data_img_01_20120511_01_038.mat','Data_img_01_20120511_01_039.mat','Data_img_01_20120511_01_040.mat']
-    for indiv_file in onlyfiles:
-        print('Treating file',indiv_file)
-
-        
-        #Open the file and read it
-        fdata= scipy.io.loadmat(path_data+indiv_file)
-        #Select radar echogram and corresponding lat/lon
-        radar_echo=fdata['Data']
-        
-        time=fdata['Time']
-        surface=fdata['Surface']
-        
-        depths = v * time / 2.0
-        depths=depths+np.abs(depths[0])
-        depths_20m=depths[depths<=20]
-        
-        index=np.zeros((surface.shape[0],surface.shape[1]))
-        radar_20m=np.zeros((len(depths_20m),surface.shape[1]))
-        radar_20m[:]=np.nan
-        
-        for i in range(0,surface.shape[1]):
-            index[0,i]=np.where(surface[0,i]==time)[0][0]
-            radar_20m[:,i]=radar_echo[index[0][i].astype(int):index[0][i].astype(int)+len(depths_20m),i]
-
-        #If raw_radar_echograms is set to 'TRUE', then plot the raw
-        #radar echogram of that date and save it
-        if (raw_radar_echograms=='TRUE'):
-            '''
-            #Generate the pick for vertical distance display
-            ticks_yplot=np.arange(0,radar_30m.shape[0],200)
-            '''
-
-            fig = plt.figure()
-            ax1 = plt.subplot()
-
-            color_map=ax1.pcolor(np.log10(radar_20m),cmap=plt.get_cmap('gray'))#,norm=divnorm)
-            plt.gca().invert_yaxis() #Invert the y axis = avoid using flipud.
-            #pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
-
-            plt.title(indiv_file.replace(".mat",""))
-            ax1.set_aspect(2)
-            plt.show() 
-
-#### ------------- Investigation NO 2010-12 data availability ------------- ###
