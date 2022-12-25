@@ -1099,22 +1099,6 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         #Save figure
         plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v6/fig1_AGU.png',dpi=1000,bbox_inches='tight')
         #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
-    
-
-#To write in notebook:
-#   1. did check all the figures that needed adaptation after cleaned dataset generation
-#   2. did modify in all the figures codes the paths to load the cleaned dataset.
-#   3. did generated the new Fig. 1, Fis S6, and standalone maps: they are done, they must now be included into the paper
-#   4. I should rerun figures that have already been improved to check whether there is any difference or not.
-#   5. Changed display of ice slabs in Fig 2 (from green to orange)
-#   6. Fig. S1: now display 2010-2018 ice slabs high end shapefile instead of data points
-#   7. Fig.2: saved Fig and added inset map
-#   8. Added Fig. 1, Fig. 2, Fig. S5 and standalone map to paper
-#   9. Modified Fig S1: added 10-traces radargram on the background of profiles, added scale, added inset map. Added the map to supp and modified caption.
-#   10. Modified Fig. S7 label (positive degree-hour sum), and using now the cleaned dataset for generating this figure and related ones. Note that the
-#       upper end of 2013 slab thickness is dlightly different from previous versions: this is probably because upper points where not kept due to clip with 
-#       shapefile (note that radargrams are not affected, ony data from csv and pickle with elevation files). I do not expect this to introduce any difference.
-#   11. Now refering to in-situ ice content for the manually mapped ice slabs in the reference transect. Changed Fig. S4 legend accordingly.
 
 #Import packages
 #import rasterio
