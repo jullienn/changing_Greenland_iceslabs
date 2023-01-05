@@ -948,7 +948,7 @@ df_2002_2003['Track_name']=Track_name
 
 ######## Load 2010-2018 ice slabs location from Jullien et al., 2022 ##########
 #Load the data
-filename_Jullien= 'C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/clipped/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate_cleaned.csv'
+filename_Jullien= 'C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/clipped/Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2023_high_estimate_cleaned.csv'
 #Read Jullien data thanks to https://stackoverflow.com/questions/65254535/xlrd-biffh-xlrderror-excel-xlsx-file-not-supported
 df_20102018 = pd.read_csv(filename_Jullien,delimiter=',',decimal='.')
 

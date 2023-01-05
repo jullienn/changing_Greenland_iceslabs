@@ -1228,7 +1228,7 @@ df_firn_aquifer_all['lat_3413']=points[1]
 
 #Load columnal likelihood file likelihood
 path_thickness_likelihood='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/high_estimate/clipped/'
-df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_high_estimate_cleaned.csv',delimiter=',',decimal='.')
+df_thickness_likelihood_20102018 = pd.read_csv(path_thickness_likelihood+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2023_high_estimate_cleaned.csv',delimiter=',',decimal='.')
 #Transform miege coordinates from WGS84 to EPSG:3413
 points=transformer.transform(np.asarray(df_thickness_likelihood_20102018["lon"]),np.asarray(df_thickness_likelihood_20102018["lat"]))
 

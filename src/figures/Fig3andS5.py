@@ -678,7 +678,7 @@ NW_rignotetal=GrIS_drainage_bassins[GrIS_drainage_bassins.SUBREGION1=='NW']
 
 path='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/dataset_for_Fig3/clipped/'
 #Load all 2010-2018 data
-df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2021_Fig3_high_estimate_cleaned.csv',delimiter=',',decimal='.')
+df_2010_2018_csv = pd.read_csv(path+'Ice_Layer_Output_Thicknesses_2010_2018_jullienetal2023_Fig3_high_estimate_cleaned.csv',delimiter=',',decimal='.')
 #Transform the coordinated from WGS84 to EPSG:3413
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:3413", always_xy=True)
 points=transformer.transform(np.asarray(df_2010_2018_csv["lon"]),np.asarray(df_2010_2018_csv["lat"]))
