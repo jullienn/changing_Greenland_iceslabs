@@ -11,6 +11,8 @@ Specifically for MacFerrin, et. al. (2019), "Rapid expansion of Greenland's low-
 Used by: MacFerrin_IceLenses_MAIN.py
          FirnCore_Manager.py
          InSituGPR_Manager.py
+         
+Modified by Nicolas Jullien within the framework of the following paper: "Greenland Ice Slabs Expansion and Thicknening, Jullien et al., (2023)"
 """
 
 import os
@@ -147,11 +149,13 @@ ICEBRIDGE_SURFACE_INDICES_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLD
 ICEBRIDGE_SURFACE_SLICE_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "Surface_Slice_100m_Picklefiles")
 ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\SURFACE_MISMATCH_EXCLUSIONS.txt")
 ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\LAKES_AND_OTHER_EXCLUSIONS.txt")
-ICEBRIDGE_EXCLUSIONS_16M = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\EXCLUSIONS_ICE16M.txt")
 ICEBRIDGE_EXCLUSIONS_DRY_FIRN = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\dry_firn_removal.txt")
+'''
+#Not used anymore
 ICEBRIDGE_EXCLUSIONS_OBVIOUS = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\obvious_exclusions.txt")
 ICEBRIDGE_EXCLUSIONS_ABLATION = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\exclusions_ablation_zone.txt")
 ICEBRIDGE_EXCLUSIONS_FAIL_ROLL = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\exclusions_fail_roll_correction.txt")
+'''
 ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "\Sample Depths_Picklefiles")
 ICEBRIDGE_ROLL_CORRECTED_PICKLEFILE_FOLDER = os.path.join(ICEBRIDGE_EXPORT_FOLDER, "Roll_Corrected_Picklefiles")
 ICEBRIDGE_ROLL_CORRECTION_OUTPUT_FILE = os.path.join(ICEBRIDGE_EXCLUSIONS_FOLDER,"txt\ROLL_CORRECTION_PARAMETERS.csv")
