@@ -16,11 +16,7 @@ from GPR_FileData import ICEBRIDGE_DATA_FOLDER, \
                          ICEBRIDGE_SAMPLE_DEPTHS_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_SURFACE_PICK_SUGGESTIONS_FILE, \
                          ICEBRIDGE_EXCLUSIONS_LAKES_OTHER_FILE, \
-                         ICEBRIDGE_EXCLUSIONS_16M, \
                          ICEBRIDGE_EXCLUSIONS_DRY_FIRN, \
-                         ICEBRIDGE_EXCLUSIONS_ABLATION, \
-                         ICEBRIDGE_EXCLUSIONS_OBVIOUS, \
-                         ICEBRIDGE_EXCLUSIONS_FAIL_ROLL, \
                          ICEBRIDGE_EXCLUSIONS_SURFACE_MISMATCH_FILE, \
                          ICEBRIDGE_ROLL_CORRECTED_PICKLEFILE_FOLDER, \
                          ICEBRIDGE_DEPTH_CORRECTED_PICKLEFILE_FOLDER, \
@@ -115,7 +111,7 @@ class IceBridgeGPR_Manager_v2():
 
     def compile_icebridge_tracks_with_ice_lenses(self, quicklook_directory = ICEBRIDGE_ICELENS_QUICKLOOK_FOLDER):
         #print('-------------------- ENTERING compile_icebridge_tracks_with_ice_lenses --------------------')
-
+        
         '''Similar to "::compile_icebridge_tracks()", this will complile a dictionary of IceBridge_Track objects.
         However, instead of using all tracks and all files within the tracks, this will peruse a directory containing only files that
         have been flagged to be part of IceBridge files that may (or do) contain ice lenses in them.
@@ -147,7 +143,7 @@ class IceBridgeGPR_Manager_v2():
                 # Create a new "current list" with the new file in it.
                 current_list = [f]
                 track_count_N += 1
-
+        
         # Make sure the very last one gets on there.
         track_list_dict[current_list[0][0:11] + current_list[0][11:15] + current_list[-1][11:15]] = current_list
         track_count_N += 1
@@ -363,25 +359,25 @@ class IceBridgeGPR_Manager_v2():
     def export_ice_layer_lat_lon_distance_thicknesses(self):
         #print('-------------------- ENTERING export_ice_layer_lat_lon_distance_thicknesses --------------------')
         '''Export to a CSV, ice layer lat,lon,& thicknesses.  Omit all zero values.'''
-
         tracks = self.compile_icebridge_tracks_with_ice_lenses()
         #Once I am out of this, I just store the suite of commands to execute in tracks but no actual data sotred in it
 
         fout = open(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE, 'w')
-        #pdb.set_trace()
         header = "Track_name,Tracenumber,lat,lon,alongtrack_distance_m,20m_ice_content_m\n"
         fout.write(header)
-                
+        
         for track in tracks:
-            
             print(track.NAME, end=' ')
+            
             '''
             if (not(track.NAME == '20170511_01_010_025')):
                 continue
             else:
                 pdb.set_trace()
             '''
+            
             lats, lons, distances, ice_contents = track.return_ice_layers_lat_lon_distance_thickness(masked=False)
+            
             # The one "really long" track has artifacts in the center that aren't real ice layers.  Filter these out.
             if track.NAME == "20120412_01_095_095":
                 ice_contents[0:9000] = 0.0
@@ -399,8 +395,9 @@ class IceBridgeGPR_Manager_v2():
                     tracecount += 1
             print(tracecount, "of", len(lats), "traces.")
             print()
-
+        
         fout.close()
+        
         print("Exported", os.path.split(ICEBRDIGE_ICE_LAYER_OUTPUT_CSV_FILE)[-1])
         #print('-------------------- OUT export_ice_layer_lat_lon_distance_thicknesses --------------------')
         ######################################################################
@@ -471,7 +468,7 @@ class IceBridgeGPR_Manager_v2():
 
         # Read the CSV data.
         track_names, tracenums, lats, lons, distances, ice_content_m = self.import_ice_layer_lat_lon_distance_thicknesses()
-        #pdb.set_trace()
+        
         for t_name in numpy.unique(track_names):
             print(t_name, end=' ')
             # Subset the data for just this track.
@@ -770,6 +767,7 @@ class IceBridgeGPR_Track_v2():
         '''From start to finish, process all the data for this track.  The "do it all" function.
         This will rarely (if ever) be called from the start, but is helpful for reproduction as well as
         for keeping track of the processing steps needed to transform the entire file.'''
+        
         self._read_metadata()
         
         self.compute_surface_picks(export=True)
@@ -1623,7 +1621,7 @@ class IceBridgeGPR_Track_v2():
 
         # 1) Read original traces, subset them to get any foobars off the barfoos.
         # 2) Get masks from the SURFACE_PICK_GUIDE file
-
+        
         # ONLY GO THROUGH ALL THESE COMPUTATIONS IF WE WANT TO COMPUTE AND EXPORT THIS STUFF.
         # OTHERWISE JUST READ FROM THE PICKLEFILES.
         picklefile_name = self.NAME + "_SURFACE.pickle"
@@ -2594,11 +2592,12 @@ class IceBridgeGPR_Track_v2():
 
     def identify_ice_lenses(self, export=True, max_depth_m=20):
         #print('-------------------- ENTERING identify_ice_lenses --------------------')
-        
         '''From the ACT13 track validation performed in validate_reference_track_w_in_situ_data()
         and plot_validation_data_and_find_minima(), create ice lens images from each algorithm.'''
+        
         # Read the traces and depths
         traces = self.get_processed_traces(datatype="depth_corrected")
+        
         # Grab the mask and subset the traces to get rid of NaNs
         mask = self._compute_boolean_mask(traces, mask=None)
         traces = self._subset_array(traces, mask=None)
@@ -2880,11 +2879,12 @@ class IceBridgeGPR_Track_v2():
         return self.TRACES_depth_corrected
 
     def get_boolean_ice_traces(self):
+        
         #print('-------------------- ENTERING get_boolean_ice_traces --------------------')
         '''Return the boolean (T/F) traces.'''
         if self.TRACES_boolean_ice_layers is not None:
             return self.TRACES_boolean_ice_layers
-
+        
         if os.path.exists(self.FNAME_ice_lenses_picklefile):
             #print('//////////////////////////////////////////////////////////')
             #print('//////////// I AM NOT GOING HERE /////////////////////////')
@@ -2899,21 +2899,24 @@ class IceBridgeGPR_Track_v2():
             self.TRACES_boolean_ice_layers = pickle.load(f)
             f.close()
             return self.TRACES_boolean_ice_layers
-
+        
         self.identify_ice_lenses(export=True)
-
+        
         # ---------------- BEGIN ADDITION SEPT 12 2020 ---------------------- #
         # I added this on September 12th, 2020 in order to store the boolean
         # ice layers into self.TRACES_boolean_ice_layers! This was not done
         # before because the self.FNAME_ice_lenses_picklefile does not exist,
-        # but does now that we have been into the identify_ice_lenses function!
+        # and the self.TRACES_boolean_ice_layers was None.
+        # self.FNAME_ice_lenses_picklefile exists now that we have been into
+        # the identify_ice_lenses function! self.TRACES_boolean_ice_layers are
+        #then returned and used for ice content calculations.
 
         if os.path.exists(self.FNAME_ice_lenses_picklefile):
             #print('//////////////////////////////////////////////////////////')
             #print('//////////// I AM NOW GOING HERE /////////////////////////')
             #print('///////////// BECAUSE THE BOOLEAN ICE ////////////////////')
             #print('///////////// LAYER TRACES HAVE BEEN /////////////////////')
-            #print('///////////// GENERATED YET EARLIER //////////////////////')
+            #print('///////////// GENERATED EARLIER //////////////////////////')
             #print('//////////////////////////////////////////////////////////')
 
             fname = self.FNAME_ice_lenses_picklefile
@@ -3019,7 +3022,7 @@ class IceBridgeGPR_Track_v2():
         longitude, elevation, and ice thickness for each trace.  If masked=True,
         return them masked out.  If masked=False, don't bother masking them.'''
         #print('-------------------- ENTERING return_ice_layers_lat_lon_distance_thickness --------------------')
-
+                
         lats, lons = self.return_coordinates_lat_lon()
         # So far I have read the data and stored the lat and lon coordinates
         boolean_traces = self.get_processed_traces(datatype="boolean_ice_layers")
@@ -3080,7 +3083,7 @@ def plot_surface_picking_mask_curve():
 
 
 if __name__ == "__main__":
-
+    
     ib = IceBridgeGPR_Manager_v2()
     #ib.export_KML_reference_tracks()
     ib.export_ice_layer_lat_lon_distance_thicknesses()
