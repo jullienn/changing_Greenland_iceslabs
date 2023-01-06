@@ -99,7 +99,7 @@ Individual pickle files are needed sometimes (e.g. in Fig4andS6andS7.py, FigS3an
 
 ## Datasets
 
-Our datasets are available at https://zenodo.org/record/6981378.
+Our datasets are available at https://doi.org/10.5281/zenodo.7505426
 
 ###Inputs
 
@@ -150,7 +150,7 @@ Path: Flightlines_20022018.zip in data repository
 # Modifications of the files by Nicolas Jullien, starting on July 29th 2020
 
  July 29th 2020:
-1. Moved from version 2.7 to python 3 the follwing codes:
+1. Moved from version 2.7 to python 3 the following codes:
 	- FirnCore_Manager.py
 	- GPR_Coordinates.py
 	- GPR_Data.py
