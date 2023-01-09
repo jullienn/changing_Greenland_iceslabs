@@ -3,6 +3,8 @@
 Created on Mon Feb 20 12:20:43 2017
 
 @author: mmacferrin
+
+Modified by Nicolas Jullien, last in January 2023.
 """
 #from FirnCore_Manager import FirnCore_Manager
 from InSituGPR_Manager import RadarSpeedPicker
