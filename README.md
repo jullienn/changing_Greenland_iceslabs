@@ -128,15 +128,13 @@ Path: AssociatedFiles/Mask20130409_01_010_012 in data repository.
 
 #### 2002-2003
 
-* 'icelenses_22022020.xls': File summarzing the ice lenses and slabs identified in 2002-2003. Together with the identification, we associated a traffic light classification related to the confidence of mapping at the moment of identification (green = high confidence, orange = medium confidence, red = low confidence, purple = near-surface refreezing layer). This traffic light classification is specified on the 2nd line of each sheet in theis file (present in the code repository In data/HelperFiles_20022003). Note that we kept only green identifications in the analysis.
-
 * '2002_2003_green_excel.csv': Ice layers and slabs coordinates identified in the subsurface (from 0-30m deep).
 Path: IceSlabs_20022018/20022003 in data repository.
 
 * 'ice_lenses_identification_MMDD_YY_ID_aggregated.png': Images, radargrams showing the ice slabs identification together with their traffic light classification code.
 Path: IndividualIceSlabsIdentification_20022018/20022003 in data repository.
 
-* 'metadata_coord_icelens_2002_2003_26022020.pickle': Ice layers and slabs coordinates identified in the subsurface (from 0-30m deep) together with their traffic light classification code. Can be build running ice_lenses_identification_final.py
+* 'metadata_coord_icelens_2002_2003_26022020.pickle': Ice layers and slabs coordinates identified in the subsurface (from 0-30m deep) in 2002-2003 together with their traffic light classification code. We associated a traffic light classification related to the confidence of mapping at the moment of identification (green = high confidence, orange = medium confidence, red = low confidence, purple = near-surface refreezing layer). This traffic light classification is specified by the number store in the third column (-1 = red, 0 = orange, 1 = green, 2 = purple). Note that we kept only green identifications in the analysis. This file was generated running ice_lenses_identification_final.py
 Path: AssociatedFiles in data repository.
 
 * 'metadata_coord_2002_2003.pickle': All 2002-2003 flightlines.
@@ -154,7 +152,7 @@ Path: Flightlines_20022018 in data repository.
 
 ## License
 This code repository is under the GNU General Public License v3.0. If it is used in publication (academic or otherwise), we request the following paper be cited:
-N. Jullien, A. J. Tedstone, H. Machguth, N. B. Karlsson, V. Helm (2023) "Greenland Ice Slab Expansion and Thickening,". Submitted to Geophysical Research Letters (in review).
+N. Jullien, A. J. Tedstone, H. Machguth, N. B. Karlsson, V. Helm (2023) "Greenland Ice Slab Expansion and Thickening,". Submitted to Geophysical Research Letters (in review),
 
 and MacFerrin et al., (2019) when applicable:
 
