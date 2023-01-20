@@ -802,7 +802,7 @@ technique='perc_2p5_97p5'
 making_down_to_up='FALSE'
 
 ################# Load 2002-2003 flightlines coordinates ################
-path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification'
+path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/20022003_icelens_identification'
 
 #Open the file and read it
 f_flightlines = open(path_data+'/metadata_coord_2002_2003', "rb")

@@ -68,21 +68,24 @@ import time
 import os.path
 import glob
 
-generate_probability_iceslabs_files='TRUE'
+pdb.set_trace()
+generate_probability_iceslabs_files='FALSE'#'TRUE'
 apply_dry_firn_exclusions='TRUE'
-generate_excel_file='TRUE'
+generate_excel_file='FALSE'#'TRUE'
 RT3='FALSE'
 Fig3='FALSE'
+Generate_IceSlabs_Coordinates='TRUE'
 
 #Identify all the datetraces to process
-'''
+
 path_datetrack='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
 '''
 path_datetrack='/flash/jullienn/data/threshold_processing/'
+'''
 datetrack_toread = np.asarray(pd.read_csv(path_datetrack+'datetrack_20102018.txt', header=None))
 
 #Read dry firn exclusions file
-DF_exclusions = pd.read_csv(path_datetrack+'Exclusion_folder/txt/dry_firn_removal.txt',sep="\n", header=None) #get rid of sep="\n" if desired to run on local computer
+DF_exclusions = pd.read_csv(path_datetrack+'Exclusion_folder/txt/dry_firn_removal.txt', header=None) #get rid of sep="\n" if desired to run on local computer
 #This is from https://stackoverflow.com/questions/55129640/read-csv-into-a-dataframe-with-varying-row-lengths-using-pandas
 DF_exclusions = DF_exclusions[0].str.split(' ', expand=True)
 #Create colnames
@@ -511,3 +514,142 @@ if (generate_excel_file=='TRUE'):
     ##############################################################################
     ###              Generate en excel file of ice slabs thickness             ###
     ##############################################################################
+    
+if (Generate_IceSlabs_Coordinates=='TRUE'):
+    print('Generate pickle files of ice slabs mask with their coordinates')
+
+    import scipy.io
+    import h5py
+        
+    #Define speed
+    v= 299792458 / (1.0 + (0.734*0.873/1000.0))
+    
+    #Define path where data are stored
+    path_probability_iceslabs='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/iii_out_from_probabilistic_iceslabs.py/pickles/'
+    path_data='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/'
+    path_data_save='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/IceSlabs_And_Coordinates/'
+    #Loop over the traces
+    for indiv_trace in datetrack_toread:
+        
+        #Open probability ice slabs pickle file
+        filename_probability_open=indiv_trace[0]+'_probability_iceslabs_presence_after_DF.pickle'
+        
+        f_probability = open(path_probability_iceslabs+filename_probability_open, "rb")
+        indiv_probability_slice=pickle.load(f_probability)
+        f_probability.close()
+                
+        #Open depths and lat/lon
+        #Create list of dates
+        start_trace=int(indiv_trace[0][12:15])
+        end_trace=int(indiv_trace[0][16:19])
+        
+        single_year=int(indiv_trace[0][0:4])
+        
+        lat_appended=[]
+        lon_appended=[]
+            
+        for nb_trace in np.arange(start_trace,end_trace+1,1):
+            
+            #Reconstruct the name of the file
+            if (nb_trace<10):
+                indiv_file_load='Data_'+indiv_trace[0][0:12]+'00'+str(nb_trace)+'.mat'
+            elif ((nb_trace>=10)&(nb_trace<100)):
+                indiv_file_load='Data_'+indiv_trace[0][0:12]+'0'+str(nb_trace)+'.mat'
+            else:
+                indiv_file_load='Data_'+indiv_trace[0][0:12]+str(nb_trace)+'.mat'
+            
+            #pdb.set_trace()
+            #Create the path
+            path_raw_data=path_data+str(single_year)+'_Greenland_P3/CSARP_qlook/'+indiv_file_load[5:16]+'/'
+            
+            #Load data
+            if (single_year>=2014):
+                
+                fdata_filename = h5py.File(path_raw_data+indiv_file_load)
+                lat_filename=fdata_filename['Latitude'][:,:]
+                lon_filename=fdata_filename['Longitude'][:,:]
+                time_filename=fdata_filename['Time'][:,:]
+                
+            else:
+                fdata_filename = scipy.io.loadmat(path_raw_data+indiv_file_load)
+                lat_filename = fdata_filename['Latitude']
+                lon_filename = fdata_filename['Longitude']
+                time_filename = fdata_filename['Time']
+            
+            #Append data
+            lat_appended=np.append(lat_appended,lat_filename)
+            lon_appended=np.append(lon_appended,lon_filename)
+        
+        #3. Calculate the depth from the time
+        #########################################################################
+        # From plot_2002_2003.py - BEGIN
+        #########################################################################
+        depth_check = v * time_filename / 2.0
+        
+        #If 2014, transpose the vector
+        if (str(single_year)>='2014'):
+            depth_check=np.transpose(depth_check)
+        
+        #Reset times to zero! This is from IceBridgeGPR_Manager_v2.py
+        if (depth_check[10]<0):
+            #depth_check[10] so that I am sure that the whole vector is negative and
+            #not the first as can be for some date were the proccessing is working
+            depth_check=depth_check+abs(depth_check[0])
+            depth = depth_check
+        else:
+            depth = depth_check
+        
+        if (str(single_year) in list(['2011','2012','2014','2017','2018'])):
+            if (depth_check[10]>1):
+                #depth_check[10] so that I am sure that the whole vector is largely positive and
+                #not the first as can be for some date were the proccessing is working
+                depth_check=depth_check-abs(depth_check[0])
+                depth = depth_check
+        
+        #########################################################################
+        # From plot_2002_2003.py - END
+        #########################################################################    
+        print(indiv_trace)
+        
+        #Create a dictionnary with ice slabs mask and coordinates
+        dictionnary_slabs_coord={'longitude_EPSG_4326':lon_appended,
+                                 'latitude_EPSG_4326':lat_appended,
+                                 'depth':depth[depth<20],
+                                 'IceSlabs_Mask':indiv_probability_slice}
+        
+        #Save this dictionnary as a pickle file
+        filename_tosave=path_data_save+indiv_trace[0]+'_IceSlabs.pickle'
+        outfile= open(filename_tosave, "wb" )
+        pickle.dump(dictionnary_slabs_coord,outfile)
+        outfile.close()
+
+    print('End of save of ice slabs mask, corresponding depth, latitude, longitude')
+
+##############################################################################
+###              Generate en excel file of ice slabs thickness             ###
+##############################################################################
+
+'''
+#Test whether that worked
+
+#Open probability ice slabs pickle file
+filename_probability_open=indiv_trace[0]+'_probability_iceslabs_presence_after_DF.pickle'
+f_probability = open(path_probability_iceslabs+filename_probability_open, "rb")
+ORIGINAL=pickle.load(f_probability)
+f_probability.close()
+
+fig = plt.figure()
+ax1 = plt.subplot()
+ax1.imshow(ORIGINAL)
+
+#Open probability ice slabs pickle file
+filename_open=indiv_trace[0]+'_IceSlabs.pickle'
+
+f_probability = open(path_data_save+filename_open, "rb")
+NEW=pickle.load(f_probability)
+f_probability.close()
+
+fig = plt.figure()
+ax2 = plt.subplot()
+ax2.imshow(NEW['IceSlabs_Mask'])
+'''
