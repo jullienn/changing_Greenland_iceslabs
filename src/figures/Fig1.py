@@ -330,7 +330,7 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     radargram_data = load_2002_2003_radargram(path_radar_slice,lines,folder_year,folder_day,indiv_file)
         
     #Display on the map where is this track
-    ax_map.scatter(radargram_data['lon_3413'], radargram_data['lat_3413'],s=1,facecolors='black', edgecolors='black')
+    ax_map.scatter(radargram_data['lon_3413'], radargram_data['lat_3413'],s=7,facecolors='black', edgecolors='black',zorder=3)
     
     #The range have already been computed, plot the data:
     if (technique=='perc_25_75'):
@@ -379,28 +379,28 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
         
     #Distance from start of the trace
     if (ax_nb==2):
-        letter_elev='b'
+        letter_elev='c'
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-15000,np.nanmedian(radargram_data['lat_3413']),letter_elev,color='black',fontsize=20)
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])+15000,np.nanmedian(radargram_data['lat_3413'])+10000,letter_elev,color='black',fontsize=20)
     
     elif (ax_nb==3):
         #ax_plot.set_title('Percolation zone - ice lenses',fontsize=10)
-        letter_elev='c'
+        letter_elev='d'
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-30000,np.nanmedian(radargram_data['lat_3413'])-10000,letter_elev,color='black',fontsize=20)
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-30000,np.nanmedian(radargram_data['lat_3413'])-2500,letter_elev,color='black',fontsize=20)
     
     elif (ax_nb==4):
         #ax_plot.set_title('Percolation zone - ice slabs',fontsize=10)
-        letter_elev='d'
+        letter_elev='e'
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-15000,np.nanmedian(radargram_data['lat_3413'])+5000,letter_elev,color='black',fontsize=20)
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-20000,np.nanmedian(radargram_data['lat_3413'])+7500,letter_elev,color='black',fontsize=20)
     
     elif (ax_nb==5):
         #ax_plot.set_title('Dry snow zone',fontsize=10)
         ax_plot.set_xlabel('Distance [km]')
-        letter_elev='e'
+        letter_elev='f'
         #Display on the map the letter corresponding to the radar slice
-        ax_map.text(np.nanmedian(radargram_data['lon_3413']),np.nanmedian(radargram_data['lat_3413'])-37000,letter_elev,color='black',fontsize=20)
+        ax_map.text(np.nanmedian(radargram_data['lon_3413'])-30000,np.nanmedian(radargram_data['lat_3413'])-30000,letter_elev,color='black',fontsize=20)
         
         #Display colorbar. This is from FigS1.py
         cbar_depth=fig.colorbar(cb2, cax=axc)#aspect is from https://stackoverflow.com/questions/33443334/how-to-decrease-colorbar-width-in-matplotlib
@@ -990,18 +990,15 @@ fig = plt.figure()
 #fig.suptitle('2002-2003 ice lenses and ice slabs mapping SW Greenland')
 gs = gridspec.GridSpec(8, 200)
 gs.update(hspace=0.5)
-gs.update(wspace=0.5)
+gs.update(wspace=0)
 
-'''
-ax1 = plt.subplot(gs[0:5, 5:55],projection=crs)
-ax_InsetMap = plt.subplot(gs[5:8, 0:45],projection=crs)
-'''
-ax1 = plt.subplot(gs[0:8, 5:55],projection=crs)
+ax1 = plt.subplot(gs[0:3, 5:55],projection=crs)
 ax2 = plt.subplot(gs[0:2, 65:195])
 ax3 = plt.subplot(gs[2:4, 65:195])
 ax4 = plt.subplot(gs[4:6, 65:195])
 ax5 = plt.subplot(gs[6:8, 65:195])
 axc = plt.subplot(gs[0:8, 197:200])
+ax_InsetMap = plt.subplot(gs[3:8, 5:55],projection=crs)
 
 #Load DEM clipped over the SW
 GrIS_DEM_display_SW = rxr.open_rasterio(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW.tif',
@@ -1013,32 +1010,25 @@ extent_DEM_SW = [np.asarray(GrIS_DEM_display_SW.x[0]), np.asarray(GrIS_DEM_displ
 #cb1=ax1.imshow(GrIS_DEM_display_SW[:,:], extent=extent_DEM_SW, transform=crs, origin='upper', cmap='Blues_r',zorder=1,alpha=0.5)
 #cbar1=fig.colorbar(cb1, ax=[ax1], location='right')
 
-#Display SW and CW regions
-SW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
-CW_rignotetal.plot(ax=ax1,color='white', edgecolor='black',linewidth=0.5) 
-
-#Add region names
-ax1.text(30000,-2369000,'CW',color='black')
-ax1.text(-12830,-2600000,'SW',color='black')
-ax1.text(82500,-2609000,'SE',color='black')
+#Display coastiles
+ax1.coastlines(edgecolor='black',linewidth=0.075)
 
 #Display contours
-cont=ax1.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1000,3750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.1)
-
-#Add elevation contour values
-ax1.text(-0.05, 0.42,'1000', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(-0.05, 0.39,'1250', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(-0.05, 0.235,'1500', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(-0.05, 0.18,'1500', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.055, -0.02,'1750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.12, -0.02,'2000', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.25, -0.02,'2250', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(0.39, -0.02,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax1.text(1.06, 0.455,'2500', ha='center', va='center',transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+cont=ax1.contour(GrIS_DEM_display_SW[:,:], levels=np.arange(1000,3750,250), extent=extent_DEM_SW, transform=crs, origin='upper', colors=['#8c510a'],linewidth=0.05)
 
 #Zoom over SW Greenland
-ease_extent = [-201529, 106696, -2889749, -2160162]
+ease_extent = [-197754, 102957, -2630061, -2281717]
 ax1.set_extent(ease_extent, crs=crs) 
+
+#Add elevation contour values
+ax1.text(-0.09, 0.16,'1000', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(-0.08, 0.10,'1250', ha='center', va='center', transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.07, -0.07,'1500', ha='center', va='center',rotation=90, transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.18, -0.07,'1750', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.3, -0.07,'2000', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.49, -0.07,'2250', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.73, -0.07,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.88, -0.07,'2500', ha='center', va='center', rotation=90,transform=ax1.transAxes,fontsize=10,color='#8c510a')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 #Shapefiles
 # --- 2010-2018
@@ -1049,7 +1039,7 @@ iceslabs_jullien_highend_20102018.plot(ax=ax1,color='#d73027', edgecolor='none',
 ax1.scatter(lon_3413_20102018, lat_3413_20102018,s=1,facecolors='#0570b0', edgecolors='none')
 '''
 #Plot all the 2002-2003 flightlines
-ax1.scatter(lon_all, lat_all,s=1,facecolors='#969696', edgecolors='none',alpha=0.1)
+ax1.scatter(lon_all, lat_all,s=1,facecolors='#969696', edgecolors='none',alpha=0.1,zorder=2)
 ################################### Plot ##################################
 
 #Open several files to display on top of the map
@@ -1064,7 +1054,7 @@ lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
 #Open and read the excel file having the ice lenses/slabs in it
-filename_icelenses='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
+filename_icelenses='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/20022003_icelens_identification/indiv_traces_icelenses/icelenses_22022020.xls'
 xls_icelenses = pd.read_excel(filename_icelenses, sheet_name=None,header=2)
 trafic_light=pd.read_excel(filename_icelenses, sheet_name=None,header=1)
 
@@ -1111,14 +1101,14 @@ ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==-1]['lon_3413'],df_2
 ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==0]['lat_3413'],s=2,facecolors='#fed976', edgecolors='#fed976')
 '''
 #3. Green
-ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=2,facecolors='#ffb300', edgecolors='#ffb300')
+ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=1,facecolors='#ffb300', edgecolors='#ffb300',zorder=4)
 '''
 #Purple
 ax1.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==2]['lat_3413'],s=2,facecolors='purple', edgecolors='purple')
 '''
 
 #Display lat/lon lines in map
-gl=ax1.gridlines(draw_labels=True, xlocs=[-42, -44, -46, -48, -50], ylocs=[62, 63, 64, 65, 66, 67, 68, 69, 70], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
+gl=ax1.gridlines(draw_labels=True, xlocs=[-44, -48], ylocs=[67, 69], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
 #Customize lat and lon labels
 gl.ylabels_right = False
 gl.xlabels_bottom = False
@@ -1130,25 +1120,35 @@ legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='bl
                    Line2D([0], [0], label='Transects of interest', color='k', linewidth=3),
                    Patch(facecolor='#d73027',label='2010-2018 ice slabs'),
                    Line2D([0], [0], label='2002-2003 ice layers and slabs', color='#ffb300', linewidth=3)]
+'''
 #Add legend
 ax1.legend(handles=legend_elements,loc='upper left',fontsize=12,framealpha=1,bbox_to_anchor=(-0.019, 1.008))
 plt.legend()
 axc.legend_.remove()
+'''
 
 #Display the map panel label
-ax1.text(-0.06, 1.025,'a', ha='center', va='center', transform=ax1.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-'''
+ax1.text(0.025, 1.1,'a', ha='center', va='center', transform=ax1.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+
+scale_bar(ax1, (0.76, 0.31), 50, 3,0)# axis, location (x,y), length, linewidth, rotation of text
+#by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
+
 #Display GrIS inset map
 ax_InsetMap.coastlines(edgecolor='black',linewidth=0.075)
 #Display GrIS drainage bassins limits
 GrIS_drainage_bassins.plot(ax=ax_InsetMap,color='none', edgecolor='black',linewidth=0.075)
 #Display region name
-ax_InsetMap.text(NO_rignotetal.centroid.x-200000,NO_rignotetal.centroid.y-80000,np.asarray(NO_rignotetal.SUBREGION1)[0])
-ax_InsetMap.text(NE_rignotetal.centroid.x-200000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
-ax_InsetMap.text(SE_rignotetal.centroid.x-100000,SE_rignotetal.centroid.y,np.asarray(SE_rignotetal.SUBREGION1)[0])
-ax_InsetMap.text(SW_rignotetal.centroid.x-185000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
-ax_InsetMap.text(CW_rignotetal.centroid.x-200000,CW_rignotetal.centroid.y-100000,np.asarray(CW_rignotetal.SUBREGION1)[0])
-ax_InsetMap.text(NW_rignotetal.centroid.x-150000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NO_rignotetal.centroid.x-100000,NO_rignotetal.centroid.y-80000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NE_rignotetal.centroid.x-50000,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+200000,np.asarray(SE_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(SW_rignotetal.centroid.x-75000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(CW_rignotetal.centroid.x-100000,CW_rignotetal.centroid.y-50000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+ax_InsetMap.text(NW_rignotetal.centroid.x-50000,NW_rignotetal.centroid.y-150000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+
+#Plot all the 2002-2003 flightlines
+ax_InsetMap.scatter(lon_all, lat_all,s=0.5,facecolors='#969696', edgecolors='none',alpha=0.1)
+#Display green 2002-2003 ice slabs 
+ax_InsetMap.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=1,facecolors='#ffb300', edgecolors='#ffb300')
 
 #Display rectangle around datalocation - this is from Fig. 3.py   
 #Extract corner coordinates
@@ -1162,13 +1162,19 @@ rect = patches.Rectangle((coord_origin[0],coord_origin[1]),
                          angle=0, linewidth=1, edgecolor='black', facecolor='none')
 # Add the patch to the Axes
 ax_InsetMap.add_patch(rect)
-ax_InsetMap.axis('on')
+ax_InsetMap.axis('off')
 
 #Display scalebar
 scale_bar(ax_InsetMap, (0.745, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
-'''
-scale_bar(ax1, (0.32, 0.0425), 50, 3,0)# axis, location (x,y), length, linewidth, rotation of text
-#by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
+
+#Display lat/lon lines in map
+gl=ax_InsetMap.gridlines(draw_labels=True, xlocs=[-35, -50], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
+#Customize lat and lon labels
+gl.ylabels_right = False
+gl.xlabels_top = False
+
+#Display the GrIS map panel label
+ax_InsetMap.text(0.05, 0.9,'b', ha='center', va='center', transform=ax_InsetMap.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 plt.show()
 pdb.set_trace()
@@ -1176,7 +1182,7 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v6/Fig_S1.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v7/Fig_S1.png'
 plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
 
