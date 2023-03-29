@@ -21,7 +21,7 @@ def compute_distances(eastings,northings):
 
 
 def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_2018_elevation,DEM_for_elevation,ax1,axt,custom_angle,offset_x,offset_y,casestudy_nb):
-    calculate_summary_statistics='FALSE'
+    calculate_summary_statistics='TRUE'
     
     #Define empty dictionnary for elevation slice definition
     df_for_elev=pd.DataFrame(columns=list(df_2010_2018_elevation.keys()))
@@ -93,10 +93,10 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     else:
         #Add number of case study on fig localisation
         ax1.text(x-45000,y-20000,casestudy_nb,color='r',weight='bold',fontsize=20)
-    
+    '''
     #Add number of case study on fig localisation    
     axt.text(0.99, 0.8,casestudy_nb, ha='center', va='center', transform=axt.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot    
-    
+    '''
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
@@ -381,28 +381,24 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     plt.show()
     print('End plotting fig 2')
-    
+        
     if (calculate_summary_statistics=='TRUE'):
         #Calculate summary statistics
-        '''
         if (casestudy_nb=='a'):
             #Affine distances selection!
-            summary_statistics_calculations(df_for_elev_sorted,0,15,[2017,2011],my_pal,axt,casestudy_nb)
+            summary_statistics_calculations(df_for_elev_sorted,4,15,[2017,2011],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='b'):
             #Affine distances selection!
-            summary_statistics_calculations(df_for_elev_sorted,0,15.3,[2017,2010],my_pal,axt,casestudy_nb)
-        '''
+            summary_statistics_calculations(df_for_elev_sorted,0,15.355,[2017,2010],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='c'):
             #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,38.4,41.178,[2017,2010],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='d'):
             #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,21,37.526,[2018,2010],my_pal,axt,casestudy_nb)
-        '''
         if (casestudy_nb=='e'):
             #Affine distances selection!
-            summary_statistics_calculations(df_for_elev_sorted,0,18.315,[2018,2012],my_pal,axt,casestudy_nb)
-        '''
+            summary_statistics_calculations(df_for_elev_sorted,13.5,18.524,[2018,2012],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='f'):
             #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,22.5,32.6,list([2017,2010]),my_pal,axt,casestudy_nb)
@@ -410,21 +406,26 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     return 
 
 def summary_statistics_calculations(df_casestudy,end_well_developped,end_thickening,indiv_years,col_palette,ax_display_limits,casestudy_nb_for_change):
-
+        
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     pal_summary_stat = {2010: "#fdd49e", 2011: "#fc8d59", 2012: "#fc8d59", 2013:"#d7301f", 2014:"#d7301f", 2017:"#7f0000", 2018:"#7f0000"}
         
+    if (casestudy_nb_for_change == 'e'):
+        end_transect=24217.2
+    else:
+        end_transect=np.ceil(np.max(df_casestudy.distances))
+       
     #Display section on Fig.3
     ax_display_limits.axvline(x=0.05*1000,color='black',zorder=10)
     ax_display_limits.axvline(x=end_well_developped*1000,color='black',zorder=10)
     ax_display_limits.axvline(x=end_thickening*1000,color='black',zorder=10)
-    ax_display_limits.axvline(x=np.ceil(np.max(df_casestudy.distances)),color='black',zorder=10)
+    ax_display_limits.axvline(x=end_transect,color='black',zorder=10)
     
     #Shade sections
     ax_display_limits.axvspan(0, end_well_developped*1000, facecolor='#e7298a', alpha=0.3)
     ax_display_limits.axvspan(end_well_developped*1000, end_thickening*1000, facecolor='green', alpha=0.3)
-    ax_display_limits.axvspan(end_thickening*1000, np.ceil(np.max(df_casestudy.distances)), facecolor='blue', alpha=0.3)
+    ax_display_limits.axvspan(end_thickening*1000, end_transect, facecolor='blue', alpha=0.3)
     
     ax_display_limits.set_xlabel('Distance [km]',fontsize=22)
     ax_display_limits.set_ylabel('Ice content [m]',fontsize=22)
@@ -433,10 +434,10 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ax_display_limits.text(0.012,0.75,'a',ha='center', va='center', transform=ax_display_limits.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     #Add number of case study on fig localisation    
     ax_display_limits.text(0.95, 0.75,'Transect '+casestudy_nb_for_change, ha='center', va='center', transform=ax_display_limits.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    '''
+    
     #save coloured transect
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v10/fig_supp_coloured_sector_transect_'+casestudy_nb_for_change+'.png',dpi=300,bbox_inches='tight')
-    '''
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v11/fig_supp_coloured_sector_transect_'+casestudy_nb_for_change+'.png',dpi=300,bbox_inches='tight')
+    
     ### ----------------- This is from Fig4andS6andS7.py ----------------- ###
     count_ice=0
     columnal_sum_studied_case=np.ones((2,3))*0
@@ -444,7 +445,7 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     
     coord_parts_transect=np.array([[0,end_well_developped],
                           [end_well_developped,end_thickening],
-                          [end_thickening, np.ceil(np.max(df_casestudy.distances))]])
+                          [end_thickening, end_transect]])
     ### ----------------- This is from Fig4andS6andS7.py ----------------- ###    
     
     #Loop over the different time periods (2010, 2011-2012, 2013-2014, 2017-2018)
@@ -520,11 +521,22 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ax2_hist = plt.subplot(gs[3:9, 3:6])
     ax3_box = plt.subplot(gs[0:3, 6:9])
     ax3_hist = plt.subplot(gs[3:9, 6:9])
-    
+        
     #Display boxplots
-    sns.boxplot(data=df_casestudy_indiv_years[df_casestudy_indiv_years.sector=='WD'],y='20m_ice_content_m',x='year',ax=ax1_box,palette=pal_summary_stat)
-    sns.boxplot(data=df_casestudy_indiv_years[df_casestudy_indiv_years.sector=='ID'],y='20m_ice_content_m',x='year',ax=ax2_box,palette=pal_summary_stat)
-    sns.boxplot(data=df_casestudy_indiv_years[df_casestudy_indiv_years.sector=='II'],y='20m_ice_content_m',x='year',ax=ax3_box,palette=pal_summary_stat)
+    try:
+        sns.boxplot(data=df_casestudy_indiv_years[df_casestudy_indiv_years.sector=='WD'],y='20m_ice_content_m',x='year',ax=ax1_box,palette=pal_summary_stat)
+    except ValueError:
+        print('No WD data')
+    
+    try:
+        sns.boxplot(data=df_casestudy_indiv_years[df_casestudy_indiv_years.sector=='ID'],y='20m_ice_content_m',x='year',ax=ax2_box,palette=pal_summary_stat)
+    except ValueError:
+        print('No ID data')
+    
+    try:
+        sns.boxplot(data=df_casestudy_indiv_years[df_casestudy_indiv_years.sector=='II'],y='20m_ice_content_m',x='year',ax=ax3_box,palette=pal_summary_stat)
+    except ValueError:
+        print('No II data')
     
     ax3_box.set_xlim(-1.5,0.5)#II boxplot is always empty
     
@@ -535,7 +547,7 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ax1_box.grid()
     ax2_box.grid()
     ax3_box.grid()
-    
+        
     ax1_box.set_xticklabels([indiv_years[1],indiv_years[0]])
     ax2_box.set_xticklabels([indiv_years[1],indiv_years[0]])
     ax3_box.set_xticklabels([indiv_years[0]])
@@ -558,17 +570,32 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ID_hist=sns.histplot(data=df_casestudy_indiv_years[df_casestudy_indiv_years.sector=='ID'],x='20m_ice_content_m',hue='year',bins=np.arange(0,21,1),kde=True,stat='density',ax=ax2_hist,palette=pal_summary_stat)
     II_hist=sns.histplot(data=df_casestudy_indiv_years[df_casestudy_indiv_years.sector=='II'],x='20m_ice_content_m',hue='year',bins=np.arange(0,21,1),kde=True,stat='density',ax=ax3_hist,palette=pal_summary_stat)
     
-    #Remove legend - from stackoverflow question 'Hide legend fron seaborn pairplot'
-    WD_hist.legend_.remove()
-    ID_hist.legend_.remove()
-    II_hist.legend_.remove()
     #Custom legend myself
-    legend_elements = [Patch(facecolor='#fde9cd',label=str(indiv_years[1])),
-                       Patch(facecolor='#be7f7f',label=str(indiv_years[0]))]
+    legend_elements = [Patch(facecolor=pal_summary_stat[indiv_years[1]],label=str(indiv_years[1])),
+                       Patch(facecolor=pal_summary_stat[indiv_years[0]],label=str(indiv_years[0]))]
+    
+    #Remove legend - from stackoverflow question 'Hide legend fron seaborn pairplot'
+    try:
+        WD_hist.legend_.remove()
+    except AttributeError:
+        print('No WD legend') 
 
-    II_hist.legend(handles=legend_elements,fontsize=20,loc='upper right')
-    plt.legend()
-    II_hist.legend(handles=legend_elements,fontsize=20,loc='upper right')
+    try:
+        ID_hist.legend_.remove()
+    except AttributeError:
+        print('No ID legend') 
+        
+    try:
+        II_hist.legend_.remove()
+        II_hist.legend(handles=legend_elements,fontsize=20,loc='upper right')
+        plt.legend()
+        II_hist.legend(handles=legend_elements,fontsize=20,loc='upper right')
+        
+    except AttributeError:
+        print('No II legend II')    
+        ID_hist.legend(handles=legend_elements,fontsize=20,loc='center right')
+        plt.legend()
+        ID_hist.legend(handles=legend_elements,fontsize=20,loc='center right')
             
     ax1_hist.set_xlim(0,20)
     ax2_hist.set_xlim(0,20)
@@ -588,12 +615,12 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     columnal_sum_studied_case[np.isnan(columnal_sum_studied_case)]=0
         
     #Display percentage change for well-developped
-    if (casestudy_nb_for_change in list(['c','d','f'])):
+    if (casestudy_nb_for_change in list(['a','c','d','e','f'])):
         #pdb.set_trace()
-        ax1_hist.text(0.65,0.90,'Ice content change:\n +'+str(np.round((columnal_sum_studied_case[0,0]-columnal_sum_studied_case[1,0])/columnal_sum_studied_case[1,0]*100).astype(int))+'%',
+        ax1_hist.text(0.35,0.78,'Ice content change:\n +'+str(np.round((columnal_sum_studied_case[0,0]-columnal_sum_studied_case[1,0])/columnal_sum_studied_case[1,0]*100).astype(int))+'%',
                       ha='center', va='center', transform=ax1_hist.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     #Display percentage change for in-development
-    ax2_hist.text(0.65,0.90,'Ice content change:\n +'+str(np.round((columnal_sum_studied_case[0,1]-columnal_sum_studied_case[1,1])/columnal_sum_studied_case[1,1]*100).astype(int))+'%',
+    ax2_hist.text(0.65,0.89,'Ice content change:\n +'+str(np.round((columnal_sum_studied_case[0,1]-columnal_sum_studied_case[1,1])/columnal_sum_studied_case[1,1]*100).astype(int))+'%',
                   ha='center', va='center', transform=ax2_hist.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     '''
     #Display percentage change for in-initiation
@@ -627,12 +654,12 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     print(ID[ID.year==indiv_years[0]]['20m_ice_content_m'].describe())
     print('--- In-initiation ---')
     print(II[II.year==indiv_years[0]]['20m_ice_content_m'].describe())
-
-    pdb.set_trace()
-    '''
+    
     #Save the figure
-    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v10/fig_supp_sector_stats_transect_'+casestudy_nb_for_change+'.png',dpi=300,bbox_inches='tight')
-    '''
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v11/fig_supp_sector_stats_transect_'+casestudy_nb_for_change+'.png',dpi=300,bbox_inches='tight')
+    
+    pdb.set_trace()
+
     return
 
 ###     This is from iceslabs_20102018_thickening_analysis.py       ###
@@ -784,18 +811,6 @@ ax4t = plt.subplot(gs[14:18, 4:20])
 ax5t = plt.subplot(gs[21:25, 4:20])
 ax6t = plt.subplot(gs[28:32, 4:20])
 ax7t = plt.subplot(gs[35:39, 4:20])
-'''
-#This is for summary statistics plot
-plt.rcParams.update({'font.size': 20})
-plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
-fig = plt.figure()
-gs = gridspec.GridSpec(39, 16)
-gs.update(wspace=0.5)
-#gs.update(wspace=0.001)
-#projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
-ax1=1
-ax2t = plt.subplot(gs[0:4, 0:16])
-'''
 
 #Draw plot of GrIS map
 ax1.coastlines(edgecolor='black',linewidth=0.075)
@@ -807,6 +822,17 @@ ax1.text(CW_rignotetal.centroid.x-175000,CW_rignotetal.centroid.y-40000,np.asarr
 ax1.text(NW_rignotetal.centroid.x-50000,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
 ax1.text(NO_rignotetal.centroid.x-40000,NO_rignotetal.centroid.y-230000,np.asarray(NO_rignotetal.SUBREGION1)[0])
 
+
+#This is for summary statistics plot
+plt.rcParams.update({'font.size': 20})
+plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+fig = plt.figure()
+gs = gridspec.GridSpec(39, 16)
+gs.update(wspace=0.5)
+#gs.update(wspace=0.001)
+#projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
+ax2t = plt.subplot(gs[0:4, 0:16])
+
 #Load 2010-2018 elevation dataset
 f_20102018 = open(path+'df_20102018_with_elevation_Fig3_high_estimate_rignotetalregions_cleaned', "rb")
 df_2010_2018_elevation = pickle.load(f_20102018)
@@ -814,8 +840,9 @@ f_20102018.close()
 
 #Where ice content is higher than 16m, replace the ice content by 16! - To comment when plotting summary statistics
 df_2010_2018_elevation.loc[df_2010_2018_elevation['20m_ice_content_m']>16,'20m_ice_content_m']=16
+df_2010_2018_csv.loc[df_2010_2018_csv['20m_ice_content_m']>16,'20m_ice_content_m']=16
 
-
+'''
 #Plot data
 plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
 
@@ -831,9 +858,15 @@ plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,a
 plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax7t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 '''
+
 #This is for summary statistics plot
+#plot_thickness_evolution(loc6,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-120,offset_x=7000,offset_y=-18000,casestudy_nb='a')
+#plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
+#plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
+#plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
+#plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
 plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
-'''
+
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py
 # x0, x1, y0, y1
@@ -875,5 +908,5 @@ plt.show()
 pdb.set_trace()
 
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v10/fig2.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v11/fig2.png',dpi=300,bbox_inches='tight')
 
