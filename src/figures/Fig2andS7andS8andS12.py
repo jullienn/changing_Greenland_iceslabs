@@ -871,6 +871,8 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
                 high_end_change=(regional_area_1018-regional_area_101112)/regional_area_101112*100
                 axmap.text(off_display[0]-30000,off_display[1]-80000,'+'+str(int(np.round(high_end_change)))+' %')
             
+            #Open transect coordinates to locate where to put the arrow
+            
             #Display where transects discussed in text, Fig. 3 and Fig. S10 are located on the ice sheet
             #axmap.arrow(x, y, dx, dy)
     pdb.set_trace()

@@ -99,7 +99,8 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
-        
+    #my_pal = {'2010': "#a6bddb", '2011-2012': "#74a9cf",'2013-2014':"#0570b0", '2017-2018':"#08306b"}
+    
     #Create an empty df_sampling
     df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev','rolling_10_median_scatter'])
         
@@ -267,14 +268,13 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Activate ticks x and y label
     axt.yaxis.tick_left()
     axt.xaxis.tick_bottom()
-    
+    '''
     #Set fontsize of y ticks labels to 15
     axt.set_yticklabels(['0','5','10','15'],fontsize=15)
     '''
     #Set fontsize of y ticks labels to 20 - This is for summary statistics plot
-    axt.set_yticks([0,5,10,15,20])
-    axt.set_yticklabels(['0','','10','','20'],fontsize=20)
-    '''
+    axt.set_yticks([0,5,10,15])
+    axt.set_yticklabels(['0','5','10','15'],fontsize=20)
     
     #4. Display elevation
     #Set xlims
@@ -353,26 +353,25 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     ax_t = axt.secondary_xaxis('top',color='#8c510a')
     #set xticks distances according to rounded elevations steps
     ax_t.set_xticks(distance_display[:,0])
-    
+    '''
     #Display elevations
     ax_t.set_xticklabels(steps_elev.astype(int),fontsize=15,color='#8c510a')
     '''
     #Display elevations - This is for summary statistics plot
     ax_t.set_xticklabels(steps_elev.astype(int),fontsize=20,color='#8c510a')
-    '''
+    
     #Get rid of elevation = 1250m
     if (casestudy_nb=='a'):
         tick_lab_a=ax_t.get_xticklabels()
         tick_lab_a[1]._text=''
         ax_t.set_xticklabels(tick_lab_a)
     # ---------------------------- Display elevation ------------------------ #
-    
+    '''
     #Display bottom xtick in km instead of m
     axt.set_xticklabels((xtick_distance/1000).astype(int),fontsize=15)
     '''
     #Display bottom xtick in km instead of m - This is for summary statistics plot
     axt.set_xticklabels((xtick_distance/1000).astype(int),fontsize=20)
-    '''
     
     #Modify spacing between xticklabels and xticks
     axt.tick_params(pad=1.2)
@@ -384,22 +383,16 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     if (calculate_summary_statistics=='TRUE'):
         #Calculate summary statistics
         if (casestudy_nb=='a'):
-            #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,4,15,[2017,2011],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='b'):
-            #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,0,15.355,[2017,2010],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='c'):
-            #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,38.4,41.178,[2017,2010],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='d'):
-            #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,21,37.526,[2018,2010],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='e'):
-            #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,13.5,18.524,[2018,2012],my_pal,axt,casestudy_nb)
         if (casestudy_nb=='f'):
-            #Affine distances selection!
             summary_statistics_calculations(df_for_elev_sorted,22.5,32.6,list([2017,2010]),my_pal,axt,casestudy_nb)
         
     return 
@@ -409,7 +402,8 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
     pal_summary_stat = {2010: "#fdd49e", 2011: "#fc8d59", 2012: "#fc8d59", 2013:"#d7301f", 2014:"#d7301f", 2017:"#7f0000", 2018:"#7f0000"}
-        
+    #pal_summary_stat = {2010: "#a6bddb", 2011: "#74a9cf", 2012: "#74a9cf", 2013:"#0570b0", 2014:"#0570b0", 2017:"#08306b", 2018:"#08306b"}
+
     if (casestudy_nb_for_change == 'e'):
         end_transect=24217.2
     else:
@@ -427,16 +421,23 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ax_display_limits.axvspan(end_thickening*1000, end_transect, facecolor='blue', alpha=0.3)
     
     ax_display_limits.set_xlabel('Distance [km]',fontsize=22)
-    ax_display_limits.set_ylabel('Ice content [m]',fontsize=22)
+    ax_display_limits.set_ylabel('Ice thickness [m]',fontsize=22)
     ax_display_limits.text(0.5,1.7,'Elevation [m]', ha='center', va='center', transform=ax_display_limits.transAxes,color='#8c510a',fontsize=22)
     
     ax_display_limits.text(0.012,0.75,'a',ha='center', va='center', transform=ax_display_limits.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     #Add number of case study on fig localisation    
-    ax_display_limits.text(0.95, 0.75,'Transect '+casestudy_nb_for_change, ha='center', va='center', transform=ax_display_limits.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    
+    ax_display_limits.text(0.80, 0.75,'Transect '+casestudy_nb_for_change, ha='center', va='center', transform=ax_display_limits.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+        
+    #Display legend on
+    legend_elements = [Patch(facecolor=pal_summary_stat[2010],label='2010'),
+                       Patch(facecolor=pal_summary_stat[2011],label='2011-2012'),
+                       Patch(facecolor=pal_summary_stat[2013],label='2013-2014'),
+                       Patch(facecolor=pal_summary_stat[2017],label='2017-2018')]
+    ax_display_limits.legend(handles=legend_elements,fontsize=15,loc='center right')
+    '''
     #save coloured transect
     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v11/fig_supp_coloured_sector_transect_'+casestudy_nb_for_change+'.png',dpi=300,bbox_inches='tight')
-    
+    '''
     ### ----------------- This is from Fig4andS6andS7.py ----------------- ###
     count_ice=0
     columnal_sum_studied_case=np.ones((2,3))*0
@@ -555,7 +556,7 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ax2_box.set_title('In-development',weight='bold',color='#b2d8b2',pad=10)
     ax3_box.set_title('In-initiation',weight='bold',color='#b2b2ff',pad=10)
 
-    ax1_box.set_ylabel('Ice content [m]')
+    ax1_box.set_ylabel('Ice thickness [m]')
     ax2_box.set_ylabel('')
     ax3_box.set_ylabel('')
     
@@ -604,9 +605,9 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ax2_hist.grid()
     ax3_hist.grid()
     
-    ax1_hist.set_xlabel('Ice content [m]')
-    ax2_hist.set_xlabel('Ice content [m]')
-    ax3_hist.set_xlabel('Ice content [m]')
+    ax1_hist.set_xlabel('Ice thickness [m]')
+    ax2_hist.set_xlabel('Ice thickness [m]')
+    ax3_hist.set_xlabel('Ice thickness [m]')
     ax2_hist.set_ylabel('')
     ax3_hist.set_ylabel('')
     
@@ -616,10 +617,10 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     #Display percentage change for well-developped
     if (casestudy_nb_for_change in list(['a','c','d','e','f'])):
         #pdb.set_trace()
-        ax1_hist.text(0.35,0.78,'Ice content change:\n +'+str(np.round((columnal_sum_studied_case[0,0]-columnal_sum_studied_case[1,0])/columnal_sum_studied_case[1,0]*100).astype(int))+'%',
+        ax1_hist.text(0.33,0.78,'Ice thickness change:\n +'+str(np.round((columnal_sum_studied_case[0,0]-columnal_sum_studied_case[1,0])/columnal_sum_studied_case[1,0]*100).astype(int))+'%',
                       ha='center', va='center', transform=ax1_hist.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     #Display percentage change for in-development
-    ax2_hist.text(0.65,0.89,'Ice content change:\n +'+str(np.round((columnal_sum_studied_case[0,1]-columnal_sum_studied_case[1,1])/columnal_sum_studied_case[1,1]*100).astype(int))+'%',
+    ax2_hist.text(0.65,0.89,'Ice thickness change:\n +'+str(np.round((columnal_sum_studied_case[0,1]-columnal_sum_studied_case[1,1])/columnal_sum_studied_case[1,1]*100).astype(int))+'%',
                   ha='center', va='center', transform=ax2_hist.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     '''
     #Display percentage change for in-initiation
@@ -628,10 +629,10 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
                   ha='center', va='center', transform=ax3_hist.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     '''
     ax1_box.text(0.05,0.9,'b',ha='center', va='center', transform=ax1_box.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    ax2_box.text(0.05,0.9,'c',ha='center', va='center', transform=ax2_box.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    ax3_box.text(0.05,0.9,'d',ha='center', va='center', transform=ax3_box.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    ax1_hist.text(0.05,0.95,'e',ha='center', va='center', transform=ax1_hist.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    ax2_hist.text(0.05,0.95,'f',ha='center', va='center', transform=ax2_hist.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    ax2_box.text(0.05,0.9,'d',ha='center', va='center', transform=ax2_box.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    ax3_box.text(0.05,0.9,'f',ha='center', va='center', transform=ax3_box.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    ax1_hist.text(0.05,0.95,'c',ha='center', va='center', transform=ax1_hist.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    ax2_hist.text(0.05,0.95,'e',ha='center', va='center', transform=ax2_hist.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     ax3_hist.text(0.05,0.95,'g',ha='center', va='center', transform=ax3_hist.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
     
     #Display statisitics
@@ -653,10 +654,10 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     print(ID[ID.year==indiv_years[0]]['20m_ice_content_m'].describe())
     print('--- In-initiation ---')
     print(II[II.year==indiv_years[0]]['20m_ice_content_m'].describe())
-    
+    '''
     #Save the figure
     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig2/v11/fig_supp_sector_stats_transect_'+casestudy_nb_for_change+'.png',dpi=300,bbox_inches='tight')
-    
+    '''
     pdb.set_trace()
 
     return
