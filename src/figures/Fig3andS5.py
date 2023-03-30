@@ -65,8 +65,7 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
         ax1.scatter(df_for_elev_temp['lon_3413'],
                     df_for_elev_temp['lat_3413'],
                     s=0.1,color='#737373')
-        
-    #TO UNCOMMENT FOR NEW GENERATION!!!!!
+    
     '''
     #Save pandas dataframe into excel
     path_transects='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/final_excel/transects_Fig2/'
