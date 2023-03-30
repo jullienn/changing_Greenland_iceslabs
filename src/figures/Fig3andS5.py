@@ -98,9 +98,10 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     '''
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-    my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
+    #my_pal = {'2010': "#fdd49e", '2011-2012': "#fc8d59", '2013-2014':"#d7301f",'2017-2018':"#7f0000"}
     #my_pal = {'2010': "#a6bddb", '2011-2012': "#74a9cf",'2013-2014':"#0570b0", '2017-2018':"#08306b"}
-    
+    my_pal = {'2010': "#9ecae1", '2011-2012': "#6baed6", '2013-2014':"#3182bd", '2017-2018':"#d73027"}
+
     #Create an empty df_sampling
     df_sampling=pd.DataFrame(columns=['Track_name','time_period','low_bound', 'high_bound', 'bound_nb', 'mean', 'median', 'q025', 'q075','stddev','rolling_10_median_scatter'])
         
@@ -401,9 +402,10 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
         
     #Define palette for time periods
     #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-    pal_summary_stat = {2010: "#fdd49e", 2011: "#fc8d59", 2012: "#fc8d59", 2013:"#d7301f", 2014:"#d7301f", 2017:"#7f0000", 2018:"#7f0000"}
+    #pal_summary_stat = {2010: "#fdd49e", 2011: "#fc8d59", 2012: "#fc8d59", 2013:"#d7301f", 2014:"#d7301f", 2017:"#7f0000", 2018:"#7f0000"}
     #pal_summary_stat = {2010: "#a6bddb", 2011: "#74a9cf", 2012: "#74a9cf", 2013:"#0570b0", 2014:"#0570b0", 2017:"#08306b", 2018:"#08306b"}
-
+    pal_summary_stat = {2010: "#9ecae1", 2011: "#6baed6", 2012: "#6baed6", 2013:"#3182bd", 2014:"#3182bd", 2017:"#d73027", 2018:"#d73027"}
+    
     if (casestudy_nb_for_change == 'e'):
         end_transect=24217.2
     else:

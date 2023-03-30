@@ -887,19 +887,18 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             axmap.arrow(transect_b.lon_3413.min()-150000, transect_b.loc[np.where(transect_b.lon_3413==transect_b.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_b.lon_3413,transect_b.lat_3413,color='red')
 
-            axmap.arrow(transect_c.lon_3413.min()-150000, transect_c.loc[np.where(transect_c.lon_3413==transect_c.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
+            axmap.arrow(transect_c.lon_3413.min()-165000, transect_c.loc[np.where(transect_c.lon_3413==transect_c.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_c.lon_3413,transect_c.lat_3413,color='red')
 
-            axmap.arrow(transect_d.lon_3413.min()-150000, transect_d.loc[np.where(transect_d.lon_3413==transect_d.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
+            axmap.arrow(transect_d.lon_3413.min()-180000, transect_d.loc[np.where(transect_d.lon_3413==transect_d.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_d.lon_3413,transect_d.lat_3413,color='red')
 
-            axmap.arrow(transect_e.lon_3413.min()-150000, transect_e.loc[np.where(transect_e.lon_3413==transect_e.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
+            axmap.arrow(transect_e.lon_3413.min()-210000, transect_e.loc[np.where(transect_e.lon_3413==transect_e.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_e.lon_3413,transect_e.lat_3413,color='red')
 
-            axmap.arrow(transect_f.lon_3413.min()-150000, transect_f.loc[np.where(transect_f.lon_3413==transect_f.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
+            axmap.arrow(transect_f.lon_3413.min()-170000, transect_f.loc[np.where(transect_f.lon_3413==transect_f.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_f.lon_3413,transect_f.lat_3413,color='red')
 
-    pdb.set_trace()
     '''
     ### --- Check removal of several polygon for area change calculation is correct
     #high end 2010-18 ok
@@ -919,10 +918,12 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     iceslabs_jullien_lowend_2010_11_12.plot(ax=axmap,color='black', edgecolor='none',linewidth=0.5)
     iceslabs_jullien_lowend_2010_11_12_ForCalculations.plot(ax=axmap,color='yellow', edgecolor='none',linewidth=0.5)
     '''
-    '''
+    
     # -------------------------------- PANEL A --------------------------------
     axelev.legend(handles=legend_elements,loc='upper left')
-    
+    pdb.set_trace()
+
+    '''
     #Save figure
     plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig1/v7/fig1.png',dpi=1000,bbox_inches='tight')
     #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
