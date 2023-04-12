@@ -32,11 +32,11 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     indexes_within_bounds=np.logical_and(dataframe[str(year)]['lon_appended']>=-47.4233,dataframe[str(year)]['lon_appended']<=-46.2981)
     #Select only data within bounds
     X=dataframe[str(year)]['lon_appended'][indexes_within_bounds]
-    
     #Select only probabilistic data within bounds
-    Y=np.arange(0,20,20/dataframe[str(year)]['probabilistic'].shape[0])
     C=dataframe[str(year)]['probabilistic'][:,indexes_within_bounds]
-
+    
+    Y=np.arange(0,20,20/dataframe[str(year)]['probabilistic'].shape[0])
+    
     #Display only where probability is higher or equal than prob
     C_bool=(C>=0.00001).astype(int)
     C_bool_plot=np.zeros([C_bool.shape[0],C_bool.shape[1]])
@@ -101,7 +101,6 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
         
     else:
         #Set fontsize
-        
         ax_plotting.set_yticklabels(['0','5','10','15','20'],fontsize=15)
     
     if (zorder_indiv==1):
@@ -109,7 +108,9 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
             #Custom plot
             ax_plotting.xaxis.tick_bottom()
             ax_plotting.set_xlabel('Distance [km]',fontsize=15)
-            
+            #Set x distance labels to 0 at the start of the analysed transect
+            ax_plotting.set_xticklabels(['0','2.5','5','7.5','10','12.5','15','17.5','20'],fontsize=15)
+                        
             #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
             legend_elements = [Patch(facecolor=my_pal[year_background],label=str(year_background)),
                                Patch(facecolor=my_pal[year],label=str(year)),
@@ -124,11 +125,19 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
 
     elif (zorder_indiv==2):
         
-        #Add dashed lines such as in Fig. 3
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],zorder=3,linestyle='--',color='k',linewidth=1)
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],zorder=3,linestyle='--',color='k',linewidth=1)
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],zorder=3,linestyle='--',color='k',linewidth=1)#Line at km 15.6
-        ax_plotting.axvline(x=distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],zorder=3,linestyle='--',color='k',linewidth=1)#Line at km 16.7
+        #Display in-depth and top-down accretion as shaded areas in ice slabs panels
+        #-47.11 = 13.8 km 
+        #-47.07 = 15.6 km
+        #-47.0487 = 16.7 km
+        #-47.023 = 17.7 km
+                
+        ax_plotting.axvspan(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],
+                            distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],
+                            facecolor='#969696',zorder=1,alpha=0.5)
+        
+        ax_plotting.axvspan(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.023)))],
+                            distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.0487)))],
+                            facecolor='#969696',zorder=1,alpha=0.5)
         
         #Display KAN_U
         ax_plotting.scatter(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.030473)))],0.5,marker='P',s=20,c='#b2182b',zorder=10)
@@ -155,25 +164,56 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
     ##### Same procedure of mask appliance for EPSG:32622 coordinates #####
         
     #display loc of the trace on zoomed map
-    ax_map_region.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='#d9d9d9',s=0.1,zorder=10,transform=crs)
-    
+    '''
+    #Do not display the full transect anymore as not displayed anymore
+    ax_map_region.scatter(lon32622_plot[distances_with_start_transect<=40000],lat32622_plot[distances_with_start_transect<=40000],c='#d9d9d9',s=10,zorder=10,transform=crs)
+    '''
     ax_map_region.scatter(lon32622_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
                           lat32622_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
-                          c='#969696',s=0.1,zorder=11,transform=crs)
-    
-    ax_map_region.scatter(lon32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.023)],
-                          lat32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.023)],
-                          c='k',s=0.1,zorder=12,transform=crs)
-    
+                          c='k',s=10,zorder=11,transform=crs)
+    #Display in depth ice accretion sector
+    ax_map_region.scatter(lon32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.07)],
+                          lat32622_plot[np.logical_and(lon_plot>=-47.11,lon_plot<=-47.07)],
+                          c='#969696',s=10,zorder=12,transform=crs)
+    #Display top-down ice accretion sector
+    ax_map_region.scatter(lon32622_plot[np.logical_and(lon_plot>=-47.0487,lon_plot<=-47.023)],
+                          lat32622_plot[np.logical_and(lon_plot>=-47.0487,lon_plot<=-47.023)],
+                          c='#969696',s=10,zorder=12,transform=crs)
+        
     '''
     #Same as previously by distance-wise
     ax_map_region.scatter(lon32622_plot[np.logical_and(distances_with_start_transect>=13800,distances_with_start_transect<=17700)],
                           lat32622_plot[np.logical_and(distances_with_start_transect>=13800,distances_with_start_transect<=17700)],
                           c='green',s=0.1,zorder=12,transform=crs)
     '''
-    #display loc of the trace on GrIS map
-    ax_map_GrIS.scatter(lon3413_plot[distances_with_start_transect<=40000],lat3413_plot[distances_with_start_transect<=40000],c='k',s=5,zorder=10,transform=crs_3413)
-
+    #display loc of the trace on GrIS map - from 10 to 30 km to match what is displayed in other panels
+    ax_map_GrIS.scatter(lon3413_plot[np.logical_and(distances_with_start_transect>=10000,distances_with_start_transect<=30000)],
+                        lat3413_plot[np.logical_and(distances_with_start_transect>=10000,distances_with_start_transect<=30000)],
+                        c='k',s=5,zorder=10,transform=crs_3413)
+    '''
+    #If save of coordinates of the displayed transect for distance estimate in QGIS for manuscript is desired
+    d_temp={'lon_3413':lon3413_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
+            'lat_3413':lat3413_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
+            'distances_with_start_transect':distances_with_start_transect[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)],
+            'year':[year]*len(lon3413_plot[np.logical_and(distances_with_start_transect>=start_display,distances_with_start_transect<=end_display)])}
+    df_to_save=pd.DataFrame(data=d_temp)
+    
+    if (year == 2012):
+        filename_to_save='20120423_01_137_138'
+    elif (year == 2013):
+        filename_to_save='20130409_01_010_012'
+    elif (year == 2014):
+        filename_to_save='20140416_05_035_037'
+    elif (year == 2017):
+        filename_to_save='20170502_01_171_173'
+    elif (year == 2018):
+        filename_to_save='20180421_01_004_007'
+    else:
+        print('Problem!!')
+        pdb.set_trace() 
+    #Save df
+    df_to_save.to_csv('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v11/coordinates_'+filename_to_save+'.csv')
+    '''
 
 def plot_thickness(dictionnary_case_study,dataframe,df_2010_2018_elevation,GrIS_DEM,axt,my_pal):
     #This function is adapted from plot_thickness_evolution from fig_2_paper_iceslabs.py
@@ -1405,9 +1445,9 @@ plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10
 ###############################################################################
 ############## Fig. S6 showing radargrams and ice slabs product ###############
 ###############################################################################
-
+'''
 pdb.set_trace()
-
+'''
 ###############################################################################
 ###################### Fig. 4 showing ice slabs product #######################
 ###############################################################################
@@ -1504,15 +1544,15 @@ gl.xlabels_top = False
 
 ax_map_region.axis('off')
 #Display yeas on region map
-ax_map_region.text(KAN_U_coord[0][0]+16600,KAN_U_coord[1][0]-1050,'2012',color=my_pal[2012],rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+18250,KAN_U_coord[1][0]-900,',',color='black',rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+18600,KAN_U_coord[1][0]-900,'2013',color=my_pal[2013],rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+20200,KAN_U_coord[1][0]-740,',',color='black',rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+20550,KAN_U_coord[1][0]-700,'2018',color=my_pal[2018],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+16600-3650,KAN_U_coord[1][0]-1050-800,'2012',color=my_pal[2012],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+18250-3650,KAN_U_coord[1][0]-900-800,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+18600-3650,KAN_U_coord[1][0]-900-800,'2013',color=my_pal[2013],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20200-3650,KAN_U_coord[1][0]-740-800,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20550-3650,KAN_U_coord[1][0]-700-800,'2018',color=my_pal[2018],rotation=5,weight='bold')
 
-ax_map_region.text(KAN_U_coord[0][0]+18750,KAN_U_coord[1][0]-2600,'2014',color=my_pal[2014],rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+20400,KAN_U_coord[1][0]-2430,',',color='black',rotation=5,weight='bold')
-ax_map_region.text(KAN_U_coord[0][0]+20750,KAN_U_coord[1][0]-2430,'2017',color=my_pal[2017],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+18750-5000,KAN_U_coord[1][0]-2600-900,'2014',color=my_pal[2014],rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20400-5000,KAN_U_coord[1][0]-2430-900,',',color='black',rotation=5,weight='bold')
+ax_map_region.text(KAN_U_coord[0][0]+20750-5000,KAN_U_coord[1][0]-2430-900,'2017',color=my_pal[2017],rotation=5,weight='bold')
 
 #Draw plot of GrIS map
 ax_map_GrIS.coastlines(edgecolor='black',linewidth=0.075)
@@ -1557,11 +1597,78 @@ plt.show()
 
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/fig4.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v11/fig4.png',dpi=300,bbox_inches='tight')
 '''
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 ###############################################################################
 ###################### Fig. 4 showing ice slabs product #######################
+###############################################################################
+
+pdb.set_trace()
+
+###############################################################################
+##################### Fig. illustration vertical burrial ######################
+###############################################################################
+
+'''
+#If this is desire, add on line 36 the following:
+    if (year == 2012):
+        Y=np.arange(dataframe[str(2012)]['depth'][0],20+dataframe[str(2012)]['depth'][0],20/dataframe[str(2012)]['probabilistic'].shape[0])
+    else:
+        Y=np.arange(0,20,20/dataframe[str(year)]['probabilistic'].shape[0])
+and on line 82:
+    if (year == 2012):
+        distances_with_start_transect=distances_with_start_transect-312
+and on line 146:
+        #For correct area display
+        if (year == 2012):
+            distances_with_start_transect=distances_with_start_transect+312
+'''
+#Prepare plot
+plt.rcParams["figure.figsize"] = (22,3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+fig = plt.figure()
+gs = gridspec.GridSpec(3, 14)
+ax1 = plt.subplot(gs[0:3, 0:14])
+
+offset_y=0#specify here the vertical burrial rate
+
+#Artificially lower 2012
+dataframe['2012']['depth']=dataframe['2012']['depth']+offset_y
+#Artificially offset 2012 by 312 m is within display_iceslabs_product
+
+#Display ice slabs products
+display_iceslabs_product(dataframe,2012,ax1,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
+display_iceslabs_product(dataframe,2018,ax1,matplotlib.colors.ListedColormap([my_pal[2018]]),1,2012)
+ax1.set_ylabel('Depth [m]',fontsize=15)
+
+#######################################################################
+#If artificially offsetting vertical and lateral rate, uncomment this
+#Add vertical and horizontal arrows to indicate lateral movement of the ice and burrial rate
+#Lateral ice motion at KAN_U from Sept 2008 to Sept 2013 = 52.26 +/- 0.01m/year (Doyle et al., 2014)
+ax1.arrow(27500,5,-52*6,0,color='black',head_width=1,head_length=100,length_includes_head=True)
+ax1.text(25050,5.75,'312 m (52 $m\cdot y^{-1}$)')
+
+#Burrial rate from Spring 2013 to Spring 2017 = ~1.7 (roughly measured with ruler on the Fig. S2a in Rennermalm et al., (2021)).
+#This value is probably a bit overestimated because of rounding. However should be okay because we do not capture 2018
+ax1.arrow(27500,5,0,offset_y,color='black',head_width=100,head_length=1,length_includes_head=True)
+ax1.text(27200,9.5,'~'+str(offset_y))
+
+#######################################################################
+
+#Add x tick labels
+ax1.xaxis.tick_bottom()
+ax1.set_xticklabels((ax1.get_xticks()/1000)-10,fontsize=15)
+ax1.set_xlabel('Distance [km]',fontsize=15)
+ax1.set_yticklabels(ax1.get_yticks(),fontsize=15)
+plt.show()
+
+'''
+#Save figure
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v11/lateral_vertical_mvmt/fig_lateralmvmt_burrial_illustration_'+str(offset_y)+'m.png',dpi=300,bbox_inches='tight')
+'''
+#bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
+###############################################################################
+##################### Fig. illustration vertical burrial ######################
 ###############################################################################
 
 pdb.set_trace()
@@ -1593,7 +1700,7 @@ ax10m_second = ax10m.twinx()
 ax10m_second.bar(np.arange(0,13)-0.5,columnal_sum_studied_case[:,1],width=0.15,color='indianred')
 ax10m_second.yaxis.set_label_position("right")
 ax10m_second.yaxis.tick_right()
-ax10m_second.set_ylabel('Total ice content [$m^2$]')
+ax10m_second.set_ylabel('Total ice [$m^2$]')
 ax10m_second.set_xlim(0,8.6)
 
 ax10m.set_ylabel('PDH sum [°C$\cdot$h]')
@@ -1610,7 +1717,7 @@ ax10m_second.grid(False)
 ax10m.spines['left'].set_color('black') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
 ax10m_second.spines['right'].set_color('indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
 ax10m_second.tick_params(axis='y', colors='indianred') #from https://stackoverflow.com/questions/1982770/matplotlib-changing-the-color-of-an-axis
-ax10m_second.set_ylabel('Total ice content [$m^2$]',color='indianred')
+ax10m_second.set_ylabel('Total ice [$m^2$]',color='indianred')
 pdb.set_trace()
 '''
 ax10m.legend_.remove()
@@ -1620,9 +1727,16 @@ pdb.set_trace()
 
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v10/figS7.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v11/figS7.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
 '''
+
+#Statistics melting
+yearly_PDH=df_KAN_U_csv.groupby(by=["Year"]).sum().copy()
+yearly_PDH=yearly_PDH[yearly_PDH.index<=2017].copy()
+yearly_PDH.boxplot(column=['PDH_temperature'])
+yearly_PDH['PDH_temperature'].describe()
+yearly_PDH['PDH_temperature']
 ###############################################################################
 ############### Supp Fig. 6 PDH and total columnal ice content ################
 ###############################################################################

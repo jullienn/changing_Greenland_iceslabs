@@ -992,13 +992,13 @@ gs = gridspec.GridSpec(8, 200)
 gs.update(hspace=0.5)
 gs.update(wspace=0)
 
-ax1 = plt.subplot(gs[0:3, 5:55],projection=crs)
+ax1 = plt.subplot(gs[5:8, 5:55],projection=crs)
 ax2 = plt.subplot(gs[0:2, 65:195])
 ax3 = plt.subplot(gs[2:4, 65:195])
 ax4 = plt.subplot(gs[4:6, 65:195])
 ax5 = plt.subplot(gs[6:8, 65:195])
 axc = plt.subplot(gs[0:8, 197:200])
-ax_InsetMap = plt.subplot(gs[3:8, 5:55],projection=crs)
+ax_InsetMap = plt.subplot(gs[0:5, 5:55],projection=crs)
 
 #Load DEM clipped over the SW
 GrIS_DEM_display_SW = rxr.open_rasterio(path_DEM+'SW_zoom/greenland_dem_mosaic_100m_v3.0_SW.tif',
@@ -1112,6 +1112,7 @@ gl=ax1.gridlines(draw_labels=True, xlocs=[-44, -48], ylocs=[67, 69], x_inline=Fa
 #Customize lat and lon labels
 gl.ylabels_right = False
 gl.xlabels_bottom = False
+#gl.xlabels_top = False
 
 #Custom legend myself,  line2D from https://stackoverflow.com/questions/39500265/how-to-manually-create-a-legend, marker from https://stackoverflow.com/questions/47391702/how-to-make-a-colored-markers-legend-from-scratch
 legend_elements = [Line2D([0], [0], label='Ice sheet regional divide', color='black', linewidth=0.5),
@@ -1128,7 +1129,7 @@ axc.legend_.remove()
 '''
 
 #Display the map panel label
-ax1.text(0.025, 1.1,'a', ha='center', va='center', transform=ax1.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax1.text(0.025, 1.1,'b', ha='center', va='center', transform=ax1.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 scale_bar(ax1, (0.76, 0.31), 50, 3,0)# axis, location (x,y), length, linewidth, rotation of text
 #by measuring on the screen, the difference in precision between scalebar and length of transects is about ~200m
@@ -1167,14 +1168,18 @@ ax_InsetMap.axis('off')
 #Display scalebar
 scale_bar(ax_InsetMap, (0.745, 0.125), 200, 3,5)# axis, location (x,y), length, linewidth, rotation of text
 
+'''
+ax_InsetMap.gridlines(draw_labels=True, xlocs=[-50], ylocs=[], x_inline=False, y_inline=False, linewidth=0.5,linestyle='dashed')
+'''
+
 #Display lat/lon lines in map
 gl=ax_InsetMap.gridlines(draw_labels=True, xlocs=[-35, -50], ylocs=[65, 75], x_inline=False, y_inline=False,linewidth=0.5,linestyle='dashed')
 #Customize lat and lon labels
-gl.ylabels_right = False
-gl.xlabels_top = False
+gl.right_labels = False
+gl.bottom_labels = False
 
 #Display the GrIS map panel label
-ax_InsetMap.text(0.05, 0.9,'b', ha='center', va='center', transform=ax_InsetMap.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax_InsetMap.text(0.05, 0.9,'a', ha='center', va='center', transform=ax_InsetMap.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
 plt.show()
 pdb.set_trace()
@@ -1182,9 +1187,10 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v7/Fig_S1.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v7/Fig_S1_flipped.png'
 plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
+pdb.set_trace()
 
 ######################## Save 2002-2003 radargram data ########################
 

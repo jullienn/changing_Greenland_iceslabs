@@ -276,10 +276,10 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     #Set fontsize of y ticks labels to 20 - This is for summary statistics plot
     axt.set_yticks([0,5,10,15])
     axt.set_yticklabels(['0','5','10','15'],fontsize=20)
-    
+        
     #4. Display elevation
     #Set xlims
-    axt.set_xlim(0,70000)
+    axt.set_xlim(0,60000)
     #Set xticks, this is from https://stackoverflow.com/questions/12608788/changing-the-tick-frequency-on-x-or-y-axis-in-matplotlib
     #start, end = axt.get_xlim()
     if (casestudy_nb=='a'):
@@ -380,7 +380,24 @@ def plot_thickness_evolution(dictionnary_case_study,df_2010_2018_csv,df_2010_201
     
     plt.show()
     print('End plotting fig 2')
-        
+    
+    '''
+    #For longitude extraction of sector limits to display in Fig. S10.
+    #limits of ice slabs development sectors
+    end_well_developed=22.5
+    end_in_development=32.6
+
+    print('Start well developed')
+    print(df_for_elev_sorted.iloc[np.argmin(np.abs(df_for_elev_sorted['distances']-0))]['lon'])
+    print('End well developed')
+    print(df_for_elev_sorted.iloc[np.argmin(np.abs(df_for_elev_sorted['distances']-end_well_developed*1000))]['lon'])
+    print('End in development')
+    print(df_for_elev_sorted.iloc[np.argmin(np.abs(df_for_elev_sorted['distances']-end_in_development*1000))]['lon'])
+    print('End in initiation')
+    print(df_for_elev_sorted.iloc[np.argmin(np.abs(df_for_elev_sorted['distances']-df_for_elev_sorted['distances'].max()))]['lon'])
+    pdb.set_trace()
+    '''
+    
     if (calculate_summary_statistics=='TRUE'):
         #Calculate summary statistics
         if (casestudy_nb=='a'):
@@ -418,18 +435,19 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ax_display_limits.axvline(x=end_transect,color='black',zorder=10)
     
     #Shade sections
-    ax_display_limits.axvspan(0, end_well_developped*1000, facecolor='#e7298a', alpha=0.3)
-    ax_display_limits.axvspan(end_well_developped*1000, end_thickening*1000, facecolor='green', alpha=0.3)
-    ax_display_limits.axvspan(end_thickening*1000, end_transect, facecolor='blue', alpha=0.3)
+    ax_display_limits.axvspan(0, end_well_developped*1000, facecolor='#000000', alpha=0.5)
+    ax_display_limits.axvspan(end_well_developped*1000, end_thickening*1000, facecolor='#737373', alpha=0.5)
+    ax_display_limits.axvspan(end_thickening*1000, end_transect, facecolor='#d9d9d9', alpha=0.5)
     
     ax_display_limits.set_xlabel('Distance [km]',fontsize=22)
     ax_display_limits.set_ylabel('Ice thickness [m]',fontsize=22)
     ax_display_limits.text(0.5,1.7,'Elevation [m]', ha='center', va='center', transform=ax_display_limits.transAxes,color='#8c510a',fontsize=22)
     
     ax_display_limits.text(0.012,0.75,'a',ha='center', va='center', transform=ax_display_limits.transAxes,fontsize=30,weight='bold')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    '''
     #Add number of case study on fig localisation    
     ax_display_limits.text(0.80, 0.75,'Transect '+casestudy_nb_for_change, ha='center', va='center', transform=ax_display_limits.transAxes,fontsize=20)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-        
+    '''
     #Display legend on
     legend_elements = [Patch(facecolor=pal_summary_stat[2010],label='2010'),
                        Patch(facecolor=pal_summary_stat[2011],label='2011-2012'),
@@ -553,11 +571,11 @@ def summary_statistics_calculations(df_casestudy,end_well_developped,end_thicken
     ax1_box.set_xticklabels([indiv_years[1],indiv_years[0]])
     ax2_box.set_xticklabels([indiv_years[1],indiv_years[0]])
     ax3_box.set_xticklabels([indiv_years[0]])
-
-    ax1_box.set_title('Well-developed',weight='bold',color='#f7bedb',pad=10)
-    ax2_box.set_title('In-development',weight='bold',color='#b2d8b2',pad=10)
-    ax3_box.set_title('In-initiation',weight='bold',color='#b2b2ff',pad=10)
-
+    
+    ax1_box.set_title('Well-developed',weight='bold',color='black',pad=10)
+    ax2_box.set_title('In-development',weight='bold',color='#000000',pad=10,alpha=0.5)
+    ax3_box.set_title('In-initiation',weight='bold',color='#737373',pad=10,alpha=0.5)
+    
     ax1_box.set_ylabel('Ice thickness [m]')
     ax2_box.set_ylabel('')
     ax3_box.set_ylabel('')
@@ -866,8 +884,8 @@ plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,a
 #plot_thickness_evolution(loc8,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='b')
 #plot_thickness_evolution(loc1,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-52,offset_x=10000,offset_y=1000,casestudy_nb='c')
 #plot_thickness_evolution(loc9,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='d')
-#plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
-plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
+plot_thickness_evolution(loc3,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='e')
+#plot_thickness_evolution(loc2,df_2010_2018_csv,df_2010_2018_elevation,GrIS_DEM,ax1,ax2t,custom_angle=-90,offset_x=10000,offset_y=-5000,casestudy_nb='f')
 
 ###################### From Tedstone et al., 2022 #####################
 #from plot_map_decadal_change.py

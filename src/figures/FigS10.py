@@ -241,7 +241,8 @@ from pyproj import Transformer
 
 #Define palette for time periods, this is from fig2_paper_icelsabs.py
 #This is from https://www.python-graph-gallery.com/33-control-colors-of-boxplot-seaborn
-my_pal = {'2010': "#fdd49e", '2011': "#fc8d59", '2012': "#fc8d59", '2013':"#d7301f",'2014':"#d7301f",'2017':"#7f0000",'2018':"#7f0000"}
+#my_pal = {'2010': "#fdd49e", '2011': "#fc8d59", '2012': "#fc8d59", '2013':"#d7301f",'2014':"#d7301f",'2017':"#7f0000",'2018':"#7f0000"}
+my_pal = {'2010': "#9ecae1", '2011': "#6baed6", '2012': "#6baed6", '2013':"#3182bd", '2014':"#3182bd", '2017':"#d73027", '2018':"#d73027"}
 
 ### -------------------------- Load shapefiles --------------------------- ###
 #Load Rignot et al., 2016 Greenland drainage bassins
@@ -344,45 +345,51 @@ gs.update(wspace=0.5)
 
 
 if (investigation_year==panel_a):
-    ax2 = plt.subplot(gs[0:4, 0:100])
-    ax4 = plt.subplot(gs[4:8, 0:100])
-    ax6 = plt.subplot(gs[8:12, 0:100])
-    axc = plt.subplot(gs[0:12, 100:101])
+    ax_sector = plt.subplot(gs[0:1, 0:100])
+    ax2 = plt.subplot(gs[1:5, 0:100])
+    ax4 = plt.subplot(gs[5:9, 0:100])
+    ax6 = plt.subplot(gs[9:13, 0:100])
+    axc = plt.subplot(gs[1:13, 100:101])
 elif (investigation_year==panel_b):
-    ax1 = plt.subplot(gs[0:4, 0:100])
-    ax2 = plt.subplot(gs[4:8, 0:100])
-    ax3 = plt.subplot(gs[8:12, 0:100])
-    ax4 = plt.subplot(gs[12:16, 0:100])
-    ax5 = plt.subplot(gs[16:20, 0:100])
-    ax6 = plt.subplot(gs[20:24, 0:100])
-    axc = plt.subplot(gs[0:24, 100:101])
+    ax_sector = plt.subplot(gs[0:1, 0:100])
+    ax1 = plt.subplot(gs[1:5, 0:100])
+    ax2 = plt.subplot(gs[5:9, 0:100])
+    ax3 = plt.subplot(gs[9:13, 0:100])
+    ax4 = plt.subplot(gs[13:17, 0:100])
+    ax5 = plt.subplot(gs[17:21, 0:100])
+    ax6 = plt.subplot(gs[21:25, 0:100])
+    axc = plt.subplot(gs[1:25, 100:101])
 elif (investigation_year==panel_c):
-    ax1 = plt.subplot(gs[0:4, 0:100])
-    ax2 = plt.subplot(gs[4:8, 0:100])
-    ax5 = plt.subplot(gs[8:12, 0:100])
-    ax6 = plt.subplot(gs[12:16, 0:100])
-    axc = plt.subplot(gs[0:16, 100:101])
+    ax_sector = plt.subplot(gs[0:1, 0:100])
+    ax1 = plt.subplot(gs[1:5, 0:100])
+    ax2 = plt.subplot(gs[5:9, 0:100])
+    ax5 = plt.subplot(gs[9:13, 0:100])
+    ax6 = plt.subplot(gs[13:17, 0:100])
+    axc = plt.subplot(gs[1:17, 100:101])
 elif (investigation_year==panel_d):
-    ax1 = plt.subplot(gs[0:4, 0:100])
-    ax2 = plt.subplot(gs[4:8, 0:100])
-    ax3 = plt.subplot(gs[8:12, 0:100])
-    ax4 = plt.subplot(gs[12:16, 0:100])
-    ax5 = plt.subplot(gs[16:20, 0:100])
-    ax6 = plt.subplot(gs[20:24, 0:100])
-    ax7 = plt.subplot(gs[24:28, 0:100])
-    axc = plt.subplot(gs[0:28, 100:101])
+    ax_sector = plt.subplot(gs[0:1, 0:100])
+    ax1 = plt.subplot(gs[1:5, 0:100])
+    ax2 = plt.subplot(gs[5:9, 0:100])
+    ax3 = plt.subplot(gs[9:13, 0:100])
+    ax4 = plt.subplot(gs[13:17, 0:100])
+    ax5 = plt.subplot(gs[17:21, 0:100])
+    ax6 = plt.subplot(gs[21:25, 0:100])
+    ax7 = plt.subplot(gs[25:29, 0:100])
+    axc = plt.subplot(gs[1:29, 100:101])
 elif (investigation_year==panel_e):
-    ax3 = plt.subplot(gs[0:4, 0:100])
-    ax4 = plt.subplot(gs[4:8, 0:100])
-    ax7 = plt.subplot(gs[8:12, 0:100])
-    axc = plt.subplot(gs[0:12, 100:101])
+    ax_sector = plt.subplot(gs[0:1, 0:100])
+    ax3 = plt.subplot(gs[1:5, 0:100])
+    ax4 = plt.subplot(gs[5:9, 0:100])
+    ax7 = plt.subplot(gs[9:13, 0:100])
+    axc = plt.subplot(gs[1:13, 100:101])
 elif (investigation_year==panel_f):
-    ax1 = plt.subplot(gs[0:4, 0:100])
-    ax2 = plt.subplot(gs[4:8, 0:100])
-    ax3 = plt.subplot(gs[8:12, 0:100])
-    ax5 = plt.subplot(gs[12:16, 0:100])
-    ax6 = plt.subplot(gs[16:20, 0:100])
-    axc = plt.subplot(gs[0:20, 100:101])
+    ax_sector = plt.subplot(gs[0:1, 0:100])
+    ax1 = plt.subplot(gs[1:5, 0:100])
+    ax2 = plt.subplot(gs[5:9, 0:100])
+    ax3 = plt.subplot(gs[9:13, 0:100])
+    ax5 = plt.subplot(gs[13:17, 0:100])
+    ax6 = plt.subplot(gs[17:21, 0:100])
+    axc = plt.subplot(gs[1:21, 100:101])
 else:
     print('Wrong transect name input')
 
@@ -529,31 +536,67 @@ for single_year in investigation_year.keys():
         end_transect=-63.88337773831948
         vmin_plot=-4.5
         vmax_plot=4.5
+        #limits of ice slabs development sectors
+        start_well_developed=-64.67344699111679
+        end_well_developed=-64.5116804275458
+        end_in_development=-64.07045269370637
+        end_in_initiation=-64.07045269370637
+        
     elif (investigation_year==panel_b):
         start_transect=-66.8557
         end_transect=-65.48369681346244
         vmin_plot=-4.5
         vmax_plot=4.5
+        #limits of ice slabs development sectors
+        start_well_developed=-66.57146840643074
+        end_well_developed=-66.57146840643074
+        end_in_development=-66.00486187318322
+        end_in_initiation=-65.17987346178424
+        
     elif (investigation_year==panel_c):
         start_transect=-47.566978989211904
         end_transect=-46.088871815847654
         vmin_plot=-4.5
         vmax_plot=4.5
+        #limits of ice slabs development sectors
+        start_well_developed=-47.85901106902736
+        end_well_developed=-47.16406520774126
+        end_in_development=-47.11308507589178
+        end_in_initiation=-46.632074831791776
+        
     elif (investigation_year==panel_d):
         start_transect=-47.70785561652585
         end_transect=-46.41555609606877
         vmin_plot=-4.5
         vmax_plot=4.5
+        #limits of ice slabs development sectors
+        start_well_developed=-47.82252402970681
+        end_well_developed=-47.33395800638842
+        end_in_development=-46.94903911890173
+        end_in_initiation=-46.75989755131823
+        
     elif (investigation_year==panel_e):
         start_transect=-47.42328169558814
         end_transect=-46.56546212605787    
         vmin_plot=-4.5
         vmax_plot=4.5
+        #limits of ice slabs development sectors
+        start_well_developed=-47.42328169558814
+        end_well_developed=-47.11742506657421
+        end_in_development=-47.00359606697867
+        end_in_initiation= -46.87457243557124 #end ice slabs in 2013: -46.63497339965015
+        
     elif (investigation_year==panel_f):
         start_transect=-48.21060856534727
         end_transect=-46.88764316176339
         vmin_plot=-4.5
         vmax_plot=4.5
+        #limits of ice slabs development sectors
+        start_well_developed=-48.21058671285614
+        end_well_developed=-47.72093027678061
+        end_in_development=-47.50105332110282
+        end_in_initiation=-47.12849888596365
+        
     else:
         print('Wrong transect name input')
 
@@ -602,7 +645,7 @@ for single_year in investigation_year.keys():
     #Set yticklabels
     ax_plot.set_yticks([0,10,20])
     ax_plot.set_yticklabels(['0','10',''],fontsize=25)
-    
+        
     #Set transect limits
     ax_plot.set_xlim(start_transect,end_transect)
     
@@ -611,6 +654,31 @@ for single_year in investigation_year.keys():
     
     #Display year
     ax_plot.text(0.97, 0.775,str(single_year),ha='center', va='center', transform=ax_plot.transAxes,weight='bold',fontsize=25,color=my_pal[str(single_year)])#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+    
+    ''' Old way of stages of ice slabs development sector display
+    #Display vertical lines showing the limits of the ice slabs development sectors
+    #Start of well developed sector
+    if (investigation_year==panel_a):
+        ax_plot.axvline(x=start_well_developed,color='green',linestyle='--',linewidth=2) 
+    else:
+        ax_plot.axvline(x=start_transect+0.002,color='green',linestyle='--',linewidth=2) 
+    
+    if (investigation_year==panel_b):
+        ax_plot.axvline(x=end_transect-0.002,color='red',linestyle='--',linewidth=2)
+    else:
+        ax_plot.axvline(x=end_in_initiation,color='red',linestyle='--',linewidth=2)
+    '''
+    if (investigation_year==panel_e):
+        #Display start and end of Fig. 4
+        ax_plot.axvline(x=-47.196803171288636,color='green',linewidth=2)
+        ax_plot.axvline(x=-46.74361490492269,color='green',linewidth=2)
+
+    #End of well developed sector
+    ax_plot.axvline(x=end_well_developed,color='white',linestyle='--',linewidth=2)    
+    #End of in development sector
+    
+    ax_plot.axvline(x=end_in_development,color='white',linestyle='--',linewidth=2)
+    #End of in initiation sector
     
 if (investigation_year==panel_a):
     ax4.set_ylabel('Depth [m]',fontsize=25)
@@ -685,7 +753,16 @@ ax_tick_plot.xaxis.set_ticks_position('bottom')
 ax_tick_plot.set_xticklabels(np.round(plot_dist).astype(int),fontsize=25)
 ax_tick_plot.set_xlabel('Distance [km]',fontsize=25)
 
-ax_top.set_title('Panel f',fontsize=25)
+#Display stages of ice slabs development sectors
+ax_sector.axvspan(start_well_developed, end_well_developed, facecolor='#000000')
+ax_sector.axvspan(end_well_developed, end_in_development, facecolor='#7f7f7f')
+ax_sector.axvspan(end_in_development, end_in_initiation, facecolor='#b8b8b8')
+ax_sector.set_xlim(start_transect,end_transect)
+ax_sector.set_ylim(0.97,1.05)
+ax_sector.axis('off')
+
+
+ax_top.set_title('Transect F',fontsize=25,pad=30)
 
 figManager = plt.get_current_fig_manager()
 figManager.window.showMaximized()
@@ -694,11 +771,8 @@ plt.show()
 
 pdb.set_trace()
 
+#Estimate distance from start of transect fron any longitude: dataframe[str(2018)]['distances'][np.argmin(np.abs(dataframe[str(2018)]['lon_appended']+np.abs(lon_of_interest)))]-dataframe[str(2018)]['distances'][np.argmin(np.abs(dataframe[str(2018)]['lon_appended']-start_transect))]
+
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v4/figS7_panelf.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S7/v6/figS7_panelf.png',dpi=300,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
-
-
-
-    
-    

@@ -883,21 +883,27 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
             #Display where transects discussed in text, Fig. 3 and Fig. S10 are located on the ice sheet            
             axmap.arrow(transect_a.lon_3413.min()-150000, transect_a.loc[np.where(transect_a.lon_3413==transect_a.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_a.lon_3413,transect_a.lat_3413,color='red')
+            axmap.text(transect_b.lon_3413.min(), transect_b.loc[np.where(transect_b.lon_3413==transect_b.lon_3413.min())].lat_3413.to_numpy()[0]-375000,'a',color='black',fontsize=20)
 
             axmap.arrow(transect_b.lon_3413.min()-150000, transect_b.loc[np.where(transect_b.lon_3413==transect_b.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_b.lon_3413,transect_b.lat_3413,color='red')
+            axmap.text(transect_b.lon_3413.min(), transect_b.loc[np.where(transect_b.lon_3413==transect_b.lon_3413.min())].lat_3413.to_numpy()[0]-175000,'b',color='black',fontsize=20)
 
             axmap.arrow(transect_c.lon_3413.min()-165000, transect_c.loc[np.where(transect_c.lon_3413==transect_c.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_c.lon_3413,transect_c.lat_3413,color='red')
+            axmap.text(transect_c.lon_3413.min()-200000, transect_c.loc[np.where(transect_c.lon_3413==transect_c.lon_3413.min())].lat_3413.to_numpy()[0]+20000,'c',color='black',fontsize=20)
 
             axmap.arrow(transect_d.lon_3413.min()-180000, transect_d.loc[np.where(transect_d.lon_3413==transect_d.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_d.lon_3413,transect_d.lat_3413,color='red')
+            axmap.text(transect_d.lon_3413.min()-260000, transect_d.loc[np.where(transect_d.lon_3413==transect_d.lon_3413.min())].lat_3413.to_numpy()[0]-30000,'d',color='black',fontsize=20)
 
             axmap.arrow(transect_e.lon_3413.min()-210000, transect_e.loc[np.where(transect_e.lon_3413==transect_e.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_e.lon_3413,transect_e.lat_3413,color='red')
+            axmap.text(transect_e.lon_3413.min()-300000, transect_e.loc[np.where(transect_e.lon_3413==transect_e.lon_3413.min())].lat_3413.to_numpy()[0]-30000,'e',color='black',fontsize=20)
 
             axmap.arrow(transect_f.lon_3413.min()-170000, transect_f.loc[np.where(transect_f.lon_3413==transect_f.lon_3413.min())].lat_3413.to_numpy()[0],100000, 0,head_width=30000,color='black')
             #axmap.scatter(transect_f.lon_3413,transect_f.lat_3413,color='red')
+            axmap.text(transect_f.lon_3413.min()-270000, transect_f.loc[np.where(transect_f.lon_3413==transect_f.lon_3413.min())].lat_3413.to_numpy()[0]-30000,'f',color='black',fontsize=20)
 
     '''
     ### --- Check removal of several polygon for area change calculation is correct
@@ -1312,6 +1318,8 @@ flightlines_20102018['lat_3413']=points[1]
 #Aggregate 2002-2003 with 2010-2018
 flightlines_20022018=flightlines_20022003
 flightlines_20022018=flightlines_20022018.append(flightlines_20102018)
+
+pdb.set_trace()
 
 ###############################################################################
 ###                  Aggregate data for pannel b display                    ###

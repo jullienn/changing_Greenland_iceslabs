@@ -222,12 +222,16 @@ ax5 = plt.subplot(gs[20:24, 0:100])
 axc5 = plt.subplot(gs[20:24, 100:101])
 ax6 = plt.subplot(gs[24:28, 0:100])
 axc6 = plt.subplot(gs[24:28, 100:101])
+ax8 = plt.subplot(gs[28:32, 0:100])
+ax9 = plt.subplot(gs[32:36, 0:100])
+ax10 = plt.subplot(gs[36:40, 0:100])
+'''
 ax7 = plt.subplot(gs[28:32, 0:100])
 axc7 = plt.subplot(gs[28:32, 100:101])
 ax8 = plt.subplot(gs[32:36, 0:100])
 ax9 = plt.subplot(gs[36:40, 0:100])
 ax10 = plt.subplot(gs[40:44, 0:100])
-
+'''
 gs.update(wspace=0.5)
 gs.update(hspace=1)
 
@@ -289,6 +293,7 @@ ax5.set_xticklabels([])
 ax5.set_yticks(np.arange(0,21,5))
 ax5.set_yticklabels(['0','5','10','15',''])
 ax5.text(0.01, 0.75,'e',ha='center', va='center', transform=ax5.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax5.set_ylabel('Depth [m]')
 
 #ax6 is after depth correction
 cax6=ax6.pcolor(distances_with_start_transect, depths[ind_lower_20m], depth_corrected_20m,cmap=plt.get_cmap('gray'),zorder=-2)#,norm=divnorm)
@@ -299,13 +304,13 @@ ax6.set_xticklabels([])
 ax6.set_yticks(np.arange(0,21,5))
 ax6.set_yticklabels(['0','5','10','15',''])
 ax6.text(0.01, 0.75,'f',ha='center', va='center', transform=ax6.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-ax6.set_ylabel('Depth [m]')
 
 #Where 0 => NaN so that white in the display
 likelihood_file_semibool=np.zeros((likelihood_file.shape[0],likelihood_file.shape[1]))
 likelihood_file_semibool[:]=np.nan
 likelihood_file_semibool[likelihood_file>0]=likelihood_file[likelihood_file>0]
 
+'''
 #ax7 is after ice layer likelihood computation
 cax7=ax7.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood_file_semibool,cmap=plt.get_cmap('Blues'),zorder=-2)#,norm=divnorm)
 ax7.invert_yaxis() #Invert the y axis = avoid using flipud.    
@@ -315,7 +320,7 @@ ax7.set_xticklabels([])
 ax7.set_yticks(np.arange(0,21,5))
 ax7.set_yticklabels(['0','5','10','15',''])
 ax7.text(0.01, 0.75,'g',ha='center', va='center', transform=ax7.transAxes,fontsize=15,zorder=10,weight='bold',color='white')#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-
+'''
 ################################ MODIFIED LOW END #############################
 #Where not 1 => NaN so that white in the display
 likelihood_file_semibool_lowend=np.zeros((likelihood_file_semibool.shape[0],likelihood_file_semibool.shape[1]))
@@ -327,7 +332,7 @@ cax8=ax8.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood
 ax8.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax8.set_ylim(20,0)
 #ax8.setp(ax8.get_xticklabels(), visible=False)
-ax8.text(0.01, 0.75,'h',ha='center', va='center', transform=ax8.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax8.text(0.01, 0.75,'g',ha='center', va='center', transform=ax8.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 ax8.set_xticklabels([])
 ax8.set_yticks(np.arange(0,21,5))
 ax8.set_yticklabels(['0','5','10','15',''])
@@ -344,7 +349,7 @@ cax9=ax9.pcolor(distances_with_start_transect, depths[ind_lower_20m], likelihood
 ax9.invert_yaxis() #Invert the y axis = avoid using flipud.    
 ax9.set_ylim(20,0)
 #ax9.setp(ax8.get_xticklabels(), visible=False)
-ax9.text(0.01, 0.75,'i',ha='center', va='center', transform=ax9.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax9.text(0.01, 0.75,'h',ha='center', va='center', transform=ax9.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 ax9.set_xticklabels([])
 ax9.set_yticks(np.arange(0,21,5))
 ax9.set_yticklabels(['0','5','10','15',''])
@@ -362,7 +367,7 @@ ax10.invert_yaxis() #Invert the y axis = avoid using flipud.
 ax10.set_ylim(20,0)
 ax10.set_yticks(np.arange(0,21,5))
 #ax9.setp(ax8.get_xticklabels(), visible=False)
-ax10.text(0.01, 0.75,'j',ha='center', va='center', transform=ax10.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
+ax10.text(0.01, 0.75,'i',ha='center', va='center', transform=ax10.transAxes,fontsize=15,zorder=10,weight='bold',color='white',bbox=dict(facecolor='#252525', edgecolor='#252525'))#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 #box around label from https://stackoverflow.com/questions/17086847/box-around-text-in-matplotlib
 #Set distance
 low_xlim=ax10.get_xlim()[0]
@@ -381,8 +386,9 @@ cax1.set_clim(cax4.get_clim()[0],cax4.get_clim()[1])
 cax2.set_clim(cax4.get_clim()[0],cax4.get_clim()[1])
 cax3.set_clim(cax4.get_clim()[0],cax4.get_clim()[1])
 cax4.set_clim(cax4.get_clim()[0],cax4.get_clim()[1])
+'''
 cax7.set_clim(cax7.get_clim()[0],cax7.get_clim()[1])
-
+'''
 #Display colorbars, from https://stackoverflow.com/questions/13784201/how-to-have-one-colorbar-for-all-subplots
 cbar1_4=fig.colorbar(cax4, cax=axc1_4)
 cbar1_4.set_label('Signal strengh [dB]                                ',labelpad=20)
@@ -392,10 +398,10 @@ cbar5=fig.colorbar(cax5, cax=axc5)
 
 cbar6=fig.colorbar(cax6, cax=axc6)
 #cbar6.set_label('Signal strengh [dB]')
-
+'''
 cbar7=fig.colorbar(cax7, cax=axc7)
 cbar7.set_label('Ice likelihood [ ]',labelpad=30)#labeldpad from https://stackoverflow.com/questions/67859935/how-to-set-distance-between-colorbar-and-its-label
-
+'''
 #Get rid of legend
 ax10.legend_.remove()
 
@@ -404,5 +410,5 @@ plt.show()
 pdb.set_trace()
 
 #Save the figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S3/v3/figS3.png',dpi=500,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S3/v4/figS3.png',dpi=500,bbox_inches='tight')
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen)
