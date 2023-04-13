@@ -130,7 +130,7 @@ def display_iceslabs_product(dataframe,year,ax_plotting,cmap_year,zorder_indiv,y
         #-47.07 = 15.6 km
         #-47.0487 = 16.7 km
         #-47.023 = 17.7 km
-                
+         
         ax_plotting.axvspan(distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.11)))],
                             distances_with_start_transect[np.nanargmin(np.abs(np.abs(lon_plot)-np.abs(-47.07)))],
                             facecolor='#969696',zorder=1,alpha=0.5)
@@ -1464,6 +1464,7 @@ ax3 = plt.subplot(gs[8:11, 0:14])
 ax5 = plt.subplot(gs[11:14, 0:14])
 ax_map_region = plt.subplot(gs[0:4, 0:12],projection=crs)
 ax_map_GrIS = plt.subplot(gs[0:4, 12:14],projection=crs_3413)
+ax_sector = plt.subplot(gs[4:5, 0:14],projection=crs)
 
 #Reset depths to 0
 for year in np.asarray([2012,2013,2014,2017,2018]):
@@ -1581,8 +1582,8 @@ ax5.text(25050,5.75,'312 m (52 $m\cdot y^{-1}$)')
 
 #Burrial rate from Spring 2013 to Spring 2017 = ~1.7 (roughly measured with ruler on the Fig. S2a in Rennermalm et al., (2021)).
 #This value is probably a bit overestimated because of rounding. However should be okay because we do not capture 2018
-ax5.arrow(27500,5,0,1.7,color='black',head_width=100,head_length=1,length_includes_head=True)
-ax5.text(27200,9.5,'~1.7 m')
+ax5.arrow(27500,5,0,3,color='black',head_width=100,head_length=1,length_includes_head=True)
+ax5.text(26250,9.5,'3 m (0.5 $m\cdot y^{-1}$)')
 
 #Add panel label
 ax_map_region.text(0.015, 0.85,'a',ha='center', va='center', transform=ax_map_region.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
@@ -1593,11 +1594,32 @@ ax3.text(0.01, 0.85,'c',ha='center', va='center', transform=ax3.transAxes,fontsi
 ax5.text(0.0105, 0.85,'   ',backgroundcolor='white',ha='center', va='center', transform=ax5.transAxes,fontsize=17,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of
 ax5.text(0.01, 0.85,'d',ha='center', va='center', transform=ax5.transAxes,fontsize=25,zorder=10)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
 
+
+#Display stages of ice slabs development sectors
+#Set xlim
+start_display_sector=10000
+end_display_sector=30000
+
+#♦Set limits
+start_well_developed=0
+end_well_developed=13500
+end_in_development=18524
+end_in_initiation=24217.2
+
+#Display
+ax_sector.axvspan(start_well_developed, end_well_developed, facecolor='#000000')
+ax_sector.axvspan(end_well_developed, end_in_development, facecolor='#7f7f7f')
+ax_sector.axvspan(end_in_development, end_in_initiation, facecolor='#b8b8b8')
+ax_sector.set_xlim(start_display_sector,end_display_sector)
+ax_sector.set_ylim(0,150)
+ax_sector.axis('off')
+
+
 plt.show()
 
 '''
 #Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v11/fig4.png',dpi=300,bbox_inches='tight')
+plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v12/fig4.png',dpi=300,bbox_inches='tight')
 '''
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 ###############################################################################
@@ -1619,53 +1641,61 @@ pdb.set_trace()
 and on line 82:
     if (year == 2012):
         distances_with_start_transect=distances_with_start_transect-312
-and on line 146:
+and on line 142:
         #For correct area display
         if (year == 2012):
             distances_with_start_transect=distances_with_start_transect+312
 '''
-#Prepare plot
-plt.rcParams["figure.figsize"] = (22,3)#from https://pythonguides.com/matplotlib-increase-plot-size/
-fig = plt.figure()
-gs = gridspec.GridSpec(3, 14)
-ax1 = plt.subplot(gs[0:3, 0:14])
-
 offset_y=0#specify here the vertical burrial rate
 
-#Artificially lower 2012
-dataframe['2012']['depth']=dataframe['2012']['depth']+offset_y
-#Artificially offset 2012 by 312 m is within display_iceslabs_product
+for offset_y_int in range(0,31,1):
+    print(offset_y_int)
+    
+    #Prepare plot
+    plt.rcParams["figure.figsize"] = (22,3)#from https://pythonguides.com/matplotlib-increase-plot-size/
+    fig = plt.figure()
+    gs = gridspec.GridSpec(3, 14)
+    ax1 = plt.subplot(gs[0:3, 0:14])
 
-#Display ice slabs products
-display_iceslabs_product(dataframe,2012,ax1,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
-display_iceslabs_product(dataframe,2018,ax1,matplotlib.colors.ListedColormap([my_pal[2018]]),1,2012)
-ax1.set_ylabel('Depth [m]',fontsize=15)
+    offset_y=offset_y_int/10#specify here the vertical burrial rate
 
-#######################################################################
-#If artificially offsetting vertical and lateral rate, uncomment this
-#Add vertical and horizontal arrows to indicate lateral movement of the ice and burrial rate
-#Lateral ice motion at KAN_U from Sept 2008 to Sept 2013 = 52.26 +/- 0.01m/year (Doyle et al., 2014)
-ax1.arrow(27500,5,-52*6,0,color='black',head_width=1,head_length=100,length_includes_head=True)
-ax1.text(25050,5.75,'312 m (52 $m\cdot y^{-1}$)')
-
-#Burrial rate from Spring 2013 to Spring 2017 = ~1.7 (roughly measured with ruler on the Fig. S2a in Rennermalm et al., (2021)).
-#This value is probably a bit overestimated because of rounding. However should be okay because we do not capture 2018
-ax1.arrow(27500,5,0,offset_y,color='black',head_width=100,head_length=1,length_includes_head=True)
-ax1.text(27200,9.5,'~'+str(offset_y))
-
-#######################################################################
-
-#Add x tick labels
-ax1.xaxis.tick_bottom()
-ax1.set_xticklabels((ax1.get_xticks()/1000)-10,fontsize=15)
-ax1.set_xlabel('Distance [km]',fontsize=15)
-ax1.set_yticklabels(ax1.get_yticks(),fontsize=15)
-plt.show()
-
-'''
-#Save figure
-plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v11/lateral_vertical_mvmt/fig_lateralmvmt_burrial_illustration_'+str(offset_y)+'m.png',dpi=300,bbox_inches='tight')
-'''
+    #Artificially lower 2012
+    dataframe['2012']['depth']=dataframe['2012']['depth']+offset_y
+    #Artificially offset 2012 by 312 m is within display_iceslabs_product
+    
+    #Display ice slabs products
+    display_iceslabs_product(dataframe,2012,ax1,matplotlib.colors.ListedColormap([my_pal[2012]]),2,'empty')
+    display_iceslabs_product(dataframe,2018,ax1,matplotlib.colors.ListedColormap([my_pal[2018]]),1,2012)
+    ax1.set_ylabel('Depth [m]',fontsize=15)
+    
+    #######################################################################
+    #If artificially offsetting vertical and lateral rate, uncomment this
+    #Add vertical and horizontal arrows to indicate lateral movement of the ice and burrial rate
+    #Lateral ice motion at KAN_U from Sept 2008 to Sept 2013 = 52.26 +/- 0.01m/year (Doyle et al., 2014)
+    ax1.arrow(27500,5,-52*6,0,color='black',head_width=1,head_length=100,length_includes_head=True)
+    ax1.text(25050,5.75,'312 m (52 $m\cdot y^{-1}$)')
+    
+    #Burrial rate from Spring 2013 to Spring 2017 = ~1.7 (roughly measured with ruler on the Fig. S2a in Rennermalm et al., (2021)).
+    #This value is probably a bit overestimated because of rounding. However should be okay because we do not capture 2018
+    ax1.arrow(27500,5,0,offset_y,color='black',head_width=100,head_length=1,length_includes_head=True)
+    ax1.text(27200,9.5,'~'+str(offset_y))
+    
+    #######################################################################
+    
+    #Add x tick labels
+    ax1.xaxis.tick_bottom()
+    ax1.set_xticklabels((ax1.get_xticks()/1000)-10,fontsize=15)
+    ax1.set_xlabel('Distance [km]',fontsize=15)
+    ax1.set_yticklabels(ax1.get_yticks(),fontsize=15)
+    plt.show()
+    
+    '''
+    #Save figure
+    plt.savefig('C:/Users/jullienn/switchdrive/Private/research/RT1/figures/fig3/v11/lateral_vertical_mvmt/estimate/fig_lateralmvmt_burrial_illustration_'+str(offset_y)+'m.png',dpi=300,bbox_inches='tight')
+    '''
+    #Reset 2012 depth
+    dataframe['2012']['depth']=dataframe['2012']['depth']-offset_y
+    
 #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 ###############################################################################
 ##################### Fig. illustration vertical burrial ######################
