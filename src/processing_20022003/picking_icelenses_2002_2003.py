@@ -439,7 +439,7 @@ def onclick(event):
     #This functions print and save the x and y coordinates in pixels!
     print(event.xdata, event.ydata)
     #Fill in the file to log on the information
-    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/20022003_icelens_identification/flog_icelenses_alldates.txt'
     f_log = open(filename_flog, "a")
     f_log.write(str(round(event.xdata,2))+','+str(round(event.ydata,2))+'\n')
     f_log.close() #Close the quality assessment file when we’re done!
@@ -453,7 +453,7 @@ lines = [line.strip() for line in f.readlines() if len(line.strip()) > 0]
 f.close()
 
 #Create the file to log on the information
-filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/20022003_icelens_identification/flog_icelenses_alldates.txt'
 f_log = open(filename_flog, "a")
 f_log.write('xcoord'+','+'ycoord'+'\n')
 f_log.close() #Close the quality assessment file when we’re done!
@@ -481,7 +481,7 @@ for folder_year in folder_years:
         #### 1. Before surface pick improvement from semi-automatic forcing
         #Read the surface picking quality assessment file
         header_list=["date_file","quality"]
-        surf_pick_assessment = pd.read_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/surf_picking_working_boolean_20022003.txt',sep=',',header=None,names=header_list)
+        surf_pick_assessment = pd.read_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/HelperFiles_20022003/surf_picking_working_boolean_20022003.txt',sep=',',header=None,names=header_list)
 
         #pdb.set_trace()
         count_correct_surf_pick=0
@@ -510,7 +510,7 @@ for folder_year in folder_years:
         #### 2. After surface pick improvement from semi-automatic forcing
         #Read the surface picking quality assessment file after picking improvement (semi-automatic forcing)
         header_list=["date_file","quality"]
-        surf_pick_assessment_impr = pd.read_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/surf_picking_working_boolean_20022003_after_improvement.txt',sep=',',header=None,names=header_list)
+        surf_pick_assessment_impr = pd.read_csv('C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/HelperFiles_20022003/surf_picking_working_boolean_20022003_after_improvement.txt',sep=',',header=None,names=header_list)
         
         count_correct_surf_pick_impr=0
         
@@ -643,9 +643,9 @@ for folder_year in folder_years:
                         
                         #Construct the fiename of the wanted file
                         filename_improved_indices=[]
-                        path_improved_indices='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/surf_'
+                        path_improved_indices='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/data/HelperFiles_20022003/surf_'
                         filename_improved_indices=path_improved_indices+indiv_file+'.txt'
-                        
+                                                
                         #Open, read and close the file of surface picks
                         fsurf = open(filename_improved_indices,'r')
                         lines_fsurf = [line.strip() for line in fsurf.readlines() if len(line.strip()) > 0]
@@ -703,9 +703,9 @@ for folder_year in folder_years:
                     ##############################################################
                     
                     #Log the date we are dealing with in the ice lenses location file
-                    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/2002_2003_radar_slice/flog_icelenses_alldates.txt'
+                    filename_flog='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/20022003_icelens_identification/flog_icelenses_alldates.txt'
                     f_log = open(filename_flog, "a")
-                    
+
                     if (folder_day=='jun04'):
                         f_log.write(str(indiv_file.replace(".mat",""))+'\n')
                     else:
@@ -728,16 +728,13 @@ for folder_year in folder_years:
 
                     #Generate the pick for vertical distance display
                     ticks_yplot=np.arange(0,radar_slice.shape[0],20)
-                    
+
                     #I.d. Plot the radar slice (first 30m of radar echogram)
-                    #pdb.set_trace()
                     #Plot the data            
-                    
                     fig=pyplot.figure(figsize=(40,10))
                     
                     #Change label font
                     pyplot.rcParams.update({'font.size': 20})
-                    
                     color_map=pyplot.pcolor(radar_slice_rescaled_mat,cmap=pyplot.get_cmap('gray'))#,norm=divnorm)
                     pyplot.yticks(ticks=ticks_yplot,labels=(np.round(depths[ticks_yplot])))
                     pyplot.gca().invert_yaxis() #Imvert the y axis = avoid using flipud.

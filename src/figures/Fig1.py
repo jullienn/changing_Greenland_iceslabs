@@ -410,44 +410,83 @@ def plot_radar_slice(ax_map,ax_plot,ax_nb,path_radar_slice,lines,folder_year,fol
     #Display the correspondance between radar slice and radar location on the map
     ax_plot.text(0.0172, 0.8975,'   ',backgroundcolor='white',ha='center', va='center', transform=ax_plot.transAxes,fontsize=17)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of
     ax_plot.text(0.0172, 0.8975,letter_elev, ha='center', va='center', transform=ax_plot.transAxes,fontsize=25)#This is from https://pretagteam.com/question/putting-text-in-top-left-corner-of-matplotlib-plot
-    
+        
     #Display the ice lenses identification:
     if (indiv_file in list(xls_icelenses.keys())):
         print(indiv_file+' hold ice lens!')
-        #This file have ice lenses in it: read the data:
-        df_temp=xls_icelenses[indiv_file]
-        df_colnames = list(df_temp.keys())
-        x_loc=[]
-        
-        #Trafic light information
-        df_trafic_light=trafic_light[indiv_file]
-        df_colnames_trafic_light = list(df_trafic_light.keys())
-        
-        for i in range (0,int(len(df_colnames)),2):
-            x_vect=df_temp[df_colnames[i]]
-            y_vect=df_temp[df_colnames[i+1]]
-            #Load trafic light color
-            trafic_light_indiv_color=df_colnames_trafic_light[i]
-            #Define the color in which to display the ice lens
-            if (trafic_light_indiv_color[0:3]=='gre'):
-                color_to_display='#ffb300'#'#00441b'
-            elif (trafic_light_indiv_color[0:3]=='ora'):
-                color_to_display='#fed976'
-                continue
-            elif (trafic_light_indiv_color[0:3]=='red'):
-                color_to_display='#c9662c'
-                continue
-            elif (trafic_light_indiv_color[0:3]=='pur'):
-                color_to_display='purple'
-                continue
-            else:
-                print('The color is not known!')
-            #Display ice lens
-            ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=2.5)
+        #If data displayed in Fig. 1, open the improved identification files. Else, regular routine
+        if (indiv_file in list (['jun04_02proc_53.mat','may12_03_36_aggregated'])):
+            path_most_recent_identification='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/src/figures/Fig1_slabs/'+indiv_file.replace(".mat","")
+            #identify all data for this date
+            most_recent_identification= [f.name for f in os.scandir(path_most_recent_identification) if f.is_file() ]
+            #Load data and display directly
+            for indiv_most_recent_identification in most_recent_identification:
+                print('Display '+indiv_most_recent_identification)
+                xls_indiv_most_recent_identification = pd.read_csv(path_most_recent_identification+'/'+indiv_most_recent_identification,sep=';',decimal=',')
+
+                #Transform the radar coordinates from EPSG:3413 to WGS84
+                #Example from: https://pyproj4.github.io/pyproj/stable/examples.html
+                transformer_3413_to_4326 = Transformer.from_crs("EPSG:3413","EPSG:4326", always_xy=True)
+                
+                if (indiv_file=='jun04_02proc_53.mat'):
+                    x_3413_for_transformation_to_4326=radargram_data['lon_3413'][:,0]
+                    y_3413_for_transformation_to_4326=radargram_data['lat_3413'][:,0]
+                else:
+                    x_3413_for_transformation_to_4326=radargram_data['lon_3413']
+                    y_3413_for_transformation_to_4326=radargram_data['lat_3413']
+
+                points_3413_to_4326=transformer_3413_to_4326.transform(x_3413_for_transformation_to_4326,y_3413_for_transformation_to_4326)
+                radargram_data['lon_4326']=points_3413_to_4326[0]
+                radargram_data['lat_4326']=points_3413_to_4326[1]
+                
+                #Extract coordinates in pixel space
+                index_x_icelayers=[]
+                for indiv_lon4326_icelayers in np.array(xls_indiv_most_recent_identification['xcoord']):
+                    index_x_icelayers=np.append(index_x_icelayers,np.argmin(np.abs(radargram_data['lon_4326']+np.abs(indiv_lon4326_icelayers))))
+                
+                index_y_icelayers=[]
+                for indiv_depth_icelayers in np.array(xls_indiv_most_recent_identification['ycoord']):
+                    index_y_icelayers=np.append(index_y_icelayers,np.argmin(np.abs(radargram_data['depths']-np.abs(indiv_depth_icelayers))))
+                
+                #Display the 2002-2003 green ice lenses identification
+                ax_plot.plot(index_x_icelayers,index_y_icelayers,color='#ffb300',linestyle='--',linewidth=2.5)
+        else:
+            #This file have ice lenses in it: read the data:
+            df_temp=xls_icelenses[indiv_file]
+            df_colnames = list(df_temp.keys())
+            x_loc=[]
+            
+            #Trafic light information
+            df_trafic_light=trafic_light[indiv_file]
+            df_colnames_trafic_light = list(df_trafic_light.keys())
+            
+            for i in range (0,int(len(df_colnames)),2):
+                x_vect=df_temp[df_colnames[i]]
+                y_vect=df_temp[df_colnames[i+1]]
+                #Load trafic light color
+                trafic_light_indiv_color=df_colnames_trafic_light[i]
+                #Define the color in which to display the ice lens
+                if (trafic_light_indiv_color[0:3]=='gre'):
+                    color_to_display='#ffb300'#'#00441b'
+                elif (trafic_light_indiv_color[0:3]=='ora'):
+                    color_to_display='#fed976'
+                    continue
+                elif (trafic_light_indiv_color[0:3]=='red'):
+                    color_to_display='#c9662c'
+                    continue
+                elif (trafic_light_indiv_color[0:3]=='pur'):
+                    color_to_display='purple'
+                    continue
+                else:
+                    print('The color is not known!')
+                
+                #Display ice lens
+                ax_plot.plot(x_vect,y_vect,color=color_to_display,linestyle='dashed',linewidth=2.5)
+            
     
     #Load the elevation profile
     elevation_vector=elevation_dictionnary[folder_year][folder_day][indiv_file]
-  
+    
     #Define the dates that need reversed display
     list_reverse_agg_mat=['may12_03_36_aggregated','may14_03_51_aggregated',
                        'may13_03_29_aggregated','may30_02_51_aggregated',
@@ -667,9 +706,7 @@ def plot_radar_slice_with_thickness(ax_map,ax_elevation,ax_plot,path_radar_slice
     ax_plot.set_title('Radar slice')
     ax_plot.set_ylabel('Depth [m]')
     ax_plot.set_xlabel('Distance [km]')
-    
     #Display the ice lenses identification:
-    #pdb.set_trace()
 
     if (indiv_file in list(xls_icelenses.keys())):
         print(indiv_file+' hold ice lens!')
@@ -817,6 +854,7 @@ from pyproj import CRS
 import rioxarray as rxr
 import cartopy.crs as ccrs
 import geopandas as gpd
+import os.path
 #This section of displaying sat data was coding using tips from
 #https://www.earthdatascience.org/courses/use-data-open-source-python/intro-raster-data-python/raster-data-processing/reproject-raster/
 #https://towardsdatascience.com/visualizing-satellite-data-using-matplotlib-and-cartopy-8274acb07b84
@@ -1148,6 +1186,7 @@ ax_InsetMap.text(NW_rignotetal.centroid.x-50000,NW_rignotetal.centroid.y-150000,
 
 #Plot all the 2002-2003 flightlines
 ax_InsetMap.scatter(lon_all, lat_all,s=0.5,facecolors='#969696', edgecolors='none',alpha=0.1)
+
 #Display green 2002-2003 ice slabs 
 ax_InsetMap.scatter(df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lon_3413'],df_2002_2003[df_2002_2003['colorcode_icelens']==1]['lat_3413'],s=1,facecolors='#ffb300', edgecolors='#ffb300')
 
@@ -1187,7 +1226,7 @@ pdb.set_trace()
 #Save the figure
 fig_name=[]
 #fig_name='C:/Users/jullienn/Documents/working_environment/iceslabs_MacFerrin/icelens_identification/indiv_traces_icelenses/2002_3_SWGr_icelenses.png'
-fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v7/Fig_S1_flipped.png'
+fig_name='C:/Users/jullienn/switchdrive/Private/research/RT1/figures/S1/v8/Fig_S1.png'
 plt.savefig(fig_name,dpi=300,bbox_inches='tight') #bbox_inches is from https://stackoverflow.com/questions/32428193/saving-matplotlib-graphs-to-image-as-full-screen
 print('Done with SW Greenland plot')
 pdb.set_trace()
