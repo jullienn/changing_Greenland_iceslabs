@@ -938,7 +938,7 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
     if (figure_S12=='TRUE'):
         
         #Prepare supp map (old Fig. 1)
-        plt.rcParams.update({'font.size': 20})
+        plt.rcParams.update({'font.size': 11})
         plt.rcParams["figure.figsize"] = (22,11.3)#from https://pythonguides.com/matplotlib-increase-plot-size/
         fig = plt.figure()
         
@@ -946,50 +946,73 @@ def plot_fig1(df_all,flightlines_20022018,df_2010_2018_low,df_2010_2018_high,df_
         #projection set up from https://stackoverflow.com/questions/33942233/how-do-i-change-matplotlibs-subplot-projection-of-an-existing-axis
         axmap_standalone = plt.subplot(gs[0:20, 0:16],projection=crs)
         
-        #Draw plot of GrIS map
-        axmap_standalone.coastlines(edgecolor='#D3D3D3',linewidth=1)
+        #Load and display Greenland coast shapefile
+        GreenlandCoast=gpd.read_file('C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/Greenland_coast/Greenland_coast.shp') 
+        GreenlandCoast.plot(ax=axmap_standalone,color='#CEB481', edgecolor='#CEB481',linewidth=0.075)
         
-        path_GrIS='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2\GRE_IceSheet_IMBIE2/'
-        GrIS_AND_ICECAP=gpd.read_file(path_GrIS+'GRE_IceSheet_IMBIE2_v1_EPSG3413.shp')
+        #Display GrIS
+        GrIS_shapefile=gpd.read_file('C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2_v1_EPSG3413.shp')
+        GrIS_shapefile.plot(ax=axmap_standalone,color='white', edgecolor='black',linewidth=0.075)#0f4969
+        GrIS_shapefile[GrIS_shapefile.SUBREGION1=='ICE_SHEET'].plot(ax=axmap_standalone,color='#bdbdbd', edgecolor='black',linewidth=0.075)#0f4969
 
-        GrIS_ICE=GrIS_AND_ICECAP[GrIS_AND_ICECAP.SUBREGION1=='ICE_SHEET']
-
-        #Display GrIS drainage bassins limits
-        GrIS_ICE.plot(ax=axmap_standalone,color='#D3D3D3', edgecolor='#D3D3D3',linewidth=1)
-
-        #Open shapefiles for area change calculations
-        #Load high and low estimates ice slabs extent 2010-11-12 and 2010-2018, manually drawn on QGIS
-        path_iceslabs_shape='C:/Users/jullienn/switchdrive/Private/research/RT1/final_dataset_2002_2018/shapefiles/'
-
-        
-        axmap_standalone.set_extent([-634797, 856884, -3345483, -764054], crs=crs)# x0, x1, y0, y1
-        ###################### From Tedstone et al., 2022 #####################
-        #from plot_map_decadal_change.py
-        axmap_standalone.axis('off')
-        ###################### From Tedstone et al., 2022 #####################
-        
         #Open and plot runoff limit medians shapefiles
-        path_poly='C:/Users/jullienn/Documents/working_environment/IceSlabs_SurfaceRunoff/data/runoff_limit_polys/'
+        path_poly='X:/RT3_jullien/TedstoneAndMachguth2022/runoff_limit_polys/'
         poly_1985_1992=gpd.read_file(path_poly+'poly_1985_1992_median_edited.shp')
-        poly_1985_1992.plot(ax=axmap_standalone,color='#87CEFA', edgecolor='none',linewidth=1)#df778e
+        poly_1985_1992.plot(ax=axmap_standalone,color='#87CEFA', edgecolor='none',linewidth=0.075)
         poly_2013_2020=gpd.read_file(path_poly+'poly_2013_2020_median_edited.shp')
-        poly_2013_2020.plot(ax=axmap_standalone,color='white', edgecolor='white',linewidth=1)
+        poly_2013_2020.plot(ax=axmap_standalone,color='white', edgecolor='none',linewidth=0.075)
+        
+        #Mask the areas to exclude: boxes of interest (1, 35-53) from Tedstone and Machguth 2022 to clip with ice sheet mask
+        #Load Greenland Ice Sheet mask
+        GrIS_Mask = gpd.read_file('C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2_v1_EPSG3413_IceSheetOnly.shp')
+        #Load runoff exclusion area shapefile drawn manually in QGIS
+        Runoff_mask = gpd.read_file('C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/GRE_IceSheet_IMBIE2/GRE_IceSheet_IMBIE2/mask_exclusion_TedstoneAndMachguth2022_EPSG3413.shp')
+        #Perform the clip between Greenland ice sheet mask and runoff mask 
+        GrIS_Mask_Runoff_Mask = GrIS_Mask.intersection(Runoff_mask, align=False)
+        GrIS_Mask_Runoff_Mask.plot(ax=axmap_standalone,color='white', edgecolor='none',linewidth=0.075)
         
         #Shapefiles
-        #MacFerrin
+        # --- MacFerrin
         path_MacFerrin='C:/Users/jullienn/switchdrive/Private/research/backup_Aglaja/working_environment/greenland_topo_data/IceBridge Area Shapefiles/IceBridge Area Shapefiles/'
         MacFerrinIceSlabs=gpd.read_file(path_MacFerrin+'IceBridgeArea_Shape_by_Basins_EPSG_3413.shp')
-
-        MacFerrinIceSlabs.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=1)
-
+        MacFerrinIceSlabs.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.5)
         # --- 2010-2018
-        iceslabs_jullien_highend_20102018.plot(ax=axmap_standalone,color='none', edgecolor='#d73027',alpha=0.75,linewidth=2)
+        iceslabs_jullien_highend_20102018.plot(ax=axmap_standalone,color='none', edgecolor='#d73027',alpha=0.75,linewidth=1)
         
+        #Display GrIS drainage bassins
+        NO_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075)
+        NE_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075) 
+        SE_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075) 
+        SW_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075) 
+        CW_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075) 
+        NW_rignotetal.plot(ax=axmap_standalone,color='none', edgecolor='black',linewidth=0.075)
+        
+        #Display region name 
+        axmap_standalone.text(NO_rignotetal.centroid.x,NO_rignotetal.centroid.y-60000,np.asarray(NO_rignotetal.SUBREGION1)[0])
+        axmap_standalone.text(NE_rignotetal.centroid.x,NE_rignotetal.centroid.y+20000,np.asarray(NE_rignotetal.SUBREGION1)[0])
+        axmap_standalone.text(SE_rignotetal.centroid.x,SE_rignotetal.centroid.y+60000,np.asarray(SE_rignotetal.SUBREGION1)[0])
+        axmap_standalone.text(SW_rignotetal.centroid.x-10000,SW_rignotetal.centroid.y-120000,np.asarray(SW_rignotetal.SUBREGION1)[0])
+        axmap_standalone.text(CW_rignotetal.centroid.x,CW_rignotetal.centroid.y+20000,np.asarray(CW_rignotetal.SUBREGION1)[0])
+        axmap_standalone.text(NW_rignotetal.centroid.x,NW_rignotetal.centroid.y+20000,np.asarray(NW_rignotetal.SUBREGION1)[0])
+
         
         ###################### From Tedstone et al., 2022 #####################
         #from plot_map_decadal_change.py
         gl=axmap_standalone.gridlines(draw_labels=True, xlocs=[-35, -50], ylocs=[65,75], x_inline=False, y_inline=False,linewidth=0.5)
+        axmap_standalone.axis('off')
+        axmap_standalone.set_extent([-634797, 856884, -3345483, -764054], crs=crs)# x0, x1, y0, y1
         ###################### From Tedstone et al., 2022 #####################
+        
+        #Custom legend myself for ax2 - this is from Fig1.py from paper 'Greenland ice slabs expansion and thickening'        
+        legend_elements = [Patch(facecolor='#bdbdbd',edgecolor='none',label='1985-1992 runoff'),
+                           Patch(facecolor='#87CEFA',edgecolor='none',label='2013-2020 runoff'),
+                           Patch(facecolor='none',edgecolor='black',label='2010-2014 ice slabs'),
+                           Patch(facecolor='none',edgecolor='#d73027',label='2010-2018 ice slabs')]
+        axmap_standalone.legend(handles=legend_elements,loc='lower left',bbox_to_anchor=(0.6,0.1), fontsize=11,framealpha=0.8).set_zorder(7)
+
+        #Display scale
+        axmap_standalone.add_artist(ScaleBar(1,location='lower left',box_alpha=0,box_color=None)).set_pad(2)
+        plt.show()
         
         
         pdb.set_trace()
@@ -1160,11 +1183,10 @@ from matplotlib.lines import Line2D
 
 import seaborn as sns
 sns.set_theme(style="whitegrid")
-from scalebar import scale_bar
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import rasterio
 from rasterio.plot import show
-from scalebar import scale_bar
+from matplotlib_scalebar.scalebar import ScaleBar
 
 #Set fontsize plot
 plt.rcParams.update({'font.size': 10})
